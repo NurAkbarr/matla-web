@@ -6,6 +6,11 @@
 
         <title>@yield('title', 'Matla Islamic University')</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('assets/logo-bulat.png') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -190,7 +195,7 @@
 
         @if(!request()->routeIs(['login', 'register']))
         <!-- Floating WhatsApp Button -->
-        <a href="https://wa.me/6282124306742" target="_blank" class="fixed bottom-6 right-6 lg:bottom-8 lg:right-8 z-50 group">
+        <a href="https://wa.me/6282124306742?text=Assalamu%27alaikum%20Warahmatullahi%20Wabarakatuh%20%F0%9F%8C%99%0A%0AHalo%20Admin%20Matla%20Islamic%20University%2C%20saya%20ingin%20bertanya%20mengenai%20informasi%20perkuliahan.%20Boleh%20saya%20minta%20bantuannya%3F%20%F0%9F%99%8F" target="_blank" class="fixed bottom-6 right-6 lg:bottom-8 lg:right-8 z-50 group">
             <div class="relative">
                 <div class="absolute inset-0 bg-[#25D366] rounded-full blur-md opacity-40 group-hover:opacity-70 transition-opacity"></div>
                 <div class="relative bg-[#25D366] hover:bg-[#20BA5A] text-white p-3.5 lg:p-4 rounded-full shadow-2xl transition-transform hover:scale-110">
