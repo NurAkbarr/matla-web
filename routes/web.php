@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\InformasiController;
 use App\Http\Controllers\PmbController;
 use App\Http\Controllers\KontakController;
@@ -94,4 +95,9 @@ Route::prefix('informasi')->name('informasi.')->group(function () {
     Route::get('/karya-dosen', [InformasiController::class, 'karyaDosen'])->name('karya-dosen');
     Route::get('/staf-pengajar', [InformasiController::class, 'stafPengajar'])->name('staf-pengajar');
     Route::get('/galeri', [InformasiController::class, 'galeri'])->name('galeri');
+});
+
+Route::get('/run-migrate', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return 'Migration done';
 });

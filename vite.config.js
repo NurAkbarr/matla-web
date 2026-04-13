@@ -3,7 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-    base: '/', // penting untuk production
+    base: '/',
 
     plugins: [
         laravel({
@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/app.js'
             ],
             refresh: true,
+            buildDirectory: 'build', // 🔥 FIX DI SINI
         }),
         tailwindcss(),
     ],
@@ -23,7 +24,6 @@ export default defineConfig({
     },
 
     build: {
-        manifest: true,
         outDir: 'public/build',
         rollupOptions: {
             output: {
