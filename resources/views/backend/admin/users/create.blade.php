@@ -69,6 +69,17 @@
                         class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm" 
                         placeholder="Contoh: 1" value="{{ old('semester') }}">
                 </div>
+
+                <div class="space-y-2 md:col-span-2">
+                    <label for="status" class="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Status Mahasiswa</label>
+                    <select name="status" id="status" :required="role === 'mahasiswa'"
+                        class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm appearance-none cursor-pointer">
+                        <option value="AKTIF" {{ old('status') == 'AKTIF' ? 'selected' : '' }}>Aktif</option>
+                        <option value="CUTI" {{ old('status') == 'CUTI' ? 'selected' : '' }}>Cuti</option>
+                        <option value="KELUAR" {{ old('status') == 'KELUAR' ? 'selected' : '' }}>Keluar</option>
+                        <option value="LULUS" {{ old('status') == 'LULUS' ? 'selected' : '' }}>Lulus</option>
+                    </select>
+                </div>
             </div>
         </div>
 

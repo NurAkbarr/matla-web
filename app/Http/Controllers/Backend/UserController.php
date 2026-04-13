@@ -30,6 +30,7 @@ class UserController extends Controller
             'role' => ['required', 'in:admin,dosen,mahasiswa,super_admin'],
             'angkatan' => ['required_if:role,mahasiswa', 'nullable', 'string'],
             'semester' => ['required_if:role,mahasiswa', 'nullable', 'integer'],
+            'status' => ['required_if:role,mahasiswa', 'nullable', 'string'],
         ]);
 
         User::create([
@@ -39,9 +40,15 @@ class UserController extends Controller
             'role' => $request->role,
             'angkatan' => $request->angkatan,
             'semester' => $request->semester,
+            'status' => $request->status ?? 'AKTIF',
         ]);
 
         return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil ditambahkan.');
+    }
+
+    public function show(User $user)
+    {
+        return view('backend.admin.users.show', compact('user'));
     }
 
     public function edit(User $user)
@@ -57,6 +64,7 @@ class UserController extends Controller
             'password' => ['nullable', 'string', 'min:8'],
             'angkatan' => ['required_if:role,mahasiswa', 'nullable', 'string'],
             'semester' => ['required_if:role,mahasiswa', 'nullable', 'integer'],
+            'status' => ['required_if:role,mahasiswa', 'nullable', 'string'],
         ]);
 
         $data = [
@@ -64,6 +72,7 @@ class UserController extends Controller
             'email' => $request->email,
             'angkatan' => $request->angkatan,
             'semester' => $request->semester,
+            'status' => $request->status,
         ];
 
         // Super Admin: role tidak boleh diubah

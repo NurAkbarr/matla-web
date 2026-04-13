@@ -92,7 +92,7 @@
                     </button>
                     <div x-show="open" x-cloak class="pl-12 space-y-1 mt-1">
                         <a href="{{ route('backend.admin.mahasiswa') }}" 
-                           class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Mahasiswa Aktif</a>
+                           class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Mahasiswa</a>
                         <a href="{{ route('backend.admin.dosen') }}" 
                            class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.dosen') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Data Dosen</a>
                         <a href="{{ route('backend.admin.jadwal.index') }}" 
@@ -144,8 +144,8 @@
                         <p class="text-xs font-bold text-gray-900 capitalize">{{ Auth::user()->name }}</p>
                         <p class="text-[10px] text-gray-500 uppercase font-black tracking-tighter">{{ Auth::user()->role }}</p>
                     </div>
-                    <div class="w-10 h-10 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold">
-                        {{ substr(Auth::user()->name, 0, 1) }}
+                    <div class="w-10 h-10 rounded-xl overflow-hidden shadow-sm border-2 border-primary/20">
+                        <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
                     </div>
                 </div>
             </header>

@@ -11,6 +11,7 @@ class Jadwal extends Model
 
     protected $fillable = [
         'mata_kuliah',
+        'sks',
         'dosen_id',
         'program_studi_id',
         'hari',
@@ -28,5 +29,25 @@ class Jadwal extends Model
     public function programStudi()
     {
         return $this->belongsTo(ProgramStudi::class, 'program_studi_id');
+    }
+
+    public function participants()
+    {
+        return $this->belongsToMany(User::class, 'jadwal_mahasiswa', 'jadwal_id', 'mahasiswa_id')->withTimestamps();
+    }
+
+    public function nilaiKomponens()
+    {
+        return $this->hasMany(NilaiKomponen::class);
+    }
+
+    public function nilais()
+    {
+        return $this->hasMany(Nilai::class);
+    }
+
+    public function isGradesLocked()
+    {
+        return $this->nilais()->where('is_locked', true)->exists();
     }
 }

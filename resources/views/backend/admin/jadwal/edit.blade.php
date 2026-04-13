@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Program Studi -->
             <div class="space-y-3">
                 <label for="program_studi_id" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Program Studi</label>
@@ -54,6 +54,14 @@
                 <input type="number" name="semester" id="semester" required min="1" max="10"
                     class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold" 
                     placeholder="Contoh: 1" value="{{ old('semester', $jadwal->semester) }}">
+            </div>
+
+            <!-- SKS -->
+            <div class="space-y-3">
+                <label for="sks" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Jumlah SKS</label>
+                <input type="number" name="sks" id="sks" required min="1" max="6"
+                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold" 
+                    placeholder="Contoh: 3" value="{{ old('sks', $jadwal->sks) }}">
             </div>
         </div>
 

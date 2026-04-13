@@ -28,6 +28,7 @@ class JadwalController extends Controller
     {
         $request->validate([
             'mata_kuliah' => 'required|string|max:255',
+            'sks' => 'required|integer|min:1|max:6',
             'dosen_id' => 'required|exists:users,id',
             'program_studi_id' => 'required|exists:program_studis,id',
             'hari' => 'required|string',
@@ -54,6 +55,7 @@ class JadwalController extends Controller
     {
         $request->validate([
             'mata_kuliah' => 'required|string|max:255',
+            'sks' => 'required|integer|min:1|max:6',
             'dosen_id' => 'required|exists:users,id',
             'program_studi_id' => 'required|exists:program_studis,id',
             'hari' => 'required|string',
@@ -72,5 +74,35 @@ class JadwalController extends Controller
     {
         $jadwal->delete();
         return redirect()->route('backend.admin.jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
+    }
+
+    public function participants(Jadwal $jadwal)
+    {
+        $participants = $jadwal->participants()->latest()->get();
+        $availableMahasiswas = User::where('role', 'mahasiswa')
+            ->whereDoesntHave('courseSchedules', function ($query) use ($jadwal) {
+                $query->where('jadwals.id', $jadwal->id);
+            })
+            ->get();
+            
+        return view('backend.admin.jadwal.participants', compact('jadwal', 'participants', 'availableMahasiswas'));
+    }
+
+    public function addParticipant(Request $request, Jadwal $jadwal)
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:users,id',
+        ]);
+
+        $jadwal->participants()->attach($request->mahasiswa_id);
+
+        return redirect()->back()->with('success', 'Mahasiswa berhasil ditambahkan ke jadwal.');
+    }
+
+    public function removeParticipant(Jadwal $jadwal, User $user)
+    {
+        $jadwal->participants()->detach($user->id);
+
+        return redirect()->back()->with('success', 'Mahasiswa berhasil dihapus dari jadwal.');
     }
 }

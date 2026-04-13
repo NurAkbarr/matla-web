@@ -51,20 +51,26 @@
                 <tr class="hover:bg-gray-50/30 transition-colors">
                     <td class="px-8 py-5">
                         <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs capitalize">
-                                {{ substr($user->name, 0, 1) }}
+                            <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-sm">
+                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
                             </div>
                             <span class="font-bold text-gray-900 text-sm capitalize">{{ $user->name }}</span>
                         </div>
                     </td>
                     <td class="px-8 py-5 text-sm text-gray-500 font-medium">{{ $user->email }}</td>
                     <td class="px-8 py-5">
-                        <span class="px-3 py-1 bg-{{ $user->role == 'admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'emerald') }}-50 text-{{ $user->role == 'admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'primary') }}-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                        <span class="px-3 py-1 bg-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'emerald') }}-50 text-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'primary') }}-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
                             {{ $user->role }}
                         </span>
                     </td>
                     <td class="px-8 py-5 text-right">
                         <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('backend.admin.users.show', $user) }}" class="p-2 text-gray-400 hover:text-emerald-500 transition-colors" title="Detail User">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </a>
                             <a href="{{ route('backend.admin.users.edit', $user) }}" class="p-2 text-gray-400 hover:text-primary transition-colors" title="Edit User">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

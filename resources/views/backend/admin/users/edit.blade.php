@@ -85,6 +85,24 @@
                         class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm" 
                         placeholder="Contoh: 1" value="{{ old('semester', $user->semester) }}">
                 </div>
+
+                <div class="space-y-2 md:col-span-2">
+                    <label for="status" class="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Status Mahasiswa</label>
+                    <div class="relative">
+                        <select name="status" id="status" :required="role === 'mahasiswa'"
+                            class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm appearance-none cursor-pointer">
+                            <option value="AKTIF" {{ old('status', $user->status) == 'AKTIF' ? 'selected' : '' }}>Aktif</option>
+                            <option value="CUTI" {{ old('status', $user->status) == 'CUTI' ? 'selected' : '' }}>Cuti</option>
+                            <option value="KELUAR" {{ old('status', $user->status) == 'KELUAR' ? 'selected' : '' }}>Keluar</option>
+                            <option value="LULUS" {{ old('status', $user->status) == 'LULUS' ? 'selected' : '' }}>Lulus</option>
+                        </select>
+                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
