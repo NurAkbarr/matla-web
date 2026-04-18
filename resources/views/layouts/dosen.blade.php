@@ -131,11 +131,11 @@
                     </svg>
                     <span>Jadwal</span>
                 </a>
-                <a href="#" class="flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:bg-gray-50">
+                <a href="{{ route('backend.dosen.nilai.index') }}" class="flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('backend.dosen.nilai.*') ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     <span>Input Nilai</span>
                 </a>
-                <a href="#" class="flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:bg-gray-50">
+                <a href="{{ route('backend.dosen.profile.index') }}" class="flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('backend.dosen.profile.*') ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     <span>Profil Saya</span>
                 </a>

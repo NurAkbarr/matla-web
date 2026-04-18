@@ -22,7 +22,7 @@ class NilaiController extends Controller
 
     public function input(Jadwal $jadwal)
     {
-        if ($jadwal->dosen_id !== Auth::id()) {
+        if ($jadwal->dosen_id != Auth::id()) {
             abort(403);
         }
 
@@ -35,7 +35,7 @@ class NilaiController extends Controller
 
     public function updateSettings(Request $request, Jadwal $jadwal)
     {
-        if ($jadwal->dosen_id !== Auth::id()) {
+        if ($jadwal->dosen_id != Auth::id()) {
             abort(403);
         }
 
@@ -73,7 +73,7 @@ class NilaiController extends Controller
 
     public function store(Request $request, Jadwal $jadwal)
     {
-        if ($jadwal->dosen_id !== Auth::id()) {
+        if ($jadwal->dosen_id != Auth::id()) {
             abort(403);
         }
 
@@ -117,7 +117,7 @@ class NilaiController extends Controller
 
     public function lock(Jadwal $jadwal)
     {
-        if ($jadwal->dosen_id !== Auth::id()) {
+        if ($jadwal->dosen_id != Auth::id()) {
             abort(403);
         }
 
@@ -162,7 +162,7 @@ class NilaiController extends Controller
 
     public function history(Jadwal $jadwal)
     {
-        if ($jadwal->dosen_id !== Auth::id()) {
+        if ($jadwal->dosen_id != Auth::id()) {
             abort(403);
         }
 
@@ -175,7 +175,7 @@ class NilaiController extends Controller
 
     public function export(Jadwal $jadwal)
     {
-        if ($jadwal->dosen_id !== Auth::id()) {
+        if ($jadwal->dosen_id != Auth::id()) {
             abort(403);
         }
 
