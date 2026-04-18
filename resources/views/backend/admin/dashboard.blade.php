@@ -50,20 +50,24 @@
     <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
         <h4 class="text-xl font-extrabold text-gray-900 mb-6">Aktivitas Terakhir</h4>
         <div class="space-y-6">
+            @forelse($recentActivities as $activity)
             <div class="flex items-center space-x-4">
-                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <div class="w-2 h-2 rounded-full {{ $activity->status == 'pending' ? 'bg-yellow-500' : ($activity->status == 'accepted' ? 'bg-emerald-500' : 'bg-blue-500') }}"></div>
                 <div class="flex-1">
-                    <p class="text-sm font-bold text-gray-900 leading-none mb-1">Mahasiswa Baru Terdaftar</p>
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">10 Menit yang lalu</p>
+                    <p class="text-sm font-bold text-gray-900 leading-none mb-1">
+                        Pendaftar Baru: {{ $activity->registration_code }} ({{ $activity->study_program }})
+                    </p>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mt-1">{{ $activity->created_at->diffForHumans() }}</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+            @empty
+            <div class="flex items-center space-x-4 py-4 text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <div class="flex-1">
-                    <p class="text-sm font-bold text-gray-900 leading-none mb-1">Update Kurikulum Prodi TI</p>
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-tighter">1 Jam yang lalu</p>
+                    <p class="text-sm font-bold leading-none mb-1">Belum ada aktivitas</p>
                 </div>
             </div>
+            @endforelse
         </div>
     </div>
 </div>

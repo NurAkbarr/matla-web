@@ -15,7 +15,7 @@
             <!-- Badge -->
             <div class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full mb-8">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                <span class="text-white text-sm font-semibold tracking-wide">PMB 2024/2025 - Gelombang 1</span>
+                <span class="text-white text-sm font-semibold tracking-wide">{{ $settings['pmb_gelombang'] }}</span>
             </div>
 
             <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
@@ -27,7 +27,8 @@
             </p>
 
             <!-- Countdown Timer -->
-            <div class="mb-12">
+            @if($settings['pmb_is_open'] == '1')
+            <div class="mb-12" id="pmb-countdown-container" data-end-date="{{ date('Y-m-d H:i:s', strtotime($settings['pmb_end_date'])) }}">
                 <p class="text-emerald-400 font-bold mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -36,32 +37,42 @@
                 </p>
                 <div class="flex space-x-3 md:space-x-5">
                     <div class="text-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2">30</div>
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-days">--</div>
                         <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Hari</span>
                     </div>
                     <div class="text-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2">12</div>
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-hours">--</div>
                         <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Jam</span>
                     </div>
                     <div class="text-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2">45</div>
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-minutes">--</div>
                         <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
                     </div>
                     <div class="text-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2">10</div>
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-seconds">--</div>
                         <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Detik</span>
                     </div>
                 </div>
             </div>
+            @else
+            <div class="mb-12">
+                <div class="inline-flex items-center space-x-3 px-6 py-4 bg-red-500/20 backdrop-blur-md border border-red-500/30 rounded-2xl">
+                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span class="text-red-100 font-bold text-lg">Pendaftaran Saat Ini Ditutup</span>
+                </div>
+            </div>
+            @endif
 
             <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <a href="#" class="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center space-x-2">
+                @if($settings['pmb_is_open'] == '1')
+                <a href="{{ $settings['pmb_registration_link'] }}" class="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center space-x-2">
                     <span>Daftar Sekarang</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                 </a>
-                <a href="#" class="px-8 py-4 bg-white/10 hover:bg-white border border-white/20 hover:text-primary-dark text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 backdrop-blur-sm">
+                @endif
+                <a href="{{ $settings['pmb_status_link'] }}" class="px-8 py-4 bg-white/10 hover:bg-white border border-white/20 hover:text-primary-dark text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 backdrop-blur-sm">
                     <span>Cek Status</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -256,13 +267,62 @@
             Bergabunglah dengan ribuan mahasiswa Matla Islamic University dan mulailah perjalanan ilmu Anda sekarang juga.
         </p>
 
-        <a href="#" class="inline-block px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-500/20 transition-all transform hover:scale-105">
+        @if($settings['pmb_is_open'] == '1')
+        <a href="{{ $settings['pmb_registration_link'] }}" class="inline-block px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-500/20 transition-all transform hover:scale-105">
             Isi Formulir Pendaftaran
         </a>
+        @else
+        <div class="inline-block px-10 py-4 bg-red-500/20 text-red-200 border border-red-500/30 rounded-xl font-bold text-xl">
+            Pendaftaran Saat Ini Ditutup
+        </div>
+        @endif
 
         <p class="mt-8 text-emerald-100/60 font-medium">
             Butuh bantuan? <a href="https://wa.me/your-number" target="_blank" class="text-emerald-400 hover:underline">Hubungi kami via WhatsApp</a>
         </p>
     </div>
 </section>
+
+@if($settings['pmb_is_open'] == '1')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('pmb-countdown-container');
+        if (!container) return;
+
+        const dateStr = container.getAttribute('data-end-date');
+        const endDate = new Date(dateStr.replace(/-/g, '/')).getTime();
+
+        const elDays = document.getElementById('cd-days');
+        const elHours = document.getElementById('cd-hours');
+        const elMinutes = document.getElementById('cd-minutes');
+        const elSeconds = document.getElementById('cd-seconds');
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endDate - now;
+
+            if (distance < 0) {
+                elDays.innerText = "00";
+                elHours.innerText = "00";
+                elMinutes.innerText = "00";
+                elSeconds.innerText = "00";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            elDays.innerText = String(days).padStart(2, '0');
+            elHours.innerText = String(hours).padStart(2, '0');
+            elMinutes.innerText = String(minutes).padStart(2, '0');
+            elSeconds.innerText = String(seconds).padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    });
+</script>
+@endif
 @endsection

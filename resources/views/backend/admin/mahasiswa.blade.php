@@ -6,17 +6,79 @@
 @section('content')
 <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
     <!-- Header Section -->
-    <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-gray-100 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+    <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-gray-100 relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
                 <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Manajemen Mahasiswa</h1>
                 <p class="text-gray-500 font-medium">Kelola status, filter angkatan, dan data akademik mahasiswa secara terpusat.</p>
             </div>
-            <a href="{{ route('backend.admin.users.create', ['role' => 'mahasiswa']) }}" class="mt-6 md:mt-0 px-8 py-3 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                <span>Tambah Mahasiswa</span>
-            </a>
+            <div class="mt-6 md:mt-0 flex flex-wrap items-center gap-3">
+                
+                <!-- Action Dropdown untuk Import / Export -->
+                <div x-data="{ open: false, showImportModal: false }" class="relative">
+                    <button @click="open = !open" class="px-5 py-3 bg-white text-gray-700 font-black text-xs uppercase tracking-widest border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all shadow-sm flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <span>Aksi Lanjutan</span>
+                    </button>
+                    
+                    <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                        <button @click="showImportModal = true; open = false" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-primary transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            <span>Import CSV (Excel)</span>
+                        </button>
+                        <a href="{{ route('backend.admin.mahasiswa.export.excel') }}" class="block px-4 py-3 text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Download CSV</span>
+                        </a>
+                        <a href="{{ route('backend.admin.mahasiswa.export.pdf') }}" target="_blank" class="block px-4 py-3 text-sm font-bold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            <span>Cetak PDF / Print</span>
+                        </a>
+                    </div>
+
+                    <!-- Modal Import -->
+                    <div x-show="showImportModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <div @click.away="showImportModal = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+                            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                <h3 class="text-lg font-black text-gray-900 tracking-tight">Import Data Mahasiswa</h3>
+                                <button @click="showImportModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            <form action="{{ route('backend.admin.mahasiswa.import') }}" method="POST" enctype="multipart/form-data" class="p-8">
+                                @csrf
+                                <div class="mb-6 bg-blue-50 border border-blue-100 p-5 rounded-2xl">
+                                    <h4 class="text-xs font-black text-blue-800 uppercase tracking-widest mb-2">Instruksi Format CSV:</h4>
+                                    <p class="text-sm text-blue-700 leading-relaxed">
+                                        Pastikan file berformat <strong>.csv</strong> dan memiliki kolom <em>(header tidak wajib tapi disarankan)</em> pada urutan berikut:<br>
+                                        <strong class="text-xs">1: Nama, 2: Email, 3: Angkatan, 4: Semester</strong><br><br>
+                                        <span class="text-xs italic">*Password otomatis diset: <strong>password123</strong></span>
+                                    </p>
+                                </div>
+                                <div class="mb-8 relative group">
+                                    <input type="file" name="csv_file" accept=".csv" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                    <div class="border-2 border-dashed border-gray-200 rounded-2xl p-10 flex flex-col items-center justify-center text-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
+                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:text-primary transition-colors">
+                                            <svg class="w-8 h-8 text-gray-400 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                        </div>
+                                        <p class="font-bold text-gray-700 text-sm">Klik atau Seret file CSV ke sini</p>
+                                        <p class="text-xs text-gray-400 mt-1">Maksimal 2MB</p>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full py-4 bg-primary text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/30">
+                                    Mulai Proses Import
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('backend.admin.users.create', ['role' => 'mahasiswa']) }}" class="px-6 py-3 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    <span>Tambah</span>
+                </a>
+            </div>
         </div>
     </div>
 

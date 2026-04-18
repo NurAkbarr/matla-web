@@ -58,9 +58,9 @@
                 @endif
                 
                 <!-- PMB -->
-                <div x-data="{ open: false }">
+                <div x-data="{ open: {{ request()->routeIs('backend.admin.pmb.*') ? 'true' : 'false' }} }">
                     <button @click="open = !open" 
-                            class="w-full flex items-center justify-between px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-xl transition-all">
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.pmb.*') ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -72,7 +72,8 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak class="pl-12 space-y-1 mt-1">
-                        <a href="#" class="block py-2 text-xs font-medium text-gray-400 hover:text-primary transition-colors">Pengaturan PMB</a>
+                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Daftar Pendaftar</a>
+                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Pengaturan PMB</a>
                     </div>
                 </div>
 

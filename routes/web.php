@@ -24,6 +24,12 @@ Route::post('/register', [RegisterController::class, 'register']);
 
 
 Route::get('/pmb', [PmbController::class, 'index'])->name('pmb');
+Route::get('/pmb/register', [\App\Http\Controllers\PmbRegistrationController::class, 'create'])->name('pmb.register');
+Route::post('/pmb/register', [\App\Http\Controllers\PmbRegistrationController::class, 'store'])->name('pmb.register.store');
+Route::get('/pmb/success/{registration_code}', [\App\Http\Controllers\PmbRegistrationController::class, 'success'])->name('pmb.success');
+Route::get('/pmb/status', [\App\Http\Controllers\PmbStatusController::class, 'index'])->name('pmb.status');
+Route::post('/pmb/status', [\App\Http\Controllers\PmbStatusController::class, 'check'])->name('pmb.status.check');
+Route::get('/pmb/loa/{registration_code}', [\App\Http\Controllers\PmbStatusController::class, 'printLoa'])->name('pmb.loa');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
 
 // Backend Routes
@@ -59,6 +65,20 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::resource('/admin/program-studi', ProgramStudiController::class, [
             'names' => 'admin.program-studi',
         ]);
+
+        // Mahasiswa Import & Export
+        Route::get('/admin/mahasiswa/export/excel', [\App\Http\Controllers\Backend\DashboardController::class, 'exportExcel'])->name('admin.mahasiswa.export.excel');
+        Route::get('/admin/mahasiswa/export/pdf', [\App\Http\Controllers\Backend\DashboardController::class, 'exportPdf'])->name('admin.mahasiswa.export.pdf');
+        Route::post('/admin/mahasiswa/import', [\App\Http\Controllers\Backend\DashboardController::class, 'importExcel'])->name('admin.mahasiswa.import');
+        
+        // PMB Settings Management
+        Route::get('/admin/pmb/settings', [\App\Http\Controllers\Backend\PmbSettingController::class, 'index'])->name('admin.pmb.settings');
+        Route::post('/admin/pmb/settings', [\App\Http\Controllers\Backend\PmbSettingController::class, 'update'])->name('admin.pmb.settings.update');
+
+        // PMB Registration Management
+        Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
+        Route::get('/admin/pmb/registrations/{registration}', [\App\Http\Controllers\Backend\AdminPmbController::class, 'show'])->name('admin.pmb.registrations.show');
+        Route::put('/admin/pmb/registrations/{registration}/status', [\App\Http\Controllers\Backend\AdminPmbController::class, 'updateStatus'])->name('admin.pmb.registrations.updateStatus');
     });
 
 
