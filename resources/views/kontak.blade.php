@@ -81,7 +81,20 @@
                     <p class="text-gray-500">Isi formulir di bawah ini dan kami akan segera merespon pesan Anda.</p>
                 </div>
 
-                <form action="#" class="space-y-6">
+                @if(session('success'))
+                <div class="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start space-x-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-emerald-800 font-bold mb-1">Berhasil!</h4>
+                        <p class="text-sm text-emerald-700/80">{{ session('success') }}</p>
+                    </div>
+                </div>
+                @endif
+
+                <form action="{{ route('kontak.store') }}" method="POST" class="space-y-6">
+                    @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-700 flex items-center">
@@ -90,7 +103,7 @@
                                 </svg>
                                 Nama Lengkap
                             </label>
-                            <input type="text" placeholder="Masukkan nama Anda" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700">
+                            <input type="text" name="name" required placeholder="Masukkan nama Anda" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700" value="{{ old('name') }}">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-700 flex items-center">
@@ -99,7 +112,7 @@
                                 </svg>
                                 Email
                             </label>
-                            <input type="email" placeholder="Masukkan email Anda" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700">
+                            <input type="email" name="email" required placeholder="Masukkan email Anda" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700" value="{{ old('email') }}">
                         </div>
                     </div>
                     
@@ -110,7 +123,7 @@
                             </svg>
                             Subjek
                         </label>
-                        <input type="text" placeholder="Tentang apa pesan Anda?" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700">
+                        <input type="text" name="subject" required placeholder="Tentang apa pesan Anda?" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700" value="{{ old('subject') }}">
                     </div>
 
                     <div class="space-y-2">
@@ -120,7 +133,7 @@
                             </svg>
                             Pesan
                         </label>
-                        <textarea rows="5" placeholder="Tulis pesan Anda di sini..." class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700 resize-none"></textarea>
+                        <textarea name="message" rows="5" required placeholder="Tulis pesan Anda di sini..." class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700 resize-none">{{ old('message') }}</textarea>
                     </div>
 
                     <button type="submit" class="w-full md:w-auto px-10 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold flex items-center justify-center space-x-3 shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-[1.02]">

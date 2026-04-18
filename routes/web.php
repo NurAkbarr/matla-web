@@ -31,6 +31,7 @@ Route::get('/pmb/status', [\App\Http\Controllers\PmbStatusController::class, 'in
 Route::post('/pmb/status', [\App\Http\Controllers\PmbStatusController::class, 'check'])->name('pmb.status.check');
 Route::get('/pmb/loa/{registration_code}', [\App\Http\Controllers\PmbStatusController::class, 'printLoa'])->name('pmb.loa');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
+Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 
 // Backend Routes
 Route::prefix('backend')->name('backend.')->middleware('auth')->group(function () {
@@ -47,6 +48,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\Backend\UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'destroy'])->name('admin.users.destroy');
+
+        // Kotak Pesan (Inbox)
+        Route::get('/admin/messages', [\App\Http\Controllers\Backend\ContactMessageController::class, 'index'])->name('admin.messages.index');
+        Route::patch('/admin/messages/{message}/read', [\App\Http\Controllers\Backend\ContactMessageController::class, 'markAsRead'])->name('admin.messages.read');
+        Route::delete('/admin/messages/{message}', [\App\Http\Controllers\Backend\ContactMessageController::class, 'destroy'])->name('admin.messages.destroy');
 
         // Akademik Management
         Route::get('/admin/mahasiswa', [DashboardController::class, 'mahasiswaAktif'])->name('admin.mahasiswa');
