@@ -18,11 +18,17 @@ Route::get('/fix-storage', function () {
         $target = $pPath . '/pmb-brosur';
         
         if (!file_exists($target)) {
-            mkdir($target, 0777, true);
+            mkdir($target, 0755, true);
         }
+        chmod($target, 0755);
         
-        // Cek isi folder
-        $files = file_exists($target) ? scandir($target) : 'Folder tidak terbaca';
+        // Paksa izin file di dalamnya agar bisa dibaca publik
+        $files = scandir($target);
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..') {
+                chmod($target . '/' . $file, 0644);
+            }
+        }
         
         \Artisan::call('config:clear');
         \Artisan::call('cache:clear');
