@@ -10,61 +10,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProgramStudiController;
 
-// Route Darurat untuk Diagnosa & Fix Canggih
-Route::get('/fix-storage', function () {
-    try {
-        $pPath = public_path();
-        $bPath = base_path();
-        
-        // Daftar folder pintu masuk umum di hosting
-        $possiblePublicRoots = [
-            '/home/cnnelcmz/public_html',
-            '/home/cnnelcmz/www',
-            base_path('../public_html'),
-            base_path('../www'),
-            $pPath // fallback
-        ];
-        
-        $finalPublicRoot = $pPath;
-        foreach ($possiblePublicRoots as $root) {
-            if (file_exists($root) && is_dir($root)) {
-                $finalPublicRoot = $root;
-                break;
-            }
-        }
-        
-        $target = $finalPublicRoot . '/pmb-brosur';
-        
-        if (!file_exists($target)) {
-            mkdir($target, 0755, true);
-        }
-        chmod($target, 0755);
-        
-        // Paksa izin file
-        if (file_exists($target)) {
-            $files = scandir($target);
-            foreach ($files as $file) {
-                if ($file !== '.' && $file !== '..') {
-                    chmod($target . '/' . $file, 0644);
-                }
-            }
-        }
-        
-        \Artisan::call('config:clear');
-        \Artisan::call('cache:clear');
-        
-        $output = "<h3>Laporan Diagnosa V2:</h3>";
-        $output .= "<b>Detected Web Root:</b> $finalPublicRoot <br>";
-        $output .= "<b>Target Folder:</b> $target <br>";
-        $output .= "<b>Status:</b> Folder disiapkan di Web Root! <br><br>";
-        $output .= "<b>PENTING:</b> Jika 'Detected Web Root' di atas adalah <u>public_html</u>, silakan upload ulang brosur sekarang. <br>";
-        $output .= "<a href='/'>Kembali ke Home</a>";
-        
-        return $output;
-    } catch (\Exception $e) {
-        return "Error: " . $e->getMessage();
-    }
-});
+
 
 Route::get('/', function () {
     return view('welcome');
