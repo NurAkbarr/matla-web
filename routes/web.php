@@ -10,6 +10,16 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProgramStudiController;
 
+// Route Darurat untuk Storage Link (Akses: domain.com/fix-storage)
+Route::get('/fix-storage', function () {
+    try {
+        \Artisan::call('storage:link');
+        return "Storage link berhasil dibuat! <a href='/'>Kembali ke Home</a>";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
