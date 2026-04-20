@@ -73,9 +73,9 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         ]);
 
         // Mahasiswa Import & Export
-        Route::get('/admin/mahasiswa/export/excel', [\App\Http\Controllers\Backend\DashboardController::class, 'exportExcel'])->name('admin.mahasiswa.export.excel');
-        Route::get('/admin/mahasiswa/export/pdf', [\App\Http\Controllers\Backend\DashboardController::class, 'exportPdf'])->name('admin.mahasiswa.export.pdf');
-        Route::post('/admin/mahasiswa/import', [\App\Http\Controllers\Backend\DashboardController::class, 'importExcel'])->name('admin.mahasiswa.import');
+        Route::get('/admin/mahasiswa/export/excel', [DashboardController::class, 'exportExcel'])->name('admin.mahasiswa.export.excel');
+        Route::get('/admin/mahasiswa/export/pdf', [DashboardController::class, 'exportPdf'])->name('admin.mahasiswa.export.pdf');
+        Route::post('/admin/mahasiswa/import', [DashboardController::class, 'importExcel'])->name('admin.mahasiswa.import');
         
         // PMB Settings Management
         Route::get('/admin/pmb/settings', [\App\Http\Controllers\Backend\PmbSettingController::class, 'index'])->name('admin.pmb.settings');

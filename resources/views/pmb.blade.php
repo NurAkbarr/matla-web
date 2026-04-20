@@ -249,7 +249,8 @@
             @forelse($brosurs as $brosur)
                 <div class="w-full md:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-2rem)] brochure-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
                     <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 shadow-xl border border-gray-100 transition-all duration-500 hover:shadow-2xl h-full flex flex-col cursor-pointer" 
-                         onclick="window.open('{{ asset('storage/' . $brosur->file) }}', '_blank')">
+                         data-file="{{ asset('storage/' . $brosur->file) }}"
+                         onclick="window.open(this.dataset.file, '_blank')">
                         
                         <!-- Premium Frame -->
                         <div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 flex-shrink-0">

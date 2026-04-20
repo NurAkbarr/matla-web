@@ -93,20 +93,23 @@
                 <p class="text-gray-500 font-medium text-lg">Pilih jalur pendidikan yang dirancang khusus untuk membangun kompetensi teknis sekaligus integritas moral.</p>
             </div>
 
-            @php $jenjangList = $programStudis->pluck('jenjang')->unique()->sort()->values(); @endphp
+            @php 
+                $jenjangList = $programStudis->pluck('jenjang')->unique()->sort()->values(); 
+            @endphp
+
             @if($jenjangList->count() > 1)
-            <div class="flex p-2 bg-white rounded-2xl border border-gray-100 shadow-sm glass-card">
-                <button onclick="filterProdi('all')" id="filter-all"
-                    class="prodi-filter px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-primary text-white shadow-xl shadow-primary/20">
-                    Semua
-                </button>
-                @foreach($jenjangList as $jenjang)
-                <button onclick="filterProdi('{{ $jenjang }}')" id="filter-{{ $jenjang }}"
-                    class="prodi-filter px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-gray-400 hover:text-primary">
-                    {{ $jenjang }}
-                </button>
-                @endforeach
-            </div>
+                <div class="flex p-2 bg-white rounded-2xl border border-gray-100 shadow-sm glass-card">
+                    <button onclick="filterProdi('all')" id="filter-all"
+                        class="prodi-filter px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-primary text-white shadow-xl shadow-primary/20">
+                        Semua
+                    </button>
+                    @foreach($jenjangList as $jenjang)
+                    <button onclick="filterProdi('{{ $jenjang }}')" id="filter-{{ $jenjang }}"
+                        class="prodi-filter px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-gray-400 hover:text-primary">
+                        {{ $jenjang }}
+                    </button>
+                    @endforeach
+                </div>
             @endif
         </div>
 
@@ -157,7 +160,7 @@
                     {{-- Action --}}
                     <div class="flex items-center justify-between pt-8 border-t border-gray-50">
                         <span class="text-[10px] font-black uppercase tracking-widest text-primary/40 group-hover:text-primary transition-colors italic">Exploration Ready</span>
-                        <div href="#" class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center group-hover:bg-primary transition-all duration-300">
+                        <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center group-hover:bg-primary transition-all duration-300">
                             <svg class="w-5 h-5 text-gray-300 group-hover:text-white group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                             </svg>

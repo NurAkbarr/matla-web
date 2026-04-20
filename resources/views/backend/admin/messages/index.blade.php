@@ -38,13 +38,13 @@
                             </td>
                             <td class="py-2 px-3 text-center space-x-2">
                                 @if(!$msg->is_read)
-                                    <form action="{{ route('admin.messages.read', $msg) }}" method="POST" class="inline">
+                                    <form action="{{ route('backend.admin.messages.read', $msg) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="text-xs text-primary hover:underline">Tandai Baca</button>
                                     </form>
                                 @endif
-                                <form action="{{ route('admin.messages.destroy', $msg) }}" method="POST" class="inline" onsubmit="return confirm('Hapus pesan ini?')">
+                                <form action="{{ route('backend.admin.messages.destroy', $msg) }}" method="POST" class="inline" onsubmit="return confirm('Hapus pesan ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-xs text-red-600 hover:underline">Hapus</button>
