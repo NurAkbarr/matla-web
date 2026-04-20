@@ -29,7 +29,7 @@
     <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-500">
         <!-- Thumbnail -->
         <div class="relative aspect-[3/4] overflow-hidden">
-            <img src="{{ asset('storage/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
             <!-- Badge Status -->
@@ -67,11 +67,11 @@
                         </button>
                     </form>
                 </div>
-                <a href="{{ asset('storage/' . $brosur->file) }}" target="_blank" class="text-xs font-bold text-primary hover:underline flex items-center space-x-1">
+                <a href="{{ asset('pmb-brosur/' . $brosur->image) }}" download class="text-xs font-bold text-primary hover:underline flex items-center space-x-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
-                    <span>View PDF</span>
+                    <span>Unduh Gambar</span>
                 </a>
             </div>
         </div>

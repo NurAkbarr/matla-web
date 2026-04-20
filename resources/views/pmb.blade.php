@@ -248,13 +248,13 @@
         <div class="flex flex-col md:flex-row flex-wrap justify-center gap-8 md:gap-12">
             @forelse($brosurs as $brosur)
                 <div class="w-full md:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-2rem)] brochure-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                    <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 shadow-xl border border-gray-100 transition-all duration-500 hover:shadow-2xl h-full flex flex-col cursor-pointer" 
-                         data-file="{{ asset('storage/' . $brosur->file) }}"
-                         onclick="window.open(this.dataset.file, '_blank')">
-                        
-                        <!-- Premium Frame -->
-                        <div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 flex-shrink-0">
-                            <img src="{{ asset('storage/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 shadow-xl border border-gray-100 transition-all duration-500 hover:shadow-2xl h-full flex flex-col cursor-pointer" 
+                             data-file="{{ asset('pmb-brosur/' . $brosur->image) }}"
+                             onclick="window.open(this.dataset.file, '_blank')">
+                            
+                            <!-- Premium Frame -->
+                            <div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 flex-shrink-0">
+                                <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
                             
                             <!-- Overlay Glassmorphism -->
                             <div class="absolute inset-x-4 bottom-4 p-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
@@ -270,13 +270,12 @@
                             <h3 class="text-xl font-bold text-gray-900 mb-2 truncate">{{ $brosur->title }}</h3>
                             <p class="text-sm text-gray-500 line-clamp-2 mb-6 flex-1">{{ $brosur->description ?? 'Informasi pendaftaran dan perkuliahan lengkap.' }}</p>
                             
-                            <!-- Action Button -->
                             <div class="mt-auto">
-                                <a href="{{ asset('storage/' . $brosur->file) }}" target="_blank" 
+                                <a href="{{ asset('pmb-brosur/' . $brosur->image) }}" download 
                                    class="inline-flex items-center justify-center w-full px-6 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 space-x-2 group/btn">
-                                    <span>Download PDF</span>
+                                    <span>Download Gambar</span>
                                     <svg class="w-5 h-5 transform group-hover/btn:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
                                 </a>
                             </div>

@@ -25,19 +25,17 @@ class BrosurPmbController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'file' => 'required|mimes:pdf|max:10240',
+            'image' => 'required|file|max:5120', // Use 'file' instead of 'image' to reduce finfo dependency
             'order' => 'integer',
         ]);
 
-        $imagePath = $request->file('image')->store('pmb/thumbnails', 'public');
-        $filePath = $request->file('file')->store('pmb/files', 'public');
+        $imagePath = $request->file('image')->store('', 'direct_public');
 
         BrosurPmb::create([
             'title' => $request->title,
             'description' => $request->description,
             'image' => $imagePath,
-            'file' => $filePath,
+            'file' => $imagePath, // Save image path as file path for backward compatibility
             'is_active' => $request->has('is_active'),
             'order' => $request->order ?? 0,
         ]);
@@ -55,8 +53,7 @@ class BrosurPmbController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'file' => 'nullable|mimes:pdf|max:10240',
+            'image' => 'nullable|file|max:5120',
             'order' => 'integer',
         ]);
 
@@ -69,16 +66,11 @@ class BrosurPmbController extends Controller
 
         if ($request->hasFile('image')) {
             if ($brosur->image) {
-                Storage::disk('public')->delete($brosur->image);
+                Storage::disk('direct_public')->delete($brosur->image);
             }
-            $data['image'] = $request->file('image')->store('pmb/thumbnails', 'public');
-        }
-
-        if ($request->hasFile('file')) {
-            if ($brosur->file) {
-                Storage::disk('public')->delete($brosur->file);
-            }
-            $data['file'] = $request->file('file')->store('pmb/files', 'public');
+            $imagePath = $request->file('image')->store('', 'direct_public');
+            $data['image'] = $imagePath;
+            $data['file'] = $imagePath;
         }
 
         $brosur->update($data);
@@ -89,10 +81,7 @@ class BrosurPmbController extends Controller
     public function destroy(BrosurPmb $brosur)
     {
         if ($brosur->image) {
-            Storage::disk('public')->delete($brosur->image);
-        }
-        if ($brosur->file) {
-            Storage::disk('public')->delete($brosur->file);
+            Storage::disk('direct_public')->delete($brosur->image);
         }
         $brosur->delete();
 

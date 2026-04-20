@@ -30,6 +30,13 @@ return [
 
     'disks' => [
 
+        'direct_public' => [
+            'driver' => 'local',
+            'root' => public_path('pmb-brosur'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/pmb-brosur',
+            'visibility' => 'public',
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),

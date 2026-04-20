@@ -51,25 +51,14 @@
                     </div>
                 </div>
 
-                <!-- File Uploads -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 block">Gambar Sampul (Thumbnail)</label>
-                        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-primary transition-colors bg-gray-50/50">
-                            <input type="file" name="image" required accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
-                            <p class="text-[10px] text-gray-400 mt-2 font-medium">JPEG, PNG, WEBP (Max 2MB). Rekomendasi rasio 3:4.</p>
-                        </div>
-                        @error('image') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                <!-- File Upload -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700 block">File Gambar Brosur</label>
+                    <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-primary transition-colors bg-gray-50/50">
+                        <input type="file" name="image" required accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
+                        <p class="text-xs text-gray-400 mt-4 font-medium italic">Format: JPEG, PNG, WEBP (Max 5MB). File ini akan digunakan sebagai tampilan galeri dan juga file yang dapat diunduh.</p>
                     </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 block">File Brosur (PDF)</label>
-                        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-primary transition-colors bg-gray-50/50">
-                            <input type="file" name="file" required accept="application/pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 cursor-pointer">
-                            <p class="text-[10px] text-gray-400 mt-2 font-medium">Hanya format PDF (Max 10MB).</p>
-                        </div>
-                        @error('file') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-                    </div>
+                    @error('image') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                 </div>
             </div>
 

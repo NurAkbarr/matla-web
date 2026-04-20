@@ -52,34 +52,21 @@
                     </div>
                 </div>
 
-                <!-- File Uploads -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 block">Gambar Sampul (Thumbnail)</label>
-                        <div class="mb-4 aspect-[3/4] w-24 overflow-hidden rounded-xl border border-gray-100">
-                             <img src="{{ asset('storage/' . $brosur->image) }}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-primary transition-colors bg-gray-50/50">
-                            <input type="file" name="image" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
-                            <p class="text-[10px] text-gray-400 mt-2 font-medium">Kosongkan jika tidak ingin mengubah. Max 2MB.</p>
-                        </div>
-                        @error('image') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                <!-- File Upload -->
+                <div class="space-y-4">
+                    <label class="text-sm font-bold text-gray-700 block">File Gambar Brosur</label>
+                    
+                    @if($brosur->image)
+                    <div class="w-32 aspect-[3/4] rounded-2xl overflow-hidden border-4 border-white shadow-lg mb-4">
+                        <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" class="w-full h-full object-cover">
                     </div>
+                    @endif
 
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 block">File Brosur (PDF)</label>
-                        <div class="mb-4 flex items-center space-x-2 text-xs font-bold text-emerald-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
-                            <span>PDF Saat Ini Tersimpan</span>
-                        </div>
-                        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-primary transition-colors bg-gray-50/50">
-                            <input type="file" name="file" accept="application/pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 cursor-pointer">
-                            <p class="text-[10px] text-gray-400 mt-2 font-medium">Kosongkan jika tidak ingin mengubah. Max 10MB.</p>
-                        </div>
-                        @error('file') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-primary transition-colors bg-gray-50/50">
+                        <input type="file" name="image" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
+                        <p class="text-xs text-gray-400 mt-4 font-medium italic">Kosongkan jika tidak ingin mengubah. Format: JPEG, PNG, WEBP (Max 5MB).</p>
                     </div>
+                    @error('image') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                 </div>
             </div>
 

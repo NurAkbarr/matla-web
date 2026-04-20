@@ -13,11 +13,18 @@ use App\Http\Controllers\Backend\ProgramStudiController;
 // Route Darurat untuk Storage Link & Cache (Akses: domain.com/fix-storage)
 Route::get('/fix-storage', function () {
     try {
+        // Buat folder pmb-brosur di public jika belum ada
+        $path = public_path('pmb-brosur');
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        
         \Artisan::call('storage:link');
         \Artisan::call('config:clear');
         \Artisan::call('cache:clear');
         \Artisan::call('view:clear');
-        return "System Optimized & Storage link diproses! <br> <b>Silakan hapus dan upload ulang brosur Anda di dashboard.</b> <br> <a href='/'>Kembali ke Home</a>";
+        
+        return "System Optimized! Folder pmb-brosur sudah siap. <br> <b>Silakan hapus dan upload ulang brosur Anda di dashboard.</b> <br> <a href='/'>Kembali ke Home</a>";
     } catch (\Exception $e) {
         return "Error: " . $e->getMessage();
     }
