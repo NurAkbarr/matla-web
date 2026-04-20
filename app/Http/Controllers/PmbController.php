@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BrosurPmb;
 use Illuminate\Http\Request;
 
 class PmbController extends Controller
@@ -16,6 +17,8 @@ class PmbController extends Controller
             'pmb_status_link' => \App\Models\Setting::get_value('pmb_status_link', route('pmb.status')),
         ];
 
-        return view('pmb', compact('settings'));
+        $brosurs = BrosurPmb::where('is_active', true)->orderBy('order')->get();
+
+        return view('pmb', compact('settings', 'brosurs'));
     }
 }

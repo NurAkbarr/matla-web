@@ -81,6 +81,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/pmb/settings', [\App\Http\Controllers\Backend\PmbSettingController::class, 'index'])->name('admin.pmb.settings');
         Route::post('/admin/pmb/settings', [\App\Http\Controllers\Backend\PmbSettingController::class, 'update'])->name('admin.pmb.settings.update');
 
+        // PMB Brochure Management
+        Route::resource('/admin/pmb/brosur', \App\Http\Controllers\Backend\BrosurPmbController::class, [
+            'names' => 'admin.pmb.brosur',
+        ]);
+
         // PMB Registration Management
         Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
         Route::get('/admin/pmb/registrations/{registration}', [\App\Http\Controllers\Backend\AdminPmbController::class, 'show'])->name('admin.pmb.registrations.show');

@@ -238,16 +238,116 @@
 </section>
 
 <!-- Brosur Section -->
-<section class="py-24 bg-white">
-    <div class="container mx-auto px-4 lg:px-12 text-center">
-        <h2 class="text-3xl font-bold text-gray-900 mb-6">Brosur PMB 2024/2025</h2>
-        <p class="text-gray-500 mb-12 max-w-2xl mx-auto">Temukan semua informasi lengkap seputar program pendidikan dan fasilitas kami.</p>
+<section class="py-24 bg-white overflow-hidden" id="brosur-pmb">
+    <div class="container mx-auto px-4 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
+            <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">Brosur PMB 2024/2025</h2>
+            <p class="text-lg text-gray-500 max-w-xl mx-auto italic">Temukan informasi lengkap mengenai program studi, beasiswa, dan kehidupan kampus kami.</p>
+        </div>
         
-        <div class="max-w-2xl mx-auto aspect-[16/9] bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl flex items-center justify-center text-gray-400 italic">
-            Brosur belum tersedia.
+        <div class="flex flex-col md:flex-row flex-wrap justify-center gap-8 md:gap-12">
+            @forelse($brosurs as $brosur)
+                <div class="w-full md:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-2rem)] brochure-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                    <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 shadow-xl border border-gray-100 transition-all duration-500 hover:shadow-2xl h-full flex flex-col cursor-pointer" 
+                         onclick="window.open('{{ asset('storage/' . $brosur->file) }}', '_blank')">
+                        
+                        <!-- Premium Frame -->
+                        <div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 flex-shrink-0">
+                            <img src="{{ asset('storage/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                            
+                            <!-- Overlay Glassmorphism -->
+                            <div class="absolute inset-x-4 bottom-4 p-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                                <p class="text-white text-xs font-bold uppercase tracking-widest text-center">{{ $brosur->title }}</p>
+                            </div>
+
+                            <!-- Decorative Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="flex-1 flex flex-col px-2">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2 truncate">{{ $brosur->title }}</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2 mb-6 flex-1">{{ $brosur->description ?? 'Informasi pendaftaran dan perkuliahan lengkap.' }}</p>
+                            
+                            <!-- Action Button -->
+                            <div class="mt-auto">
+                                <a href="{{ asset('storage/' . $brosur->file) }}" target="_blank" 
+                                   class="inline-flex items-center justify-center w-full px-6 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 space-x-2 group/btn">
+                                    <span>Download PDF</span>
+                                    <svg class="w-5 h-5 transform group-hover/btn:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Decorative glow -->
+                        <div class="absolute -z-10 inset-0 bg-primary/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    </div>
+                </div>
+            @empty
+                <div class="w-full max-w-2xl mx-auto aspect-[16/9] bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] flex flex-col items-center justify-center text-gray-400 p-8 space-y-4">
+                    <div class="p-4 bg-white rounded-2xl shadow-sm">
+                        <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <p class="italic font-medium">Brosur pendaftaran belum tersedia saat ini.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 </section>
+
+<style>
+    .brochure-card {
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    @media (min-width: 1024px) {
+        .brochure-card-wrapper {
+            perspective: 1500px;
+        }
+        
+        .brochure-card:hover {
+            transform: translateY(-10px) rotateX(4deg) rotateY(4deg);
+        }
+    }
+
+    [data-aos] {
+        opacity: 0;
+        transition-property: transform, opacity;
+    }
+
+    [data-aos="fade-up"] {
+        transform: translateY(30px);
+    }
+
+    [data-aos].aos-animate {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aos-animate');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[data-aos]').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
 
 <!-- CTA Footer Section -->
 <section class="py-20 bg-primary-dark relative overflow-hidden">
