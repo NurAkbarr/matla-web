@@ -252,9 +252,9 @@
                          data-file="{{ asset('pmb-brosur/' . $brosur->image) }}"
                          onclick="window.open(this.dataset.file, '_blank')">
                         
-                        <!-- Premium Frame - Centered and Viewport Constrained -->
-                        <div class="relative bg-gray-50 rounded-[2rem] overflow-hidden mb-8 flex-shrink-0 border border-gray-100 flex items-center justify-center" style="max-height: 70vh;">
-                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-auto max-h-[70vh] object-contain transform group-hover:scale-[1.02] transition-transform duration-700">
+                        <!-- Premium Frame - Fully Visible Doc -->
+                        <div class="relative bg-gray-50 rounded-[2rem] overflow-hidden mb-8 flex-shrink-0 border border-gray-100 flex items-center justify-center p-2" style="height: 600px; max-height: 70vh;">
+                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="max-w-full max-h-full w-auto h-auto object-contain transform group-hover:scale-[1.01] transition-transform duration-700">
                             
                             <!-- Overlay Glassmorphism -->
                             <div class="absolute inset-x-4 bottom-4 p-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
