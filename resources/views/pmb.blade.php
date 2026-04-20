@@ -51,10 +51,6 @@
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-minutes">--</div>
                         <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
                     </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-seconds">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Detik</span>
-                    </div>
                 </div>
             </div>
             @else
@@ -78,10 +74,6 @@
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-minutes">--</div>
                         <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-seconds">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Detik</span>
                     </div>
                 </div>
             </div>
@@ -433,7 +425,6 @@
         const elDays = document.getElementById('cd-days');
         const elHours = document.getElementById('cd-hours');
         const elMinutes = document.getElementById('cd-minutes');
-        const elSeconds = document.getElementById('cd-seconds');
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -443,7 +434,6 @@
                 elDays.innerText = "00";
                 elHours.innerText = "00";
                 elMinutes.innerText = "00";
-                elSeconds.innerText = "00";
                 return;
             }
 
@@ -455,7 +445,6 @@
             elDays.innerText = String(days).padStart(2, '0');
             elHours.innerText = String(hours).padStart(2, '0');
             elMinutes.innerText = String(minutes).padStart(2, '0');
-            elSeconds.innerText = String(seconds).padStart(2, '0');
         }
 
         updateCountdown();
@@ -477,7 +466,6 @@
         const elDays    = document.getElementById('cs-days');
         const elHours   = document.getElementById('cs-hours');
         const elMinutes = document.getElementById('cs-minutes');
-        const elSeconds = document.getElementById('cs-seconds');
 
         function updateComingSoon() {
             const now = new Date().getTime();
@@ -487,14 +475,12 @@
                 elDays.innerText = '00';
                 elHours.innerText = '00';
                 elMinutes.innerText = '00';
-                elSeconds.innerText = '00';
                 return;
             }
 
             elDays.innerText    = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
             elHours.innerText   = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
             elMinutes.innerText = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-            elSeconds.innerText = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
         }
 
         updateComingSoon();
