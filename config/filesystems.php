@@ -32,7 +32,7 @@ return [
 
         'direct_public' => [
             'driver' => 'local',
-            'root' => public_path('pmb-brosur'),
+            'root' => (file_exists('/home/cnnelcmz/public_html') ? '/home/cnnelcmz/public_html' : public_path()) . '/pmb-brosur',
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/pmb-brosur',
             'visibility' => 'public',
         ],
