@@ -42,7 +42,8 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 block">Batas Waktu Countdown (Saat Buka)</label>
-                        <input type="datetime-local" name="pmb_end_date" value="{{ old('pmb_end_date', $settings['pmb_end_date']) }}" required
+                        <input type="datetime-local" name="pmb_end_date" value="{{ old('pmb_end_date', $settings['pmb_end_date']) }}" 
+                            step="60" required
                             class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white text-gray-700 font-medium">
                         @error('pmb_end_date') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-bold text-emerald-600">Digunakan saat pendaftaran aktif.</p>
