@@ -252,9 +252,9 @@
                          data-file="{{ asset('pmb-brosur/' . $brosur->image) }}"
                          onclick="window.open(this.dataset.file, '_blank')">
                         
-                        <!-- Premium Frame - Natural Ratio Guaranteed (Anti Gepeng) -->
-                        <div class="relative bg-gray-50 rounded-[2rem] mb-8 border border-gray-100 flex items-center justify-center p-4 md:p-8 overflow-hidden" style="height: 550px; max-height: 70vh;">
-                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="max-w-full max-h-full w-auto h-auto object-contain transform group-hover:scale-[1.01] transition-transform duration-700 mx-auto">
+                        <!-- Frame - Natural Full Height, No Crop -->
+                        <div class="relative bg-gray-50 rounded-[2rem] mb-8 border border-gray-100 overflow-hidden">
+                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-auto block transform group-hover:scale-[1.01] transition-transform duration-700">
                             
                             <!-- Overlay Glassmorphism -->
                             <div class="absolute inset-x-4 bottom-4 p-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
