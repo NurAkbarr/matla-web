@@ -10,21 +10,33 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProgramStudiController;
 
-// Route Darurat untuk Storage Link & Cache (Akses: domain.com/fix-storage)
+// Route Darurat untuk Diagnosa & Fix
 Route::get('/fix-storage', function () {
     try {
-        // Buat folder pmb-brosur di public jika belum ada
-        $path = public_path('pmb-brosur');
-        if (!file_exists($path)) {
-            mkdir($path, 0777, true);
+        $pPath = public_path();
+        $bPath = base_path();
+        $target = $pPath . '/pmb-brosur';
+        
+        if (!file_exists($target)) {
+            mkdir($target, 0777, true);
         }
         
-        \Artisan::call('storage:link');
+        // Cek isi folder
+        $files = file_exists($target) ? scandir($target) : 'Folder tidak terbaca';
+        
         \Artisan::call('config:clear');
         \Artisan::call('cache:clear');
-        \Artisan::call('view:clear');
         
-        return "System Optimized! Folder pmb-brosur sudah siap. <br> <b>Silakan hapus dan upload ulang brosur Anda di dashboard.</b> <br> <a href='/'>Kembali ke Home</a>";
+        $output = "<h3>Laporan Diagnosa Server:</h3>";
+        $output .= "<b>Base Path:</b> $bPath <br>";
+        $output .= "<b>Public Path:</b> $pPath <br>";
+        $output .= "<b>Target Folder:</b> $target <br>";
+        $output .= "<b>Isi Folder:</b> " . json_encode($files) . "<br><br>";
+        $output .= "<b>Status:</b> System Optimized! <br>";
+        $output .= "<b>Instruksi:</b> Jika Public Path di atas TIDAK mengandung 'public_html' padahal hosting Anda pakai public_html, kabari saya. <br>";
+        $output .= "<a href='/'>Kembali ke Home</a>";
+        
+        return $output;
     } catch (\Exception $e) {
         return "Error: " . $e->getMessage();
     }
