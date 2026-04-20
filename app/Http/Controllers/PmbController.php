@@ -14,6 +14,7 @@ class PmbController extends Controller
             'pmb_gelombang' => \App\Models\Setting::get_value('pmb_gelombang', '2024/2025 - Gelombang 1'),
             'pmb_registration_link' => \App\Models\Setting::get_value('pmb_registration_link', route('pmb.register')),
             'pmb_is_open' => \App\Models\Setting::get_value('pmb_is_open', '1'),
+            'pmb_start_date' => \App\Models\Setting::get_value('pmb_start_date', '2026-06-01 00:00:00'),
             'pmb_status_link' => \App\Models\Setting::get_value('pmb_status_link', route('pmb.status')),
         ];
 

@@ -15,6 +15,7 @@ class PmbSettingController extends Controller
             'pmb_gelombang' => Setting::get_value('pmb_gelombang', '2024/2025 - Gelombang 1'),
             'pmb_registration_link' => Setting::get_value('pmb_registration_link', route('pmb.register')),
             'pmb_is_open' => Setting::get_value('pmb_is_open', '1'),
+            'pmb_start_date' => Setting::get_value('pmb_start_date', date('Y-m-d\TH:i:s', strtotime('+40 days'))),
             'pmb_status_link' => Setting::get_value('pmb_status_link', route('pmb.status')),
         ];
 
@@ -29,6 +30,7 @@ class PmbSettingController extends Controller
             'pmb_registration_link' => 'required|string|max:255',
             'pmb_status_link' => 'required|string|max:255',
             'pmb_is_open' => 'required|in:0,1',
+            'pmb_start_date' => 'required|date',
         ]);
 
         Setting::set_value('pmb_end_date', $request->pmb_end_date, 'datetime');
@@ -36,6 +38,7 @@ class PmbSettingController extends Controller
         Setting::set_value('pmb_registration_link', $request->pmb_registration_link, 'string');
         Setting::set_value('pmb_status_link', $request->pmb_status_link, 'string');
         Setting::set_value('pmb_is_open', $request->pmb_is_open, 'boolean');
+        Setting::set_value('pmb_start_date', $request->pmb_start_date, 'datetime');
 
         return redirect()->back()->with('success', 'Pengaturan PMB berhasil diperbarui.');
     }

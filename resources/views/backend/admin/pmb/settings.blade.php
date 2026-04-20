@@ -41,11 +41,19 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 block">Batas Waktu Countdown</label>
+                        <label class="text-sm font-bold text-gray-700 block">Batas Waktu Countdown (Saat Buka)</label>
                         <input type="datetime-local" name="pmb_end_date" value="{{ old('pmb_end_date', $settings['pmb_end_date']) }}" required
                             class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white text-gray-700 font-medium">
                         @error('pmb_end_date') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-                        <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-bold">Countdown di frontend akan mengarah ke tanggal ini.</p>
+                        <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-bold text-emerald-600">Digunakan saat pendaftaran aktif.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 block text-orange-600">Tanggal Pembukaan (Coming Soon)</label>
+                        <input type="datetime-local" name="pmb_start_date" value="{{ old('pmb_start_date', $settings['pmb_start_date']) }}" required
+                            class="w-full px-5 py-4 bg-orange-50 border border-orange-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:bg-white text-gray-700 font-medium font-bold">
+                        @error('pmb_start_date') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                        <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-bold text-orange-600">Digunakan sebagai target hitung mundur saat pendaftaran ditutup.</p>
                     </div>
                 </div>
 

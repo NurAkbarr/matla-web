@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'PMB 2024/2025 - Matla Islamic University')
+@section('title', 'PMB 2026/2027 - Matla Islamic Academy')
 
 @section('content')
 <!-- Hero Section -->
@@ -18,12 +18,15 @@
                 <span class="text-white text-sm font-semibold tracking-wide">{{ $settings['pmb_gelombang'] }}</span>
             </div>
 
-            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
-                Mulai Perjalanan Ilmu Anda <span class="text-emerald-400 underline decoration-emerald-400/30 underline-offset-8">Bersama Kami</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
+                Bekali Akhiratmu dengan <span class="text-emerald-400 underline decoration-emerald-400/30 underline-offset-8">Ilmu Syar'i</span>
             </h1>
+            <p class="text-2xl md:text-3xl font-bold text-orange-400 mb-6 leading-snug">
+                Bekali Duniamu dengan Skill Industri
+            </p>
             
             <p class="text-lg md:text-xl text-gray-200 mb-10 leading-relaxed max-w-2xl">
-                Daftarkan diri Anda sekarang dan raih gelar S1 PAI resmi dengan kurikulum berbasis Al-Qur'an dan As-Sunnah. Pendaftaran terbatas!
+                Bergabunglah bersama MATLA untuk mempelajari ilmu syar'i secara mendalam sekaligus membekali diri dengan keterampilan yang siap digunakan di dunia kerja.
             </p>
 
             <!-- Countdown Timer -->
@@ -55,10 +58,31 @@
                 </div>
             </div>
             @else
-            <div class="mb-12">
-                <div class="inline-flex items-center space-x-3 px-6 py-4 bg-red-500/20 backdrop-blur-md border border-red-500/30 rounded-2xl">
-                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <span class="text-red-100 font-bold text-lg">Pendaftaran Saat Ini Ditutup</span>
+            {{-- Coming Soon Countdown --}}
+            <div class="mb-12" id="pmb-coming-soon-container" data-open-date="{{ date('Y-m-d H:i:s', strtotime($settings['pmb_start_date'] ?? '2026-06-01 00:00:00')) }}">
+                <p class="text-orange-400 font-bold mb-4 flex items-center text-sm uppercase tracking-widest">
+                    <svg class="w-5 h-5 mr-2 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 11-2 0v-.07A8.001 8.001 0 014.07 11H5a1 1 0 110 2h-.93A8.001 8.001 0 0111 19.93zm0-13.86V5a1 1 0 112 0v.07A8.001 8.001 0 0119.93 11H19a1 1 0 110-2h.93A8.001 8.001 0 0113 3.07zM12 8v4l2.5 2.5a1 1 0 01-1.414 1.414l-3-3A1 1 0 0110 12V8a1 1 0 012 0z"/>
+                    </svg>
+                    Pendaftaran Gelombang 1 Dibuka Dalam
+                </p>
+                <div class="flex space-x-3 md:space-x-5">
+                    <div class="text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-days">--</div>
+                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Hari</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-hours">--</div>
+                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Jam</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-minutes">--</div>
+                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-seconds">--</div>
+                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Detik</span>
+                    </div>
                 </div>
             </div>
             @endif
@@ -87,7 +111,7 @@
 <section class="py-24 bg-white">
     <div class="container mx-auto px-4 lg:px-12">
         <div class="text-center max-w-2xl mx-auto mb-16">
-            <h2 class="text-4xl font-extrabold text-gray-900 mb-6">Alur Pendaftaran</h2>
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Alur Pendaftaran</h2>
             <p class="text-lg text-gray-600">Proses pendaftaran mudah, cepat, dan bisa dilakukan dari mana saja.</p>
         </div>
 
@@ -96,10 +120,8 @@
             <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">1</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Isi Formulir Online</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Lengkapi formulir pendaftaran secara online dengan data diri yang benar dan valid sesuai dokumen identitas resmi Anda.
-                    </p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Isi Formulir Pendaftaran</h3>
+                    <p class="text-gray-600 leading-relaxed">Calon mahasiswa mengisi formulir pendaftaran secara online melalui website PMB MATLA.</p>
                 </div>
             </div>
 
@@ -107,10 +129,8 @@
             <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">2</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Pembayaran Administrasi</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Lakukan pembayaran biaya administrasi pendaftaran ke rekening yang tertera melalui transfer bank atau dompet digital.
-                    </p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Upload Berkas</h3>
+                    <p class="text-gray-600 leading-relaxed">Unggah dokumen yang dibutuhkan sesuai dengan ketentuan yang berlaku.</p>
                 </div>
             </div>
 
@@ -118,24 +138,37 @@
             <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">3</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Seleksi & Verifikasi</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Tim kami akan memverifikasi data dan form Anda dalam waktu 3x24 jam kerja. Status akan dikirimkan melalui email/WA.
-                    </p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Pembayaran Biaya Pendaftaran</h3>
+                    <p class="text-gray-600 leading-relaxed">Lakukan pembayaran biaya pendaftaran sesuai instruksi yang tersedia.</p>
                 </div>
             </div>
 
             <!-- Step 4 -->
-            <div class="flex items-start space-x-6 relative ml-4 lg:ml-8 pl-8">
+            <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">4</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Pengumuman & Diterima</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Hasil seleksi akan diumumkan melalui email dan WhatsApp yang Anda daftarkan. Selamat bergabung! 🎉
-                    </p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Verifikasi Data</h3>
+                    <p class="text-gray-600 leading-relaxed">Tim PMB MATLA akan melakukan verifikasi data dan berkas yang telah dikirimkan.</p>
                 </div>
             </div>
 
+            <!-- Step 5 -->
+            <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
+                <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">5</div>
+                <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
+                    <h3 class="text-xl font-bold text-primary mb-3">Tes / Seleksi</h3>
+                    <p class="text-gray-600 leading-relaxed">Mengikuti proses seleksi sesuai jadwal yang telah ditentukan.</p>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="flex items-start space-x-6 relative ml-4 lg:ml-8 pl-8">
+                <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">6</div>
+                <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
+                    <h3 class="text-xl font-bold text-primary mb-3">Pengumuman Hasil 🎉</h3>
+                    <p class="text-gray-600 leading-relaxed">Hasil seleksi akan diumumkan melalui email dan WhatsApp yang terdaftar. Peserta yang dinyatakan lulus wajib bergabung ke grup kelas dan melunasi biaya administrasi sesuai ketentuan.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -206,7 +239,12 @@
                     </svg>
                 </button>
                 <div class="px-6 pb-6 text-gray-600 leading-relaxed hidden faq-content">
-                    Kami menawarkan berbagai jalur beasiswa, termasuk Beasiswa Prestasi, Beasiswa Tahfidz Al-Qur'an, dan Beasiswa Bantuan Pendidikan bagi yang membutuhkan.
+                    <p>Beasiswa tersedia bagi <strong>yatim/piatu</strong> dan <strong>hafidz Al-Qur'an</strong>, berupa:</p>
+                    <ul class="mt-2 space-y-1 list-disc list-inside">
+                        <li>Pembebasan biaya pendaftaran</li>
+                        <li>Potongan SPP sebesar 50%</li>
+                    </ul>
+                    <p class="mt-2 text-sm italic text-gray-500">* Beasiswa akan diberlakukan apabila jumlah pendaftar telah memenuhi kuota minimal 20 orang.</p>
                 </div>
             </div>
         </div>
@@ -422,6 +460,45 @@
 
         updateCountdown();
         setInterval(updateCountdown, 1000);
+    });
+</script>
+@endif
+
+{{-- Coming Soon Countdown Script (saat PMB belum dibuka) --}}
+@if($settings['pmb_is_open'] != '1')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('pmb-coming-soon-container');
+        if (!container) return;
+
+        const openDateStr = container.getAttribute('data-open-date');
+        const openDate = new Date(openDateStr.replace(/-/g, '/')).getTime();
+
+        const elDays    = document.getElementById('cs-days');
+        const elHours   = document.getElementById('cs-hours');
+        const elMinutes = document.getElementById('cs-minutes');
+        const elSeconds = document.getElementById('cs-seconds');
+
+        function updateComingSoon() {
+            const now = new Date().getTime();
+            const distance = openDate - now;
+
+            if (distance <= 0) {
+                elDays.innerText = '00';
+                elHours.innerText = '00';
+                elMinutes.innerText = '00';
+                elSeconds.innerText = '00';
+                return;
+            }
+
+            elDays.innerText    = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            elHours.innerText   = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            elMinutes.innerText = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            elSeconds.innerText = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+        }
+
+        updateComingSoon();
+        setInterval(updateComingSoon, 1000);
     });
 </script>
 @endif
