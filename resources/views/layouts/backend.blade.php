@@ -152,15 +152,21 @@
             </header>
 
             <!-- Page Content -->
-            <main class="p-8 flex-1">
-                @if(session('success'))
-                    <div class="mb-8 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl flex items-center space-x-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span class="font-bold">{{ session('success') }}</span>
+            <main class="p-8 flex-1" x-data="{ showAlert: {{ session('success') ? 'true' : 'false' }}, alertMessage: '{{ session('success') }}' }">
+                <!-- Central Notification Modal -->
+                <div x-show="showAlert" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="showAlert = false" x-show="showAlert" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+                    <div class="relative bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full p-10 text-center border border-white" x-show="showAlert" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                        <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-emerald-50/50">
+                            <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Berhasil!</h3>
+                        <p class="text-gray-500 text-sm mb-8 leading-relaxed font-semibold italic" x-text="alertMessage"></p>
+                        <button @click="showAlert = false" class="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-primary-dark transition-all shadow-xl shadow-primary/20 active:scale-95">
+                            Lanjutkan
+                        </button>
                     </div>
-                @endif
+                </div>
 
                 @yield('content')
             </main>

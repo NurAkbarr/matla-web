@@ -74,19 +74,7 @@
                     </div>
                 </div>
 
-                <!-- Information Alert -->
-                <div class="p-6 bg-blue-50 rounded-3xl border border-blue-100 flex items-start space-x-4">
-                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm flex-shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div>
-                        <h4 class="text-blue-900 font-bold mb-1">P Sinkronisasi Program Studi</h4>
-                        <p class="text-xs text-blue-700 leading-relaxed font-medium italic">
-                            Daftar pilihan Program Studi pada formulir pendaftaran kini otomatis mengikuti data di menu <span class="font-bold underline">Akademik > Program Studi</span>. 
-                            Anda tidak perlu lagi mengaturnya secara manual di sini.
-                        </p>
-                    </div>
-                </div>
+
             </div>
 
             <div class="mt-8 pt-8 border-t border-gray-100">

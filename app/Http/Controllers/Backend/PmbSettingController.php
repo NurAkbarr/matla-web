@@ -33,7 +33,7 @@ class PmbSettingController extends Controller
             'pmb_status_link' => 'required|string|max:255',
             'pmb_is_open' => 'required|in:0,1',
             'pmb_start_date' => 'required|date',
-            'pmb_is_active' => 'required|boolean',
+            'pmb_is_active' => 'nullable|boolean',
             'pmb_description' => 'nullable|string',
         ]);
 
@@ -43,8 +43,14 @@ class PmbSettingController extends Controller
         Setting::set_value('pmb_status_link', $request->pmb_status_link, 'string');
         Setting::set_value('pmb_is_open', $request->pmb_is_open, 'boolean');
         Setting::set_value('pmb_start_date', $request->pmb_start_date, 'datetime');
-        Setting::set_value('pmb_is_active', $request->pmb_is_active, 'boolean');
-        Setting::set_value('pmb_description', $request->pmb_description, 'string');
+        
+        if ($request->has('pmb_is_active')) {
+            Setting::set_value('pmb_is_active', $request->pmb_is_active, 'boolean');
+        }
+        
+        if ($request->has('pmb_description')) {
+            Setting::set_value('pmb_description', $request->pmb_description, 'string');
+        }
 
         return redirect()->back()->with('success', 'Pengaturan PMB berhasil diperbarui.');
     }
