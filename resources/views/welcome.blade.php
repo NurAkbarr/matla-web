@@ -12,17 +12,17 @@
 
     <div class="container mx-auto px-4 lg:px-12 relative z-10 pt-12 lg:pt-20 pb-20 lg:pb-32">
         <div class="max-w-2xl">
-            <h2 class="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-[#1F2937] leading-[1.1] tracking-tight">
-                Selamat Datang di
-                <span class="block text-primary mt-2">Matla Islamic University</span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1F2937] leading-[1.1] tracking-tight">
+                Kuliah Bahasa Arab & S1 Resmi: Tholibul Ilmi yang Paham
+                <span class="block text-primary mt-2">Bahasa Arab, Ilmu Syar'i, dan Teknologi</span>
             </h2>
             
-            <h3 class="mt-6 text-xl lg:text-3xl font-bold text-[#374151]">
-                Kuliah Bahasa Arab & S1 PAI Berbasis Al-Qur'an dan As-Sunnah
+            <h3 class="mt-6 text-xl lg:text-2xl font-bold text-[#374151]">
+                Jadilah bagian dari Matla Islamic Academy. Tempat di mana adab, ilmu syar'i, dan kreativitas digital tumbuh bersama dalam harmoni.
             </h3>
 
-            <p class="mt-6 text-base lg:text-lg text-gray-600 leading-relaxed max-w-xl">
-                Dapatkan gelar S.Pd resmi dengan kurikulum terstruktur, target fasih Bahasa Arab dalam 2 tahun melalui penguasaan 500 kosa kata per semester, serta pembekalan softskill dan hardskill seperti public speaking, programming, desain grafis, dan lainnya.
+            <p class="mt-6 text-base lg:text-lg text-gray-600 leading-relaxed max-w-xl font-medium">
+                Dapatkan gelar S.Pd resmi dengan kurikulum terstruktur. Target fasih Bahasa Arab dalam 2 tahun melalui penguasaan 500 kosakata per semester, serta pembekalan wajib softskill dan hardskill seperti Public Speaking, Programming, Desain Grafis, dan lainnya.
             </p>
 
             <div class="mt-8 lg:mt-10">

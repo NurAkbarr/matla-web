@@ -3,6 +3,7 @@
 @section('title', 'PMB 2026/2027 - Matla Islamic Academy')
 
 @section('content')
+<div x-data="{ showModal: false }">
 <!-- Hero Section -->
 <section class="relative min-h-[600px] lg:min-h-screen flex items-center overflow-hidden">
     <div class="absolute inset-0 z-0">
@@ -81,12 +82,12 @@
 
             <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 @if($settings['pmb_is_open'] == '1')
-                <a href="{{ $settings['pmb_registration_link'] }}" class="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center space-x-2">
+                <button @click="showModal = true" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-lg shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2 mr-4 group">
                     <span>Daftar Sekarang</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
-                </a>
+                </button>
                 @endif
                 <a href="{{ $settings['pmb_status_link'] }}" class="px-8 py-4 bg-white/10 hover:bg-white border border-white/20 hover:text-primary-dark text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 backdrop-blur-sm">
                     <span>Cek Status</span>
@@ -98,6 +99,62 @@
         </div>
     </div>
 </section>
+
+<!-- Selection Modal -->
+<div x-show="showModal" 
+     x-cloak
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" @click="showModal = false"></div>
+
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-gray-200" @click.stop>
+        
+        <button @click="showModal = false" class="absolute top-6 right-6 p-4 text-gray-400 hover:text-gray-900 transition-colors z-[110] cursor-pointer" type="button">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="px-8 pt-12 pb-6 text-center border-b border-gray-50">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2 font-sans tracking-tight">Pilih Program Studi</h2>
+            <p class="text-gray-500 text-sm">Tentukan program pendidikan yang ingin Anda ikuti di MATLA</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            <!-- PAI Option -->
+            <a href="{{ $settings['pmb_registration_link'] }}?type=pai" class="group p-8 md:p-10 hover:bg-emerald-50/40 transition-all duration-300 flex flex-col h-full text-left">
+                <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors">S1 PAI</h3>
+                <p class="text-sm text-gray-600 leading-relaxed mb-8 flex-1">Program Sarjana Pendidikan Agama Islam dengan kurikulum lengkap dan terarah.</p>
+                
+                <div class="inline-flex items-center text-emerald-600 font-bold group-hover:translate-x-1 transition-transform">
+                    <span>Mulai Pendaftaran</span>
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                </div>
+            </a>
+
+            <!-- IDAD Option -->
+            <a href="{{ $settings['pmb_registration_link'] }}?type=idad" class="group p-8 md:p-10 hover:bg-emerald-50/40 transition-all duration-300 flex flex-col h-full text-left">
+                <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors">I'dad Lughowi</h3>
+                <p class="text-sm text-gray-600 leading-relaxed mb-8 flex-1">Program intensif penguasaan Bahasa Arab bagi yang ingin memperdalam dasar-dasar bahasa Al-Qur'an.</p>
+                
+                <div class="inline-flex items-center text-emerald-600 font-bold group-hover:translate-x-1 transition-transform">
+                    <span>Mulai Pendaftaran</span>
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                </div>
+            </a>
+        </div>
+
+        <div class="bg-gray-50 px-8 py-4 text-center">
+            <p class="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Matla Islamic Academy &bull; PMB 2026/2027</p>
+        </div>
+    </div>
+</div>
 
 <!-- Alur Pendaftaran Section -->
 <section class="py-24 bg-white">
@@ -398,9 +455,9 @@
         </p>
 
         @if($settings['pmb_is_open'] == '1')
-        <a href="{{ $settings['pmb_registration_link'] }}" class="inline-block px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-500/20 transition-all transform hover:scale-105">
-            Isi Formulir Pendaftaran
-        </a>
+        <button @click="showModal = true" class="inline-block px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-500/20 transition-all transform hover:scale-105">
+            Daftar Sekarang
+        </button>
         @else
         <div class="inline-block px-10 py-4 bg-red-500/20 text-red-200 border border-red-500/30 rounded-xl font-bold text-xl">
             Pendaftaran Saat Ini Ditutup
@@ -487,4 +544,5 @@
     });
 </script>
 @endif
+</div>
 @endsection

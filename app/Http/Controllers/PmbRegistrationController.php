@@ -6,50 +6,87 @@ use App\Models\PmbRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+use App\Models\ProgramStudi;
+
 class PmbRegistrationController extends Controller
 {
     public function create()
     {
-        return view('pmb.register');
+        $programs = ProgramStudi::active()->get();
+        return view('pmb.register', compact('programs'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             // Section 1: Data Pribadi
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
+            'full_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z\\s]+$/', // Letters and spaces only
+            ],
             'reference' => 'nullable|string|max:255',
-            'nik' => 'required|string|max:20|unique:pmb_registrations,nik',
             'birth_place' => 'required|string|max:255',
             'birth_date' => 'required|date',
             'gender' => 'required|in:Laki-laki,Perempuan',
-            'whatsapp_number' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string',
+            'whatsapp_number' => [
+                'required',
+                'string',
+                'min:10',
+                'max:15',
+                'regex:/^[0-9]+$/',
+                'unique:pmb_registrations,whatsapp_number',
+            ],
+            'email' => 'required|email:rfc,dns|max:255|unique:pmb_registrations,email',
+            'address' => 'required|string|max:500',
             'activity_status' => 'required|string|max:255',
-
-            // Section 2: Data Pendidikan
-            'last_education' => 'required|string|max:255',
-            'school_name' => 'required|string|max:255',
-            'graduation_year' => 'required|string|size:4',
+            'school_name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z\\s]+$/',
+            ],
+            'graduation_year' => [
+                'required',
+                'digits:4',
+                'integer',
+                'min:1900',
+                'max:' . date('Y'),
+            ],
             'study_program' => 'required|string|max:255',
+            'registration_type' => 'required|in:pai,idad',
 
-            // Section 3: Ilmu Syar'i & Tech
-            'skill_level' => 'required|integer|min:1|max:100',
-            'skill_100_desc' => 'nullable|string',
-            'urgency_opinion' => 'required|string',
-            'focus_opinion' => 'required|string',
-            'comparison_opinion' => 'required|string',
-            'target_skill' => 'required|string|max:255',
+            // Section 2: Ilmu Syar'i & Technology
             'main_interest' => 'required|string|max:255',
-            'motivation' => 'required|string',
+            'tech_experience' => 'required|string|max:255',
+            'skill_to_learn' => 'required|string|max:255',
+            'motivation' => 'required|string', // Motivasi Kuliah
+            'urgency_opinion' => 'required|string',
+            'future_career' => 'required|string',
+            'degree_importance' => 'required|string',
+            'commitment_check' => 'required|accepted',
+
+            // Honeypot field to trap bots
+            'website' => 'nullable|max:0',
 
             // Section 4: Administrasi
             'payment_proof' => 'required|file|image|max:5120', // Max 5MB
+        ], [
+            'full_name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
+            'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka.',
+            'whatsapp_number.min' => 'Nomor WhatsApp minimal 10 digit.',
+            'email.email' => 'Format email tidak valid atau domain tidak ditemukan.',
+            'email.unique' => 'Email ini sudah terdaftar dalam sistem PMB kami.',
+            'whatsapp_number.unique' => 'Nomor WhatsApp ini sudah terdaftar.',
+            'commitment_check.accepted' => 'Anda harus menyetujui komitmen belajar.',
+            'website.max' => 'Bot detected.',
         ]);
 
-        // Handle file upload
+        // Mapping checkbox commitment to boolean
+        $validated['commitment_check'] = $request->has('commitment_check');
+
+        // Handle payment proof upload
         if ($request->hasFile('payment_proof')) {
             $path = $request->file('payment_proof')->store('pmb_payments', 'public');
             $validated['payment_proof'] = $path;

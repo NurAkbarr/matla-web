@@ -10,17 +10,24 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             Kembali ke Daftar
         </a>
-        <div class="flex items-center space-x-4">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ $registration->registration_code }}</h1>
-            @if($registration->status == 'pending')
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-yellow-100 text-yellow-700">Pending</span>
-            @elseif($registration->status == 'verified')
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-blue-100 text-blue-700">Terverifikasi</span>
-            @elseif($registration->status == 'accepted')
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">Diterima</span>
-            @else
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-red-100 text-red-700">Ditolak</span>
-            @endif
+             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ $registration->registration_code }}</h1>
+            <div class="flex flex-wrap gap-2">
+                @if($registration->registration_type == 'pai')
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter bg-indigo-100 text-indigo-700 border border-indigo-200">Jalur PAI (Lengkap)</span>
+                @else
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter bg-amber-100 text-amber-700 border border-amber-200">Jalur I'DAD (Ringan)</span>
+                @endif
+
+                @if($registration->status == 'pending')
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-yellow-100 text-yellow-700 border border-yellow-200">Pending</span>
+                @elseif($registration->status == 'verified')
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-100 text-blue-700 border border-blue-200">Terverifikasi</span>
+                @elseif($registration->status == 'accepted')
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 border border-emerald-200">Diterima</span>
+                @else
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-100 text-red-700 border border-red-200">Ditolak</span>
+                @endif
+            </div>
         </div>
         <p class="text-gray-500 font-medium mt-1">Didaftarkan pada: {{ $registration->created_at->format('d F Y H:i') }}</p>
     </div>
@@ -48,12 +55,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
                 <div>
                     <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Nama Lengkap</label>
-                    <p class="font-medium text-gray-900">{{ $registration->first_name }} {{ $registration->last_name }}</p>
+                    <p class="font-bold text-gray-900 text-lg">{{ $registration->full_name }}</p>
                 </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">NIK</label>
-                    <p class="font-medium text-gray-900">{{ $registration->nik }}</p>
-                </div>
+                <div></div>
                 <div>
                     <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Tempat, Tgl Lahir</label>
                     <p class="font-medium text-gray-900">{{ $registration->birth_place }}, {{ \Carbon\Carbon::parse($registration->birth_date)->format('d M Y') }}</p>
@@ -77,11 +81,16 @@
                 <hr class="md:col-span-2 border-gray-100">
                 <div>
                     <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Program Studi</label>
-                    <p class="font-black text-primary">{{ $registration->study_program }}</p>
+                    <p class="font-black text-primary text-lg">{{ $registration->study_program }}</p>
                 </div>
                 <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Pendidikan Terakhir</label>
-                    <p class="font-medium text-gray-900">{{ $registration->last_education }} ({{ $registration->graduation_year }}) - {{ $registration->school_name }}</p>
+                    @if($registration->registration_type == 'pai')
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Pendidikan Terakhir</label>
+                        <p class="font-medium text-gray-900">{{ $registration->last_education }} ({{ $registration->graduation_year }}) - {{ $registration->school_name }}</p>
+                    @else
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Tipe Jalur</label>
+                        <p class="text-amber-600 font-bold italic">I'DAD (Biodata Ringan)</p>
+                    @endif
                 </div>
                 <div class="md:col-span-2">
                     <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Sumber Referensi / Info</label>
@@ -94,47 +103,49 @@
         <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b border-gray-100 pb-4">
                 <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-3 text-sm">2</span>
-                Analisis Syar'i & Teknologi
+                Pandangan & Kesiapan Belajar
             </h2>
 
-            <div class="space-y-6">
-                <div class="flex items-center space-x-6 p-4 bg-gray-50 rounded-2xl">
-                    <div class="w-20">
-                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1 text-center">Tech Skill</label>
-                        <div class="text-3xl font-black text-primary text-center">{{ $registration->skill_level }}<span class="text-lg text-primary/50">%</span></div>
-                    </div>
-                    <div class="flex-1">
+            <div class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                         <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Minat Utama</label>
                         <p class="font-bold text-gray-900">{{ $registration->main_interest }}</p>
                     </div>
-                    <div class="flex-1">
-                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Target Skill Baru</label>
-                        <p class="font-bold text-gray-900">{{ $registration->target_skill }}</p>
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Pengalaman IT</label>
+                        <p class="font-bold text-gray-900">{{ $registration->tech_experience }}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Skill Ingin Belajar</label>
+                        <p class="font-bold text-gray-900">{{ $registration->skill_to_learn }}</p>
                     </div>
                 </div>
 
-                @if($registration->skill_100_desc)
-                <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-primary block mb-1">Penjelasan Skill 100%</label>
-                    <p class="text-sm text-gray-700 bg-primary/5 p-4 rounded-xl italic block">"{{ $registration->skill_100_desc }}"</p>
+                <div class="flex items-center space-x-3 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-emerald-800">Komitmen Belajar Terverifikasi</p>
+                        <p class="text-xs text-emerald-600 font-medium">Pendaftar menyatakan siap mengikuti program dengan sungguh-sungguh.</p>
+                    </div>
                 </div>
-                @endif
 
-                <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Pandangan: Urgensi Ilmu Syar'i & Teknologi</label>
-                    <p class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl leading-relaxed">{{ $registration->urgency_opinion }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Motivasi Kuliah</label>
+                        <p class="text-sm font-medium text-gray-800 bg-gray-50 p-4 rounded-xl leading-relaxed border border-gray-100">{{ $registration->motivation }}</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Pandangan Masa Depan</label>
+                        <p class="text-sm font-medium text-gray-800 bg-gray-50 p-4 rounded-xl leading-relaxed border border-gray-100">{{ $registration->future_career }}</p>
+                    </div>
                 </div>
+                
                 <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Opini: Fokus pada Syar'i saja?</label>
-                    <p class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl leading-relaxed">{{ $registration->focus_opinion }}</p>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Komparasi: Integrasi vs Separasi</label>
-                    <p class="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl leading-relaxed">{{ $registration->comparison_opinion }}</p>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Motivasi Kuliah</label>
-                    <p class="text-sm font-medium text-gray-900 bg-emerald-50 border border-emerald-100 p-4 rounded-xl leading-relaxed">{{ $registration->motivation }}</p>
+                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Pentingnya Gelar vs Skill</label>
+                    <p class="text-sm font-medium text-gray-800 bg-gray-50 p-4 rounded-xl leading-relaxed border border-gray-100">{{ $registration->degree_importance }}</p>
                 </div>
             </div>
         </div>
