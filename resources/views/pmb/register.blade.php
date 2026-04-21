@@ -39,19 +39,21 @@
         </div>
         @endif
 
-        <form action="{{ route('pmb.register.store') }}" method="POST" enctype="multipart/form-data" id="pmbForm" class="space-y-12">
+        <form action="{{ route('pmb.register.store') }}" method="POST" enctype="multipart/form-data" id="pmbForm" class="space-y-16 md:space-y-24">
             @csrf
             <!-- Hidden Registration Type Capturing URL param -->
             <input type="hidden" name="registration_type" x-model="formData.registration_type">
 
             <!-- SECTION 1: DATA PRIBADI -->
-            <div class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/40 p-8 md:p-12 border border-white">
+            <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-xl shadow-gray-200/40 p-8 md:p-12 border border-white">
                 <div class="flex items-center space-x-5 mb-10 border-b border-gray-50 pb-8">
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-primary">
+                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
+                    <div>
                         <h2 class="text-2xl font-black text-gray-900 tracking-tight">Data Pribadi</h2>
                         <p class="text-gray-400 text-xs font-bold mt-1">Identitas diri & Riwayat pendidikan</p>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -129,9 +131,9 @@
             </div>
 
             <!-- SECTION 2: ILMU SYAR'I & TECHNOLOGY -->
-            <div class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/40 p-8 md:p-12 border border-white">
+            <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-xl shadow-gray-200/40 p-8 md:p-12 border border-white">
                 <div class="flex items-center space-x-5 mb-10 border-b border-gray-50 pb-8">
-                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 flex-shrink-0">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <div>
@@ -210,11 +212,12 @@
             </div>
 
             <!-- SECTION 3: ADMINISTRASI PEMBAYARAN -->
-            <div class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/40 p-8 md:p-12 border border-white">
+            <div class="bg-white rounded-3xl md:rounded-[2.5rem] shadow-xl shadow-gray-200/40 p-8 md:p-12 border border-white">
                 <div class="flex items-center space-x-5 mb-10 border-b border-gray-50 pb-8">
-                    <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+                    <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 flex-shrink-0">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     </div>
+                    <div>
                         <h2 class="text-2xl font-black text-gray-900 tracking-tight">Administrasi Pembayaran</h2>
                         <p class="text-gray-400 text-xs font-bold mt-1">Konfirmasi & Bukti Pendaftaran</p>
                     </div>
