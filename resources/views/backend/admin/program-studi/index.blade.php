@@ -35,15 +35,10 @@
                 <tr class="hover:bg-gray-50/30 transition-colors">
                     <td class="px-8 py-5 text-sm text-gray-400 font-medium">{{ $loop->iteration }}</td>
                     <td class="px-8 py-5">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-xl shrink-0">
-                                {{ $prodi->icon }}
-                            </div>
                             <div>
                                 <p class="font-bold text-gray-900 text-sm">{{ $prodi->nama }}</p>
                                 <p class="text-xs text-gray-400 font-medium">{{ $prodi->singkatan }}</p>
                             </div>
-                        </div>
                     </td>
                     <td class="px-8 py-5">
                         <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
@@ -89,7 +84,7 @@
                 <tr>
                     <td colspan="6" class="px-8 py-16 text-center">
                         <div class="flex flex-col items-center space-y-3">
-                            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-3xl">🎓</div>
+                            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-3xl">📚</div>
                             <p class="text-gray-400 font-medium text-sm">Belum ada program studi. <a href="{{ route('backend.admin.program-studi.create') }}" class="text-primary font-bold hover:underline">Tambah sekarang</a></p>
                         </div>
                     </td>

@@ -36,7 +36,7 @@
                     <div class="relative">
                         <select name="jenjang" id="jenjang" required
                             class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm appearance-none cursor-pointer">
-                            @foreach(['D3','D4','S1','S2','S3','Profesi'] as $j)
+                            @foreach(['D3','D4','S1','S2','S3','Profesi','Persiapan'] as $j)
                                 <option value="{{ $j }}" {{ old('jenjang','S1') == $j ? 'selected' : '' }}>{{ $j }}</option>
                             @endforeach
                         </select>
@@ -46,13 +46,7 @@
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label for="icon" class="text-xs font-bold text-gray-700 uppercase tracking-widest">Icon (Emoji)</label>
-                    <input type="text" name="icon" id="icon"
-                        class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm text-2xl"
-                        placeholder="🎓" value="{{ old('icon', '🎓') }}" maxlength="5">
-                    <p class="text-[10px] text-gray-400">Masukkan satu emoji sebagai ikon program studi</p>
-                </div>
+
 
                 <div class="space-y-2">
                     <label for="akreditasi" class="text-xs font-bold text-gray-700 uppercase tracking-widest">Akreditasi</label>

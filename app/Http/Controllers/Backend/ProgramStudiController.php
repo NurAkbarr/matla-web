@@ -24,9 +24,8 @@ class ProgramStudiController extends Controller
         $request->validate([
             'nama'       => ['required', 'string', 'max:255'],
             'singkatan'  => ['required', 'string', 'max:20'],
-            'jenjang'    => ['required', 'in:D3,D4,S1,S2,S3,Profesi'],
+            'jenjang'    => ['required', 'in:D3,D4,S1,S2,S3,Profesi,Persiapan'],
             'deskripsi'  => ['nullable', 'string'],
-            'icon'       => ['nullable', 'string', 'max:10'],
             'akreditasi' => ['nullable', 'string', 'max:20'],
             'urutan'     => ['nullable', 'integer'],
         ]);
@@ -36,7 +35,6 @@ class ProgramStudiController extends Controller
             'singkatan'  => strtoupper($request->singkatan),
             'jenjang'    => $request->jenjang,
             'deskripsi'  => $request->deskripsi,
-            'icon'       => $request->icon ?? '🎓',
             'akreditasi' => $request->akreditasi ?? 'Baik',
             'is_active'  => $request->has('is_active'),
             'urutan'     => $request->urutan ?? 0,
@@ -56,9 +54,8 @@ class ProgramStudiController extends Controller
         $request->validate([
             'nama'       => ['required', 'string', 'max:255'],
             'singkatan'  => ['required', 'string', 'max:20'],
-            'jenjang'    => ['required', 'in:D3,D4,S1,S2,S3,Profesi'],
+            'jenjang'    => ['required', 'in:D3,D4,S1,S2,S3,Profesi,Persiapan'],
             'deskripsi'  => ['nullable', 'string'],
-            'icon'       => ['nullable', 'string', 'max:10'],
             'akreditasi' => ['nullable', 'string', 'max:20'],
             'urutan'     => ['nullable', 'integer'],
         ]);
@@ -68,7 +65,6 @@ class ProgramStudiController extends Controller
             'singkatan'  => strtoupper($request->singkatan),
             'jenjang'    => $request->jenjang,
             'deskripsi'  => $request->deskripsi,
-            'icon'       => $request->icon ?? '🎓',
             'akreditasi' => $request->akreditasi ?? 'Baik',
             'is_active'  => $request->has('is_active'),
             'urutan'     => $request->urutan ?? 0,

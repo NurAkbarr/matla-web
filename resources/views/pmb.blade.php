@@ -465,7 +465,7 @@
         @endif
 
         <p class="mt-8 text-emerald-100/60 font-medium">
-            Butuh bantuan? <a href="https://wa.me/your-number" target="_blank" class="text-emerald-400 hover:underline">Hubungi kami via WhatsApp</a>
+            Butuh bantuan? <a href="https://wa.me/6287784538820" target="_blank" class="text-emerald-400 hover:underline">Hubungi kami via WhatsApp</a>
         </p>
     </div>
 </section>

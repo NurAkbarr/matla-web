@@ -42,7 +42,7 @@
                     </svg>
                 </div>
                 <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Email</h3>
-                <a href="mailto:setyaakbar33@gmail.com" class="text-primary hover:underline font-medium">setyaakbar33@gmail.com</a>
+                <a href="mailto:matlaislamicuniversity@gmail.com" class="text-primary hover:underline font-medium">matlaislamicuniversity@gmail.com</a>
             </div>
 
             <!-- Telepon Card -->
@@ -53,7 +53,7 @@
                     </svg>
                 </div>
                 <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Telepon</h3>
-                <a href="tel:+6282124306742" class="text-gray-700 font-medium hover:text-primary transition-colors">082124306742</a>
+                <a href="tel:+6287784538820" class="text-gray-700 font-medium hover:text-primary transition-colors">+62 877-8453-8820</a>
             </div>
 
             <!-- WhatsApp Card -->
@@ -64,7 +64,7 @@
                     </svg>
                 </div>
                 <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">WhatsApp</h3>
-                <a href="https://wa.me/6282124306742" target="_blank" class="text-gray-700 font-medium hover:text-primary transition-colors">082124306742</a>
+                <a href="https://wa.me/6287784538820" target="_blank" class="text-gray-700 font-medium hover:text-primary transition-colors">+62 877-8453-8820</a>
             </div>
         </div>
     </div>

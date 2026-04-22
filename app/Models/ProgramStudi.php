@@ -16,7 +16,6 @@ class ProgramStudi extends Model
         'singkatan',
         'jenjang',
         'deskripsi',
-        'icon',
         'akreditasi',
         'is_active',
         'urutan',

@@ -90,8 +90,16 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
 
         // PMB Registration Management
         Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
+        Route::get('/admin/pmb/registrations/export', [\App\Http\Controllers\Backend\AdminPmbController::class, 'export'])->name('admin.pmb.registrations.export');
         Route::get('/admin/pmb/registrations/{registration}', [\App\Http\Controllers\Backend\AdminPmbController::class, 'show'])->name('admin.pmb.registrations.show');
         Route::put('/admin/pmb/registrations/{registration}/status', [\App\Http\Controllers\Backend\AdminPmbController::class, 'updateStatus'])->name('admin.pmb.registrations.updateStatus');
+        Route::post('/admin/pmb/registrations/{registration}/generate-student', [\App\Http\Controllers\Backend\AdminPmbController::class, 'generateStudent'])->name('admin.pmb.registrations.generateStudent');
+        Route::delete('/admin/pmb/registrations/{registration}', [\App\Http\Controllers\Backend\AdminPmbController::class, 'destroy'])->name('admin.pmb.registrations.destroy');
+        
+        // Trash Management
+        Route::get('/admin/pmb/trash', [\App\Http\Controllers\Backend\AdminPmbController::class, 'trash'])->name('admin.pmb.registrations.trash');
+        Route::post('/admin/pmb/registrations/{id}/restore', [\App\Http\Controllers\Backend\AdminPmbController::class, 'restore'])->name('admin.pmb.registrations.restore');
+        Route::delete('/admin/pmb/registrations/{id}/force', [\App\Http\Controllers\Backend\AdminPmbController::class, 'forceDelete'])->name('admin.pmb.registrations.forceDelete');
     });
 
 

@@ -16,15 +16,13 @@ class PmbStatusController extends Controller
     {
         $request->validate([
             'registration_code' => 'required|string',
-            'nik' => 'required|string',
         ]);
 
         $registration = PmbRegistration::where('registration_code', $request->registration_code)
-                                     ->where('nik', $request->nik)
                                      ->first();
 
         if (!$registration) {
-            return back()->with('error', 'Nomor Registrasi atau NIK tidak ditemukan. Harap periksa kembali ketikan Anda.')->withInput();
+            return back()->with('error', 'Nomor Registrasi tidak ditemukan. Harap periksa kembali ketikan Anda.')->withInput();
         }
 
         // Store registration id in session briefly so we don't need URL params for status if unwanted, 
@@ -37,7 +35,6 @@ class PmbStatusController extends Controller
 
     public function printLoa($registration_code)
     {
-        // Require NIK from query param as a light security check if needed, but since it's just PDF, the logic here will be simple.
         // For security, ideally we store it in session, but to keep it simple, we just query by code.
         // Only accepted can print
         $registration = PmbRegistration::where('registration_code', $registration_code)

@@ -109,12 +109,16 @@
                     </div>
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Program Studi *</label>
-                        <select name="study_program" x-model="formData.study_program" class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-semibold text-gray-900 appearance-none">
-                            <option value="">Pilih Program Studi</option>
-                            @foreach($programs as $p)
-                            <option value="{{ $p->nama }}">{{ $p->nama }}</option>
-                            @endforeach
-                        </select>
+                        <div class="w-full px-6 py-4 bg-primary/5 border border-primary/20 rounded-2xl flex items-center justify-between group">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                </div>
+                                <span class="font-black text-gray-900 tracking-tight">{{ $selectedProgram->nama ?? 'Program Studi' }}</span>
+                            </div>
+                            <span class="text-[10px] font-black uppercase text-primary tracking-widest bg-white px-3 py-1 rounded-full shadow-sm">Terpilih</span>
+                        </div>
+                        <input type="hidden" name="study_program" x-model="formData.study_program">
                     </div>
                 </div>
 
@@ -312,7 +316,7 @@
                 email: '',
                 address: '',
                 activity_status: '',
-                study_program: '{{ request('p', '') }}',
+                study_program: @json($selectedProgram->nama ?? ''),
                 registration_type: '{{ request('type', 'pai') }}',
                 school_name: '',
                 graduation_year: '',

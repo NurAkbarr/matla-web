@@ -10,10 +10,40 @@ use App\Models\ProgramStudi;
 
 class PmbRegistrationController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
-        $programs = ProgramStudi::active()->get();
-        return view('pmb.register', compact('programs'));
+        $type = $request->query('type', 'pai');
+        
+        // Check if IDAD prodi exists if type is idad
+        if ($type == 'idad') {
+            $idadExists = ProgramStudi::where('is_active', 1)
+                ->where(function($q) {
+                    $q->where('nama', 'LIKE', '%I\'DAD%')
+                      ->orWhere('singkatan', 'LIKE', '%IDAD%');
+                })->exists();
+                
+            if (!$idadExists) {
+                return redirect()->route('pmb.register', ['type' => 'pai']);
+            }
+        }
+
+        $programs = ProgramStudi::where('is_active', 1)->orderBy('urutan')->get();
+
+        // Determine the selected program based on type (Robust matching)
+        $selectedProgram = null;
+        if ($type == 'idad') {
+            $selectedProgram = $programs->first(function($p) {
+                $cleanName = str_replace("'", "", strtolower($p->nama));
+                return str_contains($cleanName, 'idad');
+            });
+        } else {
+            $selectedProgram = $programs->first(function($p) {
+                $lowerName = strtolower($p->nama);
+                return str_contains($lowerName, 'pendidikan') || str_contains(strtolower($p->singkatan), 'pai');
+            });
+        }
+
+        return view('pmb.register', compact('programs', 'selectedProgram', 'type'));
     }
 
     public function store(Request $request)
@@ -92,13 +122,30 @@ class PmbRegistrationController extends Controller
             $validated['payment_proof'] = $path;
         }
 
-        // Generate Registration Code
+        // Generate Registration Code (Safe from collisions even after deletions)
         $year = date('Y');
-        $count = PmbRegistration::whereYear('created_at', $year)->count() + 1;
+        $count = PmbRegistration::withTrashed()->whereYear('created_at', $year)->count() + 1;
         $validated['registration_code'] = 'PMB-' . $year . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+        
+        // Add IP Address for security audit
+        $validated['ip_address'] = $request->ip();
 
         // Store to database
         $registration = PmbRegistration::create($validated);
+
+        // Send Telegram & Email Notification
+        try {
+            // Telegram
+            $notification = new \App\Notifications\NewRegistrationNotification($registration);
+            $notification->toTelegram(null);
+
+            // Email (To admin address defined in .env)
+            $adminEmail = env('MAIL_FROM_ADDRESS'); // Fallback to from address if no dedicated admin email
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\NewRegistrationMail($registration));
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Registration Notification Failed: ' . $e->getMessage());
+        }
 
         return redirect()->route('pmb.success', $registration->registration_code);
     }
