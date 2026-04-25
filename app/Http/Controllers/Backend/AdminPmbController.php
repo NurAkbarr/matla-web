@@ -9,6 +9,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PmbRegistrationExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminPmbController extends Controller
 {
@@ -32,7 +35,17 @@ class AdminPmbController extends Controller
         return view('backend.admin.pmb.index', compact('registrations', 'activePrograms'));
     }
 
-    public function export(Request $request)
+    public function exportExcel(Request $request)
+    {
+        $status = $request->status;
+        $prodi = $request->prodi;
+        
+        $fileName = 'Pendaftar_PMB_' . date('Y-m-d_H-i') . '.xlsx';
+        
+        return Excel::download(new PmbRegistrationExport($status, $prodi), $fileName);
+    }
+
+    public function exportPdf(Request $request)
     {
         $query = PmbRegistration::query();
 
@@ -44,56 +57,14 @@ class AdminPmbController extends Controller
             $query->where('study_program', $request->prodi);
         }
 
-        $query->orderBy('created_at', 'desc');
+        $registrations = $query->latest()->get();
+        $status = $request->status;
+        $prodi = $request->prodi;
 
-        $headers = [
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Content-type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename=Pendaftar_PMB_' . date('Y-m-d_H-i') . '.csv',
-            'Expires' => '0',
-            'Pragma' => 'public',
-        ];
+        $pdf = Pdf::loadView('backend.admin.pmb.export-pdf', compact('registrations', 'status', 'prodi'))
+                  ->setPaper('a4', 'landscape');
 
-        $callback = function() use ($query) {
-            $file = fopen('php://output', 'w');
-            
-            // CSV Header
-            fputcsv($file, [
-                'No. Registrasi',
-                'Nama Lengkap',
-                'Email',
-                'WhatsApp',
-                'Tempat Lahir',
-                'Tanggal Lahir',
-                'Prodi',
-                'Sekolah Asal',
-                'Tahun Lulus',
-                'Status',
-                'Tanggal Daftar'
-            ]);
-
-            $query->chunk(100, function($registrations) use ($file) {
-                foreach ($registrations as $reg) {
-                    fputcsv($file, [
-                        $reg->registration_code,
-                        $reg->full_name,
-                        $reg->email,
-                        $reg->whatsapp_number,
-                        $reg->birth_place,
-                        $reg->birth_date,
-                        $reg->study_program,
-                        $reg->school_name,
-                        $reg->graduation_year,
-                        ucfirst($reg->status),
-                        $reg->created_at->format('d/m/Y H:i')
-                    ]);
-                }
-            });
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $pdf->download('Laporan_PMB_' . date('Y-m-d_H-i') . '.pdf');
     }
 
     public function show(PmbRegistration $registration)

@@ -26,19 +26,30 @@
             </div>
             @endif
 
-            <form action="{{ route('pmb.status.check') }}" method="POST" class="space-y-6">
+            <form action="{{ route('pmb.status.check') }}" method="POST" class="space-y-6" x-data="{ loading: false }" @submit="loading = true">
                 @csrf
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Nomor Registrasi PMB</label>
                     <input type="text" name="registration_code" required class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-lg font-bold tracking-wider placeholder-gray-300" placeholder="PMB-202X-XXX" value="{{ old('registration_code') }}">
                 </div>
-                
-
 
                 <div class="pt-4">
-                    <button type="submit" class="w-full py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all text-lg flex items-center justify-center space-x-2">
-                        <span>Cari Data Saya</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <button type="submit" class="w-full py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all text-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="loading">
+                        <template x-if="!loading">
+                            <div class="flex items-center space-x-2">
+                                <span>Cari Data Saya</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                        </template>
+                        <template x-if="loading">
+                            <div class="flex items-center space-x-2">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Sedang Mencari...</span>
+                            </div>
+                        </template>
                     </button>
                 </div>
             </form>

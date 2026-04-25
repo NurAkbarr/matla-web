@@ -193,6 +193,25 @@
         </nav>
 
         <main>
+            <!-- Global Flash Messages -->
+            @if(session('error') || session('success'))
+            <div class="fixed top-24 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md animate-in fade-in slide-in-from-top-4 duration-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+                <div class="{{ session('error') ? 'bg-red-50 border-red-200 text-red-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800' }} border p-4 rounded-2xl shadow-xl flex items-start space-x-3 backdrop-blur-md">
+                    @if(session('error'))
+                        <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    @else
+                        <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    @endif
+                    <div class="flex-1">
+                        <p class="text-sm font-bold">{{ session('error') ?? session('success') }}</p>
+                    </div>
+                    <button @click="show = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            @endif
+
             @yield('content')
         </main>
 

@@ -18,22 +18,20 @@ Route::get('/', function () {
 
 // Authentication
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
 
 
 Route::get('/pmb', [PmbController::class, 'index'])->name('pmb');
 Route::get('/pmb/register', [\App\Http\Controllers\PmbRegistrationController::class, 'create'])->name('pmb.register');
-Route::post('/pmb/register', [\App\Http\Controllers\PmbRegistrationController::class, 'store'])->name('pmb.register.store');
+Route::post('/pmb/register', [\App\Http\Controllers\PmbRegistrationController::class, 'store'])->name('pmb.register.store')->middleware('throttle:registration');
 Route::get('/pmb/success/{registration_code}', [\App\Http\Controllers\PmbRegistrationController::class, 'success'])->name('pmb.success');
 Route::get('/pmb/status', [\App\Http\Controllers\PmbStatusController::class, 'index'])->name('pmb.status');
 Route::post('/pmb/status', [\App\Http\Controllers\PmbStatusController::class, 'check'])->name('pmb.status.check');
 Route::get('/pmb/loa/{registration_code}', [\App\Http\Controllers\PmbStatusController::class, 'printLoa'])->name('pmb.loa');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
-Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
+Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store')->middleware('throttle:contact');
 
 // Backend Routes
 Route::prefix('backend')->name('backend.')->middleware('auth')->group(function () {
@@ -90,7 +88,8 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
 
         // PMB Registration Management
         Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
-        Route::get('/admin/pmb/registrations/export', [\App\Http\Controllers\Backend\AdminPmbController::class, 'export'])->name('admin.pmb.registrations.export');
+        Route::get('/admin/pmb/registrations/export/excel', [\App\Http\Controllers\Backend\AdminPmbController::class, 'exportExcel'])->name('admin.pmb.registrations.export.excel');
+        Route::get('/admin/pmb/registrations/export/pdf', [\App\Http\Controllers\Backend\AdminPmbController::class, 'exportPdf'])->name('admin.pmb.registrations.export.pdf');
         Route::get('/admin/pmb/registrations/{registration}', [\App\Http\Controllers\Backend\AdminPmbController::class, 'show'])->name('admin.pmb.registrations.show');
         Route::put('/admin/pmb/registrations/{registration}/status', [\App\Http\Controllers\Backend\AdminPmbController::class, 'updateStatus'])->name('admin.pmb.registrations.updateStatus');
         Route::post('/admin/pmb/registrations/{registration}/generate-student', [\App\Http\Controllers\Backend\AdminPmbController::class, 'generateStudent'])->name('admin.pmb.registrations.generateStudent');

@@ -20,6 +20,14 @@ class KontakController extends Controller
             'message' => 'required|string',
         ]);
 
+        // --- GLOBAL INPUT SANITIZATION (Anti-XSS & Cleaning) ---
+        $validated = array_map(function($value) {
+            if (is_string($value)) {
+                return trim(strip_tags($value));
+            }
+            return $value;
+        }, $validated);
+
         \App\Models\ContactMessage::create($validated);
 
         return back()->with('success', 'Pesan Anda berhasil dikirim! Tim kami akan segera menindaklanjuti pesan Anda.');

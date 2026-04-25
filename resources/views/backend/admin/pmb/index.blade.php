@@ -31,10 +31,16 @@
             </button>
         </form>
         
-        <a href="{{ route('backend.admin.pmb.registrations.export', request()->all()) }}" class="w-full md:w-auto px-6 py-3 bg-emerald-500 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center justify-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span>Export Excel</span>
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('backend.admin.pmb.registrations.export.excel', request()->all()) }}" class="w-full md:w-auto px-5 py-3 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Excel</span>
+            </a>
+            <a href="{{ route('backend.admin.pmb.registrations.export.pdf', request()->all()) }}" class="w-full md:w-auto px-5 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 transition-colors shadow-sm flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                <span>PDF Laporan</span>
+            </a>
+        </div>
 
         @if(auth()->user()->role == 'super_admin')
             <a href="{{ route('backend.admin.pmb.registrations.trash') }}" class="w-full md:w-auto px-6 py-3 bg-gray-100 text-gray-500 hover:bg-gray-200 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-2" title="Kotak Sampah">

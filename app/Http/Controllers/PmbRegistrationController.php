@@ -113,6 +113,14 @@ class PmbRegistrationController extends Controller
             'website.max' => 'Bot detected.',
         ]);
 
+        // --- GLOBAL INPUT SANITIZATION (Anti-XSS & Cleaning) ---
+        $validated = array_map(function($value) {
+            if (is_string($value)) {
+                return trim(strip_tags($value));
+            }
+            return $value;
+        }, $validated);
+
         // Mapping checkbox commitment to boolean
         $validated['commitment_check'] = $request->has('commitment_check');
 

@@ -35,12 +35,13 @@ class PmbStatusController extends Controller
 
     public function printLoa($registration_code)
     {
-        // For security, ideally we store it in session, but to keep it simple, we just query by code.
-        // Only accepted can print
         $registration = PmbRegistration::where('registration_code', $registration_code)
                                      ->where('status', 'accepted')
                                      ->firstOrFail();
 
-        return view('pmb.loa', compact('registration'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pmb.loa', compact('registration'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download('LoA_Matla_' . $registration->registration_code . '.pdf');
     }
 }
