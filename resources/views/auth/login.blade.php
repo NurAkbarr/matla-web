@@ -79,8 +79,8 @@
 
             <!-- Footer Info -->
             <div class="mt-8 text-center pt-8 border-t border-gray-100">
-                <p class="text-sm text-gray-500">
-                    Bukan Sivitas Akademika? <a href="{{ route('register') }}" class="text-primary font-bold hover:underline">Daftar sebagai Mahasiswa</a>
+                <p class="text-xs text-gray-400 mt-2 italic text-center">
+                    Bagi mahasiswa baru, silakan gunakan akun yang telah diberikan oleh Tim Admisi setelah kelulusan PMB.
                 </p>
                 <p class="text-xs text-gray-400 mt-2 italic">
                     Staf & Dosen silakan hubungi Bagian IT untuk akses akun.
