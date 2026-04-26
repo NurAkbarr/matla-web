@@ -33,6 +33,26 @@ Route::get('/pmb/loa/{registration_code}', [\App\Http\Controllers\PmbStatusContr
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store')->middleware('throttle:contact');
 
+// ===== KTM Public Route (QR Scan) =====
+Route::get('/p/{qr_token}', function ($qr_token) {
+    $user = \App\Models\User::where('qr_token', $qr_token)
+        ->where('role', 'mahasiswa')
+        ->with(['profil', 'skills', 'portofolio'])
+        ->firstOrFail();
+    return view('mahasiswa.ktm.public', compact('user'));
+})->middleware('throttle:60,1')->name('ktm.public');
+
+// ===== Mahasiswa Area =====
+Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+    Route::get('/ktm', [\App\Http\Controllers\Mahasiswa\KtmController::class, 'show'])->name('ktm');
+    Route::get('/profil', [\App\Http\Controllers\Mahasiswa\ProfilController::class, 'edit'])->name('profil');
+    Route::post('/profil', [\App\Http\Controllers\Mahasiswa\ProfilController::class, 'update'])->name('profil.update');
+    Route::post('/skill', [\App\Http\Controllers\Mahasiswa\SkillController::class, 'store'])->name('skill.store');
+    Route::delete('/skill/{id}', [\App\Http\Controllers\Mahasiswa\SkillController::class, 'destroy'])->name('skill.destroy');
+    Route::post('/portofolio', [\App\Http\Controllers\Mahasiswa\PortofolioController::class, 'store'])->name('portofolio.store');
+    Route::delete('/portofolio/{id}', [\App\Http\Controllers\Mahasiswa\PortofolioController::class, 'destroy'])->name('portofolio.destroy');
+});
+
 // Backend Routes
 Route::prefix('backend')->name('backend.')->middleware('auth')->group(function () {
     
@@ -45,6 +65,14 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/users/create', [\App\Http\Controllers\Backend\UserController::class, 'create'])->name('admin.users.create');
         Route::post('/admin/users', [\App\Http\Controllers\Backend\UserController::class, 'store'])->name('admin.users.store');
         Route::get('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'show'])->name('admin.users.show');
+        
+        // Admin KTM View Route
+        Route::get('/admin/users/{user}/ktm', function (\App\Models\User $user) {
+            if ($user->role !== 'mahasiswa') abort(404);
+            $user->load(['profil', 'skills', 'portofolio']);
+            return view('mahasiswa.ktm.show', compact('user'));
+        })->name('admin.users.ktm');
+
         Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\Backend\UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'destroy'])->name('admin.users.destroy');

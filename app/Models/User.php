@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'angkatan', 'semester', 'status', 'avatar', 'nidn', 'phone', 'address', 'bio', 'education', 'expertise', 'social_links'])]
+#[Fillable(['name', 'nim', 'qr_token', 'email', 'password', 'role', 'angkatan', 'semester', 'status', 'avatar', 'nidn', 'phone', 'address', 'bio', 'education', 'expertise', 'social_links'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -62,5 +62,38 @@ class User extends Authenticatable
     public function taughtSchedules()
     {
         return $this->hasMany(Jadwal::class, 'dosen_id');
+    }
+
+    // ===== KTM Relations =====
+
+    public function profil()
+    {
+        return $this->hasOne(ProfilMahasiswa::class);
+    }
+
+    public function skills()
+    {
+        return $this->hasMany(SkillMahasiswa::class);
+    }
+
+    public function portofolio()
+    {
+        return $this->hasMany(PortofolioMahasiswa::class);
+    }
+
+    public function getFotoProfilAttribute()
+    {
+        if ($this->profil && $this->profil->foto) {
+            return asset('storage/' . $this->profil->foto);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=059669&background=ECFDF5&bold=true&size=256';
+    }
+
+    public function getQrUrlAttribute()
+    {
+        if ($this->qr_token) {
+            return url('/p/' . $this->qr_token);
+        }
+        return null;
     }
 }
