@@ -143,19 +143,39 @@ class DashboardController extends Controller
 
         $count = 0;
         while (($row = fgetcsv($fileHandle, 1000, ',')) !== false) {
-            // Cek minimum 2 kolom (Nama, Email)
-            if (count($row) >= 2 && filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
-                User::updateOrCreate(
-                    ['email' => trim($row[1])],
+            // Karena kadang delimiter di excel CSV indonesia pakai titik koma (;), kita cek
+            if (count($row) == 1 && strpos($row[0], ';') !== false) {
+                $row = explode(';', $row[0]);
+            }
+
+            // Cek minimum 3 kolom (NIM, Nama, Email) dan pastikan email valid
+            if (count($row) >= 3 && filter_var(trim($row[2]), FILTER_VALIDATE_EMAIL)) {
+                
+                $nim = trim($row[0]);
+                $nama = trim($row[1]);
+                $email = trim($row[2]);
+                $prodi = count($row) >= 4 ? trim($row[3]) : null;
+                $status = count($row) >= 6 ? strtoupper(trim($row[5])) : 'AKTIF';
+                
+                $user = User::updateOrCreate(
+                    ['email' => $email],
                     [
-                        'name' => trim($row[0]),
+                        'name' => $nama,
+                        'nim' => $nim,
                         'role' => 'mahasiswa',
-                        'angkatan' => count($row) >= 3 ? trim($row[2]) : null,
-                        'semester' => count($row) >= 4 ? trim($row[3]) : '1',
                         'password' => bcrypt('password123'),
-                        'status' => 'AKTIF'
+                        'status' => $status
                     ]
                 );
+
+                // Update info Prodi ke dalam array JSON education
+                $education = $user->education ?? [];
+                if ($prodi) {
+                    $education['program_studi'] = $prodi;
+                }
+                $user->education = $education;
+                $user->save();
+
                 $count++;
             }
         }
