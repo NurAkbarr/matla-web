@@ -114,8 +114,8 @@
                             </div>
                         </div>
                         <div class="space-y-2 pt-4 border-t border-gray-50">
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Biografi</p>
-                            <p class="text-sm font-medium text-gray-600 leading-relaxed">{{ $user->bio ?? 'Belum ada biografi yang ditambahkan.' }}</p>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tentang Saya</p>
+                            <p class="text-sm font-medium text-gray-600 leading-relaxed">{{ $user->bio ?? 'Belum ada informasi yang ditambahkan.' }}</p>
                         </div>
                     </div>
                 </section>

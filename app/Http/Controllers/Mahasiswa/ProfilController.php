@@ -21,6 +21,8 @@ class ProfilController extends Controller
     {
         $request->validate([
             'tentang_saya' => 'nullable|string|max:1000',
+            'phone'        => 'nullable|string|max:20',
+            'address'      => 'nullable|string|max:1000',
             'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -33,10 +35,16 @@ class ProfilController extends Controller
             }
             $path = $request->file('foto')->store('profil', 'public');
             $profil->foto = $path;
+            $user->avatar = $path;
         }
 
         $profil->tentang_saya = $request->tentang_saya;
         $profil->save();
+
+        $user->phone = $request->phone;
+        $user->address = $request->address;
+        $user->bio = $request->tentang_saya;
+        $user->save();
 
         return back()->with('success', 'Profil berhasil diperbarui.');
     }

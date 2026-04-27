@@ -41,6 +41,14 @@
                         </div>
                         
                         <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nomor Telepon</label>
+                            <input type="text" name="phone" value="{{ $user->phone }}" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3" placeholder="Contoh: 08123456789">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Alamat Domisili</label>
+                            <textarea name="address" rows="2" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3" placeholder="Alamat lengkap saat ini...">{{ $user->address }}</textarea>
+                        </div>
+                        <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Tentang Saya</label>
                             <textarea name="tentang_saya" rows="4" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3" placeholder="Ceritakan sedikit tentang dirimu...">{{ $profil->tentang_saya }}</textarea>
                         </div>
