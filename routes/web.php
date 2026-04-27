@@ -61,6 +61,9 @@ Route::get('/clear-server-cache', function() {
     \Illuminate\Support\Facades\Artisan::call('view:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
+    return "Semua Cache Server (View, Config, Data) BERHASIL dibersihkan! Silakan refresh halaman mahasiswa.";
+});
+
 Route::get('/fix-storage', function () {
     try {
         // Coba cara Laravel default
