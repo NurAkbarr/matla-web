@@ -235,8 +235,9 @@
 
         @if(!request()->routeIs(['login', 'register']))
         <!-- Main Footer -->
-        <footer class="bg-gray-50 border-t border-gray-100 pt-16 pb-8">
+        <footer class="bg-gray-50 border-t border-gray-100 {{ request()->routeIs('backend.*') ? 'pt-8 pb-8' : 'pt-16 pb-8' }}">
             <div class="container mx-auto px-4 lg:px-12">
+                @if(!request()->routeIs('backend.*'))
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
                     <!-- Column 1: Brand & Contact -->
                     <div class="lg:col-span-2">
@@ -310,9 +311,10 @@
                         </ul>
                     </div>
                 </div>
+                @endif
 
                 <!-- Copyright -->
-                <div class="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
+                <div class="{{ !request()->routeIs('backend.*') ? 'pt-8 border-t border-gray-100' : '' }} flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
                     <p class="text-gray-400 text-sm">
                         &copy; {{ date('Y') }} Matla. All rights reserved.
                     </p>
