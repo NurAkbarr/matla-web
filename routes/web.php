@@ -61,15 +61,32 @@ Route::get('/clear-server-cache', function() {
     \Illuminate\Support\Facades\Artisan::call('view:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
-    return "Semua Cache Server (View, Config, Data) BERHASIL dibersihkan! Silakan refresh halaman mahasiswa.";
-});
-
 Route::get('/fix-storage', function () {
     try {
+        // Coba cara Laravel default
         \Illuminate\Support\Facades\Artisan::call('storage:link');
-        return "Berhasil! Folder storage sudah di-link. Silakan refresh halaman profil, foto seharusnya sudah muncul.";
+        $msg1 = "Storage link default berhasil dijalankan. ";
     } catch (\Exception $e) {
-        return "Gagal membuat storage link: " . $e->getMessage() . ". Anda mungkin harus membuatnya manual di cPanel.";
+        $msg1 = "Storage link default gagal: " . $e->getMessage() . ". ";
+    }
+
+    try {
+        // Cara brutal khusus cPanel (Memaksa symlink di folder publik yang aktif)
+        $targetFolder = storage_path('app/public');
+        $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
+        
+        if (file_exists($linkFolder)) {
+            if (is_link($linkFolder)) {
+                unlink($linkFolder); // Hapus symlink lama jika ada
+            } else {
+                return $msg1 . "<br><b>GAGAL TOTAL:</b> Ada folder beneran bernama 'storage' di public_html. Anda harus menghapus folder itu secara manual via cPanel File Manager.";
+            }
+        }
+        
+        symlink($targetFolder, $linkFolder);
+        return $msg1 . "<br><b>BERHASIL (Cara Khusus cPanel):</b> Symlink telah dipaksa dibuat di <code>" . $linkFolder . "</code> mengarah ke <code>" . $targetFolder . "</code>. <br><br>Silakan refresh halaman profil Anda!";
+    } catch (\Exception $e) {
+        return $msg1 . "<br><b>GAGAL (Cara Khusus cPanel):</b> " . $e->getMessage() . ". Solusi terakhir: Buat symlink manual di SSH cPanel atau pindahkan foto langsung ke public_html/storage.";
     }
 });
 
