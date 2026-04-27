@@ -47,20 +47,30 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'in:admin,dosen,mahasiswa,super_admin'],
+            'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:50', 'unique:users'],
+            'program_studi' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:100'],
             'angkatan' => ['required_if:role,mahasiswa', 'nullable', 'string'],
             'semester' => ['required_if:role,mahasiswa', 'nullable', 'integer'],
             'status' => ['required_if:role,mahasiswa', 'nullable', 'string'],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'nim' => $request->nim,
             'angkatan' => $request->angkatan,
             'semester' => $request->semester,
             'status' => $request->status ?? 'AKTIF',
         ]);
+
+        if ($request->filled('program_studi')) {
+            $education = $user->education ?? [];
+            $education['program_studi'] = $request->program_studi;
+            $user->education = $education;
+            $user->save();
+        }
 
         return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil ditambahkan.');
     }
@@ -81,6 +91,8 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'string', 'min:8'],
+            'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:50', 'unique:users,nim,' . $user->id],
+            'program_studi' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:100'],
             'angkatan' => ['required_if:role,mahasiswa', 'nullable', 'string'],
             'semester' => ['required_if:role,mahasiswa', 'nullable', 'integer'],
             'status' => ['required_if:role,mahasiswa', 'nullable', 'string'],
@@ -89,6 +101,7 @@ class UserController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'nim' => $request->nim,
             'angkatan' => $request->angkatan,
             'semester' => $request->semester,
             'status' => $request->status,
@@ -104,6 +117,11 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
+        $education = $user->education ?? [];
+        $education['program_studi'] = $request->program_studi;
+        $user->education = $education;
+        $user->save();
 
         return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil diperbarui.');
     }

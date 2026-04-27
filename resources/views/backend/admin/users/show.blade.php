@@ -38,6 +38,20 @@
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Email</span>
                             <span class="text-sm font-medium text-gray-700">{{ $user->email }}</span>
                         </div>
+                        @if($user->role === 'mahasiswa')
+                        <div class="flex items-center justify-between text-left">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">NIM</span>
+                            <span class="text-sm font-medium text-gray-700">{{ $user->nim ?? '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-left">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Program Studi</span>
+                            <span class="text-sm font-medium text-gray-700">{{ $user->education['program_studi'] ?? '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-left">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Angkatan</span>
+                            <span class="text-sm font-medium text-gray-700">{{ $user->angkatan ?? '-' }}</span>
+                        </div>
+                        @endif
                         @if($user->nidn)
                         <div class="flex items-center justify-between text-left">
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">NIDN</span>

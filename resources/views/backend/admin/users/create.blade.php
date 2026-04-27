@@ -56,6 +56,22 @@
             <!-- Mahasiswa Specific Fields -->
             <div x-show="role === 'mahasiswa'" x-transition 
                  class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/5 rounded-[1.5rem] border border-primary/10">
+                 
+                <div class="space-y-2">
+                    <label for="nim" class="text-[10px] font-black text-primary uppercase tracking-widest leading-none">NIM (Nomor Induk)</label>
+                    <input type="text" name="nim" id="nim" :required="role === 'mahasiswa'"
+                        class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm @error('nim') border-red-500 @enderror" 
+                        placeholder="Contoh: 25010241" value="{{ old('nim') }}">
+                    @error('nim') <p class="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tighter">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="space-y-2">
+                    <label for="program_studi" class="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Program Studi</label>
+                    <input type="text" name="program_studi" id="program_studi" :required="role === 'mahasiswa'"
+                        class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm" 
+                        placeholder="Contoh: PAI" value="{{ old('program_studi') }}">
+                </div>
+
                 <div class="space-y-2">
                     <label for="angkatan" class="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Angkatan</label>
                     <input type="text" name="angkatan" id="angkatan" :required="role === 'mahasiswa'"
