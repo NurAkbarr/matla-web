@@ -83,9 +83,22 @@
 
                 <div class="space-y-2">
                     <label for="program_studi" class="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Program Studi</label>
-                    <input type="text" name="program_studi" id="program_studi" :required="role === 'mahasiswa'"
-                        class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm" 
-                        placeholder="Contoh: PAI" value="{{ old('program_studi', $user->education['program_studi'] ?? '') }}">
+                    <div class="relative">
+                        <select name="program_studi" id="program_studi" :required="role === 'mahasiswa'"
+                            class="w-full px-5 py-4 bg-white border border-primary/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm appearance-none cursor-pointer">
+                            <option value="">-- Pilih Program Studi --</option>
+                            @foreach($prodis as $prodi)
+                            <option value="{{ $prodi->nama }}" {{ (old('program_studi', $user->education['program_studi'] ?? '')) == $prodi->nama ? 'selected' : '' }}>
+                                {{ $prodi->nama }}
+                            </option>
+                            @endforeach
+                        </select>
+                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-2">

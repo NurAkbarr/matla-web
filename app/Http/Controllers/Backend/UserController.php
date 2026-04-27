@@ -37,7 +37,8 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('backend.admin.users.create');
+        $prodis = \App\Models\ProgramStudi::active()->get();
+        return view('backend.admin.users.create', compact('prodis'));
     }
 
     public function store(Request $request)
@@ -82,7 +83,8 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('backend.admin.users.edit', compact('user'));
+        $prodis = \App\Models\ProgramStudi::active()->get();
+        return view('backend.admin.users.edit', compact('user', 'prodis'));
     }
 
     public function update(Request $request, User $user)
