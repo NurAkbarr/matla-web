@@ -38,6 +38,9 @@ class User extends Authenticatable
         if ($this->avatar) {
             return asset('storage/' . $this->avatar);
         }
+        if ($this->role === 'mahasiswa' && $this->profil && $this->profil->foto) {
+            return asset('storage/' . $this->profil->foto);
+        }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=059669&background=ECFDF5&bold=true';
     }
 
