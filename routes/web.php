@@ -44,7 +44,7 @@ Route::get('/p/{qr_token}', function ($qr_token) {
 
 // ===== RUTE PERBAIKAN TOKEN (Hanya dipanggil sekali) =====
 Route::get('/fix-qr-tokens', function () {
-    $users = \App\Models\User::whereNull('qr_token')->get();
+    $users = \App\Models\User::whereNull('qr_token')->orWhere('qr_token', '')->get();
     $count = 0;
     foreach ($users as $user) {
         $user->qr_token = (string) \Illuminate\Support\Str::uuid();
