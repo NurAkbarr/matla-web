@@ -59,7 +59,8 @@ class DashboardController extends Controller
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%");
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('nim', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -74,7 +75,7 @@ class DashboardController extends Controller
             $query->where('semester', $request->semester);
         }
 
-        $users = $query->latest()->get();
+        $users = $query->latest()->paginate(15);
 
         // Data for filters
         $angkatans = User::where('role', 'mahasiswa')->whereNotNull('angkatan')->distinct()->pluck('angkatan')->sort()->values();

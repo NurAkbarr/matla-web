@@ -10,10 +10,29 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->get();
-        return view('backend.admin.users.index', compact('users'));
+        $query = User::query();
+
+        // Apply Search
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('nim', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Apply Filter by Role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->latest()->paginate(15);
+        $roles = User::distinct()->pluck('role')->sort()->values();
+
+        return view('backend.admin.users.index', compact('users', 'roles'));
     }
 
     public function create()

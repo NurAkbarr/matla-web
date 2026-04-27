@@ -42,6 +42,18 @@ Route::get('/p/{qr_token}', function ($qr_token) {
     return view('mahasiswa.ktm.public', compact('user'));
 })->middleware('throttle:60,1')->name('ktm.public');
 
+// ===== RUTE PERBAIKAN TOKEN (Hanya dipanggil sekali) =====
+Route::get('/fix-qr-tokens', function () {
+    $users = \App\Models\User::whereNull('qr_token')->get();
+    $count = 0;
+    foreach ($users as $user) {
+        $user->qr_token = (string) \Illuminate\Support\Str::uuid();
+        $user->save();
+        $count++;
+    }
+    return "Berhasil men-generate QR Token untuk $count mahasiswa lama!";
+});
+
 // ===== Mahasiswa Area =====
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::get('/ktm', [\App\Http\Controllers\Mahasiswa\KtmController::class, 'show'])->name('ktm');

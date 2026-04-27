@@ -23,10 +23,10 @@
 @endif
 
 <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-    <div class="p-8 border-b border-gray-50 flex justify-between items-center">
+    <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-white">
         <div>
             <h3 class="text-xl font-extrabold text-gray-900">Daftar Pengguna</h3>
-            <p class="text-sm text-gray-500">Kelola semua akun sivitas akademika di sini.</p>
+            <p class="text-sm text-gray-500 mt-1">Kelola semua akun sivitas akademika di sini.</p>
         </div>
         <a href="{{ route('backend.admin.users.create') }}" class="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all flex items-center space-x-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,6 +34,31 @@
             </svg>
             <span>Tambah User</span>
         </a>
+    </div>
+
+    <!-- Search & Filter Area -->
+    <div class="p-6 border-b border-gray-100 bg-gray-50/50">
+        <form action="{{ route('backend.admin.users.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative group">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 group-focus-within:text-primary transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </span>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari berdasarkan nama, NIM, atau email..." 
+                       class="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm">
+            </div>
+            
+            <div class="w-full md:w-72">
+                <select name="role" onchange="this.form.submit()" 
+                        class="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm cursor-pointer appearance-none">
+                    <option value="">Semua Kelompok (Role)</option>
+                    @foreach($roles as $r)
+                        <option value="{{ $r }}" {{ request('role') == $r ? 'selected' : '' }}>
+                            Kelompok {{ ucwords(str_replace('_', ' ', $r)) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </form>
     </div>
 
     <div class="overflow-x-auto">
@@ -54,13 +79,13 @@
                             <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-sm">
                                 <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
                             </div>
-                            <span class="font-bold text-gray-900 text-sm capitalize">{{ $user->name }}</span>
+                            <span class="font-bold text-gray-900 text-sm capitalize">{{ strtolower($user->name) }}</span>
                         </div>
                     </td>
-                    <td class="px-8 py-5 text-sm text-gray-500 font-medium">{{ $user->email }}</td>
+                    <td class="px-8 py-5 text-sm text-gray-500 font-medium">{{ strtolower($user->email) }}</td>
                     <td class="px-8 py-5">
-                        <span class="px-3 py-1 bg-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'emerald') }}-50 text-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'primary') }}-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                            {{ $user->role }}
+                        <span class="px-3 py-1 bg-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'emerald') }}-50 text-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'primary') }}-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-current/20">
+                            {{ str_replace('_', ' ', $user->role) }}
                         </span>
                     </td>
                     <td class="px-8 py-5 text-right">
@@ -90,9 +115,19 @@
                         </div>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="4" class="py-12 text-center text-gray-400 font-medium">Data user tidak ditemukan.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
+
+    @if($users->hasPages())
+    <div class="p-6 bg-white border-t border-gray-100 rounded-b-[2rem]">
+        {{ $users->withQueryString()->links() }}
+    </div>
+    @endif
 </div>
 @endsection
