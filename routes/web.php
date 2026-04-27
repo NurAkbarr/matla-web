@@ -42,16 +42,26 @@ Route::get('/p/{qr_token}', function ($qr_token) {
     return view('mahasiswa.ktm.public', compact('user'));
 })->middleware('throttle:60,1')->name('ktm.public');
 
-// ===== RUTE PERBAIKAN TOKEN (Hanya dipanggil sekali) =====
+// ===== RUTE PERBAIKAN & DEBUG (Hanya dipanggil sekali) =====
 Route::get('/fix-qr-tokens', function () {
-    $users = \App\Models\User::whereNull('qr_token')->orWhere('qr_token', '')->get();
+    $users = \App\Models\User::where('role', 'mahasiswa')->get();
     $count = 0;
     foreach ($users as $user) {
-        $user->qr_token = (string) \Illuminate\Support\Str::uuid();
-        $user->save();
-        $count++;
+        // Jika token kosong atau bukan format UUID (panjangnya kurang dari 30 karakter)
+        if (empty($user->qr_token) || strlen($user->qr_token) < 30) {
+            $user->qr_token = (string) \Illuminate\Support\Str::uuid();
+            $user->save();
+            $count++;
+        }
     }
     return "Berhasil men-generate QR Token untuk $count mahasiswa lama!";
+});
+
+Route::get('/clear-server-cache', function() {
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    return "Semua Cache Server (View, Config, Data) BERHASIL dibersihkan! Silakan refresh halaman mahasiswa.";
 });
 
 // ===== Mahasiswa Area =====
