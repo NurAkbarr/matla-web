@@ -72,7 +72,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-                @foreach($users as $user)
+                @forelse($users as $user)
                 <tr class="hover:bg-gray-50/30 transition-colors">
                     <td class="px-8 py-5">
                         <div class="flex items-center space-x-3">
