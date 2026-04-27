@@ -81,17 +81,24 @@ Route::get('/fix-storage', function () {
         if (file_exists($linkFolder)) {
             if (is_link($linkFolder)) {
                 unlink($linkFolder); // Hapus symlink lama jika ada
-            } else {
-                return $msg1 . "<br><b>GAGAL TOTAL:</b> Ada folder beneran bernama 'storage' di public_html. Anda harus menghapus folder itu secara manual via cPanel File Manager.";
             }
         }
         
         symlink($targetFolder, $linkFolder);
-        return $msg1 . "<br><b>BERHASIL (Cara Khusus cPanel):</b> Symlink telah dipaksa dibuat di <code>" . $linkFolder . "</code> mengarah ke <code>" . $targetFolder . "</code>. <br><br>Silakan refresh halaman profil Anda!";
+        return $msg1 . "<br><b>BERHASIL (Cara Khusus cPanel):</b> Symlink telah dipaksa dibuat di <code>" . $linkFolder . "</code>. Silakan refresh halaman profil Anda!";
     } catch (\Exception $e) {
         return $msg1 . "<br><b>GAGAL (Cara Khusus cPanel):</b> " . $e->getMessage() . ". Solusi terakhir: Buat symlink manual di SSH cPanel atau pindahkan foto langsung ke public_html/storage.";
     }
 });
+
+// ===== FALLBACK ROUTE: Jika Symlink Gagal, Laravel yang akan mengirimkan gambarnya =====
+Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path('app/public/' . $folder . '/' . $filename);
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->where('filename', '.*');
 
 // ===== Mahasiswa Area =====
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
