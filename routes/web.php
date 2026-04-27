@@ -64,6 +64,15 @@ Route::get('/clear-server-cache', function() {
     return "Semua Cache Server (View, Config, Data) BERHASIL dibersihkan! Silakan refresh halaman mahasiswa.";
 });
 
+Route::get('/fix-storage', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return "Berhasil! Folder storage sudah di-link. Silakan refresh halaman profil, foto seharusnya sudah muncul.";
+    } catch (\Exception $e) {
+        return "Gagal membuat storage link: " . $e->getMessage() . ". Anda mungkin harus membuatnya manual di cPanel.";
+    }
+});
+
 // ===== Mahasiswa Area =====
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::get('/ktm', [\App\Http\Controllers\Mahasiswa\KtmController::class, 'show'])->name('ktm');
