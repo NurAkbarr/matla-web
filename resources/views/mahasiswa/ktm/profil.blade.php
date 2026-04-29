@@ -44,6 +44,20 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1">Nomor Telepon</label>
                             <input type="text" name="phone" value="{{ $user->phone }}" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3" placeholder="Contoh: 08123456789">
                         </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Tanggal Lahir</label>
+                                <input type="date" name="tanggal_lahir" value="{{ $user->tanggal_lahir }}" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Jenis Kelamin</label>
+                                <select name="jenis_kelamin" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3">
+                                    <option value="">Pilih</option>
+                                    <option value="Laki-laki" {{ $user->jenis_kelamin == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="Perempuan" {{ $user->jenis_kelamin == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                </select>
+                            </div>
+                        </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Alamat Domisili</label>
                             <textarea name="address" rows="2" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3" placeholder="Alamat lengkap saat ini...">{{ $user->address }}</textarea>

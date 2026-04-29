@@ -23,6 +23,8 @@ class ProfilController extends Controller
             'tentang_saya' => 'nullable|string|max:1000',
             'phone'        => 'nullable|string|max:20',
             'address'      => 'nullable|string|max:1000',
+            'tanggal_lahir'=> 'nullable|date',
+            'jenis_kelamin'=> 'nullable|in:Laki-laki,Perempuan',
             'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -44,6 +46,8 @@ class ProfilController extends Controller
         $user->phone = $request->phone;
         $user->address = $request->address;
         $user->bio = $request->tentang_saya;
+        $user->tanggal_lahir = $request->tanggal_lahir;
+        $user->jenis_kelamin = $request->jenis_kelamin;
         $user->save();
 
         return back()->with('success', 'Profil berhasil diperbarui.');

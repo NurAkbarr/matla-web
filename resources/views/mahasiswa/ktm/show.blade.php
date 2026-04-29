@@ -10,7 +10,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 <span>Kembali ke Dashboard</span>
             </a>
-            <button onclick="window.print()" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark">Cetak / Simpan PDF</button>
+            <button id="downloadKtmBtn" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark">Unduh KTM (Gambar)</button>
         </div>
 
         <!-- KTM CARD -->
@@ -87,4 +87,42 @@
     .no-print { display: none !important; }
 }
 </style>
+
+<!-- html2canvas library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    document.getElementById('downloadKtmBtn').addEventListener('click', function() {
+        const btn = this;
+        const originalText = btn.innerText;
+        btn.innerText = 'Memproses...';
+        btn.disabled = true;
+
+        const card = document.querySelector('.print-card');
+
+        // Capture the card as canvas
+        html2canvas(card, {
+            scale: 3, // High resolution
+            useCORS: true, // Allow cross-origin images (like the UI-avatars or QR code)
+            backgroundColor: null // transparent background
+        }).then(canvas => {
+            // Convert to image URL
+            const imgData = canvas.toDataURL('image/png');
+            
+            // Create a fake download link
+            const link = document.createElement('a');
+            link.download = 'KTM_{{ $user->nim ?? $user->name }}.png';
+            link.href = imgData;
+            link.click();
+
+            // Restore button
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }).catch(err => {
+            console.error('Error generating KTM:', err);
+            alert('Terjadi kesalahan saat mengunduh KTM. Pastikan koneksi stabil.');
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    });
+</script>
 @endsection
