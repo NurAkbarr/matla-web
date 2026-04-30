@@ -131,16 +131,20 @@
     </div>
 
     <!-- Table Section -->
-    <form action="{{ route('backend.admin.users.bulk_delete') }}" method="POST" id="bulkDeleteForm">
+    <!-- Hidden Bulk Delete Form -->
+    <form action="{{ route('backend.admin.users.bulk_delete') }}" method="POST" id="bulkDeleteForm" class="hidden">
         @csrf
-        <div class="p-4 border-b border-emerald-100 bg-red-50/50 hidden rounded-t-[2.5rem]" id="bulkActionContainer">
-            <div class="flex items-center justify-between px-4">
-                <span class="text-sm font-bold text-red-600" id="selectedCount">0 item terpilih</span>
-                <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all shadow-sm">
-                    Hapus Terpilih
-                </button>
-            </div>
+        <div id="hiddenInputsContainer"></div>
+    </form>
+
+    <div class="p-4 border-b border-emerald-100 bg-red-50/50 hidden rounded-t-[2.5rem]" id="bulkActionContainer">
+        <div class="flex items-center justify-between px-4">
+            <span class="text-sm font-bold text-red-600" id="selectedCount">0 item terpilih</span>
+            <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all shadow-sm">
+                Hapus Terpilih
+            </button>
         </div>
+    </div>
 
         <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
             <div class="bg-primary px-8 py-5 border-b border-primary-dark flex justify-between items-center">
@@ -225,7 +229,6 @@
                 </tbody>
             </table>
         </div>
-        </form>
         @if($users->hasPages())
         <div class="px-6 py-4 bg-white border-t border-gray-100 rounded-b-3xl">
             {{ $users->withQueryString()->links() }}
@@ -265,6 +268,17 @@
 
     function confirmBulkDelete() {
         if (confirm('PERINGATAN! Anda yakin ingin menghapus massal semua mahasiswa yang dipilih? Tindakan ini tidak dapat dibatalkan.')) {
+            const container = document.getElementById('hiddenInputsContainer');
+            container.innerHTML = ''; // Clear previous
+            
+            document.querySelectorAll('.user-checkbox:checked').forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'user_ids[]';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+            
             form.submit();
         }
     }

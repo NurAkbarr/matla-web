@@ -61,10 +61,12 @@
         </form>
     </div>
 
-    <form action="{{ route('backend.admin.users.bulk_delete') }}" method="POST" id="bulkDeleteForm">
+    <!-- Hidden Bulk Delete Form -->
+    <form action="{{ route('backend.admin.users.bulk_delete') }}" method="POST" id="bulkDeleteForm" class="hidden">
         @csrf
-        
-        <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden" id="bulkActionContainer">
+        <div id="hiddenInputsContainer"></div>
+    </form>
+    <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden" id="bulkActionContainer">
             <div class="flex items-center justify-between">
                 <span class="text-sm font-bold text-red-600" id="selectedCount">0 item terpilih</span>
                 <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all shadow-sm">
@@ -185,6 +187,17 @@
 
     function confirmBulkDelete() {
         if (confirm('PERINGATAN! Anda yakin ingin menghapus massal semua pengguna yang dipilih? Tindakan ini tidak dapat dibatalkan.')) {
+            const container = document.getElementById('hiddenInputsContainer');
+            container.innerHTML = ''; // Clear previous
+            
+            document.querySelectorAll('.user-checkbox:checked').forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'user_ids[]';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+            
             form.submit();
         }
     }
