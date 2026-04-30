@@ -68,7 +68,7 @@
                 <!-- Remember Me & Custom Action -->
                 <div class="flex items-center">
                     <input id="remember_me" name="remember" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded-lg">
-                    <label for="remember_me" class="ml-2 block text-sm font-medium text-gray-600">Ingat saya untuk 30 hari</label>
+                    <label for="remember_me" class="ml-2 block text-sm font-medium text-gray-600">Ingat saya seterusnya</label>
                 </div>
 
                 <!-- Submit Button -->

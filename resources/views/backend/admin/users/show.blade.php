@@ -113,6 +113,16 @@
                                 <p class="text-sm font-bold text-gray-700 leading-relaxed">{{ $user->address ?? 'Belum diisi' }}</p>
                             </div>
                         </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-50">
+                            <div class="space-y-1">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tanggal Lahir</p>
+                                <p class="text-sm font-bold text-gray-700">{{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->translatedFormat('d F Y') : 'Belum diisi' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Jenis Kelamin</p>
+                                <p class="text-sm font-bold text-gray-700">{{ $user->jenis_kelamin ?? 'Belum diisi' }}</p>
+                            </div>
+                        </div>
                         <div class="space-y-2 pt-4 border-t border-gray-50">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tentang Saya</p>
                             <p class="text-sm font-medium text-gray-600 leading-relaxed">{{ $user->bio ?? 'Belum ada informasi yang ditambahkan.' }}</p>

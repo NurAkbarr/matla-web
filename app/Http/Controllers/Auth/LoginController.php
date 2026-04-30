@@ -22,6 +22,14 @@ class LoginController extends Controller
 
         $remember = $request->has('remember');
 
+        $userCheck = \App\Models\User::where('email', $credentials['email'])->first();
+
+        if (!$userCheck) {
+            return back()->withErrors([
+                'email' => 'Email belum terdaftar.',
+            ])->with('error', 'Email belum terdaftar.')->onlyInput('email');
+        }
+
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
@@ -32,8 +40,8 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+            'email' => 'Email atau password salah.',
+        ])->with('error', 'Email atau password salah.')->onlyInput('email');
     }
 
     public function logout(Request $request)
