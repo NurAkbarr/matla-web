@@ -223,104 +223,150 @@
 </section>
 
 <!-- FAQ Section -->
-<section class="py-24 bg-gray-50">
-    <div class="container mx-auto px-4 lg:px-12">
-        <div class="text-center max-w-2xl mx-auto mb-16">
+<section class="py-24 bg-gray-50" id="faq">
+    <div class="container mx-auto px-4 lg:px-12" x-data="{ activeTab: 'umum' }">
+        <div class="text-center max-w-2xl mx-auto mb-10">
             <h2 class="text-4xl font-extrabold text-gray-900 mb-6">Pertanyaan Umum (FAQ)</h2>
             <p class="text-lg text-gray-600">Jawaban atas pertanyaan yang sering ditanyakan calon mahasiswa baru.</p>
         </div>
 
-        <div class="max-w-3xl mx-auto space-y-4">
-            <!-- FAQ item 1 -->
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden faq-item group">
-                <button class="w-full flex items-center justify-between p-6 text-left font-bold text-gray-700 hover:text-primary transition-colors faq-btn outline-none">
-                    <span>Berapa biaya pendaftaran di Matla Islamic University?</span>
-                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition-transform duration-300 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="px-6 pb-6 text-gray-600 leading-relaxed hidden faq-content">
-                    Biaya pendaftaran untuk mahasiswa baru adalah Rp 250.000, yang meliputi biaya pengisian formulir dan verifikasi dokumen administrasi.
-                </div>
-            </div>
-            <!-- FAQ item 2 -->
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden faq-item group">
-                <button class="w-full flex items-center justify-between p-6 text-left font-bold text-gray-700 hover:text-primary transition-colors faq-btn outline-none">
-                    <span>Apakah kuliah bisa dilakukan sambil bekerja?</span>
-                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition-transform duration-300 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="px-6 pb-6 text-gray-600 leading-relaxed hidden faq-content">
-                    Tentu saja! Keunggulan Matla Islamic University adalah sistem pembelajaran online yang fleksibel, memungkinkan Anda untuk mengatur jadwal kuliah di sela-sela kesibukan bekerja.
-                </div>
-            </div>
-            <!-- FAQ item 3 -->
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden faq-item group">
-                <button class="w-full flex items-center justify-between p-6 text-left font-bold text-gray-700 hover:text-primary transition-colors faq-btn outline-none">
-                    <span>Berapa lama durasi studi program S1 PAI?</span>
-                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition-transform duration-300 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="px-6 pb-6 text-gray-600 leading-relaxed hidden faq-content">
-                    Program S1 Pendidikan Agama Islam (PAI) dirancang untuk ditempuh dalam 8 semester atau sekitar 4 tahun, dengan kurikulum yang padat namun terarah.
-                </div>
-            </div>
-            <!-- FAQ item 4 -->
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden faq-item group">
-                <button class="w-full flex items-center justify-between p-6 text-left font-bold text-gray-700 hover:text-primary transition-colors faq-btn outline-none">
-                    <span>Gelar apa yang akan saya dapatkan setelah lulus?</span>
-                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition-transform duration-300 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="px-6 pb-6 text-gray-600 leading-relaxed hidden faq-content">
-                    Setelah lulus, Anda akan menyandang gelar Sarjana Pendidikan (S.Pd) yang resmi dan diakui negara sesuai dengan akreditasi program studi kami.
-                </div>
-            </div>
-            <!-- FAQ item 5 -->
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden faq-item group">
-                <button class="w-full flex items-center justify-between p-6 text-left font-bold text-gray-700 hover:text-primary transition-colors faq-btn outline-none">
-                    <span>Apakah ada program beasiswa?</span>
-                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition-transform duration-300 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="px-6 pb-6 text-gray-600 leading-relaxed hidden faq-content">
-                    <p>Beasiswa tersedia bagi <strong>yatim/piatu</strong> dan <strong>hafidz Al-Qur'an</strong>, berupa:</p>
-                    <ul class="mt-2 space-y-1 list-disc list-inside">
-                        <li>Pembebasan biaya pendaftaran</li>
-                        <li>Potongan SPP sebesar 50%</li>
-                    </ul>
-                    <p class="mt-2 text-sm italic text-gray-500">* Beasiswa akan diberlakukan apabila jumlah pendaftar telah memenuhi kuota minimal 20 orang.</p>
-                </div>
-            </div>
+        <!-- Tabs -->
+        <div class="flex flex-wrap justify-center gap-3 mb-12">
+            <button @click="activeTab = 'umum'" :class="{'bg-primary text-white shadow-md': activeTab === 'umum', 'bg-white text-gray-600 hover:bg-emerald-50': activeTab !== 'umum'}" class="px-6 py-3 rounded-full font-bold transition-all border border-gray-100 flex items-center gap-2">
+                🏢 Informasi Umum
+            </button>
+            <button @click="activeTab = 'sistem'" :class="{'bg-primary text-white shadow-md': activeTab === 'sistem', 'bg-white text-gray-600 hover:bg-emerald-50': activeTab !== 'sistem'}" class="px-6 py-3 rounded-full font-bold transition-all border border-gray-100 flex items-center gap-2">
+                📚 Sistem & Metode Kuliah
+            </button>
+            <button @click="activeTab = 'prodi'" :class="{'bg-primary text-white shadow-md': activeTab === 'prodi', 'bg-white text-gray-600 hover:bg-emerald-50': activeTab !== 'prodi'}" class="px-6 py-3 rounded-full font-bold transition-all border border-gray-100 flex items-center gap-2">
+                🎓 Program Studi
+            </button>
         </div>
 
-        <script>
-            document.querySelectorAll('.faq-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const content = btn.nextElementSibling;
-                    const icon = btn.querySelector('.faq-icon');
-                    
-                    // Toggle visibility
-                    content.classList.toggle('hidden');
-                    
-                    // Toggle rotation
-                    icon.classList.toggle('rotate-180');
-                    
-                    // Optional: Close other items
-                    document.querySelectorAll('.faq-content').forEach(other => {
-                        if (other !== content) {
-                            other.classList.add('hidden');
-                            other.previousElementSibling.querySelector('.faq-icon').classList.remove('rotate-180');
-                        }
-                    });
-                });
-            });
-        </script>
+        <div class="max-w-4xl mx-auto">
+            @php
+                $faqs = [
+                    'umum' => [
+                        [
+                            'q' => "Apa itu Matla' Islamic Academy?",
+                            'a' => "Kampus online sesuai Al Quran dan As-sunnah yang memberikan pembekalan ilmu syar’i agar kuat dalam agamanya terutama tauhidnya, aqidahnya, muamalah dan lainnya tapi juga memiliki skill industri sesuai bidangnya masing-masing."
+                        ],
+                        [
+                            'q' => "Apakah ijazahnya diakui?",
+                            'a' => "Iya, resmi diakui pemerintah dengan gelar S.Pd."
+                        ],
+                        [
+                            'q' => "Apa pengajarnya ahlusunnah?",
+                            'a' => "Betul."
+                        ],
+                        [
+                            'q' => "Siapa pembinanya?",
+                            'a' => "Ustaz Erfidel Fajri."
+                        ],
+                        [
+                            'q' => "Apakah Matla' untuk akhwat?",
+                            'a' => "Tidak. Kampus Matla' untuk ikhwan dan akhwat segala usia (sudah lulus SMA/sederajat)."
+                        ],
+                        [
+                            'q' => "Lokasinya dimana?",
+                            'a' => "Sekretariat kami berada di:<br>Masjid Al-Munawwaroh, Pondok Kacang Timur<br>Jl. Anggrek (bertepatan dengan PKBM SMP-SMA Abu Dzar), Pondok Aren, Tangerang Selatan – Banten<br>(hanya janji temu)"
+                        ]
+                    ],
+                    'sistem' => [
+                        [
+                            'q' => "Bagaimana sistem pembelajarannya?",
+                            'a' => "Semuanya pembelajarannya online via zoom/telegram."
+                        ],
+                        [
+                            'q' => "Apakah buku-bukunya harus beli?",
+                            'a' => "Tersedia ebook, namun jika mau beli buku fisik dipersilakan."
+                        ],
+                        [
+                            'q' => "Apakah ada video rekaman pembelajaran?",
+                            'a' => "Ada di YouTube."
+                        ],
+                        [
+                            'q' => "Untuk KKN, PPL nya bagaimana?",
+                            'a' => "Semua dilakukan online, KKN mengikuti instruksi dosen pembimbing. Biasanya melakukan kegiatan di daerah masing-masing. Misal seperti mengadakan kajian, riset dll."
+                        ],
+                        [
+                            'q' => "Bagaimana dengan wisudanya?",
+                            'a' => "Optional dan wisuda dilakukan secara offline, di hotel yang sudah disiapkan."
+                        ],
+                        [
+                            'q' => "Apakah ada beasiswa?",
+                            'a' => "Belum ada. Sedang kami usahakan untuk diadakan."
+                        ]
+                    ],
+                    'prodi' => [
+                        [
+                            'q' => "Prodi yang tersedia apa saja?",
+                            'a' => "• PAI (Pendidikan Agama Islam)<br>• I’dad Lughowi (Bahasa Arab Pemula)<br>• MPI RPL (Manajemen Pendidikan Islam)"
+                        ],
+                        [
+                            'q' => "S1 PAI berapa tahun kuliahnya?",
+                            'a' => "4 tahun 8 semester (bisa lebih cepat 3,5 tahun sesuai ketentuan berlaku)."
+                        ],
+                        [
+                            'q' => "Apakah ada Skripsinya?",
+                            'a' => "Untuk S1 ada atau bisa diganti dengan jurnal ilmiah sesuai regulasi pemerintah."
+                        ],
+                        [
+                            'q' => "Bahasa pengantar kuliah S1 PAI nya apa?",
+                            'a' => "Bahasa Indonesia."
+                        ],
+                        [
+                            'q' => "Apakah I’dad ada ijazahnya?",
+                            'a' => "Ada, dari kampus Matla non formal setara D2."
+                        ],
+                        [
+                            'q' => "I’dad berapa tahun kuliahnya?",
+                            'a' => "2 tahun 4 semester, disetiap semesternya akan ada project/tugas yang akan dibuat."
+                        ],
+                        [
+                            'q' => "Kitab apa saja yang dipakai belajar?",
+                            'a' => "Di Matla hanya memakai 2 kitab:<br>1. Durusul Lughoh<br>2. Baina Yadaik<br>dengan target kosa kata di setiap bulannya."
+                        ],
+                        [
+                            'q' => "Bahasa Pengantar kuliah I’DAD nya apa?",
+                            'a' => "Bahasa Indonesia bertahap."
+                        ],
+                        [
+                            'q' => "Kalau sudah pernah ikut I'dad Lughowi?",
+                            'a' => "Tidak perlu, bisa langsung lanjut ke S1 tanpa mengulang I'dad."
+                        ],
+                        [
+                            'q' => "S2 belum buka ya?",
+                            'a' => "Belum buka, mudah-mudahan segera buka."
+                        ]
+                    ]
+                ];
+            @endphp
 
+            @foreach(['umum', 'sistem', 'prodi'] as $category)
+            <div x-show="activeTab === '{{ $category }}'" style="display: none;" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-4">
+                @foreach($faqs[$category] as $index => $faq)
+                <div x-data="{ open: false }" class="faq-item border border-gray-100 bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:border-emerald-200 shadow-sm">
+                    <button @click="open = !open" class="w-full flex items-center justify-between p-6 lg:p-7 text-left focus:outline-none bg-white hover:bg-emerald-50/30 transition-colors group">
+                        <span class="text-base lg:text-lg font-bold text-[#1F2937] pr-8 group-hover:text-primary transition-colors">
+                            {{ $faq['q'] }}
+                        </span>
+                        <div class="shrink-0 w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:border-primary group-hover:text-white" :class="open ? 'bg-primary border-primary text-white' : ''">
+                            <svg class="w-4 h-4 transform transition-transform duration-300" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </button>
+                    <div x-show="open" style="display: none;" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2">
+                        <div class="px-6 lg:px-7 pb-7 text-gray-600 leading-relaxed text-sm lg:text-base border-t border-gray-50 pt-5">
+                            {!! $faq['a'] !!}
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endforeach
+        </div>
     </div>
 </section>
 

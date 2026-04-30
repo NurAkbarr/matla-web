@@ -260,6 +260,5 @@
         });
     </script>
 </section>
-
 @endsection
 
