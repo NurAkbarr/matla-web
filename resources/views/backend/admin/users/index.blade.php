@@ -61,19 +61,41 @@
         </form>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead class="bg-gray-50/50">
-                <tr>
-                    <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Nama Pengguna</th>
-                    <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Email</th>
-                    <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Role</th>
-                    <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none text-right">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
+    <form action="{{ route('backend.admin.users.bulk_delete') }}" method="POST" id="bulkDeleteForm">
+        @csrf
+        
+        <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden" id="bulkActionContainer">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-bold text-red-600" id="selectedCount">0 item terpilih</span>
+                <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all shadow-sm">
+                    Hapus Terpilih
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50/50">
+                    <tr>
+                        @if(Auth::user()->role === 'super_admin')
+                        <th class="w-10 px-6 py-4">
+                            <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-red-500 focus:ring-red-500 cursor-pointer">
+                        </th>
+                        @endif
+                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Nama Pengguna</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Email</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Role</th>
+                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
                 @forelse($users as $user)
                 <tr class="hover:bg-gray-50/30 transition-colors">
+                    @if(Auth::user()->role === 'super_admin')
+                    <td class="px-6 py-5">
+                        <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox rounded border-gray-300 text-red-500 focus:ring-red-500 cursor-pointer" onclick="updateBulkDeleteUI()">
+                    </td>
+                    @endif
                     <td class="px-8 py-5">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-sm">
@@ -123,6 +145,7 @@
             </tbody>
         </table>
     </div>
+    </form>
 
     @if($users->hasPages())
     <div class="p-6 bg-white border-t border-gray-100 rounded-b-[2rem]">
@@ -130,4 +153,41 @@
     </div>
     @endif
 </div>
+
+@if(Auth::user()->role === 'super_admin')
+<script>
+    const selectAllBtn = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const actionContainer = document.getElementById('bulkActionContainer');
+    const selectedCountText = document.getElementById('selectedCount');
+    const form = document.getElementById('bulkDeleteForm');
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkDeleteUI();
+        });
+    }
+
+    function updateBulkDeleteUI() {
+        const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+        if (checkedCount > 0) {
+            actionContainer.classList.remove('hidden');
+            selectedCountText.innerText = checkedCount + ' pengguna terpilih';
+        } else {
+            actionContainer.classList.add('hidden');
+        }
+        
+        if (selectAllBtn) {
+            selectAllBtn.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+        }
+    }
+
+    function confirmBulkDelete() {
+        if (confirm('PERINGATAN! Anda yakin ingin menghapus massal semua pengguna yang dipilih? Tindakan ini tidak dapat dibatalkan.')) {
+            form.submit();
+        }
+    }
+</script>
+@endif
 @endsection

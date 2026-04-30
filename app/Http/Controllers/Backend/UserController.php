@@ -147,4 +147,33 @@ class UserController extends Controller
 
         return redirect()->back()->with('error', 'User tidak ditemukan.');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            return redirect()->back()->with('error', 'Akses ditolak. Hanya Super Admin yang dapat melakukan Bulk Delete.');
+        }
+
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        $ids = $request->user_ids;
+
+        // Cegah Super Admin menghapus dirinya sendiri atau Super Admin lain
+        $superAdmins = User::whereIn('id', $ids)->where('role', 'super_admin')->count();
+        if ($superAdmins > 0) {
+            return redirect()->back()->with('error', 'Terdapat akun Super Admin dalam pilihan Anda. Akun Super Admin tidak dapat dihapus massal.');
+        }
+
+        // Pastikan tidak menghapus diri sendiri
+        if (in_array(Auth::id(), $ids)) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        User::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', count($ids) . ' pengguna berhasil dihapus massal.');
+    }
 }

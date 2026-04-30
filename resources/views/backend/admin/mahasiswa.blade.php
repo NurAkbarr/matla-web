@@ -131,15 +131,31 @@
     </div>
 
     <!-- Table Section -->
-    <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
-        <div class="bg-primary px-8 py-5 border-b border-primary-dark flex justify-between items-center">
-            <h3 class="text-xs font-black text-white uppercase tracking-widest">Daftar Mahasiswa Universitas</h3>
-            <span class="px-3 py-1 bg-white/10 text-white rounded-lg text-[10px] font-black">{{ $users->count() }} Total Data</span>
+    <form action="{{ route('backend.admin.users.bulk_delete') }}" method="POST" id="bulkDeleteForm">
+        @csrf
+        <div class="p-4 border-b border-emerald-100 bg-red-50/50 hidden rounded-t-[2.5rem]" id="bulkActionContainer">
+            <div class="flex items-center justify-between px-4">
+                <span class="text-sm font-bold text-red-600" id="selectedCount">0 item terpilih</span>
+                <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all shadow-sm">
+                    Hapus Terpilih
+                </button>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+
+        <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-primary px-8 py-5 border-b border-primary-dark flex justify-between items-center">
+                <h3 class="text-xs font-black text-white uppercase tracking-widest">Daftar Mahasiswa Universitas</h3>
+                <span class="px-3 py-1 bg-white/10 text-white rounded-lg text-[10px] font-black">{{ $users->count() }} Total Data</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-primary/95 text-white">
+                        @if(Auth::user()->role === 'super_admin')
+                        <th class="border border-white/10 px-4 py-4 text-center w-12 text-white">
+                            <input type="checkbox" id="selectAll" class="rounded border-white/20 text-red-500 focus:ring-red-500 cursor-pointer bg-white/10">
+                        </th>
+                        @endif
                         <th class="border border-white/10 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-center w-12 text-white">No</th>
                         <th class="border border-white/10 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white">Informasi Mahasiswa</th>
                         <th class="border border-white/10 px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest w-40 text-white">Angkatan & Smt</th>
@@ -150,6 +166,11 @@
                 <tbody class="divide-y divide-gray-50">
                     @forelse($users as $index => $user)
                     <tr class="hover:bg-gray-50/50 transition-colors group">
+                        @if(Auth::user()->role === 'super_admin')
+                        <td class="border border-gray-100 px-4 py-4 text-center">
+                            <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox rounded border-gray-300 text-red-500 focus:ring-red-500 cursor-pointer" onclick="updateBulkDeleteUI()">
+                        </td>
+                        @endif
                         <td class="border border-gray-100 px-6 py-4 text-center text-xs font-bold text-gray-400">{{ $index + 1 }}</td>
                         <td class="border border-gray-100 px-6 py-4">
                             <div class="flex items-center space-x-4">
@@ -204,6 +225,7 @@
                 </tbody>
             </table>
         </div>
+        </form>
         @if($users->hasPages())
         <div class="px-6 py-4 bg-white border-t border-gray-100 rounded-b-3xl">
             {{ $users->withQueryString()->links() }}
@@ -211,4 +233,41 @@
         @endif
     </div>
 </div>
+
+@if(Auth::user()->role === 'super_admin')
+<script>
+    const selectAllBtn = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const actionContainer = document.getElementById('bulkActionContainer');
+    const selectedCountText = document.getElementById('selectedCount');
+    const form = document.getElementById('bulkDeleteForm');
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkDeleteUI();
+        });
+    }
+
+    function updateBulkDeleteUI() {
+        const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+        if (checkedCount > 0) {
+            actionContainer.classList.remove('hidden');
+            selectedCountText.innerText = checkedCount + ' mahasiswa terpilih';
+        } else {
+            actionContainer.classList.add('hidden');
+        }
+        
+        if (selectAllBtn) {
+            selectAllBtn.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+        }
+    }
+
+    function confirmBulkDelete() {
+        if (confirm('PERINGATAN! Anda yakin ingin menghapus massal semua mahasiswa yang dipilih? Tindakan ini tidak dapat dibatalkan.')) {
+            form.submit();
+        }
+    }
+</script>
+@endif
 @endsection

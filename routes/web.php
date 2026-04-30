@@ -134,6 +134,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\Backend\UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::post('/admin/users/bulk-delete', [\App\Http\Controllers\Backend\UserController::class, 'bulkDelete'])->name('admin.users.bulk_delete');
 
         // Kotak Pesan (Inbox)
         Route::get('/admin/messages', [\App\Http\Controllers\Backend\ContactMessageController::class, 'index'])->name('admin.messages.index');
