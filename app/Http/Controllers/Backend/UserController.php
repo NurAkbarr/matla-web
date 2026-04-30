@@ -132,6 +132,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if (Auth::user()->role !== 'super_admin') {
+            return redirect()->back()->with('error', 'Hanya Super Admin yang dapat menghapus data.');
+        }
+
         if (Auth::id() == $user->id) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
