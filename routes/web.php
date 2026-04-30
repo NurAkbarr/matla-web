@@ -100,6 +100,12 @@ Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
     return response()->file($path);
 })->where('filename', '.*');
 
+// ===== ROUTE KHUSUS CPANEL: Untuk Menghapus Cache tanpa Terminal =====
+Route::get('/clear-cache', function() {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return '<b>BERHASIL:</b> Semua cache (Route, View, Config) telah dihapus! Silakan kembali ke halaman web Anda.';
+});
+
 // ===== Mahasiswa Area =====
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::get('/ktm', [\App\Http\Controllers\Mahasiswa\KtmController::class, 'show'])->name('ktm');
@@ -122,6 +128,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/users', [\App\Http\Controllers\Backend\UserController::class, 'index'])->name('admin.users.index');
         Route::get('/admin/users/create', [\App\Http\Controllers\Backend\UserController::class, 'create'])->name('admin.users.create');
         Route::post('/admin/users', [\App\Http\Controllers\Backend\UserController::class, 'store'])->name('admin.users.store');
+        Route::post('/admin/users/bulk-delete', [\App\Http\Controllers\Backend\UserController::class, 'bulkDelete'])->name('admin.users.bulk_delete');
         Route::get('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'show'])->name('admin.users.show');
         
         // Admin KTM View Route
@@ -134,7 +141,6 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\Backend\UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [\App\Http\Controllers\Backend\UserController::class, 'destroy'])->name('admin.users.destroy');
-        Route::post('/admin/users/bulk-delete', [\App\Http\Controllers\Backend\UserController::class, 'bulkDelete'])->name('admin.users.bulk_delete');
 
         // Kotak Pesan (Inbox)
         Route::get('/admin/messages', [\App\Http\Controllers\Backend\ContactMessageController::class, 'index'])->name('admin.messages.index');
