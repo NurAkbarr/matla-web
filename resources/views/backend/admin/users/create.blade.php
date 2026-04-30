@@ -46,9 +46,9 @@
 
                 <div class="space-y-2">
                     <label for="password" class="text-xs font-bold text-gray-700 uppercase tracking-widest leading-none">Kata Sandi</label>
-                    <input type="password" name="password" id="password" required 
+                    <input type="password" name="password" id="password" 
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm @error('password') border-red-500 @enderror" 
-                        placeholder="Minimal 8 karakter">
+                        placeholder="Kosongkan untuk otomatis 'password123'">
                     @error('password') <p class="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tighter">{{ $message }}</p> @enderror
                 </div>
             </div>

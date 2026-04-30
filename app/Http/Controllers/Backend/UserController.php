@@ -46,7 +46,7 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['nullable', 'string', 'min:8'],
             'role' => ['required', 'in:admin,dosen,mahasiswa,super_admin'],
             'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:50', 'unique:users'],
             'program_studi' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:100'],
@@ -55,10 +55,12 @@ class UserController extends Controller
             'status' => ['required_if:role,mahasiswa', 'nullable', 'string'],
         ]);
 
+        $password = $request->filled('password') ? $request->password : 'password123';
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($password),
             'role' => $request->role,
             'nim' => $request->nim,
             'angkatan' => $request->angkatan,

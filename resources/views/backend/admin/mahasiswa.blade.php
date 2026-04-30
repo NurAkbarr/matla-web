@@ -52,7 +52,7 @@
                                     <h4 class="text-xs font-black text-blue-800 uppercase tracking-widest mb-2">Instruksi Format CSV:</h4>
                                     <p class="text-sm text-blue-700 leading-relaxed">
                                         Pastikan file berformat <strong>.csv</strong> dan memiliki kolom <em>(header tidak wajib tapi disarankan)</em> pada urutan berikut:<br>
-                                        <strong class="text-xs leading-relaxed">1: NIM, 2: Nama, 3: Email, 4: Prodi, 5: Jenis Kelamin, 6: Status, 7: Tgl Daftar</strong><br><br>
+                                        <strong class="text-xs leading-relaxed">1: NIM, 2: Nama, 3: Email, 4: Prodi, 5: Jenis Kelamin, 6: Status</strong><br><br>
                                         <span class="text-xs italic">*Password otomatis diset: <strong>password123</strong></span>
                                     </p>
                                 </div>
