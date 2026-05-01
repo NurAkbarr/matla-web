@@ -5,25 +5,25 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Rekap Honor Dosen</h1>
-            <p class="mt-1 text-base text-gray-500">Rekapitulasi absensi dan perhitungan honor mengajar dosen.</p>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Rekap Honor Dosen</h1>
+            <p class="mt-1 text-xs md:text-base text-gray-500 font-medium">Rekapitulasi absensi dan perhitungan honor mengajar dosen.</p>
         </div>
-        <div>
-            <form action="{{ route('backend.admin.rekap-honor.index') }}" method="GET" class="flex items-center gap-2">
-                <input type="month" name="bulan" value="{{ $bulan }}" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary">
-                <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+        <div class="w-full xl:w-auto overflow-x-auto pb-2 xl:pb-0">
+            <form action="{{ route('backend.admin.rekap-honor.index') }}" method="GET" class="flex flex-nowrap items-center gap-2 min-w-max xl:min-w-0">
+                <input type="month" name="bulan" value="{{ $bulan }}" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all">
+                <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
                     Filter
                 </button>
                 <a href="{{ route('backend.admin.rekap-honor.export', ['bulan' => $bulan]) }}" 
-                   class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
-                    Export Excel
+                   class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                    <span>Excel</span>
                 </a>
-                <button type="button" onclick="window.print()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Print
+                <button type="button" onclick="window.print()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    <span>Print</span>
                 </button>
             </form>
         </div>
@@ -52,19 +52,19 @@
         @foreach($dosens as $dosen)
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:border-gray-300 print:shadow-none break-inside-avoid">
             <!-- Dosen Header -->
-            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full overflow-hidden border border-gray-200">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border border-gray-200 flex-shrink-0">
                         <img src="{{ $dosen->avatar_url }}" alt="Avatar" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900">{{ $dosen->name }}</h3>
-                        <p class="text-sm text-gray-500">Dosen Pengampu</p>
+                        <h3 class="text-base md:text-xl font-black text-gray-900 leading-tight">{{ $dosen->name }}</h3>
+                        <p class="text-xs text-gray-500 font-medium">Dosen Pengampu</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-500 uppercase tracking-widest font-bold">Total Honor</p>
-                    <p class="text-2xl font-black text-primary">Rp {{ number_format($dosen->total_honor, 0, ',', '.') }}</p>
+                <div class="text-left sm:text-right p-4 bg-primary/5 rounded-2xl border border-primary/10 sm:bg-transparent sm:p-0 sm:border-0">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-black mb-1">Total Honor</p>
+                    <p class="text-xl md:text-2xl font-black text-primary">Rp {{ number_format($dosen->total_honor, 0, ',', '.') }}</p>
                 </div>
             </div>
 
@@ -143,13 +143,13 @@
     </div>
 
     <!-- Super Grand Total -->
-    <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl shadow-xl p-6 md:p-8 text-white flex flex-col md:flex-row items-center justify-between mt-8 print:hidden">
-        <div>
-            <h2 class="text-emerald-100 text-lg font-bold uppercase tracking-widest mb-1">Total Keseluruhan Honor Kampus</h2>
-            <p class="text-emerald-200 text-sm">Total tagihan honor dosen untuk bulan {{ \Carbon\Carbon::parse($bulan . '-01')->translatedFormat('F Y') }}</p>
+    <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-[2rem] shadow-xl p-8 md:p-10 text-white flex flex-col md:flex-row items-center justify-between mt-8 print:hidden gap-6">
+        <div class="text-center md:text-left">
+            <h2 class="text-emerald-100 text-sm md:text-lg font-black uppercase tracking-widest mb-1">Total Keseluruhan Honor Kampus</h2>
+            <p class="text-emerald-200/80 text-xs md:text-sm font-medium">Total tagihan honor dosen untuk bulan {{ \Carbon\Carbon::parse($bulan . '-01')->translatedFormat('F Y') }}</p>
         </div>
-        <div class="mt-4 md:mt-0">
-            <span class="text-5xl font-black tracking-tighter">Rp {{ number_format($grandTotalSeluruhHonor, 0, ',', '.') }}</span>
+        <div class="text-center md:text-right">
+            <span class="text-4xl md:text-6xl font-black tracking-tighter drop-shadow-lg">Rp {{ number_format($grandTotalSeluruhHonor, 0, ',', '.') }}</span>
         </div>
     </div>
 </div>

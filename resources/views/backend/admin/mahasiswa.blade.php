@@ -6,23 +6,23 @@
 @section('content')
 <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
     <!-- Header Section -->
-    <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-gray-100 relative">
+    <div class="bg-white rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 relative">
         <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
-        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div class="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
             <div>
-                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Manajemen Mahasiswa</h1>
-                <p class="text-gray-500 font-medium">Kelola status, filter angkatan, dan data akademik mahasiswa secara terpusat.</p>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Manajemen Mahasiswa</h1>
+                <p class="text-xs md:text-sm text-gray-500 font-medium">Kelola status, filter angkatan, dan data akademik mahasiswa secara terpusat.</p>
             </div>
-            <div class="mt-6 md:mt-0 flex flex-wrap items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
                 
                 <!-- Action Dropdown untuk Import / Export -->
-                <div x-data="{ open: false, showImportModal: false }" class="relative">
-                    <button @click="open = !open" class="px-5 py-3 bg-white text-gray-700 font-black text-xs uppercase tracking-widest border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all shadow-sm flex items-center space-x-2">
+                <div x-data="{ open: false, showImportModal: false }" class="relative flex-1 sm:flex-none">
+                    <button @click="open = !open" class="w-full px-4 py-3 bg-white text-gray-700 font-black text-[10px] uppercase tracking-widest border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         <span>Aksi Lanjutan</span>
                     </button>
                     
-                    <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                    <div x-show="open" @click.away="open = false" x-cloak class="absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
                         <button @click="showImportModal = true; open = false" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-primary transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             <span>Import CSV (Excel)</span>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('backend.admin.users.create', ['role' => 'mahasiswa']) }}" class="px-6 py-3 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center space-x-2">
+                <a href="{{ route('backend.admin.users.create', ['role' => 'mahasiswa']) }}" class="flex-1 sm:flex-none px-4 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center justify-center space-x-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                     <span>Tambah</span>
                 </a>
@@ -162,11 +162,11 @@
                             <input type="checkbox" id="selectAll" class="rounded border-white/20 text-red-500 focus:ring-red-500 cursor-pointer bg-white/10">
                         </th>
                         @endif
-                        <th class="border border-white/10 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-center w-12 text-white">No</th>
-                        <th class="border border-white/10 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white">Informasi Mahasiswa</th>
-                        <th class="border border-white/10 px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest w-40 text-white">Angkatan & Smt</th>
-                        <th class="border border-white/10 px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest w-32 text-white">Status</th>
-                        <th class="border border-white/10 px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest w-32 bg-primary-dark text-white">Aksi</th>
+                        <th class="border border-white/10 px-3 md:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-center w-12 text-white">No</th>
+                        <th class="border border-white/10 px-3 md:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white">Informasi Mahasiswa</th>
+                        <th class="border border-white/10 px-3 md:px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest w-32 md:w-40 text-white">Angkatan & Smt</th>
+                        <th class="border border-white/10 px-3 md:px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest w-24 md:w-32 text-white">Status</th>
+                        <th class="border border-white/10 px-3 md:px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest w-24 md:w-32 bg-primary-dark text-white">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -177,41 +177,41 @@
                             <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox rounded border-gray-300 text-red-500 focus:ring-red-500 cursor-pointer" onclick="updateBulkDeleteUI()">
                         </td>
                         @endif
-                        <td class="border border-gray-100 px-6 py-4 text-center text-xs font-bold text-gray-400">{{ $index + 1 }}</td>
-                        <td class="border border-gray-100 px-6 py-4">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <td class="border border-gray-100 px-3 md:px-6 py-4 text-center text-[10px] md:text-xs font-bold text-gray-400">{{ $index + 1 }}</td>
+                        <td class="border border-gray-100 px-3 md:px-6 py-4">
+                            <div class="flex items-center space-x-3 md:space-x-4">
+                                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform">
                                     <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-black text-gray-900 leading-none mb-1 capitalize">{{ strtolower($user->name) }}</span>
-                                    <span class="text-[11px] font-bold text-gray-500 tracking-wide">{{ strtolower($user->email) }}</span>
+                                    <span class="text-[11px] md:text-sm font-black text-gray-900 leading-none mb-1 capitalize">{{ strtolower($user->name) }}</span>
+                                    <span class="text-[9px] md:text-[11px] font-bold text-gray-500 tracking-wide line-clamp-1">{{ strtolower($user->email) }}</span>
                                 </div>
                             </div>
                         </td>
-                        <td class="border border-gray-100 px-6 py-4 text-center">
+                        <td class="border border-gray-100 px-3 md:px-6 py-4 text-center">
                             <div class="flex flex-col">
-                                <span class="text-xs font-black text-gray-700">Angkatan {{ $user->angkatan ?? '-' }}</span>
-                                <span class="text-[10px] font-bold text-gray-400">Semester {{ $user->semester ?? '-' }}</span>
+                                <span class="text-[10px] md:text-xs font-black text-gray-700">Angk. {{ $user->angkatan ?? '-' }}</span>
+                                <span class="text-[8px] md:text-[10px] font-bold text-gray-400">Smt {{ $user->semester ?? '-' }}</span>
                             </div>
                         </td>
-                        <td class="border border-gray-100 px-6 py-4 text-center">
-                            <span class="px-3 py-1.5 {{ $user->status_badge }} rounded-lg text-[9px] font-black uppercase tracking-widest border border-current/20">
+                        <td class="border border-gray-100 px-3 md:px-6 py-4 text-center">
+                            <span class="px-2 md:px-3 py-1 md:py-1.5 {{ $user->status_badge }} rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest border border-current/20">
                                 {{ $user->status ?? 'AKTIF' }}
                             </span>
                         </td>
-                        <td class="border border-gray-100 px-6 py-4 text-right bg-gray-50/20">
-                            <div class="flex items-center justify-end space-x-1">
-                                <a href="{{ route('backend.admin.users.show', $user) }}" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors" title="Detail">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        <td class="border border-gray-100 px-3 md:px-6 py-4 text-right bg-gray-50/20">
+                            <div class="flex items-center justify-end gap-1 md:gap-2">
+                                <a href="{{ route('backend.admin.users.show', $user) }}" class="p-1.5 md:p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors" title="Detail">
+                                    <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                 </a>
                                 @if($user->qr_token)
-                                <a href="{{ route('backend.admin.users.ktm', $user) }}" target="_blank" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat & Cetak KTM">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                                <a href="{{ route('backend.admin.users.ktm', $user) }}" target="_blank" class="p-1.5 md:p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat & Cetak KTM">
+                                    <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
                                 </a>
                                 @endif
-                                <a href="{{ route('backend.admin.users.edit', $user) }}" class="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                <a href="{{ route('backend.admin.users.edit', $user) }}" class="p-1.5 md:p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit">
+                                    <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </a>
                                 @if(Auth::user()->role === 'super_admin')
                                 <form action="{{ route('backend.admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Hapus mahasiswa ini?')" class="inline">
