@@ -371,78 +371,142 @@
 </section>
 
 <!-- Brosur Section -->
-<section class="py-24 bg-white overflow-hidden" id="brosur-pmb">
+<section class="py-20 bg-white overflow-hidden" id="brosur-pmb">
     <div class="container mx-auto px-4 lg:px-12">
-        <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
-            <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">Brosur PMB 2026/2027</h2>
-            <p class="text-lg text-gray-500 max-w-xl mx-auto italic">Temukan informasi lengkap mengenai program studi, beasiswa, dan kehidupan kampus kami.</p>
+        <div class="text-center max-w-2xl mx-auto mb-12" data-aos="fade-up">
+            <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4">Brosur PMB 2026/2027</h2>
+            <p class="text-base text-gray-500 max-w-xl mx-auto italic">Klik pada brosur untuk mengunduhnya.</p>
         </div>
-        
-        <div class="flex justify-center">
-            @forelse($brosurs as $brosur)
-                <div class="w-full max-w-sm brochure-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                    <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 shadow-2xl border border-gray-100 transition-all duration-500 hover:shadow-primary/10 h-full flex flex-col cursor-pointer" 
-                         data-file="{{ asset('pmb-brosur/' . $brosur->image) }}"
-                         onclick="window.open(this.dataset.file, '_blank')">
-                        
-                        <!-- Frame - Fixed height, no crop -->
-                        <div class="relative bg-gray-50 rounded-[1.5rem] mb-6 border border-gray-100 overflow-hidden">
-                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-auto block max-h-96 object-contain transform group-hover:scale-[1.01] transition-transform duration-700">
-                            
-                            <!-- Overlay Glassmorphism -->
-                            <div class="absolute inset-x-4 bottom-4 p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                                <p class="text-white text-xs font-bold uppercase tracking-widest text-center">{{ $brosur->title }}</p>
-                            </div>
 
-                            <!-- Decorative Gradient -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        </div>
+        @php $brosurCount = count($brosurs); @endphp
 
-                        <!-- Content -->
-                        <div class="flex-1 flex flex-col px-2">
-                            <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ $brosur->title }}</h3>
-                            <p class="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{{ $brosur->description ?? 'Informasi pendaftaran dan perkuliahan lengkap.' }}</p>
-                            
-                            <div class="mt-auto">
-                                <a href="{{ asset('pmb-brosur/' . $brosur->image) }}" download 
-                                   class="inline-flex items-center justify-center w-full px-5 py-3 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 space-x-2 group/btn">
-                                    <span>Download Brosur</span>
-                                    <svg class="w-4 h-4 transform group-hover/btn:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        @if($brosurCount > 0)
+        <!-- Carousel Wrapper -->
+        <div class="relative max-w-sm mx-auto" id="brosur-carousel">
+            <!-- Slides Container -->
+            <div class="overflow-hidden rounded-3xl">
+                <div class="flex transition-transform duration-500 ease-in-out" id="brosur-track">
+                    @foreach($brosurs as $brosur)
+                    <div class="w-full flex-shrink-0">
+                        <!-- Card -->
+                        <div class="relative group cursor-pointer select-none" onclick="downloadBrosur(this)" 
+                             data-file="{{ asset('pmb-brosur/' . $brosur->image) }}"
+                             data-title="{{ $brosur->title }}">
+
+                            <!-- Image -->
+                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" 
+                                 alt="{{ $brosur->title }}"
+                                 class="w-full h-auto block rounded-3xl shadow-xl border border-gray-100">
+
+                            <!-- Download Overlay (muncul saat hover/click) -->
+                            <div class="brosur-overlay absolute inset-0 bg-black/50 rounded-3xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <div class="bg-white rounded-full p-5 shadow-2xl mb-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
-                                </a>
+                                </div>
+                                <p class="text-white font-bold text-sm tracking-wide">Ketuk untuk Download</p>
+                            </div>
+
+                            <!-- Title Badge -->
+                            <div class="absolute bottom-3 left-3 right-3">
+                                <div class="bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-2 text-center shadow">
+                                    <p class="text-gray-900 font-bold text-sm truncate">{{ $brosur->title }}</p>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
 
-                        <!-- Decorative glow -->
-                        <div class="absolute -z-10 inset-0 bg-primary/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                    </div>
-                </div>
-            @empty
-                <div class="w-full max-w-2xl mx-auto aspect-[16/9] bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] flex flex-col items-center justify-center text-gray-400 p-8 space-y-4">
-                    <div class="p-4 bg-white rounded-2xl shadow-sm">
-                        <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <p class="italic font-medium">Brosur pendaftaran belum tersedia saat ini.</p>
-                </div>
-            @endforelse
+            @if($brosurCount > 1)
+            <!-- Prev/Next Buttons -->
+            <button onclick="prevSlide()" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary transition-colors z-10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <button onclick="nextSlide()" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary transition-colors z-10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+
+            <!-- Dots -->
+            <div class="flex justify-center gap-2 mt-5" id="brosur-dots">
+                @foreach($brosurs as $i => $b)
+                <button onclick="goToSlide({{ $i }})" class="brosur-dot w-2.5 h-2.5 rounded-full transition-all duration-300 {{ $i === 0 ? 'bg-primary w-6' : 'bg-gray-300' }}"></button>
+                @endforeach
+            </div>
+            @endif
         </div>
+
+        @else
+        <div class="w-full max-w-sm mx-auto bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-gray-400 p-12 space-y-4">
+            <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="italic font-medium text-center">Brosur pendaftaran belum tersedia saat ini.</p>
+        </div>
+        @endif
     </div>
 </section>
 
-<style>
-    .brochure-card {
-        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+<script>
+    // ---- Brosur Carousel ----
+    let currentSlide = 0;
+    const totalSlides = {{ $brosurCount }};
+    const track = document.getElementById('brosur-track');
+    const dots = document.querySelectorAll('.brosur-dot');
+    let autoSlideInterval;
+
+    function goToSlide(index) {
+        currentSlide = (index + totalSlides) % totalSlides;
+        if (track) track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((d, i) => {
+            d.classList.toggle('bg-primary', i === currentSlide);
+            d.classList.toggle('w-6', i === currentSlide);
+            d.classList.toggle('bg-gray-300', i !== currentSlide);
+            d.classList.toggle('w-2.5', i !== currentSlide);
+        });
     }
-    
-    @media (min-width: 1024px) {
-        .brochure-card-wrapper {
-            perspective: 1500px;
+
+    function nextSlide() { goToSlide(currentSlide + 1); resetAutoSlide(); }
+    function prevSlide() { goToSlide(currentSlide - 1); resetAutoSlide(); }
+
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        if (totalSlides > 1) {
+            autoSlideInterval = setInterval(() => goToSlide(currentSlide + 1), 4000);
         }
-        
-        .brochure-card:hover {
+    }
+
+    function downloadBrosur(el) {
+        const file = el.dataset.file;
+        const a = document.createElement('a');
+        a.href = file;
+        a.download = el.dataset.title || 'brosur';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Start auto-slide
+    if (totalSlides > 1) {
+        autoSlideInterval = setInterval(() => goToSlide(currentSlide + 1), 4000);
+    }
+</script>
+
+<style>
+    .brosur-overlay {
+        -webkit-tap-highlight-color: transparent;
+    }
+    /* On touch devices, show overlay on tap */
+    @media (hover: none) {
+        .brosur-overlay {
+            opacity: 0;
+        }
+        .group:active .brosur-overlay {
+            opacity: 1;
+        }
+    }
             transform: translateY(-10px) rotateX(4deg) rotateY(4deg);
         }
     }
