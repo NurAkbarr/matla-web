@@ -6,89 +6,63 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     * Migration ini bersifat aman (idempotent) — hanya berjalan jika kolom/foreign key lama masih ada.
-     * Pada server baru yang fresh, migration create sudah langsung menggunakan skema baru, sehingga
-     * migration ini tidak akan menemukan kolom lama dan akan dilewati dengan aman.
-     */
     public function up(): void
     {
         Schema::table('presensi_dosens', function (Blueprint $table) {
-            // Hanya drop foreign key jika masih ada
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            $foreignKeys = array_keys($sm->listTableForeignKeys('presensi_dosens'));
-
-            if (in_array('presensi_dosens_jadwal_id_foreign', $foreignKeys)) {
+            // Drop foreign key dengan try-catch — aman di semua versi Laravel
+            try {
                 $table->dropForeign(['jadwal_id']);
+            } catch (\Throwable $e) {
+                // Foreign key tidak ada, tidak perlu panic
             }
 
-            // Hanya drop kolom jika masih ada
-            $columns = Schema::getColumnListing('presensi_dosens');
-
-            if (in_array('jadwal_id', $columns)) {
+            // Drop kolom lama hanya jika masih ada
+            if (Schema::hasColumn('presensi_dosens', 'jadwal_id')) {
                 $table->dropColumn('jadwal_id');
             }
-
-            if (in_array('tanggal', $columns)) {
+            if (Schema::hasColumn('presensi_dosens', 'tanggal')) {
                 $table->dropColumn('tanggal');
             }
-
-            if (in_array('status', $columns)) {
+            if (Schema::hasColumn('presensi_dosens', 'status')) {
                 $table->dropColumn('status');
             }
 
             // Tambah kolom baru hanya jika belum ada
-            if (!in_array('bulan', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'bulan')) {
                 $table->string('bulan')->after('user_id');
             }
-
-            if (!in_array('semester', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'semester')) {
                 $table->string('semester')->after('bulan');
             }
-
-            if (!in_array('angkatan', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'angkatan')) {
                 $table->string('angkatan')->nullable()->after('semester');
             }
-
-            if (!in_array('mata_kuliah', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'mata_kuliah')) {
                 $table->string('mata_kuliah')->after('angkatan');
             }
-
-            if (!in_array('pekan_1', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'pekan_1')) {
                 $table->string('pekan_1')->nullable()->after('mata_kuliah');
             }
-
-            if (!in_array('pekan_2', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'pekan_2')) {
                 $table->string('pekan_2')->nullable()->after('pekan_1');
             }
-
-            if (!in_array('pekan_3', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'pekan_3')) {
                 $table->string('pekan_3')->nullable()->after('pekan_2');
             }
-
-            if (!in_array('pekan_4', $columns)) {
+            if (!Schema::hasColumn('presensi_dosens', 'pekan_4')) {
                 $table->string('pekan_4')->nullable()->after('pekan_3');
             }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('presensi_dosens', function (Blueprint $table) {
-            $columns = Schema::getColumnListing('presensi_dosens');
-
-            if (in_array('bulan', $columns))      $table->dropColumn('bulan');
-            if (in_array('semester', $columns))   $table->dropColumn('semester');
-            if (in_array('angkatan', $columns))   $table->dropColumn('angkatan');
-            if (in_array('mata_kuliah', $columns)) $table->dropColumn('mata_kuliah');
-            if (in_array('pekan_1', $columns))    $table->dropColumn('pekan_1');
-            if (in_array('pekan_2', $columns))    $table->dropColumn('pekan_2');
-            if (in_array('pekan_3', $columns))    $table->dropColumn('pekan_3');
-            if (in_array('pekan_4', $columns))    $table->dropColumn('pekan_4');
+            foreach (['bulan', 'semester', 'angkatan', 'mata_kuliah', 'pekan_1', 'pekan_2', 'pekan_3', 'pekan_4'] as $col) {
+                if (Schema::hasColumn('presensi_dosens', $col)) {
+                    $table->dropColumn($col);
+                }
+            }
         });
     }
 };
