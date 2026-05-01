@@ -262,5 +262,99 @@
         });
     </script>
 </section>
+
+@if(count($brosurs) > 0 && \App\Models\Setting::get_value('pmb_is_open') == '1')
+<!-- PMB Announcement Popup -->
+<div id="pmb-popup" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-500">
+    <div class="relative w-full max-w-lg transform scale-90 transition-all duration-500 shadow-2xl" id="pmb-popup-content">
+        
+        <!-- Popup Carousel Container -->
+        <div class="bg-white rounded-xl p-1 relative overflow-hidden">
+            <!-- Close Button (Di dalam kotak, kecil) -->
+            <button onclick="closePmbPopup()" class="absolute top-2 right-2 z-[10001] bg-black/20 hover:bg-black/40 text-white transition-all p-1.5 rounded-lg backdrop-blur-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <div class="flex transition-transform duration-500 ease-in-out" id="popup-track">
+                @foreach($brosurs as $brosur)
+                <div class="w-full flex-shrink-0">
+                    <div class="relative rounded-lg overflow-hidden bg-gray-100">
+                        <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="Brosur" class="w-full h-auto max-h-[85vh] object-contain block mx-auto">
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            @if(count($brosurs) > 1)
+            <!-- Dots Indicator Mini -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 bg-black/10 backdrop-blur-sm px-2 py-1 rounded-full" id="popup-dots">
+                @foreach($brosurs as $i => $b)
+                <div class="popup-dot w-1 h-1 rounded-full transition-all duration-300 {{ $i === 0 ? 'bg-white w-3' : 'bg-white/30' }}"></div>
+                @endforeach
+            </div>
+            @endif
+        </div>
+        
+        <!-- Hint Text -->
+        <p class="text-white/40 text-center text-[10px] mt-3 italic">Klik area luar untuk menutup</p>
+    </div>
+</div>
+
+<script>
+    let popupCurrentSlide = 0;
+    const popupTotalSlides = {{ count($brosurs) }};
+    const popupTrack = document.getElementById('popup-track');
+    const popupDots = document.querySelectorAll('.popup-dot');
+    let popupInterval;
+
+    function showPmbPopup() {
+        const popup = document.getElementById('pmb-popup');
+        const content = document.getElementById('pmb-popup-content');
+        
+        popup.classList.remove('opacity-0', 'pointer-events-none');
+        content.classList.remove('scale-90');
+        content.classList.add('scale-100');
+
+        if (popupTotalSlides > 1) {
+            popupInterval = setInterval(nextPopupSlide, 4000);
+        }
+    }
+
+    function nextPopupSlide() {
+        popupCurrentSlide = (popupCurrentSlide + 1) % popupTotalSlides;
+        if (popupTrack) popupTrack.style.transform = `translateX(-${popupCurrentSlide * 100}%)`;
+        popupDots.forEach((d, i) => {
+            d.classList.toggle('bg-white', i === popupCurrentSlide);
+            d.classList.toggle('w-3', i === popupCurrentSlide);
+            d.classList.toggle('bg-white/40', i !== popupCurrentSlide);
+            d.classList.toggle('w-1', i !== popupCurrentSlide);
+        });
+    }
+
+    function closePmbPopup() {
+        const popup = document.getElementById('pmb-popup');
+        const content = document.getElementById('pmb-popup-content');
+        
+        popup.classList.add('opacity-0', 'pointer-events-none');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-90');
+        
+        clearInterval(popupInterval);
+        sessionStorage.setItem('pmb_popup_shown', 'true');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!sessionStorage.getItem('pmb_popup_shown')) {
+            setTimeout(showPmbPopup, 800);
+        }
+    });
+
+    document.getElementById('pmb-popup').addEventListener('click', function(e) {
+        if (e.target === this) closePmbPopup();
+    });
+</script>
+@endif
 @endsection
 

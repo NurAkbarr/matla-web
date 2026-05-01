@@ -13,7 +13,8 @@ use App\Http\Controllers\Backend\ProgramStudiController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    $brosurs = \App\Models\BrosurPmb::orderBy('order')->get();
+    return view('welcome', compact('brosurs'));
 });
 
 // Authentication
