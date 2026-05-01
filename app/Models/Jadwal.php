@@ -19,6 +19,7 @@ class Jadwal extends Model
         'jam_selesai',
         'ruang',
         'semester',
+        'angkatan',
     ];
 
     public function dosen()

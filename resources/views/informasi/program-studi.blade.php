@@ -132,9 +132,11 @@
             </p>
             
             <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
+                @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
                 <a href="{{ route('pmb') }}" class="px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/20">
                     Daftar Sekarang
                 </a>
+                @endif
                 <a href="{{ route('kontak') }}" class="px-10 py-4 bg-transparent border border-white/20 hover:bg-white/5 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all">
                     Hubungi Kami
                 </a>

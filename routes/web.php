@@ -160,6 +160,10 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         // Nilai Management (Admin)
         Route::post('/admin/jadwal/{jadwal}/unlock', [\App\Http\Controllers\Backend\NilaiController::class, 'unlock'])->name('admin.jadwal.unlock');
 
+        // Rekap Honor Dosen
+        Route::get('/admin/rekap-honor', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'adminIndex'])->name('admin.rekap-honor.index');
+        Route::get('/admin/rekap-honor/export', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'exportExcel'])->name('admin.rekap-honor.export');
+
         // Program Studi Management
         Route::resource('/admin/program-studi', ProgramStudiController::class, [
             'names' => 'admin.program-studi',
@@ -199,6 +203,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     Route::middleware(['role:dosen'])->group(function () {
         Route::get('/dosen/dashboard', [DashboardController::class, 'dosen'])->name('dosen.dashboard');
         Route::get('/dosen/jadwal', [DashboardController::class, 'jadwalDosen'])->name('dosen.jadwal');
+
+        // Absen Mengajar
+        Route::get('/dosen/presensi', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'index'])->name('dosen.presensi.index');
+        Route::post('/dosen/presensi', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'store'])->name('dosen.presensi.store');
+        Route::delete('/dosen/presensi/{id}', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'destroy'])->name('dosen.presensi.destroy');
 
         // Grading Routes
         Route::get('/dosen/nilai', [\App\Http\Controllers\Backend\NilaiController::class, 'index'])->name('dosen.nilai.index');

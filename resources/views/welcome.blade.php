@@ -26,9 +26,11 @@
             </p>
 
             <div class="mt-8 lg:mt-10">
+                @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
                 <a href="#pmb" class="inline-block px-8 py-3.5 lg:py-4 bg-primary hover:bg-primary-dark text-white rounded-lg text-lg font-bold shadow-lg shadow-primary/20 transition-all text-center w-full sm:w-fit">
                     Daftar Sekarang
                 </a>
+                @endif
             </div>
         </div>
     </div>

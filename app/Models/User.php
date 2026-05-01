@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Jadwal::class, 'dosen_id');
     }
 
+    public function presensiDosens()
+    {
+        return $this->hasMany(PresensiDosen::class);
+    }
+
     // ===== KTM Relations =====
 
     public function profil()

@@ -96,6 +96,8 @@
                            class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Mahasiswa</a>
                         <a href="{{ route('backend.admin.dosen') }}" 
                            class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.dosen') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Data Dosen</a>
+                        <a href="{{ route('backend.admin.rekap-honor.index') }}" 
+                           class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Rekap Honor Dosen</a>
                         <a href="{{ route('backend.admin.jadwal.index') }}" 
                            class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Jadwal Perkuliahan</a>
                         <a href="{{ route('backend.admin.program-studi.index') }}" 

@@ -17,7 +17,7 @@
                     <span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg">
                         {{ $jadwal->programStudi->nama }}
                     </span>
-                    <span class="text-xs font-bold text-gray-300">Semester {{ $jadwal->semester }}</span>
+                    <span class="text-xs font-bold text-gray-400">Semester {{ $jadwal->semester }} &bull; Angkatan {{ $jadwal->angkatan ?? '-' }}</span>
                 </div>
                 
                 <h3 class="text-xl font-black text-gray-900 mb-4 group-hover:text-primary transition-colors leading-tight">

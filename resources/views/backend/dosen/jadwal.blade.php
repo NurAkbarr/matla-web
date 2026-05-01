@@ -25,6 +25,8 @@
                         <span class="text-gray-300">|</span>
                         <span class="text-sm font-bold text-gray-500 italic">Semester {{ $jadwal->semester }}</span>
                         <span class="text-gray-300">•</span>
+                        <span class="text-sm font-bold text-gray-500 italic">Angkatan {{ $jadwal->angkatan ?? '-' }}</span>
+                        <span class="text-gray-300">•</span>
                         <span class="text-sm font-bold text-primary italic">{{ $jadwal->sks }} SKS</span>
                     </div>
                     

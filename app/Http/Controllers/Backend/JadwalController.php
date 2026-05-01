@@ -36,6 +36,7 @@ class JadwalController extends Controller
             'jam_selesai' => 'required',
             'ruang' => 'required|string',
             'semester' => 'required|integer|min:1',
+            'angkatan' => 'required|string|max:255',
         ]);
 
         Jadwal::create($request->all());
@@ -63,6 +64,7 @@ class JadwalController extends Controller
             'jam_selesai' => 'required',
             'ruang' => 'required|string',
             'semester' => 'required|integer|min:1',
+            'angkatan' => 'required|string|max:255',
         ]);
 
         $jadwal->update($request->all());

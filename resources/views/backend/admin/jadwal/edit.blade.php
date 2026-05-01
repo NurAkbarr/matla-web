@@ -48,21 +48,27 @@
                 </select>
             </div>
 
-            <!-- Semester -->
-            <div class="space-y-3">
-                <label for="semester" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Semester</label>
-                <input type="number" name="semester" id="semester" required min="1" max="10"
-                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold" 
-                    placeholder="Contoh: 1" value="{{ old('semester', $jadwal->semester) }}">
-            </div>
+                <!-- Semester & Angkatan -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Semester</label>
+                        <input type="number" name="semester" value="{{ old('semester', $jadwal->semester) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" placeholder="Contoh: 1">
+                        @error('semester') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                    </div>
 
-            <!-- SKS -->
-            <div class="space-y-3">
-                <label for="sks" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Jumlah SKS</label>
-                <input type="number" name="sks" id="sks" required min="1" max="6"
-                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold" 
-                    placeholder="Contoh: 3" value="{{ old('sks', $jadwal->sks) }}">
-            </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Angkatan</label>
+                        <input type="text" name="angkatan" value="{{ old('angkatan', $jadwal->angkatan) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" placeholder="Contoh: 4">
+                        @error('angkatan') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                <!-- SKS -->
+                <div class="mt-6">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Jumlah SKS</label>
+                    <input type="number" name="sks" value="{{ old('sks', $jadwal->sks) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200">
+                    @error('sks') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
