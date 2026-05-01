@@ -380,17 +380,17 @@
         
         <div class="flex justify-center">
             @forelse($brosurs as $brosur)
-                <div class="w-full max-w-2xl brochure-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                    <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 md:p-6 shadow-2xl border border-gray-100 transition-all duration-500 hover:shadow-primary/10 h-full flex flex-col cursor-pointer" 
+                <div class="w-full max-w-sm brochure-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                    <div class="brochure-card group relative bg-white rounded-[2.5rem] p-4 shadow-2xl border border-gray-100 transition-all duration-500 hover:shadow-primary/10 h-full flex flex-col cursor-pointer" 
                          data-file="{{ asset('pmb-brosur/' . $brosur->image) }}"
                          onclick="window.open(this.dataset.file, '_blank')">
                         
-                        <!-- Frame - Natural Full Height, No Crop -->
-                        <div class="relative bg-gray-50 rounded-[2rem] mb-8 border border-gray-100 overflow-hidden">
-                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-auto block transform group-hover:scale-[1.01] transition-transform duration-700">
+                        <!-- Frame - Fixed height, no crop -->
+                        <div class="relative bg-gray-50 rounded-[1.5rem] mb-6 border border-gray-100 overflow-hidden">
+                            <img src="{{ asset('pmb-brosur/' . $brosur->image) }}" alt="{{ $brosur->title }}" class="w-full h-auto block max-h-96 object-contain transform group-hover:scale-[1.01] transition-transform duration-700">
                             
                             <!-- Overlay Glassmorphism -->
-                            <div class="absolute inset-x-4 bottom-4 p-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                            <div class="absolute inset-x-4 bottom-4 p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
                                 <p class="text-white text-xs font-bold uppercase tracking-widest text-center">{{ $brosur->title }}</p>
                             </div>
 
@@ -400,14 +400,14 @@
 
                         <!-- Content -->
                         <div class="flex-1 flex flex-col px-2">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2 truncate">{{ $brosur->title }}</h3>
-                            <p class="text-sm text-gray-500 line-clamp-2 mb-6 flex-1">{{ $brosur->description ?? 'Informasi pendaftaran dan perkuliahan lengkap.' }}</p>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ $brosur->title }}</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{{ $brosur->description ?? 'Informasi pendaftaran dan perkuliahan lengkap.' }}</p>
                             
                             <div class="mt-auto">
                                 <a href="{{ asset('pmb-brosur/' . $brosur->image) }}" download 
-                                   class="inline-flex items-center justify-center w-full px-6 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 space-x-2 group/btn">
-                                    <span>Download Gambar</span>
-                                    <svg class="w-5 h-5 transform group-hover/btn:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   class="inline-flex items-center justify-center w-full px-5 py-3 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 space-x-2 group/btn">
+                                    <span>Download Brosur</span>
+                                    <svg class="w-4 h-4 transform group-hover/btn:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
                                 </a>
