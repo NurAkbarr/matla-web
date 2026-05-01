@@ -10,7 +10,7 @@
         <p class="text-sm text-gray-500">Daftarkan Admin, Dosen, atau Mahasiswa secara internal.</p>
     </div>
 
-    <form action="{{ route('backend.admin.users.store') }}" method="POST" class="p-8 space-y-6">
+    <form action="{{ route('backend.admin.users.store') }}" method="POST" class="p-8 space-y-6" x-data="{ role: '{{ old('role', 'mahasiswa') }}' }">
         @csrf
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -23,15 +23,33 @@
             </div>
 
             <div class="space-y-2">
-                <label for="email" class="text-xs font-bold text-gray-700 uppercase tracking-widest leading-none">Alamat Email</label>
-                <input type="email" name="email" id="email" required 
+                <label for="email" class="text-xs font-bold text-gray-700 uppercase tracking-widest leading-none">
+                    Alamat Email <span x-show="role !== 'dosen'" class="text-red-500">*</span>
+                </label>
+                <input type="email" name="email" id="email" :required="role !== 'dosen'"
                     class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm @error('email') border-red-500 @enderror" 
                     placeholder="nama@matla.id" value="{{ old('email') }}">
                 @error('email') <p class="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tighter">{{ $message }}</p> @enderror
             </div>
+
+            <div class="space-y-2">
+                <label for="phone" class="text-xs font-bold text-gray-700 uppercase tracking-widest leading-none">No. Telepon <span class="text-red-500">*</span></label>
+                <input type="text" name="phone" id="phone" required 
+                    class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm @error('phone') border-red-500 @enderror" 
+                    placeholder="Contoh: 08123456789" value="{{ old('phone') }}">
+                @error('phone') <p class="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tighter">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="space-y-2" x-show="role === 'dosen'">
+                <label for="nidn" class="text-xs font-bold text-gray-700 uppercase tracking-widest leading-none">NIDN</label>
+                <input type="text" name="nidn" id="nidn"
+                    class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm @error('nidn') border-red-500 @enderror" 
+                    placeholder="Masukkan NIDN (Opsional)" value="{{ old('nidn') }}">
+                @error('nidn') <p class="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tighter">{{ $message }}</p> @enderror
+            </div>
         </div>
 
-        <div x-data="{ role: '{{ old('role', 'mahasiswa') }}' }" class="space-y-6">
+        <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label for="role" class="text-xs font-bold text-gray-700 uppercase tracking-widest leading-none">Role Pengguna</label>

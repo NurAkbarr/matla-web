@@ -27,8 +27,11 @@
 
             <div class="mt-8 lg:mt-10">
                 @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
-                <a href="#pmb" class="inline-block px-8 py-3.5 lg:py-4 bg-primary hover:bg-primary-dark text-white rounded-lg text-lg font-bold shadow-lg shadow-primary/20 transition-all text-center w-full sm:w-fit">
-                    Daftar Sekarang
+                <a href="{{ route('pmb') }}" class="inline-flex items-center justify-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-lg font-bold shadow-lg shadow-emerald-600/20 transition-all group w-full sm:w-fit">
+                    <span>Daftar Sekarang</span>
+                    <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
                 </a>
                 @endif
             </div>

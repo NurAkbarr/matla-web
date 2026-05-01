@@ -15,19 +15,25 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $input = $request->validate([
+            'login' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
+        $loginField = filter_var($input['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $credentials = [
+            $loginField => $input['login'],
+            'password' => $input['password']
+        ];
+
         $remember = $request->has('remember');
 
-        $userCheck = \App\Models\User::where('email', $credentials['email'])->first();
+        $userCheck = \App\Models\User::where($loginField, $input['login'])->first();
 
         if (!$userCheck) {
             return back()->withErrors([
-                'email' => 'Email belum terdaftar.',
-            ])->with('error', 'Email belum terdaftar.')->onlyInput('email');
+                'login' => 'Email atau Nomor Telepon belum terdaftar.',
+            ])->with('error', 'Email atau Nomor Telepon belum terdaftar.')->onlyInput('login');
         }
 
         if (Auth::attempt($credentials, $remember)) {
@@ -40,8 +46,8 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->with('error', 'Email atau password salah.')->onlyInput('email');
+            'login' => 'Email/Nomor Telepon atau password salah.',
+        ])->with('error', 'Email/Nomor Telepon atau password salah.')->onlyInput('login');
     }
 
     public function logout(Request $request)

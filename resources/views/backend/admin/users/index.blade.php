@@ -108,7 +108,13 @@
                             <span class="font-bold text-gray-900 text-sm capitalize">{{ strtolower($user->name) }}</span>
                         </div>
                     </td>
-                    <td class="px-8 py-5 text-sm text-gray-500 font-medium">{{ strtolower($user->email) }}</td>
+                    <td class="px-8 py-5 text-sm text-gray-500 font-medium">
+                        @if($user->email)
+                            {{ strtolower($user->email) }}
+                        @else
+                            <span class="text-xs text-gray-400 italic">No Email — {{ $user->phone }}</span>
+                        @endif
+                    </td>
                     <td class="px-8 py-5">
                         <span class="px-3 py-1 bg-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'emerald') }}-50 text-{{ $user->role == 'admin' || $user->role == 'super_admin' ? 'blue' : ($user->role == 'dosen' ? 'orange' : 'primary') }}-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-current/20">
                             {{ str_replace('_', ' ', $user->role) }}

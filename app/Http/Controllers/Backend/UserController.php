@@ -45,7 +45,9 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => [$request->role === 'dosen' ? 'nullable' : 'required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone' => ['required', 'string', 'max:20', 'unique:users'],
+            'nidn' => ['nullable', 'string', 'max:50', 'unique:users'],
             'password' => ['nullable', 'string', 'min:8'],
             'role' => ['required', 'in:admin,dosen,mahasiswa,super_admin'],
             'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:50', 'unique:users'],
@@ -60,6 +62,8 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'nidn' => $request->nidn,
             'password' => Hash::make($password),
             'role' => $request->role,
             'nim' => $request->nim,
@@ -93,7 +97,9 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => [$request->role === 'dosen' ? 'nullable' : 'required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone' => ['required', 'string', 'max:20', 'unique:users,phone,' . $user->id],
+            'nidn' => ['nullable', 'string', 'max:50', 'unique:users,nidn,' . $user->id],
             'password' => ['nullable', 'string', 'min:8'],
             'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:50', 'unique:users,nim,' . $user->id],
             'program_studi' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:100'],
@@ -105,6 +111,8 @@ class UserController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'nidn' => $request->nidn,
             'nim' => $request->nim,
             'angkatan' => $request->angkatan,
             'semester' => $request->semester,

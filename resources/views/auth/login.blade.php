@@ -25,18 +25,18 @@
             <form action="{{ route('login') }}" method="POST" class="space-y-6">
                 @csrf
                 
-                <!-- Email -->
+                <!-- Login (Email or Phone) -->
                 <div class="space-y-2">
-                    <label for="email" class="text-sm font-bold text-gray-700 flex items-center">
+                    <label for="login" class="text-sm font-bold text-gray-700 flex items-center">
                         <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"></path>
                         </svg>
-                        Alamat Email
+                        Email / No. Telepon
                     </label>
-                    <input id="email" name="email" type="email" autocomplete="email" required 
-                        class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all text-gray-700 @error('email') border-red-500 @enderror" 
-                        placeholder="nama@email.com" value="{{ old('email') }}">
-                    @error('email')
+                    <input id="login" name="login" type="text" autocomplete="username" required 
+                        class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all text-gray-700 @error('login') border-red-500 @enderror" 
+                        placeholder="Alamat email atau no. telepon" value="{{ old('login') }}">
+                    @error('login')
                         <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
