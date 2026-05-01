@@ -14,9 +14,14 @@ return new class extends Migration
         Schema::create('presensi_dosens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('jadwal_id')->nullable()->constrained('jadwals')->onDelete('set null');
-            $table->date('tanggal');
-            $table->string('status')->default('Hadir'); // Hadir, Izin, Sakit, Alfa
+            $table->string('bulan');
+            $table->string('semester');
+            $table->string('angkatan')->nullable();
+            $table->string('mata_kuliah');
+            $table->string('pekan_1')->nullable();
+            $table->string('pekan_2')->nullable();
+            $table->string('pekan_3')->nullable();
+            $table->string('pekan_4')->nullable();
             $table->timestamps();
         });
     }
