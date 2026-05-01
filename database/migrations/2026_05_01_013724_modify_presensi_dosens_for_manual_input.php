@@ -3,20 +3,29 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('presensi_dosens', function (Blueprint $table) {
-            // Drop foreign key dengan try-catch — aman di semua versi Laravel
-            try {
-                $table->dropForeign(['jadwal_id']);
-            } catch (\Throwable $e) {
-                // Foreign key tidak ada, tidak perlu panic
-            }
+        // Cek apakah foreign key benar-benar ada di database sebelum drop
+        $foreignKeyExists = DB::select("
+            SELECT COUNT(*) as count
+            FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'presensi_dosens'
+            AND CONSTRAINT_NAME = 'presensi_dosens_jadwal_id_foreign'
+            AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+        ")[0]->count > 0;
 
-            // Drop kolom lama hanya jika masih ada
+        if ($foreignKeyExists) {
+            Schema::table('presensi_dosens', function (Blueprint $table) {
+                $table->dropForeign(['jadwal_id']);
+            });
+        }
+
+        Schema::table('presensi_dosens', function (Blueprint $table) {
             if (Schema::hasColumn('presensi_dosens', 'jadwal_id')) {
                 $table->dropColumn('jadwal_id');
             }
@@ -27,7 +36,6 @@ return new class extends Migration
                 $table->dropColumn('status');
             }
 
-            // Tambah kolom baru hanya jika belum ada
             if (!Schema::hasColumn('presensi_dosens', 'bulan')) {
                 $table->string('bulan')->after('user_id');
             }
