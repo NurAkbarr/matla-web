@@ -12,18 +12,33 @@
 
     <div class="container mx-auto px-4 lg:px-12 relative z-10 pt-12 lg:pt-20 pb-20 lg:pb-32">
         <div class="max-w-2xl">
-            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1F2937] leading-[1.1] tracking-tight">
-                Kuliah Bahasa Arab & S1 Resmi: Tholibul Ilmi yang Paham
-                <span class="block text-primary mt-2">Bahasa Arab, Ilmu Syar'i, dan Teknologi</span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1F2937] leading-[1.1] tracking-tight">
+                Jadi Tholibul Ilmi yang Menguasai 
+                <span class="block text-primary mt-2">Bahasa Arab, Ilmu Syar’i & Technologi</span>
             </h2>
             
-            <h3 class="mt-6 text-xl lg:text-2xl font-bold text-[#374151]">
-                Jadilah bagian dari Matla Islamic Academy. Tempat di mana adab, ilmu syar'i, dan kreativitas digital tumbuh bersama dalam harmoni.
+            <h3 class="mt-6 text-lg lg:text-xl font-bold text-[#374151] leading-relaxed">
+                Program kuliah S1 resmi dengan pembelajaran online terstruktur: Bahasa Arab intensif, ilmu syar’i, dan skill digital
             </h3>
 
-            <p class="mt-6 text-base lg:text-lg text-gray-600 leading-relaxed max-w-xl font-medium">
-                Dapatkan gelar S.Pd resmi dengan kurikulum terstruktur. Target fasih Bahasa Arab dalam 2 tahun melalui penguasaan 500 kosakata per semester, serta pembekalan wajib softskill dan hardskill seperti Public Speaking, Programming, Desain Grafis, dan lainnya.
-            </p>
+            <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
+                <div class="flex items-center space-x-3">
+                    <span class="text-base">🔸</span>
+                    <span class="text-gray-700 font-bold text-sm lg:text-base tracking-tight">S1 resmi</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-base">🔸</span>
+                    <span class="text-gray-700 font-bold text-sm lg:text-base tracking-tight">Bahasa Arab dari nol sampai advance</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-base">🔸</span>
+                    <span class="text-gray-700 font-bold text-sm lg:text-base tracking-tight">Kurikulum syar'i dan terarah</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-base">🔸</span>
+                    <span class="text-gray-700 font-bold text-sm lg:text-base tracking-tight">Flexible & online</span>
+                </div>
+            </div>
 
             <div class="mt-8 lg:mt-10">
                 @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
