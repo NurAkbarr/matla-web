@@ -233,14 +233,14 @@
                             <p class="text-xs text-gray-400 font-black mb-2">Pilihan Rekening Pembayaran</p>
                             <div class="space-y-4">
                                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                                    <p class="text-[10px] text-gray-400 font-black mb-1 italic">BSI (BANK SYARIAH INDONESIA)</p>
-                                    <p class="text-xl font-black text-gray-900 tracking-wider">4195187780</p>
-                                    <p class="text-xs text-gray-500 font-bold">a.n. Heru Fantono</p>
+                                    <p class="text-[10px] text-gray-400 font-black mb-1 italic">BCA SYARIAH</p>
+                                    <p class="text-xl font-black text-gray-900 tracking-wider">0280050345</p>
+                                    <p class="text-xs text-gray-500 font-bold uppercase tracking-tighter">a.n. Kampus Matla Islamic Academy</p>
                                 </div>
                                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                     <p class="text-[10px] text-gray-400 font-black mb-1 italic">BCA SYARIAH</p>
-                                    <p class="text-xl font-black text-gray-900 tracking-wider">0280041278</p>
-                                    <p class="text-xs text-gray-500 font-bold">a.n. Heru Fantono</p>
+                                    <p class="text-xl font-black text-gray-900 tracking-wider">0280050337</p>
+                                    <p class="text-xs text-gray-500 font-bold uppercase tracking-tighter">a.n. Yayasan Nusaiba Alihdan Madani</p>
                                 </div>
                             </div>
                             <div class="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/20">
