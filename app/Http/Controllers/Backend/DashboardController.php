@@ -158,11 +158,14 @@ class DashboardController extends Controller
                 $prodi = count($row) >= 4 ? trim($row[3]) : null;
                 $status = count($row) >= 6 ? strtoupper(trim($row[5])) : 'AKTIF';
                 
+                // Jika NIM kosong, set ke null agar tidak melanggar unique constraint
+                $nimValue = empty($nim) ? null : $nim;
+                
                 $user = User::updateOrCreate(
                     ['email' => $email],
                     [
                         'name' => $nama,
-                        'nim' => $nim,
+                        'nim' => $nimValue,
                         'role' => 'mahasiswa',
                         'password' => bcrypt('password123'),
                         'status' => $status
