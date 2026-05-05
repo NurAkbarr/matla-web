@@ -14,6 +14,8 @@
 
         <h1 class="text-3xl font-extrabold text-gray-900 mb-8">Lengkapi Profil & Portofolio Anda</h1>
 
+
+
         @if(session('success'))
             <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-bold flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -66,7 +68,31 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1">Tentang Saya</label>
                             <textarea name="tentang_saya" rows="4" class="w-full rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm p-3" placeholder="Ceritakan sedikit tentang dirimu...">{{ $profil->tentang_saya }}</textarea>
                         </div>
-                        <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-dark transition-colors">Simpan Profil</button>
+
+                        <div class="pt-6 mt-6 border-t border-gray-100">
+                            <div class="mb-4">
+                                <h3 class="font-bold text-gray-900">Keamanan Akun</h3>
+                                <p class="text-xs text-gray-500 font-medium">Opsional: Isi jika ingin mengganti password</p>
+                            </div>
+                            <div class="space-y-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Password Saat Ini</label>
+                                    <input type="password" name="current_password" class="w-full rounded-lg border-gray-200 focus:ring-primary focus:border-primary text-sm p-2.5" placeholder="Masukkan password lama">
+                                    @error('current_password') <span class="text-red-500 text-[10px] font-bold mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Password Baru</label>
+                                    <input type="password" name="new_password" class="w-full rounded-lg border-gray-200 focus:ring-primary focus:border-primary text-sm p-2.5" placeholder="Minimal 8 karakter">
+                                    @error('new_password') <span class="text-red-500 text-[10px] font-bold mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                                    <input type="password" name="new_password_confirmation" class="w-full rounded-lg border-gray-200 focus:ring-primary focus:border-primary text-sm p-2.5" placeholder="Ulangi password baru">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20 mt-4">Simpan Perubahan</button>
                     </form>
                 </div>
             </div>

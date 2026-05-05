@@ -26,10 +26,19 @@ class ProfilController extends Controller
             'tanggal_lahir'=> 'nullable|date',
             'jenis_kelamin'=> 'nullable|in:Laki-laki,Perempuan',
             'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'current_password' => 'nullable|string',
+            'new_password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user  = Auth::user();
         $profil = $user->profil ?? $user->profil()->create(['tentang_saya' => '']);
+
+        if ($request->filled('new_password')) {
+            if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+            }
+            $user->password = bcrypt($request->new_password);
+        }
 
         if ($request->hasFile('foto')) {
             if ($profil->foto && Storage::disk('public')->exists($profil->foto)) {
