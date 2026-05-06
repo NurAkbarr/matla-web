@@ -43,69 +43,74 @@ Route::get('/p/{qr_token}', function ($qr_token) {
     return view('mahasiswa.ktm.public', compact('user'));
 })->middleware('throttle:60,1')->name('ktm.public');
 
-// ===== RUTE PERBAIKAN & DEBUG (Hanya dipanggil sekali) =====
-Route::get('/fix-qr-tokens', function () {
-    $users = \App\Models\User::where('role', 'mahasiswa')->get();
-    $count = 0;
-    foreach ($users as $user) {
-        // Jika token kosong atau bukan format UUID (panjangnya kurang dari 30 karakter)
-        if (empty($user->qr_token) || strlen($user->qr_token) < 30) {
-            $user->qr_token = (string) \Illuminate\Support\Str::uuid();
-            $user->save();
-            $count++;
-        }
-    }
-    return "Berhasil men-generate QR Token untuk $count mahasiswa lama!";
-});
+/*
+|--------------------------------------------------------------------------
+| Maintenance endpoints (locked down)
+|--------------------------------------------------------------------------
+|
+| Untuk production tanpa SSH (cPanel), endpoint ini boleh ada tapi HARUS:
+| - POST only
+| - auth + super_admin
+| - token rahasia dari .env (MAINTENANCE_TOKEN)
+| - HTTPS in production
+|
+*/
+Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_maintenance')->group(function () {
+    Route::post('/migrate', function () {
+        Artisan::call('migrate', ['--force' => true]);
+        return back()->with('success', 'Migration berhasil dijalankan.');
+    })->middleware('throttle:1,10')->name('maintenance.migrate');
 
-Route::get('/clear-server-cache', function() {
-    \Illuminate\Support\Facades\Artisan::call('view:clear');
-    \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    \Illuminate\Support\Facades\Artisan::call('config:clear');
-    return "Semua Cache Server (View, Config, Data) BERHASIL dibersihkan! Silakan refresh halaman mahasiswa.";
-});
+    Route::post('/clear-cache', function () {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        return back()->with('success', 'Cache berhasil dibersihkan.');
+    })->middleware('throttle:2,10')->name('maintenance.clear_cache');
 
-Route::get('/fix-storage', function () {
-    try {
-        // Coba cara Laravel default
-        \Illuminate\Support\Facades\Artisan::call('storage:link');
-        $msg1 = "Storage link default berhasil dijalankan. ";
-    } catch (\Exception $e) {
-        $msg1 = "Storage link default gagal: " . $e->getMessage() . ". ";
-    }
-
-    try {
-        // Cara brutal khusus cPanel (Memaksa symlink di folder publik yang aktif)
-        $targetFolder = storage_path('app/public');
-        $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
-        
-        if (file_exists($linkFolder)) {
-            if (is_link($linkFolder)) {
-                unlink($linkFolder); // Hapus symlink lama jika ada
+    Route::post('/fix-qr-tokens', function () {
+        $users = \App\Models\User::where('role', 'mahasiswa')->get();
+        $count = 0;
+        foreach ($users as $user) {
+            if (empty($user->qr_token) || strlen($user->qr_token) < 30) {
+                $user->qr_token = (string) \Illuminate\Support\Str::uuid();
+                $user->save();
+                $count++;
             }
         }
-        
-        symlink($targetFolder, $linkFolder);
-        return $msg1 . "<br><b>BERHASIL (Cara Khusus cPanel):</b> Symlink telah dipaksa dibuat di <code>" . $linkFolder . "</code>. Silakan refresh halaman profil Anda!";
-    } catch (\Exception $e) {
-        return $msg1 . "<br><b>GAGAL (Cara Khusus cPanel):</b> " . $e->getMessage() . ". Solusi terakhir: Buat symlink manual di SSH cPanel atau pindahkan foto langsung ke public_html/storage.";
-    }
+        return back()->with('success', "Berhasil men-generate QR Token untuk $count mahasiswa lama!");
+    })->middleware('throttle:1,10')->name('maintenance.fix_qr_tokens');
+
+    Route::post('/clear-server-cache', function () {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        return back()->with('success', 'Server cache (view/cache/config) berhasil dibersihkan.');
+    })->middleware('throttle:2,10')->name('maintenance.clear_server_cache');
 });
 
 // ===== FALLBACK ROUTE: Jika Symlink Gagal, Laravel yang akan mengirimkan gambarnya =====
 Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
-    $path = storage_path('app/public/' . $folder . '/' . $filename);
-    if (!file_exists($path)) {
+    $baseDir = storage_path('app/public');
+    $baseReal = realpath($baseDir);
+    if ($baseReal === false) {
         abort(404);
     }
+
+    $candidate = $baseDir . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . $filename;
+    $path = realpath($candidate);
+
+    // Block directory traversal / symlink escapes
+    if ($path === false || !str_starts_with($path, $baseReal . DIRECTORY_SEPARATOR)) {
+        abort(404);
+    }
+
+    if (!is_file($path)) {
+        abort(404);
+    }
+
     return response()->file($path);
 })->where('filename', '.*');
 
-// ===== ROUTE KHUSUS CPANEL: Untuk Menghapus Cache tanpa Terminal =====
-Route::get('/clear-cache', function() {
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return '<b>BERHASIL:</b> Semua cache (Route, View, Config) telah dihapus! Silakan kembali ke halaman web Anda.';
-});
+// Deprecated (keamanan): jangan expose endpoint maintenance via GET/public.
 
 // ===== Mahasiswa Area =====
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
@@ -124,6 +129,10 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     // Admin & Super Admin Area
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+
+        Route::get('/admin/maintenance', function () {
+            return view('backend.admin.maintenance');
+        })->middleware('throttle:30,1')->name('admin.maintenance');
         
         // User Management
         Route::get('/admin/users', [\App\Http\Controllers\Backend\UserController::class, 'index'])->name('admin.users.index');
@@ -240,7 +249,4 @@ Route::prefix('informasi')->name('informasi.')->group(function () {
     Route::get('/galeri', [InformasiController::class, 'galeri'])->name('galeri');
 });
 
-Route::get('/run-migrate', function () {
-    Artisan::call('migrate', ['--force' => true]);
-    return 'Migration done';
-});
+// Deprecated (keamanan): jangan expose migrate via GET/public.
