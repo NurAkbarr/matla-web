@@ -16,14 +16,14 @@
             <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
                 
                 <!-- Action Dropdown untuk Import / Export -->
-                <div x-data="{ open: false, showImportModal: false }" class="relative flex-1 sm:flex-none">
-                    <button @click="open = !open" class="w-full px-4 py-3 bg-white text-gray-700 font-black text-[10px] uppercase tracking-widest border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center space-x-2">
+                <div class="relative flex-1 sm:flex-none">
+                    <button onclick="toggleImportDropdown()" class="w-full px-4 py-3 bg-white text-gray-700 font-black text-[10px] uppercase tracking-widest border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         <span>Aksi Lanjutan</span>
                     </button>
                     
-                    <div x-show="open" @click.away="open = false" x-cloak class="absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-                        <button @click="showImportModal = true; open = false" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-primary transition-colors flex items-center space-x-2">
+                    <div id="import-export-dropdown" style="display: none;" class="absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                        <button onclick="document.getElementById('import-modal').style.display='flex'; document.getElementById('import-export-dropdown').style.display='none';" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-primary transition-colors flex items-center space-x-2">
                             <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             <span>Import CSV (Excel)</span>
                         </button>
@@ -38,11 +38,12 @@
                     </div>
 
                     <!-- Modal Import -->
-                    <div x-show="showImportModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                        <div @click.away="showImportModal = false" class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div id="import-modal" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <div onclick="document.getElementById('import-modal').style.display='none'" class="absolute inset-0"></div>
+                        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
                             <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                                 <h3 class="text-lg font-black text-gray-900 tracking-tight">Import Data Mahasiswa</h3>
-                                <button @click="showImportModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <button type="button" onclick="document.getElementById('import-modal').style.display='none'" class="text-gray-400 hover:text-gray-600 transition-colors">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
@@ -248,6 +249,24 @@
     const actionContainer = document.getElementById('bulkActionContainer');
     const selectedCountText = document.getElementById('selectedCount');
     const form = document.getElementById('bulkDeleteForm');
+
+    function toggleImportDropdown() {
+        const dropdown = document.getElementById('import-export-dropdown');
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('import-export-dropdown');
+        const button = event.target.closest('button[onclick="toggleImportDropdown()"]');
+        if (dropdown && !button && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
 
     if (selectAllBtn) {
         selectAllBtn.addEventListener('change', function() {
