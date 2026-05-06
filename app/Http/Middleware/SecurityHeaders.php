@@ -45,12 +45,13 @@ class SecurityHeaders
             "object-src 'none'",
             "frame-ancestors 'none'",
             // Inline scripts/styles currently used in several blades
-            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
-            "style-src 'self' 'unsafe-inline'",
+            // 'unsafe-eval' required by Alpine.js for x-data expressions
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             // Allow QR image / external https images + html-to-image outputs
             "img-src 'self' data: https: blob:",
-            "font-src 'self' data: https:",
-            "connect-src 'self'",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
             "form-action 'self'",
             "upgrade-insecure-requests",
         ]);
