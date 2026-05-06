@@ -14,29 +14,26 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         [x-cloak] { display: none !important; }
         .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .dropdown-content { overflow: hidden; transition: max-height 0.2s ease-out; max-height: 0; }
+        .dropdown-content.open { max-height: 300px; }
+        .chevron-rotate { transform: rotate(180deg); }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-    <div class="flex min-h-screen" x-data="{ sidebarOpen: false }">
+    <div class="flex min-h-screen">
 
         {{-- ===== MOBILE SIDEBAR OVERLAY ===== --}}
-        <div x-show="sidebarOpen"
-             x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
+        <div id="sidebar-overlay"
              class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-             @click="sidebarOpen = false">
+             style="display: none;"
+             onclick="closeSidebar()">
         </div>
 
         {{-- ===== SIDEBAR ===== --}}
-        <aside class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 flex flex-col
-                       sidebar-transition
-                       lg:static lg:translate-x-0"
-               :class="sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'">
+        <aside id="main-sidebar"
+               class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 flex flex-col
+                       sidebar-transition -translate-x-full
+                       lg:static lg:translate-x-0">
 
             {{-- Logo & Close Button --}}
             <div class="p-6 flex items-center justify-between mb-2 border-b border-gray-50">
@@ -45,7 +42,7 @@
                     <span class="text-xl font-extrabold text-primary-dark tracking-wider">MATLA</span>
                 </div>
                 {{-- Close button (mobile only) --}}
-                <button @click="sidebarOpen = false"
+                <button onclick="closeSidebar()"
                         class="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -57,7 +54,6 @@
                 {{-- SISTEM UTAMA --}}
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sistem Utama</p>
                 <a href="{{ route('backend.admin.dashboard') }}"
-                   @click="sidebarOpen = false"
                    class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.dashboard') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -67,7 +63,6 @@
 
                 @if(Auth::user()->role == 'admin' || Auth::user()->role == 'super_admin')
                 <a href="{{ route('backend.admin.users.index') }}"
-                   @click="sidebarOpen = false"
                    class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.users.*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -77,8 +72,8 @@
                 @endif
 
                 {{-- PMB Dropdown --}}
-                <div x-data="{ open: {{ request()->routeIs('backend.admin.pmb.*') ? 'true' : 'false' }} }">
-                    <button type="button" @click.stop="open = !open"
+                <div>
+                    <button type="button" onclick="toggleDropdown('pmb')"
                             class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.pmb.*') ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,27 +81,20 @@
                             </svg>
                             <span class="text-sm">PMB</span>
                         </div>
-                        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="chevron-pmb" class="w-4 h-4 transition-transform duration-200 {{ request()->routeIs('backend.admin.pmb.*') ? 'chevron-rotate' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open" x-cloak style="display: none;"
-                         x-transition:enter="transition ease-out duration-150"
-                         x-transition:enter-start="opacity-0 -translate-y-1"
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         x-transition:leave="transition ease-in duration-100"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="pl-12 space-y-1 mt-1">
-                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Daftar Pendaftar</a>
-                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Brosur</a>
-                        <a href="{{ route('backend.admin.pmb.settings') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Pengaturan PMB</a>
+                    <div id="dropdown-pmb" class="dropdown-content pl-12 space-y-1 mt-1 {{ request()->routeIs('backend.admin.pmb.*') ? 'open' : '' }}">
+                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Daftar Pendaftar</a>
+                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Brosur</a>
+                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Pengaturan PMB</a>
                     </div>
                 </div>
 
                 {{-- AKADEMIK Dropdown --}}
-                <div x-data="{ open: {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'true' : 'false' }} }">
-                    <button type="button" @click.stop="open = !open"
+                <div>
+                    <button type="button" onclick="toggleDropdown('akademik')"
                             class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,30 +102,22 @@
                             </svg>
                             <span class="text-sm">Akademik</span>
                         </div>
-                        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="chevron-akademik" class="w-4 h-4 transition-transform duration-200 {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'chevron-rotate' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open" x-cloak style="display: none;"
-                         x-transition:enter="transition ease-out duration-150"
-                         x-transition:enter-start="opacity-0 -translate-y-1"
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         x-transition:leave="transition ease-in duration-100"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="pl-12 space-y-1 mt-1">
-                        <a href="{{ route('backend.admin.mahasiswa') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Mahasiswa</a>
-                        <a href="{{ route('backend.admin.dosen') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.dosen') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Data Dosen</a>
-                        <a href="{{ route('backend.admin.rekap-honor.index') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Rekap Honor Dosen</a>
-                        <a href="{{ route('backend.admin.jadwal.index') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Jadwal Perkuliahan</a>
-                        <a href="{{ route('backend.admin.program-studi.index') }}" @click="sidebarOpen = false" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Program Studi</a>
+                    <div id="dropdown-akademik" class="dropdown-content pl-12 space-y-1 mt-1 {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'open' : '' }}">
+                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Mahasiswa</a>
+                        <a href="{{ route('backend.admin.dosen') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.dosen') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Data Dosen</a>
+                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Rekap Honor Dosen</a>
+                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Jadwal Perkuliahan</a>
+                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Program Studi</a>
                     </div>
                 </div>
 
                 {{-- MANAJEMEN KONTEN --}}
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Konten</p>
                 <a href="{{ route('backend.admin.messages.index') }}"
-                   @click="sidebarOpen = false"
                    class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.messages.*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h14a2 2 0 002-2V8zM3 8l9 6 9-6" />
@@ -148,7 +128,6 @@
                 @if(Auth::user()->role === 'super_admin')
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</p>
                 <a href="{{ route('backend.admin.maintenance') }}"
-                   @click="sidebarOpen = false"
                    class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.maintenance') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -179,7 +158,7 @@
             <header class="bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30">
                 <div class="flex items-center space-x-3">
                     {{-- Hamburger Button (mobile only) --}}
-                    <button @click.stop="sidebarOpen = true"
+                    <button onclick="openSidebar()"
                             class="lg:hidden p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
                             aria-label="Buka menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,5 +227,37 @@
             </footer>
         </div>
     </div>
+
+    <script>
+        // ===== Sidebar Toggle (Mobile) =====
+        function openSidebar() {
+            var sidebar = document.getElementById('main-sidebar');
+            var overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0', 'shadow-2xl');
+            overlay.style.display = 'block';
+        }
+
+        function closeSidebar() {
+            var sidebar = document.getElementById('main-sidebar');
+            var overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0', 'shadow-2xl');
+            overlay.style.display = 'none';
+        }
+
+        // ===== Dropdown Toggle =====
+        function toggleDropdown(name) {
+            var dropdown = document.getElementById('dropdown-' + name);
+            var chevron = document.getElementById('chevron-' + name);
+            if (dropdown.classList.contains('open')) {
+                dropdown.classList.remove('open');
+                chevron.classList.remove('chevron-rotate');
+            } else {
+                dropdown.classList.add('open');
+                chevron.classList.add('chevron-rotate');
+            }
+        }
+    </script>
 </body>
 </html>
