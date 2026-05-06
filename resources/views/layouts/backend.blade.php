@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/logo-bulat.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -15,18 +15,6 @@
         [x-cloak] { display: none !important; }
         .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#059669',
-                        'primary-dark': '#065f46',
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="bg-gray-50 text-gray-900">
     <div class="flex min-h-screen" x-data="{ sidebarOpen: false }">
