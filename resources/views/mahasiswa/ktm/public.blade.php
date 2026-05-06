@@ -5,22 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Profil Mahasiswa - {{ $user->name }}</title>
     <link rel="icon" href="{{ asset('assets/logo.png') }}" type="image/png">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: '#10B981', dark: '#059669' }
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="antialiased text-gray-800 pb-24">
 
