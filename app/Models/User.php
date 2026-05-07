@@ -104,4 +104,9 @@ class User extends Authenticatable
         }
         return null;
     }
+
+    public function affiliate()
+    {
+        return $this->hasOne(Affiliate::class);
+    }
 }

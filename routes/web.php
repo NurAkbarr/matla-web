@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProgramStudiController;
+use App\Http\Controllers\Backend\AffiliateController;
 
 
 
@@ -206,6 +207,18 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/pmb/trash', [\App\Http\Controllers\Backend\AdminPmbController::class, 'trash'])->name('admin.pmb.registrations.trash');
         Route::post('/admin/pmb/registrations/{id}/restore', [\App\Http\Controllers\Backend\AdminPmbController::class, 'restore'])->name('admin.pmb.registrations.restore');
         Route::delete('/admin/pmb/registrations/{id}/force', [\App\Http\Controllers\Backend\AdminPmbController::class, 'forceDelete'])->name('admin.pmb.registrations.forceDelete');
+
+        // PMB Affiliate Management
+        Route::prefix('admin/pmb/affiliates')->name('admin.affiliates.')->group(function () {
+            Route::get('/', [AffiliateController::class, 'index'])->name('index');
+            Route::post('/', [AffiliateController::class, 'store'])->name('store');
+            Route::patch('/{affiliate}/toggle', [AffiliateController::class, 'toggleStatus'])->name('toggle');
+            Route::delete('/{affiliate}', [AffiliateController::class, 'destroy'])->name('destroy');
+            
+            // Commissions
+            Route::get('/commissions', [AffiliateController::class, 'commissions'])->name('commissions');
+            Route::patch('/commissions/{commission}/pay', [AffiliateController::class, 'markPaid'])->name('commissions.pay');
+        });
     });
 
 

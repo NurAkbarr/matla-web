@@ -35,8 +35,14 @@ class NewRegistrationNotification extends Notification
         $message .= "🆔 *No. Reg:* `{$this->registration->registration_code}`\n";
         $message .= "👤 *Nama:* {$this->registration->full_name}\n";
         $message .= "📚 *Prodi:* {$this->registration->study_program}\n";
-        $message .= "📱 *WA:* [{$this->registration->whatsapp_number}](https://wa.me/{$this->registration->whatsapp_number})\n\n";
-        $message .= "🔗 [Lihat Detail di Dashboard](" . route('backend.admin.pmb.registrations.show', $this->registration->id) . ")";
+        $message .= "📱 *WA:* [{$this->registration->whatsapp_number}](https://wa.me/{$this->registration->whatsapp_number})\n";
+
+        // Add Affiliate Info if exists
+        if ($this->registration->affiliate) {
+            $message .= "👤 *Afiliator:* {$this->registration->affiliate->display_name}\n";
+        }
+
+        $message .= "\n🔗 [Lihat Detail di Dashboard](" . route('backend.admin.pmb.registrations.show', $this->registration->id) . ")";
 
         return Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
             'chat_id' => $chatId,

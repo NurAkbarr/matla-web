@@ -22,4 +22,14 @@ class PmbRegistration extends Model
         'address' => 'encrypted',
         'full_name' => 'encrypted',
     ];
+
+    public function affiliate(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Affiliate::class);
+    }
+
+    public function commissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AffiliateCommission::class);
+    }
 }

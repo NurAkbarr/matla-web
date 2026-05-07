@@ -122,14 +122,18 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1 space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Nama Sekolah *</label>
-                        <input type="text" name="school_name" x-model="formData.school_name" placeholder="Nama instansi pendidikan sebelumnya" class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-semibold text-gray-900">
+                        <input type="text" name="school_name" x-model="formData.school_name" placeholder="Nama instansi pendidikan" class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-semibold text-gray-900">
                     </div>
-                    <div class="space-y-2">
+                    <div class="md:col-span-1 space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Tahun Lulus *</label>
-                        <input type="text" name="graduation_year" x-model="formData.graduation_year" maxlength="4" placeholder="Tahun resmi kelulusan" class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-semibold text-gray-900">
+                        <input type="text" name="graduation_year" x-model="formData.graduation_year" maxlength="4" placeholder="Tahun kelulusan" class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-semibold text-gray-900">
+                    </div>
+                    <div class="md:col-span-1 space-y-2">
+                        <label class="text-sm font-bold text-gray-700 ml-1 italic">Kode Referral (Opsional)</label>
+                        <input type="text" name="affiliate_code" x-model="formData.affiliate_code" placeholder="E.g. MTL..." class="w-full px-6 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-black text-emerald-700 uppercase placeholder:text-emerald-200">
                     </div>
                 </div>
             </div>
@@ -320,6 +324,7 @@
                 registration_type: '{{ request('type', 'pai') }}',
                 school_name: '',
                 graduation_year: '',
+                affiliate_code: '{{ session('pmb_referrer') }}',
                 main_interest: '',
                 tech_experience: '',
                 skill_to_learn: '',

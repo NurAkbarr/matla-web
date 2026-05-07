@@ -14,6 +14,11 @@ class PmbRegistrationController extends Controller
     {
         $type = $request->query('type', 'pai');
         
+        // Tracking Affiliate
+        if ($request->has('ref')) {
+            session(['pmb_referrer' => $request->query('ref')]);
+        }
+        
         // Check if IDAD prodi exists if type is idad
         if ($type == 'idad') {
             $idadExists = ProgramStudi::where('is_active', 1)
@@ -102,7 +107,9 @@ class PmbRegistrationController extends Controller
 
             // Section 4: Administrasi
             'payment_proof' => 'required|file|image|max:5120', // Max 5MB
+            'affiliate_code' => 'nullable|string|exists:affiliates,affiliate_code',
         ], [
+            'affiliate_code.exists' => 'Kode referral tidak ditemukan atau sudah tidak aktif.',
             'full_name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
             'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka.',
             'whatsapp_number.min' => 'Nomor WhatsApp minimal 10 digit.',
@@ -132,14 +139,49 @@ class PmbRegistrationController extends Controller
 
         // Generate Registration Code (Safe from collisions even after deletions)
         $year = date('Y');
-        $count = PmbRegistration::withTrashed()->whereYear('created_at', $year)->count() + 1;
+        $count = \App\Models\PmbRegistration::withTrashed()->whereYear('created_at', $year)->count() + 1;
         $validated['registration_code'] = 'PMB-' . $year . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
         
         // Add IP Address for security audit
         $validated['ip_address'] = $request->ip();
 
+        // --- Affiliate Logic (Tiered Check) ---
+        $affiliate = null;
+        $manualCode = $request->input('affiliate_code');
+        $sessionCode = session('pmb_referrer');
+
+        if ($manualCode) {
+            $affiliate = \App\Models\Affiliate::where('affiliate_code', strtoupper($manualCode))
+                ->where('is_active', true)
+                ->first();
+        }
+
+        // Fallback to session if manual is empty or invalid
+        if (!$affiliate && $sessionCode) {
+            $affiliate = \App\Models\Affiliate::where('affiliate_code', strtoupper($sessionCode))
+                ->where('is_active', true)
+                ->first();
+        }
+
+        if ($affiliate) {
+            $validated['affiliate_id'] = $affiliate->id;
+        }
+
         // Store to database
-        $registration = PmbRegistration::create($validated);
+        $registration = \App\Models\PmbRegistration::create($validated);
+
+        // Create Commission Record if using affiliate
+        if ($affiliate) {
+            \App\Models\AffiliateCommission::create([
+                'affiliate_id' => $affiliate->id,
+                'pmb_registration_id' => $registration->id,
+                'amount' => $affiliate->commission_rate,
+                'status' => 'approved', // Immediately approved as requested
+            ]);
+            
+            // Clear referrer from session
+            session()->forget('pmb_referrer');
+        }
 
         // Send Telegram & Email Notification
         try {

@@ -3,8 +3,6 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-    base: '/',
-
     plugins: [
         laravel({
             input: [
@@ -12,25 +10,18 @@ export default defineConfig({
                 'resources/js/app.js'
             ],
             refresh: true,
-            buildDirectory: 'build', // 🔥 FIX DI SINI
         }),
         tailwindcss(),
     ],
 
     server: {
+        host: '127.0.0.1',
+        cors: true,
+        hmr: {
+            host: '127.0.0.1',
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
-        },
-    },
-
-    build: {
-        outDir: 'public/build',
-        rollupOptions: {
-            output: {
-                assetFileNames: 'assets/[name]-[hash][extname]',
-                chunkFileNames: 'assets/[name]-[hash].js',
-                entryFileNames: 'assets/[name]-[hash].js',
-            },
         },
     },
 });

@@ -39,22 +39,35 @@ class SecurityHeaders
         $response->headers->set('X-XSS-Protection', '0');
 
         // Content Security Policy (keep compatible with current blades)
-        $csp = implode('; ', [
+        $cspList = [
             "default-src 'self'",
             "base-uri 'self'",
             "object-src 'none'",
             "frame-ancestors 'none'",
-            // Inline scripts/styles currently used in several blades
-            // 'unsafe-eval' required by Alpine.js for x-data expressions
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-            // Allow QR image / external https images + html-to-image outputs
             "img-src 'self' data: https: blob:",
             "font-src 'self' data: https://fonts.gstatic.com",
             "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
             "form-action 'self'",
-            "upgrade-insecure-requests",
-        ]);
+        ];
+
+        // Add Vite support for local development
+        if (app()->environment('local')) {
+            $viteUrl = 'http://127.0.0.1:5173 http://localhost:5173';
+            $viteWs = 'ws://127.0.0.1:5173 ws://localhost:5173';
+            
+            $cspList = array_map(function($line) use ($viteUrl, $viteWs) {
+                if (str_starts_with($line, 'script-src')) return $line . ' ' . $viteUrl;
+                if (str_starts_with($line, 'style-src')) return $line . ' ' . $viteUrl;
+                if (str_starts_with($line, 'connect-src')) return $line . ' ' . $viteUrl . ' ' . $viteWs;
+                return $line;
+            }, $cspList);
+        } else {
+            $cspList[] = "upgrade-insecure-requests";
+        }
+
+        $csp = implode('; ', $cspList);
 
         // Allow override via env if needed
         $csp = (string) env('SECURITY_CSP', $csp);

@@ -95,9 +95,13 @@
                         <p class="text-amber-600 font-bold italic text-sm">Biodata Ringan (Data pendidikan tidak diatur)</p>
                     @endif
                 </div>
-                <div class="md:col-span-2">
+                <div class="md:col-span-1">
                     <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Sumber Referensi / Info</label>
                     <p class="font-medium text-gray-900 text-sm md:text-base">{{ $registration->reference ?: '-' }}</p>
+                </div>
+                <div class="md:col-span-1">
+                    <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Afiliator (Referral)</label>
+                    <p class="font-bold text-emerald-600 text-sm md:text-base">{{ $registration->affiliate ? $registration->affiliate->display_name : '-' }}</p>
                 </div>
             </div>
         </div>
