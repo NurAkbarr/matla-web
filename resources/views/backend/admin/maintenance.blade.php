@@ -87,39 +87,48 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-    function handleMaintenance(formId, message) {
-        Swal.fire({
-            title: 'Konfirmasi Maintenance',
-            text: message,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#374151',
-            confirmButtonText: 'Ya, Jalankan!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            customClass: {
-                popup: 'rounded-[2rem]'
+    <script>
+        console.log('Maintenance Script Loaded');
+        function handleMaintenance(formId, message) {
+            console.log('Button clicked for form:', formId);
+            if (typeof Swal === 'undefined') {
+                console.error('SweetAlert2 not loaded! Falling back to confirm.');
+                if (confirm(message)) {
+                    document.getElementById(formId).submit();
+                }
+                return;
             }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Mohon tunggu sebentar',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
-                    customClass: {
-                        popup: 'rounded-[2rem]'
-                    }
-                });
-                document.getElementById(formId).submit();
-            }
-        });
-    }
-</script>
-@endpush
+
+            Swal.fire({
+                title: 'Konfirmasi Maintenance',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#374151',
+                confirmButtonText: 'Ya, Jalankan!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-[2rem]'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                        customClass: {
+                            popup: 'rounded-[2rem]'
+                        }
+                    });
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+    </script>
+@endsection
 
