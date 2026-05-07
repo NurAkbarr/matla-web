@@ -121,5 +121,5 @@
         });
     }
 </script>
-@push('scripts')
+@endpush
 
