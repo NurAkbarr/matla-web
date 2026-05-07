@@ -259,8 +259,6 @@
                 chevron.classList.add('chevron-rotate');
             }
         }
-    @stack('scripts')
-    
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -307,5 +305,7 @@
             });
         }
     </script>
+
+    @stack('scripts')
 </body>
 </html>
