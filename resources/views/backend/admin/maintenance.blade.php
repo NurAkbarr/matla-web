@@ -85,7 +85,7 @@
         </div>
     </div>
 </div>
-@endsection
+
 
     <script>
         console.log('Maintenance Script Loaded');
