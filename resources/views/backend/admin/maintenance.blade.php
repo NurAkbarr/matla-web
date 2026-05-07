@@ -22,7 +22,7 @@
                     Menjalankan <code class="px-1 py-0.5 bg-white rounded border">php artisan migrate --force</code>.
                 </p>
 
-                <form method="POST" action="{{ route('maintenance.migrate') }}" class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end">
+                <form method="POST" action="{{ route('maintenance.migrate') }}" id="form-migrate" class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end">
                     @csrf
                     <div class="flex-1">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Maintenance Token</label>
@@ -36,8 +36,8 @@
                         />
                     </div>
                     <button
-                        type="submit"
-                        onclick="return confirm('Jalankan migrate sekarang?')"
+                        type="button"
+                        onclick="handleMaintenance('form-migrate', 'Jalankan migration sekarang?')"
                         class="px-5 py-3 rounded-xl bg-primary text-white font-black uppercase tracking-widest text-[10px] hover:bg-primary-dark transition-all shadow-lg shadow-primary/15"
                     >
                         Migrate
@@ -51,7 +51,7 @@
                     Menjalankan <code class="px-1 py-0.5 bg-white rounded border">php artisan optimize:clear</code>.
                 </p>
 
-                <form method="POST" action="{{ route('maintenance.clear_cache') }}" class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end">
+                <form method="POST" action="{{ route('maintenance.clear_cache') }}" id="form-cache" class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end">
                     @csrf
                     <div class="flex-1">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Maintenance Token</label>
@@ -65,8 +65,8 @@
                         />
                     </div>
                     <button
-                        type="submit"
-                        onclick="return confirm('Bersihkan cache sekarang?')"
+                        type="button"
+                        onclick="handleMaintenance('form-cache', 'Bersihkan cache sekarang?')"
                         class="px-5 py-3 rounded-xl bg-gray-900 text-white font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all shadow-lg shadow-gray-900/15"
                     >
                         Clear Cache
@@ -79,11 +79,47 @@
                 <ul class="mt-3 text-xs text-amber-900/80 font-semibold space-y-2 list-disc pl-5">
                     <li>Jangan bagikan token. Simpan hanya di <code class="px-1 py-0.5 bg-white rounded border">.env</code> production.</li>
                     <li>Jika token bocor, segera ganti nilainya.</li>
-                    <li>Endpoint maintenance sudah di-throttle; jangan spam klik.</li>
+                    <li>Endpoint maintenance sudah dilonggarkan; namun tetap hati-hati.</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function handleMaintenance(formId, message) {
+        Swal.fire({
+            title: 'Konfirmasi Maintenance',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#374151',
+            confirmButtonText: 'Ya, Jalankan!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-[2rem]'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                    customClass: {
+                        popup: 'rounded-[2rem]'
+                    }
+                });
+                document.getElementById(formId).submit();
+            }
+        });
+    }
+</script>
+@push('scripts')
 

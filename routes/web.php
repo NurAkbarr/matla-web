@@ -60,12 +60,12 @@ Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_ma
     Route::post('/migrate', function () {
         Artisan::call('migrate', ['--force' => true]);
         return back()->with('success', 'Migration berhasil dijalankan.');
-    })->middleware('throttle:1,10')->name('maintenance.migrate');
+    })->middleware('throttle:5,1')->name('maintenance.migrate');
 
     Route::post('/clear-cache', function () {
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         return back()->with('success', 'Cache berhasil dibersihkan.');
-    })->middleware('throttle:2,10')->name('maintenance.clear_cache');
+    })->middleware('throttle:5,1')->name('maintenance.clear_cache');
 
     Route::post('/fix-qr-tokens', function () {
         $users = \App\Models\User::where('role', 'mahasiswa')->get();
@@ -78,14 +78,14 @@ Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_ma
             }
         }
         return back()->with('success', "Berhasil men-generate QR Token untuk $count mahasiswa lama!");
-    })->middleware('throttle:1,10')->name('maintenance.fix_qr_tokens');
+    })->middleware('throttle:5,1')->name('maintenance.fix_qr_tokens');
 
     Route::post('/clear-server-cache', function () {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
         \Illuminate\Support\Facades\Artisan::call('config:clear');
         return back()->with('success', 'Server cache (view/cache/config) berhasil dibersihkan.');
-    })->middleware('throttle:2,10')->name('maintenance.clear_server_cache');
+    })->middleware('throttle:5,1')->name('maintenance.clear_server_cache');
 });
 
 // ===== FALLBACK ROUTE: Jika Symlink Gagal, Laravel yang akan mengirimkan gambarnya =====
