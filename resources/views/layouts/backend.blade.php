@@ -29,17 +29,18 @@
              onclick="closeSidebar()">
         </div>
 
-    <div class="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
-        {{-- ===== SIDEBAR (Desktop: Static, Mobile: Fixed) ===== --}}
+    <div class="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden w-full">
+        {{-- ===== SIDEBAR (Mobile: Overlay, Desktop: Static Side) ===== --}}
         <aside id="sidebar" 
-               class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-100 transform -translate-x-full lg:translate-x-0 lg:relative lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none">
+               class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col shrink-0 overflow-hidden">
             
+            {{-- Logo Area --}}
             <div class="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 w-auto">
+                    <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-9 w-auto">
                     <div class="flex flex-col">
-                        <span class="text-xl font-black text-primary-dark tracking-tighter leading-none">MATLA</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">University Portal</span>
+                        <span class="text-xl font-black text-primary-dark tracking-tighter leading-none uppercase">MATLA</span>
+                        <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">University Portal</span>
                     </div>
                 </div>
                 <button onclick="closeSidebar()" class="lg:hidden p-2 text-gray-400 hover:text-primary">
@@ -49,115 +50,110 @@
                 </button>
             </div>
 
-            {{-- Sidebar Scrollable Area --}}
+            {{-- Sidebar Scrollable Menu --}}
             <nav class="flex-1 overflow-y-auto scrollbar-hide py-6 px-4 space-y-1">
                 {{-- SISTEM UTAMA --}}
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sistem Utama</p>
-                <a href="{{ route('backend.admin.dashboard') }}"
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.dashboard') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                <a href="{{ route('backend.admin.dashboard') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.dashboard') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.dashboard') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                     </svg>
-                    <span class="text-sm">Dashboard</span>
+                    <span class="text-sm font-bold">Dashboard</span>
                 </a>
 
-                @if(Auth::user()->role == 'admin' || Auth::user()->role == 'super_admin')
-                <a href="{{ route('backend.admin.users.index') }}"
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.users.*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <a href="{{ route('backend.admin.users.index') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.users.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.users.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
-                    <span class="text-sm">Manajemen User</span>
+                    <span class="text-sm font-bold">Manajemen User</span>
                 </a>
-                @endif
 
-                {{-- PMB Dropdown --}}
-                <div>
-                    <button type="button" onclick="toggleDropdown('pmb')"
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all {{ (request()->routeIs('backend.admin.pmb.*') || request()->routeIs('backend.admin.affiliates.*')) ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
+                <div x-data="{ open: {{ request()->routeIs('backend.admin.pmb.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.pmb.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
                         <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.pmb.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
-                            <span class="text-sm">PMB</span>
+                            <span class="text-sm font-bold">PMB</span>
                         </div>
-                        <svg id="chevron-pmb" class="w-4 h-4 transition-transform duration-200 {{ (request()->routeIs('backend.admin.pmb.*') || request()->routeIs('backend.admin.affiliates.*')) ? 'chevron-rotate' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div id="dropdown-pmb" class="dropdown-content pl-12 space-y-1 mt-1 {{ (request()->routeIs('backend.admin.pmb.*') || request()->routeIs('backend.admin.affiliates.*')) ? 'open' : '' }}">
-                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Daftar Pendaftar</a>
-                        <a href="{{ route('backend.admin.affiliates.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.affiliates.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Afiliasi</a>
-                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Brosur</a>
-                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Pengaturan PMB</a>
+                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-gray-100 space-y-1">
+                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Daftar Pendaftar</a>
+                        <a href="{{ route('backend.admin.affiliates.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.affiliates.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Manajemen Afiliasi</a>
+                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Manajemen Brosur</a>
+                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Pengaturan PMB</a>
                     </div>
                 </div>
 
-                {{-- AKADEMIK Dropdown --}}
-                <div>
-                    <button type="button" onclick="toggleDropdown('akademik')"
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50' }}">
+                <div x-data="{ open: {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
                         <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
                             </svg>
-                            <span class="text-sm">Akademik</span>
+                            <span class="text-sm font-bold">Akademik</span>
                         </div>
-                        <svg id="chevron-akademik" class="w-4 h-4 transition-transform duration-200 {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'chevron-rotate' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div id="dropdown-akademik" class="dropdown-content pl-12 space-y-1 mt-1 {{ (request()->routeIs('backend.admin.mahasiswa') || request()->routeIs('backend.admin.dosen') || request()->routeIs('backend.admin.jadwal.*') || request()->routeIs('backend.admin.program-studi.*') || request()->routeIs('backend.admin.rekap-honor.*')) ? 'open' : '' }}">
-                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Manajemen Mahasiswa</a>
-                        <a href="{{ route('backend.admin.dosen') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.dosen') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Data Dosen</a>
-                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Rekap Honor Dosen</a>
-                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Jadwal Perkuliahan</a>
-                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block py-2 text-xs font-medium {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary font-bold' : 'text-gray-400 hover:text-primary transition-colors' }}">Program Studi</a>
+                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-gray-100 space-y-1">
+                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Manajemen Mahasiswa</a>
+                        <a href="{{ route('backend.admin.dosen') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.dosen') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Data Dosen</a>
+                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Rekap Honor Dosen</a>
+                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Jadwal Perkuliahan</a>
+                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Program Studi</a>
                     </div>
                 </div>
 
                 {{-- MANAJEMEN KONTEN --}}
-                <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Konten</p>
-                <a href="{{ route('backend.admin.messages.index') }}"
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.messages.*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h14a2 2 0 002-2V8zM3 8l9 6 9-6" />
+                <p class="px-4 pt-8 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Konten</p>
+                <a href="{{ route('backend.admin.messages.index') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.messages.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.messages.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                    <span class="text-sm">Kotak Pesan</span>
+                    <span class="text-sm font-bold">Kotak Pesan</span>
                 </a>
 
-                <a href="{{ route('backend.admin.quick-infos.index') }}"
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.quick-infos.*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <a href="{{ route('backend.admin.quick-infos.index') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.quick-infos.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.quick-infos.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    <span class="text-sm">Quick Info Ticker</span>
+                    <span class="text-sm font-bold">Quick Info Ticker</span>
                 </a>
 
-                @if(Auth::user()->role === 'super_admin')
-                <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</p>
-                <a href="{{ route('backend.admin.maintenance') }}"
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.maintenance') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                {{-- SYSTEM --}}
+                <p class="px-4 pt-8 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</p>
+                <a href="{{ route('backend.admin.maintenance') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.maintenance') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.maintenance') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span class="text-sm">Maintenance</span>
+                    <span class="text-sm font-bold">Maintenance</span>
                 </a>
-                @endif
+
+                <div class="pt-10 pb-6">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all font-bold">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span class="text-sm">Logout</span>
+                        </button>
+                    </form>
+                </div>
             </nav>
-
-            <div class="p-4 border-t border-gray-50">
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all font-medium">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </div>
         </aside>
 
         {{-- ===== MAIN CONTENT AREA ===== --}}
@@ -228,7 +224,7 @@
             </main>
 
             {{-- Mini Footer --}}
-            <footer class="px-4 sm:px-8 py-4 border-t border-gray-100">
+            <footer class="px-4 sm:px-8 py-4 border-t border-gray-100 bg-white">
                 <div class="flex flex-col sm:flex-row justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest gap-2">
                     <p>&copy; {{ date('Y') }} Matla University. All Rights Reserved.</p>
                     <div class="flex space-x-4">
