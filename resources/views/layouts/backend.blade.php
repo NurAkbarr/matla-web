@@ -29,28 +29,28 @@
              onclick="closeSidebar()">
         </div>
 
-        {{-- ===== SIDEBAR ===== --}}
-        <aside id="main-sidebar"
-               class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 flex flex-col
-                       sidebar-transition -translate-x-full
-                       lg:static lg:translate-x-0">
-
-            {{-- Logo & Close Button --}}
-            <div class="p-6 flex items-center justify-between mb-2 border-b border-gray-50">
+    <div class="flex h-screen overflow-hidden bg-gray-50 font-sans text-gray-900">
+        {{-- ===== SIDEBAR (Desktop) ===== --}}
+        <aside id="sidebar" 
+               class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-100 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none">
+            
+            <div class="p-6 border-b border-gray-50 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-9 w-auto">
-                    <span class="text-xl font-extrabold text-primary-dark tracking-wider">MATLA</span>
+                    <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 w-auto">
+                    <div class="flex flex-col">
+                        <span class="text-xl font-black text-primary-dark tracking-tighter leading-none">MATLA</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">University Portal</span>
+                    </div>
                 </div>
-                {{-- Close button (mobile only) --}}
-                <button onclick="closeSidebar()"
-                        class="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="closeSidebar()" class="lg:hidden p-2 text-gray-400 hover:text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
 
-            <nav class="flex-1 px-4 space-y-1 overflow-y-auto pb-4">
+            {{-- Sidebar Scrollable Area --}}
+            <nav class="flex-1 overflow-y-auto scrollbar-hide py-6 px-4 space-y-1">
                 {{-- SISTEM UTAMA --}}
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sistem Utama</p>
                 <a href="{{ route('backend.admin.dashboard') }}"
@@ -161,10 +161,10 @@
         </aside>
 
         {{-- ===== MAIN CONTENT ===== --}}
-        <div class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+        <div class="flex-1 flex flex-col h-screen overflow-hidden">
 
             {{-- Header --}}
-            <header class="bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30">
+            <header class="bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 z-30">
                 <div class="flex items-center space-x-3">
                     {{-- Hamburger Button (mobile only) --}}
                     <button onclick="openSidebar()"
@@ -198,8 +198,8 @@
                 </div>
             </header>
 
-            {{-- Page Content --}}
-            <main class="p-4 sm:p-6 lg:p-8 flex-1">
+            {{-- Yield Content Area with its own scroll --}}
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
 
                 {{-- Success Modal --}}
                 @if(session('success'))
