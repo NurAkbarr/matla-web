@@ -1,6 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $currentQuickInfos = $quickInfos ?? collect();
+    $infoCount = $currentQuickInfos->count();
+    $translateX = "calc(-260px * $infoCount - 1rem * $infoCount)";
+@endphp
+
+<style>
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX({{ $translateX }}); }
+    }
+
+    .animate-scroll {
+        animation: scroll 60s linear infinite;
+        display: flex;
+        width: max-content;
+    }
+
+    .info-ticker-container:hover .animate-scroll,
+    .info-ticker-container.is-dragging .animate-scroll {
+        animation-play-state: paused;
+    }
+
+    .info-ticker-container {
+        mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        cursor: grab;
+        user-select: none;
+        touch-action: pan-y;
+    }
+    
+    .info-ticker-container:active {
+        cursor: grabbing;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
 <!-- Hero Section (Beranda) -->
 <section id="beranda" class="relative min-h-[600px] lg:min-h-screen flex items-center overflow-hidden">
     <!-- Background Image -->
@@ -40,15 +78,38 @@
                 </div>
             </div>
 
-            <div class="mt-8 lg:mt-10">
+            <div class="mt-8 lg:mt-10 flex flex-col gap-8">
                 @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
-                <a href="{{ route('pmb') }}" class="inline-flex items-center justify-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-lg font-bold shadow-lg shadow-emerald-600/20 transition-all group w-full sm:w-fit">
-                    <span>Daftar Sekarang</span>
-                    <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                </a>
+                <div>
+                    <a href="{{ route('pmb') }}" class="inline-flex items-center justify-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-lg font-bold shadow-lg shadow-emerald-600/20 transition-all group w-full sm:w-fit">
+                        <span>Daftar Sekarang</span>
+                        <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </a>
+                </div>
                 @endif
+
+                <!-- QUICK INFORMATION TICKER -->
+                <div class="relative w-full max-w-4xl">
+                    <div class="flex items-center space-x-2 mb-4 px-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Quick Information</span>
+                    </div>
+                    
+                    <div class="info-ticker-container overflow-x-auto scrollbar-hide relative py-4">
+                        <div class="flex animate-scroll w-max gap-4 px-4 hover:pause-scroll">
+                            {{-- Loop twice for infinite effect --}}
+                            @for ($i = 0; $i < 2; $i++)
+                                @foreach($currentQuickInfos as $item)
+                                <a href="{{ $item->link ?? '#' }}" class="flex items-center justify-center px-8 py-4 bg-emerald-600 text-white border border-emerald-700 rounded-none shadow-sm hover:shadow-xl hover:bg-emerald-700 hover:-translate-y-1 transition-all w-[220px] shrink-0 group">
+                                    <span class="text-[11px] font-black uppercase tracking-[0.2em] leading-tight text-center">{{ $item->label }}</span>
+                                </a>
+                                @endforeach
+                            @endfor
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -372,6 +433,47 @@
     document.getElementById('pmb-popup').addEventListener('click', function(e) {
         if (e.target === this) closePmbPopup();
     });
+    // ===== TICKER DRAG-TO-SCROLL =====
+    const slider = document.querySelector('.info-ticker-container');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    if (slider) {
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 2; 
+            slider.scrollLeft = scrollLeft - walk;
+        });
+
+        // Mobile touch support
+        slider.addEventListener('touchstart', () => {
+            slider.classList.add('is-dragging');
+        }, {passive: true});
+
+        slider.addEventListener('touchend', () => {
+            slider.classList.remove('is-dragging');
+        }, {passive: true});
+    }
 </script>
 @endif
 @endsection

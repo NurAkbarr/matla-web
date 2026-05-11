@@ -126,6 +126,14 @@
                     <span class="text-sm">Kotak Pesan</span>
                 </a>
 
+                <a href="{{ route('backend.admin.quick-infos.index') }}"
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('backend.admin.quick-infos.*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-500 hover:bg-gray-50' }}">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="text-sm">Quick Info Ticker</span>
+                </a>
+
                 @if(Auth::user()->role === 'super_admin')
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</p>
                 <a href="{{ route('backend.admin.maintenance') }}"

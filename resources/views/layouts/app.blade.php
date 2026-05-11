@@ -68,9 +68,9 @@
                             </button>
                             <div class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden transform group-hover:translate-y-0 translate-y-2">
                                 <div class="p-2 space-y-1">
-                                    <a href="https://ktm.matla.id/ktm/login" target="_blank" class="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">
-                                        <svg class="w-4 h-4 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2"/></svg>
-                                        <span>KTM Digital</span>
+                                    <a href="{{ route('informasi.leaderboard') }}" class="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                                        <span>Duta Kampus</span>
                                     </a>
                                     <a href="https://bendahara.matla.id/login-form" target="_blank" class="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">
                                         <svg class="w-4 h-4 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
@@ -161,7 +161,7 @@
                             </svg>
                         </button>
                         <div id="mobile-layanan-menu" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-100 pl-4">
-                            <a href="https://ktm.matla.id/ktm/login" target="_blank" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">KTM Digital</a>
+                            <a href="{{ route('informasi.leaderboard') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Duta Kampus</a>
                             <a href="https://bendahara.matla.id/login-form" target="_blank" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Kuitansi Matla</a>
                         </div>
                     </div>

@@ -15,7 +15,8 @@ use App\Http\Controllers\Backend\AffiliateController;
 
 Route::get('/', function () {
     $brosurs = \App\Models\BrosurPmb::orderBy('order')->get();
-    return view('welcome', compact('brosurs'));
+    $quickInfos = \App\Models\QuickInfo::where('is_active', true)->orderBy('order', 'asc')->get();
+    return view('welcome', compact('brosurs', 'quickInfos'));
 });
 
 // Authentication
@@ -194,6 +195,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
             'names' => 'admin.pmb.brosur',
         ]);
 
+        // Quick Information Management
+        Route::resource('/admin/quick-infos', \App\Http\Controllers\Backend\QuickInfoController::class, [
+            'names' => 'admin.quick-infos',
+        ]);
+
         // PMB Registration Management
         Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
         Route::get('/admin/pmb/registrations/export/excel', [\App\Http\Controllers\Backend\AdminPmbController::class, 'exportExcel'])->name('admin.pmb.registrations.export.excel');
@@ -260,6 +266,7 @@ Route::prefix('informasi')->name('informasi.')->group(function () {
     Route::get('/karya-dosen', [InformasiController::class, 'karyaDosen'])->name('karya-dosen');
     Route::get('/staf-pengajar', [InformasiController::class, 'stafPengajar'])->name('staf-pengajar');
     Route::get('/galeri', [InformasiController::class, 'galeri'])->name('galeri');
+    Route::get('/duta-kampus', [InformasiController::class, 'leaderboard'])->name('leaderboard');
 });
 
 // Deprecated (keamanan): jangan expose migrate via GET/public.
