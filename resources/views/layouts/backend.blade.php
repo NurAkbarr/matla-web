@@ -29,12 +29,12 @@
              onclick="closeSidebar()">
         </div>
 
-    <div class="flex h-screen overflow-hidden bg-gray-50 font-sans text-gray-900">
-        {{-- ===== SIDEBAR (Desktop) ===== --}}
+    <div class="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+        {{-- ===== SIDEBAR (Desktop: Static, Mobile: Fixed) ===== --}}
         <aside id="sidebar" 
-               class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-100 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none">
+               class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-100 transform -translate-x-full lg:translate-x-0 lg:relative lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none">
             
-            <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+            <div class="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
                 <div class="flex items-center space-x-3">
                     <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 w-auto">
                     <div class="flex flex-col">
@@ -160,11 +160,11 @@
             </div>
         </aside>
 
-        {{-- ===== MAIN CONTENT ===== --}}
-        <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        {{-- ===== MAIN CONTENT AREA ===== --}}
+        <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
 
-            {{-- Header --}}
-            <header class="bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 z-30">
+            {{-- Header (Fixed Height) --}}
+            <header class="bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 shrink-0 z-30">
                 <div class="flex items-center space-x-3">
                     {{-- Hamburger Button (mobile only) --}}
                     <button onclick="openSidebar()"
@@ -198,30 +198,33 @@
                 </div>
             </header>
 
-            {{-- Yield Content Area with its own scroll --}}
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-
-                {{-- Success Modal --}}
-                @if(session('success'))
-                <div id="success-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="document.getElementById('success-modal').style.display='none'"></div>
-                    <div class="relative bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 sm:p-10 text-center border border-white">
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 ring-8 ring-emerald-50/50">
-                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                            </svg>
+            {{-- Content Area (Scrollable) --}}
+            <main class="flex-1 overflow-y-auto bg-gray-50">
+                <div class="p-4 sm:p-6 lg:p-8 min-h-full flex flex-col">
+                    {{-- Success Modal --}}
+                    @if(session('success'))
+                    <div id="success-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="document.getElementById('success-modal').style.display='none'"></div>
+                        <div class="relative bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 sm:p-10 text-center border border-white">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 ring-8 ring-emerald-50/50">
+                                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-2 tracking-tight">Berhasil!</h3>
+                            <p class="text-gray-500 text-sm mb-6 sm:mb-8 leading-relaxed font-semibold italic">{{ session('success') }}</p>
+                            <button type="button" onclick="document.getElementById('success-modal').style.display='none'"
+                                    class="w-full py-3 sm:py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-primary-dark transition-all shadow-xl shadow-primary/20 active:scale-95">
+                                Lanjutkan
+                            </button>
                         </div>
-                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-2 tracking-tight">Berhasil!</h3>
-                        <p class="text-gray-500 text-sm mb-6 sm:mb-8 leading-relaxed font-semibold italic">{{ session('success') }}</p>
-                        <button type="button" onclick="document.getElementById('success-modal').style.display='none'"
-                                class="w-full py-3 sm:py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-primary-dark transition-all shadow-xl shadow-primary/20 active:scale-95">
-                            Lanjutkan
-                        </button>
+                    </div>
+                    @endif
+
+                    <div class="flex-1">
+                        @yield('content')
                     </div>
                 </div>
-                @endif
-
-                @yield('content')
             </main>
 
             {{-- Mini Footer --}}
