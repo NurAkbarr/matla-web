@@ -37,20 +37,24 @@ class InformasiController extends Controller
 
     public function leaderboard()
     {
-        // Get Top 10 Affiliates based on confirmed registrations (status approved/accepted)
-        // or just all registrations for motivation? Let's use count of all registrations for now
-        $topDutas = Affiliate::withCount('registrations')
-            ->where('is_active', true)
-            ->orderBy('registrations_count', 'desc')
-            ->limit(10)
-            ->get();
+        try {
+            // Get Top 10 Affiliates
+            $topDutas = Affiliate::withCount('registrations')
+                ->where('is_active', true)
+                ->orderBy('registrations_count', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Get Recent Activities (last 15)
-        $recentActivities = PmbRegistration::with('affiliate')
-            ->whereNotNull('affiliate_id')
-            ->orderBy('created_at', 'desc')
-            ->limit(15)
-            ->get();
+            // Get Recent Activities
+            $recentActivities = PmbRegistration::with('affiliate')
+                ->whereNotNull('affiliate_id')
+                ->orderBy('created_at', 'desc')
+                ->limit(15)
+                ->get();
+        } catch (\Exception $e) {
+            $topDutas = collect();
+            $recentActivities = collect();
+        }
 
         return view('informasi.leaderboard', compact('topDutas', 'recentActivities'));
     }

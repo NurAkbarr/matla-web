@@ -15,7 +15,14 @@ use App\Http\Controllers\Backend\AffiliateController;
 
 Route::get('/', function () {
     $brosurs = \App\Models\BrosurPmb::orderBy('order')->get();
-    $quickInfos = \App\Models\QuickInfo::where('is_active', true)->orderBy('order', 'asc')->get();
+    
+    // Safety check agar tidak crash kalau belum migrate
+    try {
+        $quickInfos = \App\Models\QuickInfo::where('is_active', true)->orderBy('order', 'asc')->get();
+    } catch (\Exception $e) {
+        $quickInfos = collect();
+    }
+
     return view('welcome', compact('brosurs', 'quickInfos'));
 });
 
