@@ -59,7 +59,7 @@
         <div id="ktm-container" class="flex flex-col md:flex-row gap-6 lg:gap-10 justify-center items-center print-card py-4">
             
             <!-- FRONT CARD -->
-            <div class="relative overflow-hidden bg-white w-full shadow-2xl rounded-[1rem] border border-gray-200 flex-shrink-0" style="width: 320px; height: 480px; font-family: 'Inter', sans-serif;">
+            <div class="relative overflow-hidden bg-white w-full shadow-2xl rounded-[1rem] border border-gray-200 flex-shrink-0" style="width: 324px; height: 516px; font-family: 'Inter', sans-serif;">
                 <!-- Top Green Angled Shape -->
                 <svg class="absolute top-0 left-0 w-full h-[190px]" preserveAspectRatio="none" viewBox="0 0 100 100">
                     <polygon points="0,0 100,0 100,65 0,100" fill="#3EB521" />
@@ -109,7 +109,7 @@
             </div>
 
             <!-- BACK CARD -->
-            <div class="relative overflow-hidden bg-white w-full shadow-2xl rounded-[1rem] border border-gray-200 flex-shrink-0" style="width: 320px; height: 480px; font-family: 'Inter', sans-serif;">
+            <div class="relative overflow-hidden bg-white w-full shadow-2xl rounded-[1rem] border border-gray-200 flex-shrink-0" style="width: 324px; height: 516px; font-family: 'Inter', sans-serif;">
                 <!-- Top small angled shape -->
                 <svg class="absolute top-0 right-0 w-40 h-40 opacity-10" preserveAspectRatio="none" viewBox="0 0 100 100">
                     <polygon points="100,0 0,0 100,100" fill="#3EB521" />
