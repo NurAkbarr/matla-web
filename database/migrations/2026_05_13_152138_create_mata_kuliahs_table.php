@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('mata_kuliahs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('program_studi_id')->constrained('program_studis')->onDelete('cascade');
+            $table->unsignedBigInteger('program_studi_id')->after('id');
+            $table->foreign('program_studi_id')->references('id')->on('program_studis')->onDelete('cascade');
             $table->string('kode')->unique();
             $table->string('nama');
             $table->integer('sks')->default(2);
