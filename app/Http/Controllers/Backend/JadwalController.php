@@ -12,14 +12,14 @@ class JadwalController extends Controller
 {
     public function index()
     {
-        $jadwals = Jadwal::with(['dosen', 'programStudi'])->latest()->get();
+        $jadwals = Jadwal::with(['dosen', 'programStudi', 'mataKuliah'])->latest()->get();
         return view('backend.admin.jadwal.index', compact('jadwals'));
     }
 
     public function create()
     {
         $dosens = User::where('role', 'dosen')->get();
-        $programStudis = ProgramStudi::all();
+        $programStudis = ProgramStudi::active()->get();
         $haris = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         return view('backend.admin.jadwal.create', compact('dosens', 'programStudis', 'haris'));
     }
@@ -27,8 +27,7 @@ class JadwalController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'mata_kuliah' => 'required|string|max:255',
-            'sks' => 'required|integer|min:1|max:6',
+            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'dosen_id' => 'required|exists:users,id',
             'program_studi_id' => 'required|exists:program_studis,id',
             'hari' => 'required|string',
@@ -39,7 +38,13 @@ class JadwalController extends Controller
             'angkatan' => 'required|string|max:255',
         ]);
 
-        Jadwal::create($request->all());
+        $mataKuliah = \App\Models\MataKuliah::find($request->mata_kuliah_id);
+        
+        $data = $request->all();
+        $data['mata_kuliah'] = $mataKuliah->nama; // Fallback for old system
+        $data['sks'] = $mataKuliah->sks; // Fallback for old system
+
+        Jadwal::create($data);
 
         return redirect()->route('backend.admin.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan.');
     }
@@ -47,16 +52,19 @@ class JadwalController extends Controller
     public function edit(Jadwal $jadwal)
     {
         $dosens = User::where('role', 'dosen')->get();
-        $programStudis = ProgramStudi::all();
+        $programStudis = ProgramStudi::active()->get();
         $haris = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        return view('backend.admin.jadwal.edit', compact('jadwal', 'dosens', 'programStudis', 'haris'));
+        
+        // Fetch current prodi's mata kuliahs for the dropdown
+        $mataKuliahs = \App\Models\MataKuliah::where('program_studi_id', $jadwal->program_studi_id)->get();
+
+        return view('backend.admin.jadwal.edit', compact('jadwal', 'dosens', 'programStudis', 'haris', 'mataKuliahs'));
     }
 
     public function update(Request $request, Jadwal $jadwal)
     {
         $request->validate([
-            'mata_kuliah' => 'required|string|max:255',
-            'sks' => 'required|integer|min:1|max:6',
+            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'dosen_id' => 'required|exists:users,id',
             'program_studi_id' => 'required|exists:program_studis,id',
             'hari' => 'required|string',
@@ -67,7 +75,13 @@ class JadwalController extends Controller
             'angkatan' => 'required|string|max:255',
         ]);
 
-        $jadwal->update($request->all());
+        $mataKuliah = \App\Models\MataKuliah::find($request->mata_kuliah_id);
+        
+        $data = $request->all();
+        $data['mata_kuliah'] = $mataKuliah->nama;
+        $data['sks'] = $mataKuliah->sks;
+
+        $jadwal->update($data);
 
         return redirect()->route('backend.admin.jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
     }

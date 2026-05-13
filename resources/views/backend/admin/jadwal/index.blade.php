@@ -50,7 +50,15 @@
                     <td class="py-6 px-4">
                         <div class="flex flex-col">
                             <div class="flex items-center space-x-2 mb-0.5">
-                                <span class="text-primary text-sm">{{ $jadwal->mata_kuliah }}</span>
+                                <span class="text-primary text-sm">
+                                    @if($jadwal->mataKuliah)
+                                        <span class="font-black text-[10px] bg-primary/10 px-2 py-0.5 rounded-md mr-1 uppercase">{{ $jadwal->mataKuliah->kode }}</span>
+                                        {{ $jadwal->mataKuliah->nama }}
+                                    @else
+                                        {{ $jadwal->mata_kuliah }}
+                                        <span class="ml-2 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-md text-[8px] font-black uppercase tracking-widest border border-amber-100">Legacy</span>
+                                    @endif
+                                </span>
                                 @if($jadwal->isGradesLocked())
                                 <span class="px-2 py-0.5 bg-red-50 text-red-600 rounded-md text-[8px] font-black uppercase tracking-widest border border-red-100 flex items-center space-x-1">
                                     <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>

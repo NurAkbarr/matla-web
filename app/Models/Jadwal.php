@@ -10,6 +10,7 @@ class Jadwal extends Model
     use HasFactory;
 
     protected $fillable = [
+        'mata_kuliah_id',
         'mata_kuliah',
         'sks',
         'dosen_id',
@@ -21,6 +22,11 @@ class Jadwal extends Model
         'semester',
         'angkatan',
     ];
+
+    public function mataKuliah()
+    {
+        return $this->belongsTo(MataKuliah::class);
+    }
 
     public function dosen()
     {

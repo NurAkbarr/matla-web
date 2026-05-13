@@ -15,28 +15,6 @@
         @method('PUT')
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Mata Kuliah -->
-            <div class="space-y-3">
-                <label for="mata_kuliah" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Mata Kuliah</label>
-                <input type="text" name="mata_kuliah" id="mata_kuliah" required 
-                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold @error('mata_kuliah') border-red-500 @enderror" 
-                    placeholder="Contoh: Algoritma & Pemrograman" value="{{ old('mata_kuliah', $jadwal->mata_kuliah) }}">
-                @error('mata_kuliah') <p class="text-red-500 text-[10px] font-black uppercase tracking-tighter">{{ $message }}</p> @enderror
-            </div>
-
-            <!-- Dosen -->
-            <div class="space-y-3">
-                <label for="dosen_id" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Dosen Pengampu</label>
-                <select name="dosen_id" id="dosen_id" required 
-                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold appearance-none cursor-pointer">
-                    @foreach($dosens as $dosen)
-                        <option value="{{ $dosen->id }}" {{ old('dosen_id', $jadwal->dosen_id) == $dosen->id ? 'selected' : '' }}>{{ $dosen->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Program Studi -->
             <div class="space-y-3">
                 <label for="program_studi_id" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Program Studi</label>
@@ -48,27 +26,44 @@
                 </select>
             </div>
 
-                <!-- Semester & Angkatan -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Semester</label>
-                        <input type="number" name="semester" value="{{ old('semester', $jadwal->semester) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" placeholder="Contoh: 1">
-                        @error('semester') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
-                    </div>
+            <!-- Mata Kuliah -->
+            <div class="space-y-3">
+                <label for="mata_kuliah_id" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Mata Kuliah</label>
+                <select name="mata_kuliah_id" id="mata_kuliah_id" required 
+                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold appearance-none cursor-pointer">
+                    <option value="" disabled selected>Pilih Mata Kuliah...</option>
+                    @foreach($mataKuliahs as $mk)
+                        <option value="{{ $mk->id }}" {{ old('mata_kuliah_id', $jadwal->mata_kuliah_id) == $mk->id ? 'selected' : '' }} data-semester="{{ $mk->semester }}">[{{ $mk->kode }}] {{ $mk->nama }} (SKS: {{ $mk->sks }})</option>
+                    @endforeach
+                </select>
+                @error('mata_kuliah_id') <p class="text-red-500 text-[10px] font-black uppercase tracking-tighter">{{ $message }}</p> @enderror
+            </div>
+        </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Angkatan</label>
-                        <input type="text" name="angkatan" value="{{ old('angkatan', $jadwal->angkatan) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" placeholder="Contoh: 4">
-                        @error('angkatan') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Dosen -->
+            <div class="space-y-3">
+                <label for="dosen_id" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Dosen Pengampu</label>
+                <select name="dosen_id" id="dosen_id" required 
+                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold appearance-none cursor-pointer">
+                    @foreach($dosens as $dosen)
+                        <option value="{{ $dosen->id }}" {{ old('dosen_id', $jadwal->dosen_id) == $dosen->id ? 'selected' : '' }}>{{ $dosen->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Semester & Angkatan -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Semester</label>
+                    <input type="number" name="semester" id="semester_input" value="{{ old('semester', $jadwal->semester) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" placeholder="1">
                 </div>
 
-                <!-- SKS -->
-                <div class="mt-6">
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Jumlah SKS</label>
-                    <input type="number" name="sks" value="{{ old('sks', $jadwal->sks) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200">
-                    @error('sks') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Angkatan</label>
+                    <input type="text" name="angkatan" value="{{ old('angkatan', $jadwal->angkatan) }}" required class="w-full border-gray-200 rounded-2xl p-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" placeholder="2024">
                 </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -109,10 +104,42 @@
 
         <div class="pt-6 flex justify-end space-x-4 border-t border-gray-50">
             <a href="{{ route('backend.admin.jadwal.index') }}" class="px-10 py-4 bg-white border border-gray-100 text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all">Batal</a>
-            <button type="submit" class="px-12 py-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20 transition-all">
+            <button type="submit" class="px-12 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 transition-all">
                 Perbarui Jadwal
             </button>
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    document.getElementById('program_studi_id').addEventListener('change', function() {
+        const prodiId = this.value;
+        const mkSelect = document.getElementById('mata_kuliah_id');
+        
+        mkSelect.innerHTML = '<option value="" disabled selected>Memuat...</option>';
+        
+        fetch(`{{ route('backend.api.mata-kuliah.by-prodi') }}?prodi_id=${prodiId}`)
+            .then(response => response.json())
+            .then(data => {
+                mkSelect.innerHTML = '<option value="" disabled selected>Pilih Mata Kuliah...</option>';
+                data.forEach(mk => {
+                    const option = document.createElement('option');
+                    option.value = mk.id;
+                    option.text = `[${mk.kode}] ${mk.nama} (SKS: ${mk.sks})`;
+                    option.dataset.semester = mk.semester;
+                    mkSelect.appendChild(option);
+                });
+            });
+    });
+
+    document.getElementById('mata_kuliah_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const semester = selectedOption.dataset.semester;
+        if (semester) {
+            document.getElementById('semester_input').value = semester;
+        }
+    });
+</script>
+@endpush
 @endsection

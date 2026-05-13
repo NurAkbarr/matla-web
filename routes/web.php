@@ -179,6 +179,18 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::resource('/admin/jadwal', \App\Http\Controllers\Backend\JadwalController::class, [
             'names' => 'admin.jadwal',
         ]);
+        Route::get('/admin/mata-kuliah', [\App\Http\Controllers\Backend\MataKuliahController::class, 'index'])->name('admin.mata-kuliah.index');
+        Route::get('/admin/mata-kuliah/create', [\App\Http\Controllers\Backend\MataKuliahController::class, 'create'])->name('admin.mata-kuliah.create');
+        Route::post('/admin/mata-kuliah', [\App\Http\Controllers\Backend\MataKuliahController::class, 'store'])->name('admin.mata-kuliah.store');
+        Route::get('/admin/mata-kuliah/{mata_kuliah}/edit', [\App\Http\Controllers\Backend\MataKuliahController::class, 'edit'])->name('admin.mata-kuliah.edit');
+        Route::put('/admin/mata-kuliah/{mata_kuliah}', [\App\Http\Controllers\Backend\MataKuliahController::class, 'update'])->name('admin.mata-kuliah.update');
+        Route::delete('/admin/mata-kuliah/{mata_kuliah}', [\App\Http\Controllers\Backend\MataKuliahController::class, 'destroy'])->name('admin.mata-kuliah.destroy');
+
+        // API Local for dependent dropdowns
+        Route::get('/api/mata-kuliah-by-prodi', function(Request $request) {
+            return \App\Models\MataKuliah::where('program_studi_id', $request->prodi_id)->get();
+        })->name('api.mata-kuliah.by-prodi');
+
         Route::get('/admin/jadwal/{jadwal}/participants', [\App\Http\Controllers\Backend\JadwalController::class, 'participants'])->name('admin.jadwal.participants');
         Route::post('/admin/jadwal/{jadwal}/participants', [\App\Http\Controllers\Backend\JadwalController::class, 'addParticipant'])->name('admin.jadwal.participants.add');
         Route::delete('/admin/jadwal/{jadwal}/participants/{user}', [\App\Http\Controllers\Backend\JadwalController::class, 'removeParticipant'])->name('admin.jadwal.participants.remove');
