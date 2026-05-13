@@ -2,6 +2,48 @@
 
 @section('title', 'KTM Digital - ' . $user->name)
 
+@php
+    function getBase64Image($url) {
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ]
+            ]);
+            $image = @file_get_contents($url, false, $context);
+            if ($image) {
+                return 'data:image/png;base64,' . base64_encode($image);
+            }
+        } catch (\Exception $e) {}
+        return $url;
+    }
+
+    // Logo
+    $logoPath = public_path('assets/logo.png');
+    $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : asset('assets/logo.png');
+    
+    // Avatar
+    $fotoUrl = $user->foto_profil;
+    $fotoBase64 = $fotoUrl;
+    if (str_starts_with($fotoUrl, 'http') && str_contains($fotoUrl, 'ui-avatars.com')) {
+        $fotoBase64 = getBase64Image($fotoUrl);
+    } elseif ($user->profil && $user->profil->foto) {
+        $path = storage_path('app/public/' . $user->profil->foto);
+        if(file_exists($path)) {
+            $ext = pathinfo($path, PATHINFO_EXTENSION);
+            $fotoBase64 = 'data:image/' . ($ext ?: 'jpeg') . ';base64,' . base64_encode(file_get_contents($path));
+        }
+    }
+
+    // QR Code
+    $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($user->qr_url) . "&color=111827";
+    $qrBase64 = getBase64Image($qrUrl);
+@endphp
+
 @section('content')
 <div class="py-12 bg-gray-50 min-h-screen flex items-center justify-center">
     <div class="container mx-auto px-4 lg:px-12 max-w-4xl">
@@ -25,7 +67,7 @@
                 
                 <!-- Logo & Title -->
                 <div class="relative z-10 flex items-center justify-between p-5">
-                    <img src="{{ asset('assets/logo.png') }}" class="h-16 w-auto bg-white/20 p-2 rounded-xl backdrop-blur-sm shadow-sm" alt="Logo">
+                    <img src="{{ $logoBase64 }}" class="h-16 w-auto bg-white/20 p-2 rounded-xl backdrop-blur-sm shadow-sm" alt="Logo">
                     <div class="text-right text-white">
                         <h2 class="font-extrabold text-[13px] leading-tight tracking-wide">MATLA ISLAMIC</h2>
                         <h2 class="font-extrabold text-[13px] leading-tight tracking-wide">ACADEMY</h2>
@@ -35,7 +77,7 @@
                 <!-- Photo -->
                 <div class="relative z-10 flex justify-center mt-3">
                     <div class="p-1 bg-white/30 backdrop-blur-md rounded-2xl shadow-xl">
-                        <img src="{{ $user->foto_profil }}" crossorigin="anonymous" class="w-32 h-40 object-cover rounded-xl border-2 border-white" alt="Foto">
+                        <img src="{{ $fotoBase64 }}" class="w-32 h-40 object-cover rounded-xl border-2 border-white" alt="Foto">
                     </div>
                 </div>
 
@@ -80,7 +122,7 @@
 
                 <!-- Header -->
                 <div class="relative z-10 text-center pt-8">
-                    <img src="{{ asset('assets/logo.png') }}" class="h-14 w-auto mx-auto mb-3" alt="Logo">
+                    <img src="{{ $logoBase64 }}" class="h-14 w-auto mx-auto mb-3" alt="Logo">
                     <h2 class="font-extrabold text-sm text-[#3EB521] uppercase tracking-wider">Matla Islamic Academy</h2>
                     <p class="text-[9px] text-gray-500 font-bold tracking-widest uppercase mt-1">Kartu Identitas Resmi</p>
                 </div>
@@ -107,7 +149,7 @@
                             Scan QR untuk<br>melihat profil<br>& portofolio
                         </div>
                         <div class="bg-white p-1.5 rounded-lg shadow-lg">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($user->qr_url) }}&color=111827" crossorigin="anonymous" alt="QR Code" class="w-14 h-14">
+                            <img src="{{ $qrBase64 }}" alt="QR Code" class="w-14 h-14">
                         </div>
                     </div>
                 </div>
