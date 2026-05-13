@@ -67,7 +67,7 @@
                 
                 <!-- Logo & Title -->
                 <div class="relative z-10 flex items-center justify-between p-5">
-                    <img src="{{ $logoBase64 }}" class="h-16 w-auto bg-white/20 p-2 rounded-xl backdrop-blur-sm shadow-sm" alt="Logo">
+                    <img src="{{ $logoBase64 }}" class="h-16 w-auto bg-white/90 p-2 rounded-xl shadow-sm border border-white/50" alt="Logo">
                     <div class="text-right text-white">
                         <h2 class="font-extrabold text-[13px] leading-tight tracking-wide">MATLA ISLAMIC</h2>
                         <h2 class="font-extrabold text-[13px] leading-tight tracking-wide">ACADEMY</h2>
@@ -76,7 +76,7 @@
 
                 <!-- Photo -->
                 <div class="relative z-10 flex justify-center mt-3">
-                    <div class="p-1 bg-white/30 backdrop-blur-md rounded-2xl shadow-xl">
+                    <div class="p-1 bg-white rounded-2xl shadow-lg border border-gray-100">
                         <img src="{{ $fotoBase64 }}" class="w-32 h-40 object-cover rounded-xl border-2 border-white" alt="Foto">
                     </div>
                 </div>
