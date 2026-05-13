@@ -173,6 +173,7 @@
                         <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider">Mahasiswa</th>
                         <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider">Email</th>
                         <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-center w-32">Angkatan</th>
+                        <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-center w-24">Semester</th>
                         <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-center w-24">Status</th>
                         <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-right w-32">Aksi</th>
                     </tr>
@@ -204,6 +205,11 @@
                         <td class="border-b border-slate-100 px-4 py-3 text-center">
                             <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
                                 {{ $user->angkatan ?? '-' }}
+                            </span>
+                        </td>
+                        <td class="border-b border-slate-100 px-4 py-3 text-center">
+                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
+                                {{ $user->semester ?? '-' }}
                             </span>
                         </td>
                         <td class="border-b border-slate-100 px-4 py-3 text-center">
