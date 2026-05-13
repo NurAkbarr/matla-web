@@ -84,10 +84,10 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-slate-100 space-y-1">
-                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Daftar Pendaftar</a>
-                        <a href="{{ route('backend.admin.affiliates.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.affiliates.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Manajemen Afiliasi</a>
-                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Manajemen Brosur</a>
-                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Pengaturan PMB</a>
+                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Daftar Pendaftar</a>
+                        <a href="{{ route('backend.admin.affiliates.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.affiliates.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Manajemen Afiliasi</a>
+                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Manajemen Brosur</a>
+                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Pengaturan PMB</a>
                     </div>
                 </div>
 
@@ -105,11 +105,11 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-slate-100 space-y-1">
-                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Mahasiswa</a>
-                        <a href="{{ route('backend.admin.dosen') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.dosen') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Dosen</a>
-                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Rekap Honor Dosen</a>
-                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Kelas</a>
-                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Program Studi</a>
+                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Mahasiswa</a>
+                        <a href="{{ route('backend.admin.dosen') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.dosen') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Dosen</a>
+                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Rekap Honor Dosen</a>
+                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Kelas</a>
+                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Program Studi</a>
                     </div>
                 </div>
 
