@@ -15,11 +15,18 @@ return new class extends Migration
             if (!Schema::hasColumn('jadwals', 'mata_kuliah_id')) {
                 $table->unsignedBigInteger('mata_kuliah_id')->nullable()->after('id');
             }
-            // Try to add foreign key separately to handle cases where column exists but FK doesn't
+        });
+
+        // Ensure engine is InnoDB for foreign keys to work
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE jadwals ENGINE=InnoDB');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE mata_kuliahs ENGINE=InnoDB');
+
+        Schema::table('jadwals', function (Blueprint $table) {
+            // Try to add foreign key separately
             try {
                 $table->foreign('mata_kuliah_id')->references('id')->on('mata_kuliahs')->onDelete('set null');
             } catch (\Exception $e) {
-                // FK might already exist or fail for other reasons
+                // If it still fails, it might be due to data mismatch or collation
             }
         });
     }
