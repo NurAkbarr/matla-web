@@ -1,0 +1,23 @@
+
+
+1. Fundamental Konsep Silabus (Untuk Admin/Dosen)
+Struktur Induk: Sistem ini menginduk pada tabel Jadwal (Mata Kuliah). Di halaman Admin > Akademik > Jadwal, sekarang ada tombol baru: "Kelola Silabus" (ikon dokumen biru).
+Fleksibilitas 16 Pertemuan: Saat tombol itu diklik, Admin/Dosen bisa membuat hingga 16 Pertemuan.
+Pilihan Tipe: Setiap pertemuan wajib dipilih tipenya:
+Video (Asinkronus): Dosen hanya perlu menempelkan link video YouTube dan menuliskan Soal Kuis.
+Zoom (Sinkronus): Dosen hanya perlu menempelkan link undangan Zoom.
+2. Fundamental Pemantauan Video (Anti-Skip/Anti-Curang)
+Ini bagian paling krusial untuk memastikan mahasiswa benar-benar belajar:
+
+Bukan Video Biasa: Kita tidak menggunakan pemutar video bawaan HTML biasa, melainkan menggunakan YouTube IFrame Player API. Ini adalah "otak" di balik layar yang bisa berkomunikasi dengan server YouTube.
+Deteksi Play: Saat mahasiswa menekan tombol Play, sistem mulai mencatat.
+Komunikasi Diam-diam (AJAX): Setiap 10 detik mahasiswa menonton, browser mereka diam-diam mengirim sinyal ke server kita (AJAX Request) untuk menyimpan "sudah berapa detik video ini ditonton".
+Mencegah Curang (Skipping): Jika mahasiswa mencoba menarik slider video langsung ke menit terakhir, sistem tidak akan terkecoh. Sistem hanya menghitung "detik riil yang berjalan" saat video berstatus Playing.
+Unlocking Mechanism: Jika total waktu tonton riil sudah melebihi 50% dari durasi asli video, barulah browser membuka gembok pada Form Jawaban Kuis.
+3. Fundamental Evaluasi & Absensi (Untuk Mahasiswa)
+Mahasiswa memiliki menu baru bernama "Ruang Kelas E-Learning".
+Di sana, mereka akan melihat daftar mata kuliah yang mereka ikuti.
+Ketika mereka membuka Pertemuan bertipe Video, kotak jawaban tugas awalnya akan berwarna abu-abu, tidak bisa diklik, dan berstatus "Terkunci".
+Setelah mereka lulus menonton 50% video, kotak jawaban akan otomatis terbuka, progress bar menjadi hijau, dan mereka wajib mengisi jawaban tugas tersebut.
+Jawaban ini (disimpan di tabel jawaban_evaluasis) berfungsi sebagai bukti presensi/absensi sah mahasiswa pada pertemuan ganjil tersebut.
+

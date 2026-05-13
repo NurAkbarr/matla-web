@@ -89,14 +89,13 @@
                             <span class="text-xs font-bold text-gray-700 text-center">Biodata</span>
                         </a>
 
-                        <!-- Placeholder: Jadwal -->
-                        <div class="flex flex-col items-center p-4 rounded-2xl opacity-60 cursor-not-allowed">
-                            <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-3 shadow-sm">
+                        <!-- Fitur Aktif: Jadwal Kuliah / E-Learning -->
+                        <a href="{{ route('mahasiswa.elearning.index') }}" class="flex flex-col items-center p-4 rounded-2xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group">
+                            <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
                                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </div>
                             <span class="text-xs font-bold text-gray-700 text-center">Jadwal Kuliah</span>
-                            <span class="text-[8px] text-gray-400 uppercase mt-1">Segera</span>
-                        </div>
+                        </a>
 
                         <!-- Placeholder: Invoice -->
                         <div class="flex flex-col items-center p-4 rounded-2xl opacity-60 cursor-not-allowed">
@@ -116,11 +115,11 @@
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">IPK Terakhir</span>
                     </div>
                     <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm text-center">
-                        <span class="block text-3xl font-black text-primary mb-1">0</span>
+                        <span class="block text-3xl font-black text-primary mb-1">{{ $totalSKS }}</span>
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">SKS Diambil</span>
                     </div>
                     <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm text-center">
-                        <span class="block text-3xl font-black text-primary mb-1">0</span>
+                        <span class="block text-3xl font-black text-primary mb-1">{{ $totalMataKuliah }}</span>
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Mata Kuliah</span>
                     </div>
                     <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm text-center">
@@ -143,11 +142,26 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
                     </div>
-                    
-                    <div class="py-12 text-center flex flex-col items-center">
-                        <img src="https://ui-avatars.com/api/?name=Jadwal&background=f3f4f6&color=9ca3af&rounded=true&size=64" class="opacity-50 grayscale mb-4 w-16 h-16 rounded-full" alt="Empty">
-                        <p class="text-sm font-bold text-gray-400">Tidak ada jadwal kelas di tanggal ini</p>
-                    </div>
+                    @if($jadwalHariIni->count() > 0)
+                        <div class="divide-y divide-gray-50 mt-4">
+                            @foreach($jadwalHariIni as $jhi)
+                            <div class="py-4 flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                                    {{ substr($jhi->jam_mulai, 0, 5) }}
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900">{{ $jhi->mata_kuliah }}</h4>
+                                    <p class="text-xs font-medium text-gray-500">{{ $jhi->ruang }} &bull; {{ $jhi->dosen->name ?? 'Dosen' }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="py-12 text-center flex flex-col items-center">
+                            <img src="https://ui-avatars.com/api/?name=Jadwal&background=f3f4f6&color=9ca3af&rounded=true&size=64" class="opacity-50 grayscale mb-4 w-16 h-16 rounded-full" alt="Empty">
+                            <p class="text-sm font-bold text-gray-400">Tidak ada jadwal kelas di tanggal ini</p>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- To-Do List -->
@@ -157,12 +171,19 @@
                             <h2 class="text-lg font-extrabold text-gray-900">Perlu Dikerjakan</h2>
                             <p class="text-xs font-medium text-gray-500 mt-1">Tugas atau kuis yang menanti.</p>
                         </div>
-                        <span class="w-6 h-6 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center text-xs font-bold">0</span>
+                        <span class="w-6 h-6 bg-{{ $pendingTasks > 0 ? 'red' : 'gray' }}-100 text-{{ $pendingTasks > 0 ? 'red' : 'gray' }}-500 rounded-full flex items-center justify-center text-xs font-bold">{{ $pendingTasks }}</span>
                     </div>
                     
+                    @if($pendingTasks > 0)
+                    <div class="py-6 border-2 border-dashed border-red-100 rounded-2xl px-6 bg-red-50 text-center">
+                        <p class="text-sm font-bold text-red-600">Ada {{ $pendingTasks }} kuis evaluasi (video ganjil) yang belum Anda selesaikan.</p>
+                        <a href="{{ route('mahasiswa.elearning.index') }}" class="mt-3 inline-block px-4 py-2 bg-red-500 text-white rounded-lg text-xs font-bold shadow-md shadow-red-500/20 hover:bg-red-600 transition-colors">Cek E-Learning</a>
+                    </div>
+                    @else
                     <div class="py-8 text-center border-2 border-dashed border-gray-100 rounded-2xl">
                         <p class="text-sm font-bold text-gray-400">Hore! Belum ada tugas untukmu. 🎉</p>
                     </div>
+                    @endif
                 </div>
             </div>
 

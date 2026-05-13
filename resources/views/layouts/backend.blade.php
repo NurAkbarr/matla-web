@@ -8,10 +8,10 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/logo-bulat.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Montserrat', sans-serif; }
         [x-cloak] { display: none !important; }
         .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .dropdown-content { overflow: hidden; transition: max-height 0.2s ease-out; max-height: 0; }
@@ -55,26 +55,26 @@
                 {{-- SISTEM UTAMA --}}
                 <p class="px-4 pt-4 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sistem Utama</p>
                 <a href="{{ route('backend.admin.dashboard') }}" 
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.dashboard') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
-                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.dashboard') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.dashboard') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                     </svg>
-                    <span class="text-sm font-bold">Dashboard</span>
+                    <span class="text-sm font-bold">Admin Panel</span>
                 </a>
 
                 <a href="{{ route('backend.admin.users.index') }}" 
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.users.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
-                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.users.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.users.*') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.users.*') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
-                    <span class="text-sm font-bold">Manajemen User</span>
+                    <span class="text-sm font-bold">User Management</span>
                 </a>
 
                 <div x-data="{ open: {{ request()->routeIs('backend.admin.pmb.*') ? 'true' : 'false' }} }">
                     <button @click="open = !open" 
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.pmb.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.pmb.*') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
                         <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.pmb.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.pmb.*') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                             <span class="text-sm font-bold">PMB</span>
@@ -83,19 +83,19 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-gray-100 space-y-1">
-                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Daftar Pendaftar</a>
-                        <a href="{{ route('backend.admin.affiliates.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.affiliates.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Manajemen Afiliasi</a>
-                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Manajemen Brosur</a>
-                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Pengaturan PMB</a>
+                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-slate-100 space-y-1">
+                        <a href="{{ route('backend.admin.pmb.registrations.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.registrations.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Daftar Pendaftar</a>
+                        <a href="{{ route('backend.admin.affiliates.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.affiliates.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Manajemen Afiliasi</a>
+                        <a href="{{ route('backend.admin.pmb.brosur.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.brosur.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Manajemen Brosur</a>
+                        <a href="{{ route('backend.admin.pmb.settings') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.pmb.settings') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Pengaturan PMB</a>
                     </div>
                 </div>
 
-                <div x-data="{ open: {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') ? 'true' : 'false' }} }">
+                <div x-data="{ open: {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') || request()->routeIs('backend.admin.mahasiswa') ? 'true' : 'false' }} }">
                     <button @click="open = !open" 
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') || request()->routeIs('backend.admin.mahasiswa') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
                         <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.akademik.*') || request()->routeIs('backend.admin.dosen.*') || request()->routeIs('backend.admin.mahasiswa') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
                             </svg>
                             <span class="text-sm font-bold">Akademik</span>
@@ -104,38 +104,38 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-gray-100 space-y-1">
-                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Manajemen Mahasiswa</a>
-                        <a href="{{ route('backend.admin.dosen') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.dosen') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Data Dosen</a>
-                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Rekap Honor Dosen</a>
-                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Jadwal Perkuliahan</a>
-                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary' : 'text-gray-400 hover:text-primary' }}">Program Studi</a>
+                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l-2 border-slate-100 space-y-1">
+                        <a href="{{ route('backend.admin.mahasiswa') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.mahasiswa') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Mahasiswa</a>
+                        <a href="{{ route('backend.admin.dosen') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.dosen') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Dosen</a>
+                        <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Rekap Honor Dosen</a>
+                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Kelas</a>
+                        <a href="{{ route('backend.admin.program-studi.index') }}" class="block px-4 py-2 text-xs font-bold {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Program Studi</a>
                     </div>
                 </div>
 
                 {{-- MANAJEMEN KONTEN --}}
-                <p class="px-4 pt-8 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Konten</p>
+                <p class="px-4 pt-8 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manajemen Konten</p>
                 <a href="{{ route('backend.admin.messages.index') }}" 
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.messages.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
-                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.messages.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.messages.*') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.messages.*') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
                     <span class="text-sm font-bold">Kotak Pesan</span>
                 </a>
 
                 <a href="{{ route('backend.admin.quick-infos.index') }}" 
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.quick-infos.*') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
-                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.quick-infos.*') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.quick-infos.*') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.quick-infos.*') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
                     <span class="text-sm font-bold">Quick Info Ticker</span>
                 </a>
 
                 {{-- SYSTEM --}}
-                <p class="px-4 pt-8 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</p>
+                <p class="px-4 pt-8 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">System</p>
                 <a href="{{ route('backend.admin.maintenance') }}" 
-                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.maintenance') ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
-                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.maintenance') ? 'text-white' : 'text-gray-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('backend.admin.maintenance') ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-500 hover:bg-slate-50 hover:text-primary' }}">
+                    <svg class="w-5 h-5 {{ request()->routeIs('backend.admin.maintenance') ? 'text-white' : 'text-slate-400 group-hover:text-primary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
@@ -178,18 +178,27 @@
                     </div>
 
                     {{-- Breadcrumb (desktop) --}}
-                    <h2 class="text-sm font-bold text-gray-500 hidden lg:block uppercase tracking-wider">
-                        @yield('breadcrumb', 'Backend Portal')
+                    <h2 class="text-lg font-bold text-slate-800 hidden lg:block tracking-tight">
+                        @yield('title', 'Dashboard')
                     </h2>
                 </div>
 
-                <div class="flex items-center space-x-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-xs font-bold text-gray-900 capitalize">{{ Auth::user()->name }}</p>
-                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-tighter">{{ Auth::user()->role }}</p>
+                <div class="flex items-center space-x-6">
+                    <!-- Notification & Moon Icons (SIAKAD style) -->
+                    <div class="hidden md:flex items-center space-x-4 text-slate-400">
+                        <button class="hover:text-slate-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        </button>
+                        <button class="hover:text-slate-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        </button>
                     </div>
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-sm border-2 border-primary/20 flex-shrink-0">
-                        <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-slate-800 capitalize">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-slate-500 font-medium">{{ date('l, d M Y') }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-slate-100 flex items-center justify-center">
+                        <span class="font-bold text-slate-600">{{ substr(Auth::user()->name, 0, 1) }}</span>
                     </div>
                 </div>
             </header>

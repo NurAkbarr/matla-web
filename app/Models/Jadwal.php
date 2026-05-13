@@ -51,4 +51,9 @@ class Jadwal extends Model
     {
         return $this->nilais()->where('is_locked', true)->exists();
     }
+
+    public function pertemuans()
+    {
+        return $this->hasMany(Pertemuan::class)->orderBy('pertemuan_ke', 'asc');
+    }
 }

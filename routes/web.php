@@ -130,6 +130,13 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::delete('/skill/{id}', [\App\Http\Controllers\Mahasiswa\SkillController::class, 'destroy'])->name('skill.destroy');
     Route::post('/portofolio', [\App\Http\Controllers\Mahasiswa\PortofolioController::class, 'store'])->name('portofolio.store');
     Route::delete('/portofolio/{id}', [\App\Http\Controllers\Mahasiswa\PortofolioController::class, 'destroy'])->name('portofolio.destroy');
+    
+    // E-Learning Routes
+    Route::get('/elearning', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'index'])->name('elearning.index');
+    Route::get('/elearning/jadwal/{jadwal}', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'showJadwal'])->name('elearning.jadwal');
+    Route::get('/elearning/pertemuan/{pertemuan}', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'showPertemuan'])->name('elearning.pertemuan');
+    Route::post('/elearning/pertemuan/{pertemuan}/log', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'updateLogTontonan'])->name('elearning.log');
+    Route::post('/elearning/pertemuan/{pertemuan}/evaluasi', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'submitEvaluasi'])->name('elearning.evaluasi');
 });
 
 // Backend Routes
@@ -176,6 +183,10 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/admin/jadwal/{jadwal}/participants', [\App\Http\Controllers\Backend\JadwalController::class, 'addParticipant'])->name('admin.jadwal.participants.add');
         Route::delete('/admin/jadwal/{jadwal}/participants/{user}', [\App\Http\Controllers\Backend\JadwalController::class, 'removeParticipant'])->name('admin.jadwal.participants.remove');
 
+        // Pertemuan / Silabus Management
+        Route::resource('/admin/jadwal/{jadwal}/pertemuan', \App\Http\Controllers\Backend\AdminPertemuanController::class, [
+            'names' => 'admin.jadwal.pertemuan',
+        ]);
         // Nilai Management (Admin)
         Route::post('/admin/jadwal/{jadwal}/unlock', [\App\Http\Controllers\Backend\NilaiController::class, 'unlock'])->name('admin.jadwal.unlock');
 

@@ -47,7 +47,49 @@ class DashboardController extends Controller
 
     public function mahasiswa()
     {
-        return view('backend.mahasiswa.dashboard');
+        $user = auth()->user();
+        $enrolledSchedules = $user->enrolledSchedules()->with('dosen')->get();
+        
+        $totalSKS = $enrolledSchedules->sum('sks');
+        $totalMataKuliah = $enrolledSchedules->count();
+        
+        // Setup days translation map
+        $hariMap = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+        ];
+        $hariIni = $hariMap[now()->format('l')];
+        
+        $jadwalHariIni = $enrolledSchedules->filter(function($jadwal) use ($hariIni) {
+            return strtolower($jadwal->hari) === strtolower($hariIni);
+        });
+
+        // Hitung tugas yang belum selesai dari pertemuan video ganjil
+        $pendingTasks = 0;
+        foreach ($enrolledSchedules as $jadwal) {
+            foreach ($jadwal->pertemuans as $pertemuan) {
+                if ($pertemuan->tipe_pertemuan == 'video' && $pertemuan->soal_evaluasi) {
+                    $hasEvaluated = \App\Models\JawabanEvaluasi::where('mahasiswa_id', $user->id)
+                                    ->where('pertemuan_id', $pertemuan->id)->exists();
+                    if (!$hasEvaluated) {
+                        $pendingTasks++;
+                    }
+                }
+            }
+        }
+
+        return view('backend.mahasiswa.dashboard', compact(
+            'enrolledSchedules', 
+            'totalSKS', 
+            'totalMataKuliah', 
+            'jadwalHariIni',
+            'pendingTasks'
+        ));
     }
 
     public function mahasiswaAktif(Request $request)
@@ -74,14 +116,18 @@ class DashboardController extends Controller
         if ($request->filled('semester')) {
             $query->where('semester', $request->semester);
         }
+        if ($request->filled('program_studi')) {
+            $query->where('education->program_studi', $request->program_studi);
+        }
 
         $users = $query->latest()->paginate(15);
 
         // Data for filters
         $angkatans = User::where('role', 'mahasiswa')->whereNotNull('angkatan')->distinct()->pluck('angkatan')->sort()->values();
         $semesters = User::where('role', 'mahasiswa')->whereNotNull('semester')->distinct()->pluck('semester')->sort()->values();
+        $prodis = \App\Models\ProgramStudi::active()->get();
 
-        return view('backend.admin.mahasiswa', compact('users', 'angkatans', 'semesters'));
+        return view('backend.admin.mahasiswa', compact('users', 'angkatans', 'semesters', 'prodis'));
     }
 
     public function exportExcel(Request $request)

@@ -109,4 +109,19 @@ class User extends Authenticatable
     {
         return $this->hasOne(Affiliate::class);
     }
+
+    public function enrolledSchedules()
+    {
+        return $this->belongsToMany(Jadwal::class, 'jadwal_mahasiswa', 'mahasiswa_id', 'jadwal_id')->withTimestamps();
+    }
+
+    public function logTontonans()
+    {
+        return $this->hasMany(LogTontonan::class, 'mahasiswa_id');
+    }
+
+    public function jawabanEvaluasis()
+    {
+        return $this->hasMany(JawabanEvaluasi::class, 'mahasiswa_id');
+    }
 }
