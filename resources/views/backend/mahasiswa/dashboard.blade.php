@@ -21,7 +21,7 @@
             pointer-events: none;
         }
     </style>
-    <div class="premium-banner text-white pt-12 pb-20 px-4 lg:px-12 relative overflow-hidden rounded-b-[4rem] shadow-2xl" style="background-color: #065F46;">
+    <div class="premium-banner text-white pt-12 pb-12 px-4 lg:px-12 relative overflow-hidden shadow-lg" style="background-color: #065F46;">
         <!-- Large decorative circles (right side) -->
         <div class="absolute top-1/2 right-[-5rem] -translate-y-1/2 w-[22rem] h-[22rem] rounded-full border-2 border-white/10 pointer-events-none"></div>
         <div class="absolute top-1/2 right-[-3rem] -translate-y-1/2 w-[17rem] h-[17rem] rounded-full border border-white/[0.06] pointer-events-none"></div>
@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <div class="container mx-auto px-4 lg:px-12 -mt-10 relative z-20">
+    <div class="container mx-auto px-4 lg:px-12 mt-8 relative z-20">
         
         @php
             $user = Auth::user();
