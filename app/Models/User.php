@@ -17,10 +17,25 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($user) {
+            if ($user->role === 'mahasiswa' && !$user->qr_token) {
+                $user->qr_token = \Illuminate\Support\Str::random(32);
+            }
+        });
+
+        static::updating(function ($user) {
+            if ($user->role === 'mahasiswa' && !$user->qr_token) {
+                $user->qr_token = \Illuminate\Support\Str::random(32);
+            }
+        });
+    }
+
     /**
      * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -99,6 +114,11 @@ class User extends Authenticatable
 
     public function getQrUrlAttribute()
     {
+        if (!$this->qr_token && $this->role === 'mahasiswa') {
+            $this->qr_token = \Illuminate\Support\Str::random(32);
+            $this->save();
+        }
+        
         if ($this->qr_token) {
             return url('/p/' . $this->qr_token);
         }
