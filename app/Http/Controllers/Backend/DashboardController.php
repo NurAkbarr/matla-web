@@ -83,12 +83,18 @@ class DashboardController extends Controller
             }
         }
 
+        $announcements = \App\Models\Announcement::where('is_active', true)
+                        ->latest('published_at')
+                        ->take(5)
+                        ->get();
+
         return view('backend.mahasiswa.dashboard', compact(
             'enrolledSchedules', 
             'totalSKS', 
             'totalMataKuliah', 
             'jadwalHariIni',
-            'pendingTasks'
+            'pendingTasks',
+            'announcements'
         ));
     }
 

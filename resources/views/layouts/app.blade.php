@@ -14,7 +14,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
 
         <!-- Alpine.js -->
 
@@ -28,12 +28,16 @@
             <div class="container mx-auto px-4 lg:px-12 py-3 lg:py-4">
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
-                    <a href="#beranda" class="flex items-center space-x-2">
+                    <a href="{{ url('/') }}" class="flex items-center space-x-2">
                         <img src="{{ asset('assets/logo.png') }}" alt="MATLA Logo" class="h-8 lg:h-10 w-auto">
                         <span class="text-lg lg:text-xl font-bold text-primary-dark tracking-wide">MATLA</span>
                     </a>
 
                     <!-- Desktop Navigation Items -->
+                    @php
+                        $isMahasiswa = request()->routeIs('backend.mahasiswa.*') || request()->is('mahasiswa/*');
+                    @endphp
+                    @if(!$isMahasiswa)
                     <div class="hidden lg:flex items-center space-x-8">
                         <a href="{{ url('/') }}#beranda" class="font-semibold text-gray-600 hover:text-primary transition-colors">Beranda</a>
                         <a href="{{ url('/') }}#tentang" class="font-semibold text-gray-600 hover:text-primary transition-colors">Tentang</a>
@@ -83,6 +87,7 @@
                         <a href="{{ route('pmb') }}" class="font-semibold text-gray-600 hover:text-primary transition-colors">PMB</a>
                         <a href="{{ route('kontak') }}" class="font-semibold text-gray-600 hover:text-primary transition-colors">Kontak</a>
                     </div>
+                    @endif
 
 
 
@@ -98,17 +103,52 @@
                                 };
                             @endphp
                             <div class="hidden sm:flex items-center space-x-3">
-                                <a href="{{ $dashboardRoute }}" class="px-6 py-2.5 bg-emerald-50 text-primary rounded-lg font-semibold hover:bg-emerald-100 transition-all">
-                                    Dashboard
-                                </a>
-                                <form action="{{ route('logout') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Logout">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                @if(request()->routeIs('backend.mahasiswa.dashboard'))
+                                    <!-- Notification -->
+                                    <button class="p-2 text-gray-400 hover:text-primary transition-colors relative">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                         </svg>
+                                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                                     </button>
-                                </form>
+
+                                    <!-- User Profile Dropdown -->
+                                    <div class="relative" x-data="{ open: false }">
+                                        <button @click="open = !open" class="flex items-center space-x-3 pl-3 border-l border-gray-100 outline-none group">
+                                            <div class="text-right hidden md:block">
+                                                <p class="text-sm font-bold text-gray-800 leading-tight group-hover:text-primary transition-colors">{{ Auth::user()->name }}</p>
+                                                <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{{ Auth::user()->role }}</p>
+                                            </div>
+                                            <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-10 h-10 rounded-xl object-cover ring-2 ring-emerald-50 shadow-sm group-hover:ring-primary/20 transition-all">
+                                        </button>
+
+                                        <!-- Dropdown Menu -->
+                                        <div x-show="open" @click.away="open = false" 
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="transform opacity-0 scale-95"
+                                             x-transition:enter-end="transform opacity-100 scale-100"
+                                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2">
+                                            <a href="{{ route('mahasiswa.profil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-primary font-medium">Profil Saya</a>
+                                            <div class="border-t border-gray-100 my-1"></div>
+                                            <form action="{{ route('logout') }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-bold">Keluar</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @else
+                                    <a href="{{ $dashboardRoute }}" class="px-6 py-2.5 bg-emerald-50 text-primary rounded-lg font-semibold hover:bg-emerald-100 transition-all">
+                                        Dashboard
+                                    </a>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Logout">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         @else
                             <a href="{{ route('login') }}" class="hidden sm:inline-block px-6 lg:px-8 py-2 lg:py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition-all">
@@ -117,21 +157,34 @@
                         @endauth
 
                         
-                        <!-- Mobile Hamburger -->
-                        <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path id="hamburger-icon" class="block" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                                <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                        <!-- Mobile Hamburger / Profile -->
+                        @if(!$isMahasiswa)
+                            <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path id="hamburger-icon" class="block" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                    <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        @else
+                            <a href="{{ route('mahasiswa.profil') }}" class="lg:hidden block p-1 bg-emerald-50 rounded-xl ring-2 ring-emerald-100">
+                                <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-8 h-8 rounded-lg object-cover">
+                            </a>
+                        @endif
                     </div>
                 </div>
 
                 <!-- Mobile Navigation Menu -->
                 <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-4 space-y-2 border-t border-gray-100 pt-4 max-h-[80vh] overflow-y-auto">
-                    <a href="{{ url('/') }}#beranda" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Beranda</a>
-                    <a href="{{ url('/') }}#tentang" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Tentang</a>
-                    <a href="{{ url('/') }}#keunggulan" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Keunggulan</a>
+                    @if(request()->routeIs('backend.mahasiswa.*') || request()->is('mahasiswa/*'))
+                        <form action="{{ route('logout') }}" method="POST" class="px-4 py-2">
+                            @csrf
+                            <button type="submit" class="w-full text-left text-red-600 font-bold">Keluar</button>
+                        </form>
+                    @else
+                        <a href="{{ url('/') }}#beranda" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Beranda</a>
+                        <a href="{{ url('/') }}#tentang" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Tentang</a>
+                        <a href="{{ url('/') }}#keunggulan" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Keunggulan</a>
+                    @endif
                     
                     <!-- Mobile Informas Dropdown -->
                     <div class="px-4 py-1">

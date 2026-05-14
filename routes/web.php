@@ -229,6 +229,9 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::resource('/admin/quick-infos', \App\Http\Controllers\Backend\QuickInfoController::class, [
             'names' => 'admin.quick-infos',
         ]);
+        Route::resource('/admin/announcements', \App\Http\Controllers\Backend\AnnouncementController::class, [
+            'names' => 'admin.announcements',
+        ]);
 
         // PMB Registration Management
         Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
