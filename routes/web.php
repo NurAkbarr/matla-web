@@ -95,6 +95,16 @@ Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_ma
         return back()->with('success', "Berhasil me-reset password untuk $count akun mahasiswa menjadi 'password123'!");
     })->middleware('throttle:5,1')->name('maintenance.reset_password_mhs');
 
+    Route::post('/git-reset', function () {
+        try {
+            // Kita coba buang perubahan lokal yang bikin bentrok
+            shell_exec('git reset --hard HEAD 2>&1');
+            return back()->with('success', "Perubahan lokal di server berhasil dibuang. Sekarang silakan coba PUSH/DEPLOY lagi dari cPanel!");
+        } catch (\Exception $e) {
+            return back()->with('error', "Gagal melakukan reset: " . $e->getMessage());
+        }
+    })->middleware('throttle:5,1')->name('maintenance.git_reset');
+
     Route::post('/clear-server-cache', function () {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
