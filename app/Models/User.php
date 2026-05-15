@@ -107,8 +107,9 @@ class User extends Authenticatable
     public function getFotoProfilAttribute()
     {
         if ($this->profil && $this->profil->foto) {
-            $url = asset('storage/' . $this->profil->foto);
-            return str_replace('http://', 'https://', $url);
+            $path = $this->profil->foto;
+            // Gunakan jalur khusus bypass symlink
+            return url('/_foto/' . $path);
         }
         $name = urlencode($this->name);
         return "https://ui-avatars.com/api/?name={$name}&color=059669&background=ECFDF5&bold=true&size=256";

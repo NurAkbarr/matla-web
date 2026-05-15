@@ -114,27 +114,17 @@ Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_ma
 });
 
 // ===== FALLBACK ROUTE: Jika Symlink Gagal, Laravel yang akan mengirimkan gambarnya =====
-Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+// Jalur Khusus Foto (Bypass Symlink cPanel yang sering rusak)
+Route::get('/_foto/{path}', function ($path) {
     $baseDir = storage_path('app/public');
-    $baseReal = realpath($baseDir);
-    if ($baseReal === false) {
+    $fullPath = $baseDir . '/' . $path;
+    
+    if (!file_exists($fullPath) || !is_file($fullPath)) {
         abort(404);
     }
 
-    $candidate = $baseDir . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . $filename;
-    $path = realpath($candidate);
-
-    // Block directory traversal / symlink escapes
-    if ($path === false || !str_starts_with($path, $baseReal . DIRECTORY_SEPARATOR)) {
-        abort(404);
-    }
-
-    if (!is_file($path)) {
-        abort(404);
-    }
-
-    return response()->file($path);
-})->where('filename', '.*');
+    return response()->file($fullPath);
+})->where('path', '.*')->name('foto.bypass');
 
 // Deprecated (keamanan): jangan expose endpoint maintenance via GET/public.
 
