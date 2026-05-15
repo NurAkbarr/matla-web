@@ -257,7 +257,7 @@
     <script>
         // ===== Sidebar Toggle (Mobile) =====
         function openSidebar() {
-            var sidebar = document.getElementById('main-sidebar');
+            var sidebar = document.getElementById('sidebar');
             var overlay = document.getElementById('sidebar-overlay');
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.add('translate-x-0', 'shadow-2xl');
@@ -265,7 +265,7 @@
         }
 
         function closeSidebar() {
-            var sidebar = document.getElementById('main-sidebar');
+            var sidebar = document.getElementById('sidebar');
             var overlay = document.getElementById('sidebar-overlay');
             sidebar.classList.add('-translate-x-full');
             sidebar.classList.remove('translate-x-0', 'shadow-2xl');
