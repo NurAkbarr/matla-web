@@ -88,6 +88,13 @@ Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_ma
         return back()->with('success', "Berhasil men-generate QR Token untuk $count mahasiswa lama!");
     })->middleware('throttle:5,1')->name('maintenance.fix_qr_tokens');
 
+    Route::post('/reset-mahasiswa-password', function () {
+        $count = \App\Models\User::where('role', 'mahasiswa')->update([
+            'password' => \Illuminate\Support\Facades\Hash::make('password123')
+        ]);
+        return back()->with('success', "Berhasil me-reset password untuk $count akun mahasiswa menjadi 'password123'!");
+    })->middleware('throttle:5,1')->name('maintenance.reset_password_mhs');
+
     Route::post('/clear-server-cache', function () {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
