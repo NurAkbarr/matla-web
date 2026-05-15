@@ -48,9 +48,14 @@
 <div class="py-12 bg-gray-50 min-h-screen flex items-center justify-center">
     <div class="container mx-auto px-4 lg:px-12 max-w-4xl">
         <div class="mb-6 flex justify-between items-center no-print">
-            <a href="{{ route('backend.admin.mahasiswa') }}" class="text-gray-500 hover:text-primary font-bold flex items-center space-x-2">
+            @php
+                $isMahasiswa = Auth::user()->role === 'mahasiswa';
+                $backUrl = $isMahasiswa ? route('backend.mahasiswa.dashboard') : route('backend.admin.mahasiswa');
+                $backText = $isMahasiswa ? 'Kembali ke Dashboard' : 'Kembali ke Manajemen Mahasiswa';
+            @endphp
+            <a href="{{ $backUrl }}" class="text-gray-500 hover:text-primary font-bold flex items-center space-x-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                <span>Kembali ke Manajemen Mahasiswa</span>
+                <span>{{ $backText }}</span>
             </a>
             <button id="downloadKtmBtn" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark">Unduh KTM (Gambar)</button>
         </div>
