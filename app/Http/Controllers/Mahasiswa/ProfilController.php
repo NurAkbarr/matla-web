@@ -41,12 +41,25 @@ class ProfilController extends Controller
         }
 
         if ($request->hasFile('foto')) {
-            if ($profil->foto && Storage::disk('public')->exists($profil->foto)) {
-                Storage::disk('public')->delete($profil->foto);
+            try {
+                // Pastikan direktori ada
+                if (!Storage::disk('public')->exists('profil')) {
+                    Storage::disk('public')->makeDirectory('profil');
+                }
+
+                if ($profil->foto && Storage::disk('public')->exists($profil->foto)) {
+                    Storage::disk('public')->delete($profil->foto);
+                }
+                
+                $file = $request->file('foto');
+                $filename = time() . '_' . $user->nim . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('profil', $filename, 'public');
+                
+                $profil->foto = $path;
+                $user->avatar = $path;
+            } catch (\Exception $e) {
+                return back()->with('error', 'Gagal mengupload foto: ' . $e->getMessage());
             }
-            $path = $request->file('foto')->store('profil', 'public');
-            $profil->foto = $path;
-            $user->avatar = $path;
         }
 
         $profil->tentang_saya = $request->tentang_saya;
