@@ -50,13 +50,25 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute()
     {
-        if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+        $path = $this->avatar;
+        if (!$path && $this->role === 'mahasiswa' && $this->profil) {
+            $path = $this->profil->foto;
         }
-        if ($this->role === 'mahasiswa' && $this->profil && $this->profil->foto) {
-            return asset('storage/' . $this->profil->foto);
+
+        if ($path) {
+            $fullPath = storage_path('app/public/' . $path);
+            if (file_exists($fullPath)) {
+                return url('/_foto/' . $path);
+            }
         }
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=059669&background=ECFDF5&bold=true';
+
+        $name = urlencode($this->name);
+        return "https://ui-avatars.com/api/?name={$name}&color=059669&background=ECFDF5&bold=true&size=256";
+    }
+
+    public function getFotoProfilAttribute()
+    {
+        return $this->avatar_url;
     }
 
     public function getStatusBadgeAttribute()
@@ -102,17 +114,6 @@ class User extends Authenticatable
     public function portofolio()
     {
         return $this->hasMany(PortofolioMahasiswa::class);
-    }
-
-    public function getFotoProfilAttribute()
-    {
-        if ($this->profil && $this->profil->foto) {
-            $path = $this->profil->foto;
-            // Gunakan jalur khusus bypass symlink
-            return url('/_foto/' . $path);
-        }
-        $name = urlencode($this->name);
-        return "https://ui-avatars.com/api/?name={$name}&color=059669&background=ECFDF5&bold=true&size=256";
     }
 
     public function getQrUrlAttribute()
