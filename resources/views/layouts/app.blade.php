@@ -102,19 +102,18 @@
                                     default => url('/'),
                                 };
                             @endphp
-                            <div class="hidden sm:flex items-center space-x-3">
-                            <div class="hidden sm:flex items-center space-x-3">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
                                 @if(Auth::user()->role === 'mahasiswa')
-                                    <!-- User Profile Dropdown -->
+                                    <!-- User Profile Dropdown (Consolidated for Desktop & Mobile) -->
                                     <div class="relative" x-data="{ open: false }">
-                                        <button @click="open = !open" class="flex items-center space-x-3 pl-3 border-l border-gray-100 outline-none group">
+                                        <button @click="open = !open" class="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-3 border-l border-gray-100 outline-none group">
                                             <div class="text-right hidden md:block">
                                                 <p class="text-sm font-bold text-gray-800 leading-tight group-hover:text-primary transition-colors">{{ Auth::user()->name }}</p>
                                                 <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{{ Auth::user()->role }}</p>
                                             </div>
                                             <div class="relative">
-                                                <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-50 shadow-sm group-hover:ring-primary/20 transition-all">
-                                                <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></div>
+                                                <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-emerald-50 shadow-sm group-hover:ring-primary/20 transition-all">
+                                                <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-emerald-500 border-2 border-white rounded-full"></div>
                                             </div>
                                         </button>
 
@@ -124,9 +123,6 @@
                                              x-transition:enter="transition ease-out duration-200"
                                              x-transition:enter-start="opacity-0 translate-y-1 scale-95"
                                              x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                             x-transition:leave="transition ease-in duration-150"
-                                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                                             x-transition:leave-end="opacity-0 translate-y-1 scale-95"
                                              class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden" x-cloak>
                                             
                                             <div class="p-4 bg-gray-50/50 border-b border-gray-50">
@@ -173,7 +169,7 @@
                         @endauth
 
                         
-                        <!-- Mobile Hamburger / Profile -->
+                        <!-- Mobile Hamburger -->
                         @if(!$isMahasiswa)
                             <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,10 +177,6 @@
                                     <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
-                        @else
-                            <a href="{{ route('mahasiswa.profil') }}" class="lg:hidden block p-1 bg-emerald-50 rounded-xl ring-2 ring-emerald-100">
-                                <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-8 h-8 rounded-lg object-cover">
-                            </a>
                         @endif
                     </div>
                 </div>
