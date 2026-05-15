@@ -103,15 +103,8 @@
                                 };
                             @endphp
                             <div class="hidden sm:flex items-center space-x-3">
-                                @if(request()->routeIs('backend.mahasiswa.dashboard'))
-                                    <!-- Notification -->
-                                    <button class="p-2 text-gray-400 hover:text-primary transition-colors relative">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                        </svg>
-                                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                                    </button>
-
+                            <div class="hidden sm:flex items-center space-x-3">
+                                @if(Auth::user()->role === 'mahasiswa')
                                     <!-- User Profile Dropdown -->
                                     <div class="relative" x-data="{ open: false }">
                                         <button @click="open = !open" class="flex items-center space-x-3 pl-3 border-l border-gray-100 outline-none group">
@@ -119,24 +112,47 @@
                                                 <p class="text-sm font-bold text-gray-800 leading-tight group-hover:text-primary transition-colors">{{ Auth::user()->name }}</p>
                                                 <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{{ Auth::user()->role }}</p>
                                             </div>
-                                            <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-10 h-10 rounded-xl object-cover ring-2 ring-emerald-50 shadow-sm group-hover:ring-primary/20 transition-all">
+                                            <div class="relative">
+                                                <img src="{{ Auth::user()->foto_profil }}" alt="Profile" class="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-50 shadow-sm group-hover:ring-primary/20 transition-all">
+                                                <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></div>
+                                            </div>
                                         </button>
 
                                         <!-- Dropdown Menu -->
-                                        <div x-show="open" @click.away="open = false" 
-                                             x-transition:enter="transition ease-out duration-100"
-                                             x-transition:enter-start="transform opacity-0 scale-95"
-                                             x-transition:enter-end="transform opacity-100 scale-100"
-                                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2">
-                                            <a href="{{ route('mahasiswa.profil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-primary font-medium">Profil Saya</a>
-                                            <div class="border-t border-gray-100 my-1"></div>
-                                            <form action="{{ route('logout') }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-bold">Keluar</button>
-                                            </form>
+                                        <div x-show="open" 
+                                             @click.away="open = false" 
+                                             x-transition:enter="transition ease-out duration-200"
+                                             x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                             x-transition:leave="transition ease-in duration-150"
+                                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                             x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                                             class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden" x-cloak>
+                                            
+                                            <div class="p-4 bg-gray-50/50 border-b border-gray-50">
+                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Akun Saya</p>
+                                                <p class="text-sm font-black text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                                            </div>
+
+                                            <div class="p-2">
+                                                <a href="{{ route('mahasiswa.profil') }}" class="flex items-center space-x-3 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-xl transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                                    <span>Edit Profil</span>
+                                                </a>
+                                                
+                                                <div class="h-px bg-gray-100 my-1 mx-2"></div>
+
+                                                <form action="{{ route('logout') }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                                        <span>Keluar Aplikasi</span>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                @else
+                                @elseif(request()->routeIs('backend.mahasiswa.dashboard'))
                                     <a href="{{ $dashboardRoute }}" class="px-6 py-2.5 bg-emerald-50 text-primary rounded-lg font-semibold hover:bg-emerald-100 transition-all">
                                         Dashboard
                                     </a>
