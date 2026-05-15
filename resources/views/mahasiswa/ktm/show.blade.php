@@ -4,10 +4,16 @@
 
 @php
     function getBase64Image($url) {
+        if (!$url) return '';
+        
+        // Pastikan pakai HTTPS
+        $url = str_replace('http://', 'https://', $url);
+        
         try {
             $context = stream_context_create([
                 'http' => [
-                    'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
+                    'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+                    'timeout' => 5
                 ],
                 'ssl' => [
                     'verify_peer' => false,
@@ -16,7 +22,9 @@
             ]);
             $image = @file_get_contents($url, false, $context);
             if ($image) {
-                return 'data:image/png;base64,' . base64_encode($image);
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->buffer($image);
+                return 'data:' . $mimeType . ';base64,' . base64_encode($image);
             }
         } catch (\Exception $e) {}
         return $url;
@@ -29,13 +37,19 @@
     // Avatar
     $fotoUrl = $user->foto_profil;
     $fotoBase64 = $fotoUrl;
-    if (str_starts_with($fotoUrl, 'http') && str_contains($fotoUrl, 'ui-avatars.com')) {
+
+    // Jika ini adalah URL (bukan path lokal)
+    if (str_starts_with($fotoUrl, 'http')) {
         $fotoBase64 = getBase64Image($fotoUrl);
-    } elseif ($user->profil && $user->profil->foto) {
-        $path = storage_path('app/public/' . $user->profil->foto);
-        if(file_exists($path)) {
-            $ext = pathinfo($path, PATHINFO_EXTENSION);
-            $fotoBase64 = 'data:image/' . ($ext ?: 'jpeg') . ';base64,' . base64_encode(file_get_contents($path));
+    } else {
+        // Cek file lokal di storage
+        $relativePath = $user->profil && $user->profil->foto ? $user->profil->foto : null;
+        if ($relativePath) {
+            $path = storage_path('app/public/' . $relativePath);
+            if(file_exists($path)) {
+                $ext = pathinfo($path, PATHINFO_EXTENSION);
+                $fotoBase64 = 'data:image/' . ($ext ?: 'jpeg') . ';base64,' . base64_encode(file_get_contents($path));
+            }
         }
     }
 
