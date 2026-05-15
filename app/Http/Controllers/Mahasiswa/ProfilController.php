@@ -28,6 +28,10 @@ class ProfilController extends Controller
             'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'current_password' => 'nullable|string',
             'new_password' => 'nullable|string|min:8|confirmed',
+        ], [
+            'foto.max' => 'Ukuran foto terlalu besar! Maksimal 2MB ya Akh.',
+            'foto.image' => 'File yang diupload harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.',
         ]);
 
         $user  = Auth::user();

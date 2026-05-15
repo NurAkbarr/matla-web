@@ -56,6 +56,13 @@
                         <script>
                             function previewImage(input) {
                                 if (input.files && input.files[0]) {
+                                    // Cek ukuran file (2MB = 2048 * 1024 bytes)
+                                    if (input.files[0].size > 2048 * 1024) {
+                                        alert('Ukuran foto terlalu besar! Maksimal 2MB ya Akh.');
+                                        input.value = ''; // Reset input
+                                        return;
+                                    }
+
                                     var reader = new FileReader();
                                     reader.onload = function(e) {
                                         document.getElementById('preview-foto').src = e.target.result;
