@@ -31,16 +31,21 @@ class ClassGroupController extends Controller
         if (auth()->check() && auth()->user()->role === 'super_admin') {
             $allGroups = ClassGroup::where('id', '!=', $group->id)->orderBy('name')->get();
             
-            $prodiName = $group->prodi ? $group->prodi->nama : null;
-            $availableStudents = \App\Models\User::where('role', 'mahasiswa')
-                ->where(function($query) use ($group, $prodiName) {
-                    $query->where('angkatan', '!=', $group->angkatan)
+            $activeGroups = ClassGroup::with('prodi')->get();
+            $availableQuery = \App\Models\User::where('role', 'mahasiswa');
+            
+            foreach ($activeGroups as $g) {
+                $prodiName = $g->prodi ? $g->prodi->nama : null;
+                if ($prodiName && $g->angkatan) {
+                    $availableQuery->where(function($q) use ($g, $prodiName) {
+                        $q->where('angkatan', '!=', $g->angkatan)
                           ->orWhere('education->program_studi', '!=', $prodiName)
                           ->orWhereNull('angkatan')
                           ->orWhereNull('education');
-                })
-                ->orderBy('name')
-                ->get();
+                    });
+                }
+            }
+            $availableStudents = $availableQuery->orderBy('name')->get();
         }
 
         return view('backend.class-groups.show', compact('group', 'students', 'availableStudents', 'allGroups'));
