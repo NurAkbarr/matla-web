@@ -110,7 +110,9 @@
                         <a href="{{ route('backend.admin.rekap-honor.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.rekap-honor.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Rekap Honor Dosen</a>
                         <a href="{{ route('backend.admin.program-studi.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.program-studi.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Program Studi</a>
                         <a href="{{ route('backend.admin.mata-kuliah.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.mata-kuliah.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Mata Kuliah</a>
-                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Kelas</a>
+                        <a href="{{ route('backend.admin.jadwal.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.jadwal.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Jadwal Matkul</a>
+                        <a href="{{ route('backend.admin.kelompok-kelas.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.kelompok-kelas.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Kelompok Kelas</a>
+                        <a href="{{ route('backend.admin.assignments.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.assignments.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Tugas MHS</a>
                     </div>
                 </div>
 

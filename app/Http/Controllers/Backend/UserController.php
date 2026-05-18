@@ -79,6 +79,15 @@ class UserController extends Controller
             $user->save();
         }
 
+        // Auto-synchronize class groups if a new student is added
+        if ($user->role === 'mahasiswa') {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('classgroup:sync');
+            } catch (\Exception $e) {
+                // Ignore failure
+            }
+        }
+
         return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
@@ -134,6 +143,15 @@ class UserController extends Controller
         $education['program_studi'] = $request->program_studi;
         $user->education = $education;
         $user->save();
+
+        // Auto-synchronize class groups on student update
+        if ($user->role === 'mahasiswa') {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('classgroup:sync');
+            } catch (\Exception $e) {
+                // Ignore failure
+            }
+        }
 
         return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil diperbarui.');
     }

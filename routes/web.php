@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProgramStudiController;
 use App\Http\Controllers\Backend\AffiliateController;
+use App\Http\Controllers\Backend\ClassGroupController;
 
 
 
@@ -144,11 +145,24 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/elearning/pertemuan/{pertemuan}', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'showPertemuan'])->name('elearning.pertemuan');
     Route::post('/elearning/pertemuan/{pertemuan}/log', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'updateLogTontonan'])->name('elearning.log');
     Route::post('/elearning/pertemuan/{pertemuan}/evaluasi', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'submitEvaluasi'])->name('elearning.evaluasi');
+    
+    // Tugas MHS
+    Route::get('/tugas', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'index'])->name('assignments.index');
+    Route::get('/tugas/{assignment}', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'show'])->name('assignments.show');
+    Route::post('/tugas/{assignment}/submit', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'submit'])->name('assignments.submit');
 });
 
 // Backend Routes
 Route::prefix('backend')->name('backend.')->middleware('auth')->group(function () {
     
+    // Tugas MHS (Shared Admin & Dosen)
+    Route::middleware(['role:super_admin,admin,dosen'])->group(function() {
+        Route::resource('/admin/assignments', \App\Http\Controllers\Backend\AssignmentController::class, [
+            'names' => 'admin.assignments',
+        ])->except(['edit', 'update']);
+        Route::post('/admin/submissions/{submission}/grade', [\App\Http\Controllers\Backend\AssignmentController::class, 'grade'])->name('admin.assignments.grade');
+    });
+ 
     // Admin & Super Admin Area
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
@@ -209,6 +223,10 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         // Nilai Management (Admin)
         Route::post('/admin/jadwal/{jadwal}/unlock', [\App\Http\Controllers\Backend\NilaiController::class, 'unlock'])->name('admin.jadwal.unlock');
 
+        // Kelompok Kelas Management
+        Route::get('/admin/kelompok-kelas', [ClassGroupController::class, 'index'])->name('admin.kelompok-kelas.index');
+        Route::post('/admin/kelompok-kelas/sync', [ClassGroupController::class, 'sync'])->name('admin.kelompok-kelas.sync');
+        Route::get('/admin/kelompok-kelas/{group}', [ClassGroupController::class, 'show'])->name('admin.kelompok-kelas.show');
         // Rekap Honor Dosen
         Route::get('/admin/rekap-honor', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'adminIndex'])->name('admin.rekap-honor.index');
         Route::get('/admin/rekap-honor/export', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'exportExcel'])->name('admin.rekap-honor.export');

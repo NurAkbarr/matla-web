@@ -237,6 +237,13 @@ class DashboardController extends Controller
         }
         fclose($fileHandle);
 
+        // Auto-synchronize class groups on successful import
+        try {
+            \Illuminate\Support\Facades\Artisan::call('classgroup:sync');
+        } catch (\Exception $e) {
+            // Keep going if anything goes wrong with artisan call
+        }
+
         return redirect()->back()->with('success', "$count data mahasiswa berhasil di-import/diperbarui.");
     }
 
