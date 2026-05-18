@@ -181,7 +181,6 @@
             </table>
         </div>
     </div>
-</div>
 
 @if(Auth::user()->role === 'super_admin')
     <style>
@@ -269,6 +268,7 @@
         </div>
     </div>
 @endif
+</div>
 
 <style>
     @keyframes fadeIn {
