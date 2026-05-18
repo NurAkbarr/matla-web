@@ -227,6 +227,8 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/admin/kelompok-kelas', [ClassGroupController::class, 'index'])->name('admin.kelompok-kelas.index');
         Route::post('/admin/kelompok-kelas/sync', [ClassGroupController::class, 'sync'])->name('admin.kelompok-kelas.sync');
         Route::get('/admin/kelompok-kelas/{group}', [ClassGroupController::class, 'show'])->name('admin.kelompok-kelas.show');
+        Route::post('/admin/kelompok-kelas/{group}/add-student', [ClassGroupController::class, 'addStudent'])->middleware('role:super_admin')->name('admin.kelompok-kelas.add-student');
+        Route::post('/admin/kelompok-kelas/{group}/move-student', [ClassGroupController::class, 'moveStudent'])->middleware('role:super_admin')->name('admin.kelompok-kelas.move-student');
         // Rekap Honor Dosen
         Route::get('/admin/rekap-honor', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'adminIndex'])->name('admin.rekap-honor.index');
         Route::get('/admin/rekap-honor/export', [\App\Http\Controllers\Backend\PresensiDosenController::class, 'exportExcel'])->name('admin.rekap-honor.export');

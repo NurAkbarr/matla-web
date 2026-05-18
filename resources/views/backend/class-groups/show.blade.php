@@ -4,7 +4,7 @@
 @section('breadcrumb', 'Akademik / Kelompok Kelas / Detail')
 
 @section('content')
-<div class="space-y-6 animate-[fadeIn_0.4s_ease-out]">
+<div class="space-y-6 animate-[fadeIn_0.4s_ease-out]" x-data="{ addStudentModal: false, moveStudentModal: false, selectedStudentId: '', selectedStudentName: '' }">
     <!-- Back Navigation and Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center space-x-3.5">
@@ -23,6 +23,14 @@
             <span class="inline-flex items-center px-3.5 py-1.5 bg-emerald-50 text-primary border border-primary/10 rounded-xl text-xs font-extrabold shadow-sm">
                 {{ count($students) }} Mahasiswa Terdaftar
             </span>
+            @if(Auth::user()->role === 'super_admin')
+                <button @click="addStudentModal = true" class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-primary/20 active:scale-95">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Tambah Mahasiswa
+                </button>
+            @endif
         </div>
     </div>
 
@@ -137,6 +145,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
                                     </svg>
                                 </a>
+                                @if(Auth::user()->role === 'super_admin')
+                                    <button @click="moveStudentModal = true; selectedStudentId = '{{ $student->id }}'; selectedStudentName = '{{ $student->name }}'" class="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all shadow-sm active:scale-95" title="Pindahkan Kelas">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                        </svg>
+                                    </button>
+                                @endif
                                 <a href="{{ route('backend.admin.users.edit', $student) }}" class="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all" title="Edit Data">
                                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -167,6 +182,93 @@
         </div>
     </div>
 </div>
+
+@if(Auth::user()->role === 'super_admin')
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+
+    <!-- Modal Tambah Mahasiswa -->
+    <div x-show="addStudentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="addStudentModal = false"></div>
+        <div class="relative bg-white w-full max-w-lg rounded-2xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800">Tambah Mahasiswa ke Kelas</h3>
+                <button @click="addStudentModal = false" class="p-1 text-slate-400 hover:text-rose-500 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <form action="{{ route('backend.admin.kelompok-kelas.add-student', $group) }}" method="POST" class="space-y-4">
+                @csrf
+                <div class="space-y-1.5">
+                    <label for="student_id" class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Pilih Mahasiswa</label>
+                    <select name="student_id" id="student_id" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-xl text-sm text-slate-700 font-medium transition-all outline-none">
+                        <option value="">-- Pilih Mahasiswa --</option>
+                        @foreach($availableStudents as $availStudent)
+                            <option value="{{ $availStudent->id }}">
+                                {{ $availStudent->name }} (Angkatan: {{ $availStudent->angkatan ?? '-' }}, Prodi: {{ $availStudent->education['program_studi'] ?? '-' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+                    <button type="button" @click="addStudentModal = false" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl text-xs font-bold transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-primary/10">
+                        Masukkan ke Kelas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Pindahkan Mahasiswa -->
+    <div x-show="moveStudentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="moveStudentModal = false"></div>
+        <div class="relative bg-white w-full max-w-lg rounded-2xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800">Pindahkan Mahasiswa</h3>
+                <button @click="moveStudentModal = false" class="p-1 text-slate-400 hover:text-rose-500 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <form action="{{ route('backend.admin.kelompok-kelas.move-student', $group) }}" method="POST" class="space-y-4">
+                @csrf
+                <input type="hidden" name="student_id" :value="selectedStudentId">
+                
+                <div class="space-y-1 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Nama Mahasiswa</span>
+                    <span class="text-sm font-bold text-slate-800" x-text="selectedStudentName"></span>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="target_class_group_id" class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Pilih Kelas Baru</label>
+                    <select name="target_class_group_id" id="target_class_group_id" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-xl text-sm text-slate-700 font-medium transition-all outline-none">
+                        <option value="">-- Pilih Kelas Tujuan --</option>
+                        @foreach($allGroups as $g)
+                            <option value="{{ $g->id }}">
+                                {{ $g->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+                    <button type="button" @click="moveStudentModal = false" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl text-xs font-bold transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-500/10">
+                        Pindahkan Kelas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
 
 <style>
     @keyframes fadeIn {
