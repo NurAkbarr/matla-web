@@ -148,11 +148,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                @elseif(request()->routeIs('backend.mahasiswa.dashboard'))
+                                @else
                                     <a href="{{ $dashboardRoute }}" class="px-6 py-2.5 bg-emerald-50 text-primary rounded-lg font-semibold hover:bg-emerald-100 transition-all">
                                         Dashboard
                                     </a>
-                                    <form action="{{ route('logout') }}" method="POST">
+                                    <form action="{{ route('logout') }}" method="POST" class="inline">
                                         @csrf
                                         <button type="submit" class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Logout">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
