@@ -167,6 +167,40 @@
             </div>
         </div>
 
+        @if($pendingAssignments->count() > 0)
+        <!-- Pending Assignments Reminder -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 tracking-tight">Perlu kamu kerjakan</h2>
+                    <p class="text-sm font-medium text-gray-500 mt-1">Ada tugas atau kuis yang belum dikerjakan</p>
+                </div>
+                <a href="{{ route('mahasiswa.assignments.index') }}" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-bold rounded-full hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Semua</a>
+            </div>
+            
+            <div class="space-y-4">
+                @foreach($pendingAssignments as $assignment)
+                    <div class="bg-white rounded-[2rem] p-5 shadow-sm border border-emerald-50 flex items-center justify-between hover:border-emerald-200 hover:shadow-md transition-all group">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{{ $assignment->title }}</h3>
+                                <p class="text-sm font-medium text-gray-500 mt-0.5">Batas waktu: {{ $assignment->due_date->translatedFormat('d M Y H:i') }} WIB</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('mahasiswa.assignments.show', $assignment) }}" class="p-2 text-gray-400 hover:text-emerald-600 bg-gray-50 hover:bg-emerald-50 rounded-xl transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <!-- Menu Akademik Section -->
         <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 mb-8">
             <div class="flex items-center justify-between mb-8">
@@ -206,16 +240,6 @@
                     </div>
                     <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Tagihan UKT</span>
                 </div>
- 
-                <!-- Tugas MHS -->
-                <a href="{{ route('mahasiswa.assignments.index') }}" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                        </svg>
-                    </div>
-                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Tugas MHS</span>
-                </a>
             </div>
         </div>
 

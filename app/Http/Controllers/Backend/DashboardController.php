@@ -69,16 +69,29 @@ class DashboardController extends Controller
             return strtolower($jadwal->hari) === strtolower($hariIni);
         });
 
-        // Hitung tugas yang belum selesai dari pertemuan video ganjil
+        // Fetch pending assignments from the new Tugas MHS system
+        $prodiName = $user->education['program_studi'] ?? null;
+        $angkatan = $user->angkatan;
+        $pendingAssignments = collect();
         $pendingTasks = 0;
-        foreach ($enrolledSchedules as $jadwal) {
-            foreach ($jadwal->pertemuans as $pertemuan) {
-                if ($pertemuan->tipe_pertemuan == 'video' && $pertemuan->soal_evaluasi) {
-                    $hasEvaluated = \App\Models\JawabanEvaluasi::where('mahasiswa_id', $user->id)
-                                    ->where('pertemuan_id', $pertemuan->id)->exists();
-                    if (!$hasEvaluated) {
-                        $pendingTasks++;
-                    }
+        
+        if ($prodiName && $angkatan) {
+            $prodi = \App\Models\ProgramStudi::where('nama', $prodiName)->first() 
+                ?? \App\Models\ProgramStudi::where('singkatan', $prodiName)->first();
+            
+            if ($prodi) {
+                $classGroup = \App\Models\ClassGroup::where('prodi_id', $prodi->id)
+                    ->where('angkatan', $angkatan)
+                    ->first();
+                    
+                if ($classGroup) {
+                    $allAssignments = \App\Models\Assignment::where('class_group_id', $classGroup->id)->get();
+                    $submittedAssignmentIds = \App\Models\AssignmentSubmission::where('student_id', $user->id)->pluck('assignment_id')->toArray();
+                    
+                    $pendingAssignments = $allAssignments->filter(function($assignment) use ($submittedAssignmentIds) {
+                        return !in_array($assignment->id, $submittedAssignmentIds) && now()->lte($assignment->due_date);
+                    });
+                    $pendingTasks = $pendingAssignments->count();
                 }
             }
         }
@@ -94,6 +107,7 @@ class DashboardController extends Controller
             'totalMataKuliah', 
             'jadwalHariIni',
             'pendingTasks',
+            'pendingAssignments',
             'announcements'
         ));
     }
