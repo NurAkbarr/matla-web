@@ -151,6 +151,9 @@
                 @endif
  
                 {{-- Form submission / resubmission --}}
+                @php
+                    $isOverdue = now()->gt($assignment->due_date);
+                @endphp
                 @if($submission && $submission->score !== null)
                     {{-- Finalized: Graded tugas can't be modified anymore --}}
                     <div class="bg-slate-100 rounded-[2rem] p-6 text-center border border-slate-200">
