@@ -201,24 +201,26 @@
                 @else
                     @if($assignment->link && !$assignment->file_path)
                         {{-- Auto Submit Only / External Link Task --}}
-                        <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4 text-center">
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">Tugas Eksternal</h3>
-                            
-                            <div class="py-4">
-                                <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                        @if(!$submission)
+                            <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4 text-center">
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">Tugas Eksternal</h3>
+                                
+                                <div class="py-4">
+                                    <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                    </div>
+                                    <p class="text-sm font-bold text-gray-800">Kerjakan Melalui Tautan Eksternal</p>
+                                    <p class="text-xs font-medium text-gray-500 mt-2 px-4">Tugas ini dikerjakan melalui platform eksternal. Klik tombol di bawah ini, dan sistem akan otomatis merekam bahwa Anda telah mengerjakannya.</p>
                                 </div>
-                                <p class="text-sm font-bold text-gray-800">Kerjakan Melalui Tautan Eksternal</p>
-                                <p class="text-xs font-medium text-gray-500 mt-2 px-4">Tugas ini dikerjakan melalui platform eksternal. Klik tombol di bawah ini, dan sistem akan otomatis merekam bahwa Anda telah mengerjakannya.</p>
-                            </div>
 
-                            <form action="{{ route('mahasiswa.assignments.auto-submit', $assignment) }}" method="POST" target="_blank" onsubmit="setTimeout(() => window.location.reload(), 1000)">
-                                @csrf
-                                <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-emerald-600/20">
-                                    Kerjakan Sekarang
-                                </button>
-                            </form>
-                        </div>
+                                <form action="{{ route('mahasiswa.assignments.auto-submit', $assignment) }}" method="POST" target="_blank" onsubmit="setTimeout(() => window.location.reload(), 1000)">
+                                    @csrf
+                                    <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-emerald-600/20">
+                                        Kerjakan Sekarang
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                     @else
                         {{-- Form active (Submit or Resubmit) --}}
                         <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4">
