@@ -21,102 +21,68 @@
             </a>
         </div>
  
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {{-- Column Left: Assignment detail & Instructions (2 Cols) --}}
-            <div class="lg:col-span-2 space-y-8">
-                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
-                    <div class="flex items-center justify-between border-b border-gray-50 pb-6 mb-6">
-                        <div>
-                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-wider">TUGAS KULIAH</span>
-                            <h1 class="text-xl md:text-2xl font-black text-gray-900 mt-2 leading-snug">{{ $assignment->title }}</h1>
-                        </div>
-                        <div class="text-right hidden md:block">
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Dibuat Oleh</p>
-                            <p class="text-sm font-black text-gray-800 mt-1">{{ $assignment->creator->name }}</p>
-                        </div>
+        <div class="max-w-3xl mx-auto space-y-6">
+            {{-- "Informasi Tugas" Card --}}
+            <div class="bg-white rounded-[1.5rem] p-6 md:p-8 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
+                    <h2 class="text-sm font-semibold text-gray-900">Informasi Tugas</h2>
+                    <span class="flex items-center px-3 py-1 bg-white border border-gray-200 rounded-full text-[11px] font-bold text-gray-700">
+                        <span class="w-2 h-2 rounded-full bg-purple-600 mr-2"></span>
+                        Tugas Individu
+                    </span>
+                </div>
+                
+                <h1 class="text-[22px] text-gray-900 mb-6" style="font-weight: 500;">{{ $assignment->title }}</h1>
+
+                <div class="space-y-5">
+                    <div>
+                        <p class="text-[13px] text-gray-500 mb-0.5">Batas pengumpulan</p>
+                        <p class="text-[15px] text-gray-900">{{ $assignment->due_date->translatedFormat('d F Y, H:i') }}</p>
                     </div>
- 
-                    {{-- Instructions Box --}}
-                    <div class="space-y-4">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Deskripsi / Petunjuk Pengerjaan</h3>
-                        @if($assignment->description)
-                            <div class="text-gray-600 font-medium text-sm leading-relaxed whitespace-pre-line bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
-                                {{ $assignment->description }}
+
+                    <div>
+                        <p class="text-[13px] text-gray-500 mb-0.5">Deskripsi</p>
+                        <div class="text-gray-900 text-[15px] leading-relaxed whitespace-pre-line" x-data="{ expanded: false }">
+                            <div :class="expanded ? '' : 'line-clamp-2'">
+                                {{ $assignment->description ?: 'Tidak ada deskripsi.' }}
                             </div>
-                        @else
-                            <p class="text-gray-400 text-sm italic">Tidak ada deskripsi tertulis tambahan.</p>
-                        @endif
+                            @if(strlen($assignment->description) > 100)
+                                <button @click="expanded = !expanded" class="text-blue-600 hover:underline mt-1 text-[13px]" x-text="expanded ? 'Sembunyikan' : 'Lihat Selengkapnya'"></button>
+                            @endif
+                        </div>
                     </div>
- 
-                    {{-- Attachments provided by lecturer --}}
+
                     @if($assignment->file_path || $assignment->link)
-                        <div class="mt-8 pt-6 border-t border-gray-50 space-y-4">
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Lampiran & Referensi Dosen</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                @if($assignment->file_path)
-                                    <a href="{{ route('foto.bypass', ['path' => $assignment->file_path]) }}" target="_blank" class="flex items-center p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl hover:bg-emerald-50 transition-colors group">
-                                        <div class="p-3 bg-emerald-500 text-white rounded-xl mr-4 group-hover:scale-110 transition-transform">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider leading-none">Unduh Panduan</p>
-                                            <p class="text-xs font-black text-gray-700 mt-1 truncate">{{ basename($assignment->file_path) }}</p>
-                                        </div>
-                                    </a>
-                                @endif
-                                @if($assignment->link)
-                                    <a href="{{ $assignment->link }}" target="_blank" class="flex items-center p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl hover:bg-indigo-50 transition-colors group">
-                                        <div class="p-3 bg-indigo-500 text-white rounded-xl mr-4 group-hover:scale-110 transition-transform">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                            </svg>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <p class="text-xs font-bold text-indigo-800 uppercase tracking-wider leading-none">Buka Tautan / Form</p>
-                                            <p class="text-xs font-black text-gray-700 mt-1 truncate">{{ $assignment->link }}</p>
-                                        </div>
-                                    </a>
-                                @endif
-                            </div>
+                    <div>
+                        <p class="text-[13px] text-gray-500 mb-2">Lampiran</p>
+                        <div class="flex flex-col gap-3">
+                            @if($assignment->file_path)
+                                <a href="{{ route('foto.bypass', ['path' => $assignment->file_path]) }}" target="_blank" class="flex items-center p-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
+                                    <div class="w-12 h-12 bg-red-600 text-white rounded-[10px] flex items-center justify-center font-black text-xs mr-4 shrink-0 shadow-sm">
+                                        PDF
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-[14px] font-medium text-gray-900 truncate">{{ basename($assignment->file_path) }}</p>
+                                        <p class="text-[12px] text-gray-500 mt-0.5">Berkas Referensi</p>
+                                    </div>
+                                </a>
+                            @endif
+                            @if($assignment->link)
+                                <a href="{{ $assignment->link }}" target="_blank" class="flex items-center p-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
+                                    <div class="w-12 h-12 bg-indigo-600 text-white rounded-[10px] flex items-center justify-center font-black text-xs mr-4 shrink-0 shadow-sm">
+                                        LINK
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-[14px] font-medium text-gray-900 truncate">{{ $assignment->link }}</p>
+                                        <p class="text-[12px] text-gray-500 mt-0.5">Tautan / Form Eksternal</p>
+                                    </div>
+                                </a>
+                            @endif
                         </div>
+                    </div>
                     @endif
                 </div>
             </div>
- 
-            {{-- Column Right: Submission card, grades & forms (1 Col) --}}
-            <div class="space-y-8">
-                {{-- Deadlines summary card --}}
-                <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Informasi Batas Waktu</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="p-2 bg-slate-50 rounded-xl text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none">Batas Waktu Pengumpulan</p>
-                                <p class="text-xs font-bold text-gray-700 mt-1">{{ $assignment->due_date->translatedFormat('d M Y, H:i') }} WIB</p>
-                            </div>
-                        </div>
-                        
-                        @php
-                            $isOverdue = now()->gt($assignment->due_date);
-                        @endphp
-                        <div class="flex items-start space-x-3">
-                            <div class="p-2 bg-{{ $isOverdue ? 'rose' : 'emerald' }}-50 rounded-xl text-{{ $isOverdue ? 'rose' : 'emerald' }}-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none">Status Tenggat</p>
-                                <p class="text-xs font-black text-{{ $isOverdue ? 'rose-500' : 'emerald-600' }} uppercase mt-1">
-                                    {{ $isOverdue ? 'Batas Waktu Habis' : 'Sedang Berlangsung' }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
  
                 {{-- Grading Results / Feedback if graded --}}
                 @if($submission && $submission->score !== null)
