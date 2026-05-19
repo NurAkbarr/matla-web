@@ -50,11 +50,6 @@
             <textarea name="deskripsi" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">{{ old('deskripsi', $pertemuan->deskripsi) }}</textarea>
         </div>
 
-        <div class="mb-8" id="soal_evaluasi_container">
-            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Soal Evaluasi / Kuis</label>
-            <textarea name="soal_evaluasi" rows="3" class="w-full bg-indigo-50/50 border border-indigo-100 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">{{ old('soal_evaluasi', $pertemuan->soal_evaluasi) }}</textarea>
-        </div>
-
         <div class="flex items-center justify-end space-x-4 border-t border-gray-50 pt-6">
             <a href="{{ route('backend.admin.jadwal.pertemuan.index', $jadwal->id) }}" class="px-6 py-3 text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors uppercase tracking-widest">Batal</a>
             <button type="submit" class="px-8 py-3 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
@@ -63,22 +58,4 @@
         </div>
     </form>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tipeSelect = document.getElementById('tipe_pertemuan');
-        const soalContainer = document.getElementById('soal_evaluasi_container');
-
-        function toggleSoal() {
-            if (tipeSelect.value === 'video') {
-                soalContainer.style.display = 'block';
-            } else {
-                soalContainer.style.display = 'none';
-            }
-        }
-
-        tipeSelect.addEventListener('change', toggleSoal);
-        toggleSoal();
-    });
-</script>
 @endsection

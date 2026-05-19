@@ -28,7 +28,6 @@ class AdminPertemuanController extends Controller
             'tipe_pertemuan' => 'required|in:video,zoom',
             'link_url' => 'nullable|url',
             'deskripsi' => 'nullable|string',
-            'soal_evaluasi' => 'nullable|string|required_if:tipe_pertemuan,video',
         ]);
 
         $jadwal->pertemuans()->create($request->all());
@@ -50,7 +49,6 @@ class AdminPertemuanController extends Controller
             'tipe_pertemuan' => 'required|in:video,zoom',
             'link_url' => 'nullable|url',
             'deskripsi' => 'nullable|string',
-            'soal_evaluasi' => 'nullable|string|required_if:tipe_pertemuan,video',
         ]);
 
         $pertemuan->update($request->all());
