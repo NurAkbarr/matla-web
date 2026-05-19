@@ -85,13 +85,24 @@ class DashboardController extends Controller
                     ->first();
                     
                 if ($classGroup) {
-                    $allAssignments = \App\Models\Assignment::where('class_group_id', $classGroup->id)->get();
-                    $submittedAssignmentIds = \App\Models\AssignmentSubmission::where('student_id', $user->id)->pluck('assignment_id')->toArray();
+                    $allAssignments = \App\Models\Assignment::where('class_group_id', $classGroup->id)
+                        ->with(['creator'])
+                        ->latest()
+                        ->get();
+                        
+                    $submissions = \App\Models\AssignmentSubmission::where('student_id', $user->id)
+                        ->whereIn('assignment_id', $allAssignments->pluck('id'))
+                        ->get()
+                        ->keyBy('assignment_id');
+                        
+                    foreach ($allAssignments as $assignment) {
+                        $assignment->submission = $submissions->get($assignment->id);
+                    }
                     
-                    $pendingAssignments = $allAssignments->filter(function($assignment) use ($submittedAssignmentIds) {
-                        return !in_array($assignment->id, $submittedAssignmentIds) && now()->lte($assignment->due_date);
-                    });
-                    $pendingTasks = $pendingAssignments->count();
+                    $pendingAssignments = $allAssignments;
+                    $pendingTasks = $allAssignments->filter(function($a) {
+                        return !$a->submission && now()->lte($a->due_date);
+                    })->count();
                 }
             }
         }

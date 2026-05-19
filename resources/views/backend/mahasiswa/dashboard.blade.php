@@ -172,14 +172,24 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900 tracking-tight">Perlu kamu kerjakan</h2>
-                    <p class="text-sm font-medium text-gray-500 mt-1">Ada tugas atau kuis yang belum dikerjakan</p>
+                    <h2 class="text-xl font-bold text-gray-900 tracking-tight">Tugas Kuliah</h2>
+                    <p class="text-sm font-medium text-gray-500 mt-1">
+                        @if($pendingTasks > 0)
+                            Ada <span class="font-extrabold text-amber-600">{{ $pendingTasks }}</span> tugas atau kuis yang belum dikerjakan
+                        @else
+                            Semua tugas telah diselesaikan dengan baik! 🎉
+                        @endif
+                    </p>
                 </div>
                 <a href="{{ route('mahasiswa.assignments.index') }}" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-bold rounded-full hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Semua</a>
             </div>
             
             <div class="space-y-4">
                 @foreach($pendingAssignments as $assignment)
+                    @php
+                        $sub = $assignment->submission;
+                        $isOverdue = now()->gt($assignment->due_date);
+                    @endphp
                     <div class="bg-white rounded-[2rem] p-5 shadow-sm border border-emerald-50 flex items-center justify-between hover:border-emerald-200 hover:shadow-md transition-all group">
                         <div class="flex items-center space-x-4">
                             <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
@@ -189,7 +199,17 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{{ $assignment->title }}</h3>
-                                <p class="text-sm font-medium text-gray-500 mt-0.5">Batas waktu: {{ $assignment->due_date->translatedFormat('d M Y H:i') }} WIB</p>
+                                <div class="flex flex-wrap items-center gap-2 mt-1">
+                                    <p class="text-xs font-medium text-gray-500">Batas waktu: {{ $assignment->due_date->translatedFormat('d M Y H:i') }} WIB</p>
+                                    <span class="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+                                    @if($sub)
+                                        <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-md text-[9px] font-black uppercase">Telah Dikerjakan</span>
+                                    @elseif($isOverdue)
+                                        <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-100 rounded-md text-[9px] font-black uppercase">Batas Waktu Habis</span>
+                                    @else
+                                        <span class="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-md text-[9px] font-black uppercase">Belum Dikerjakan</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         <a href="{{ route('mahasiswa.assignments.show', $assignment) }}" class="p-2 text-gray-400 hover:text-emerald-600 bg-gray-50 hover:bg-emerald-50 rounded-xl transition-colors">
