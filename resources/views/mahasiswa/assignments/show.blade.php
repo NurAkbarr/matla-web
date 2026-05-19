@@ -87,7 +87,7 @@
                 {{-- Unified Graded / Submitted Info Card --}}
                 @if($submission)
                     @php
-                        $otherCount = $assignment->submissions()->where('user_id', '!=', auth()->id())->count();
+                        $otherCount = $assignment->submissions()->where('student_id', '!=', auth()->id())->count();
                     @endphp
                     <div class="bg-emerald-50 text-emerald-900 border border-emerald-100 rounded-[1.5rem] p-4 text-center text-sm font-semibold mb-6">
                         Tugas mu sudah dikumpulkan bersama <span class="font-extrabold text-emerald-700">{{ $otherCount }}</span> mahasiswa lainnya! 🎉
