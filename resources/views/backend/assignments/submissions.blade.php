@@ -105,21 +105,30 @@
                             <td class="px-8 py-5">
                                 @if($sub)
                                     <div class="space-y-1.5">
-                                        @if($sub->submitted_file_path)
-                                            <a href="{{ route('foto.bypass', ['path' => $sub->submitted_file_path]) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
-                                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                Unduh Jawaban Berkas
-                                            </a>
-                                        @endif
-                                        @if($sub->submitted_link)
-                                            <a href="{{ $sub->submitted_link }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700">
-                                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                                </svg>
-                                                Tautan Jawaban Eksternal
-                                            </a>
+                                        @if($assignment->submission_type === 'external')
+                                            {{-- External: no file/link collected, just show badge --}}
+                                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                                Dikerjakan via Tautan Eksternal
+                                            </span>
+                                            <div class="text-[10px] text-slate-400 font-medium italic">— Jawaban dikerjakan di luar sistem</div>
+                                        @else
+                                            @if($sub->submitted_file_path)
+                                                <a href="{{ route('foto.bypass', ['path' => $sub->submitted_file_path]) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
+                                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    Unduh Jawaban Berkas
+                                                </a>
+                                            @endif
+                                            @if($sub->submitted_link)
+                                                <a href="{{ $sub->submitted_link }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700">
+                                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                    </svg>
+                                                    Buka Tautan Jawaban
+                                                </a>
+                                            @endif
                                         @endif
                                         @if($sub->notes)
                                             <div class="text-xs text-slate-500 font-medium italic mt-1 max-w-xs truncate" title="{{ $sub->notes }}">
@@ -128,7 +137,7 @@
                                         @endif
                                     </div>
                                 @else
-                                    <span class="text-slate-300 font-bold text-xs">-</span>
+                                    <span class="text-slate-300 font-bold text-xs">—</span>
                                 @endif
                             </td>
                             <td class="px-8 py-5">

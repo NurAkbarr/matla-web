@@ -11,10 +11,22 @@ class ClassGroupController extends Controller
     /**
      * Display a listing of the class groups.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $groups = ClassGroup::orderBy('name')->paginate(15);
-        return view('backend.class-groups.index', compact('groups'));
+        $prodiId = $request->get('prodi');
+
+        $query = ClassGroup::with('prodi')->orderBy('name');
+
+        if ($prodiId) {
+            $query->where('prodi_id', $prodiId);
+        }
+
+        $groups = $query->paginate(15)->withQueryString();
+
+        // Get all unique prodis that have class groups, for tab rendering
+        $prodis = \App\Models\ProgramStudi::whereHas('classGroups')->orderBy('singkatan')->get();
+
+        return view('backend.class-groups.index', compact('groups', 'prodis', 'prodiId'));
     }
 
     /**

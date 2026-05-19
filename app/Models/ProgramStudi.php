@@ -29,4 +29,9 @@ class ProgramStudi extends Model
     {
         return $query->where('is_active', true)->orderBy('urutan')->orderBy('nama');
     }
+
+    public function classGroups()
+    {
+        return $this->hasMany(ClassGroup::class, 'prodi_id');
+    }
 }

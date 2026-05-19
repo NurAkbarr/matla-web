@@ -48,7 +48,8 @@ class AssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'file_attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB max
-            'link' => 'nullable|url|max:255',
+            'submission_type' => 'required|in:file,link,external',
+            'link' => 'required_unless:submission_type,file|nullable|url|max:255',
             'due_date' => 'required|date|after:now',
         ]);
  
@@ -67,6 +68,7 @@ class AssignmentController extends Controller
             'description' => $request->description,
             'file_path' => $filePath,
             'link' => $request->link,
+            'submission_type' => $request->submission_type,
             'due_date' => $request->due_date,
             'created_by' => Auth::id(),
         ]);

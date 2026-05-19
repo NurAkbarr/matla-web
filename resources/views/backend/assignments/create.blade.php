@@ -22,7 +22,7 @@
         <form action="{{ route('backend.admin.assignments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {{-- Kelompok Kelas --}}
                 <div class="space-y-2">
                     <label for="class_group_id" class="text-sm font-bold text-slate-700">Target Kelompok Kelas <span class="text-rose-500">*</span></label>
@@ -42,6 +42,26 @@
                         </div>
                     </div>
                     @error('class_group_id')
+                        <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Tipe Pengumpulan --}}
+                <div class="space-y-2">
+                    <label for="submission_type" class="text-sm font-bold text-slate-700">Tipe Pengumpulan <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <select name="submission_type" id="submission_type" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none appearance-none">
+                            <option value="file" {{ old('submission_type', 'file') == 'file' ? 'selected' : '' }}>Kumpulkan Berkas (PDF, Word, Excel, dll)</option>
+                            <option value="link" {{ old('submission_type') == 'link' ? 'selected' : '' }}>Kumpulkan Tautan (Link Drive, Video, dll)</option>
+                            <option value="external" {{ old('submission_type') == 'external' ? 'selected' : '' }}>Tautan Eksternal (Google Form, Quizizz, dll)</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @error('submission_type')
                         <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -97,7 +117,10 @@
  
                 {{-- Link Rujukan --}}
                 <div class="space-y-2">
-                    <label for="link" class="text-sm font-bold text-slate-700">Link Rujukan / URL Referensi Luar</label>
+                    <label for="link" class="text-sm font-bold text-slate-700">
+                        <span id="link-label">Link Rujukan / URL Referensi Luar</span>
+                        <span id="link-required-star" class="text-rose-500 hidden">*</span>
+                    </label>
                     <div class="relative">
                         <input type="url" name="link" id="link" placeholder="https://example.com/panduan" value="{{ old('link') }}" class="w-full pl-12 pr-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none">
                         <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-400">
@@ -124,4 +147,38 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('submission_type');
+        const linkLabel = document.getElementById('link-label');
+        const linkInput = document.getElementById('link');
+        const linkRequiredStar = document.getElementById('link-required-star');
+
+        function updateFormFields() {
+            const val = typeSelect.value;
+            if (val === 'external') {
+                linkLabel.textContent = 'Link Tugas Eksternal (Google Form, Quiz, dll)';
+                linkInput.placeholder = 'https://forms.gle/... atau https://quizizz.com/...';
+                linkInput.required = true;
+                linkRequiredStar.classList.remove('hidden');
+            } else if (val === 'link') {
+                linkLabel.textContent = 'Link Rujukan / Petunjuk Tugas';
+                linkInput.placeholder = 'https://example.com/petunjuk';
+                linkInput.required = false;
+                linkRequiredStar.classList.add('hidden');
+            } else {
+                linkLabel.textContent = 'Link Rujukan / URL Referensi';
+                linkInput.placeholder = 'https://example.com/panduan';
+                linkInput.required = false;
+                linkRequiredStar.classList.add('hidden');
+            }
+        }
+
+        typeSelect.addEventListener('change', updateFormFields);
+        updateFormFields(); // Initial call
+    });
+</script>
+@endpush
 @endsection

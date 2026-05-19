@@ -15,6 +15,7 @@ class Assignment extends Model
         'description',
         'file_path',
         'link',
+        'submission_type',
         'due_date',
         'created_by'
     ];

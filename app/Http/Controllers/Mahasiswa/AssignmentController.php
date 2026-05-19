@@ -111,14 +111,19 @@ class AssignmentController extends Controller
             return redirect()->back()->with('error', 'Batas waktu pengumpulan tugas ini telah terlampaui!');
         }
  
-        $request->validate([
-            'submitted_file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB
-            'submitted_link' => 'nullable|url|max:255',
-            'notes' => 'nullable|string',
-        ]);
- 
-        if (!$request->hasFile('submitted_file') && empty($request->submitted_link)) {
-            return redirect()->back()->with('error', 'Harap unggah berkas tugas Anda atau masukkan tautan/link pengerjaan.');
+        // Validate based on submission_type
+        if ($assignment->submission_type === 'file') {
+            $request->validate([
+                'submitted_file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB
+                'notes' => 'nullable|string',
+            ]);
+        } elseif ($assignment->submission_type === 'link') {
+            $request->validate([
+                'submitted_link' => 'required|url|max:255',
+                'notes' => 'nullable|string',
+            ]);
+        } else {
+            return redirect()->back()->with('error', 'Tugas jenis ini hanya dapat dikerjakan dengan mengunjungi tautan eksternal.');
         }
  
         // Check if already submitted
@@ -162,14 +167,13 @@ class AssignmentController extends Controller
 
         // Validate deadline
         if (now()->gt($assignment->due_date)) {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'Batas waktu pengumpulan tugas ini telah terlampaui!'], 422);
+            }
             return redirect()->back()->with('error', 'Batas waktu pengumpulan tugas ini telah terlampaui!');
         }
 
-        if (!$assignment->link) {
-            return redirect()->back()->with('error', 'Tugas ini tidak memiliki tautan eksternal yang bisa dikerjakan.');
-        }
-
-        // Check if already submitted
+        // Check if already submitted — idempotent, just skip
         $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', $user->id)
             ->first();
@@ -177,11 +181,15 @@ class AssignmentController extends Controller
         if (!$submission) {
             AssignmentSubmission::create([
                 'assignment_id' => $assignment->id,
-                'student_id' => $user->id,
-                'submitted_link' => $assignment->link,
-                'notes' => 'Telah dikerjakan melalui tautan eksternal.',
-                'submitted_at' => now(),
+                'student_id'    => $user->id,
+                'submitted_link' => $assignment->link ?? '-',
+                'notes'         => 'Telah dikerjakan melalui tautan eksternal.',
+                'submitted_at'  => now(),
             ]);
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
         }
 
         return redirect()->away($assignment->link);

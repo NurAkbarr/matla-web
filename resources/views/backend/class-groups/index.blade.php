@@ -39,12 +39,36 @@
     </div>
     @endif
 
+    <!-- Prodi Filter Tabs -->
+    @if($prodis->count() > 0)
+    <div class="flex items-center gap-2 flex-wrap">
+        <a href="{{ route('backend.admin.kelompok-kelas.index') }}"
+           class="px-4 py-2 rounded-xl text-xs font-bold transition-all border
+                  {{ !$prodiId ? 'bg-primary text-white border-primary shadow-md shadow-primary/20' : 'bg-white text-slate-500 border-slate-200 hover:border-primary hover:text-primary' }}">
+            Semua Kelas
+        </a>
+        @foreach($prodis as $prodi)
+        <a href="{{ route('backend.admin.kelompok-kelas.index', ['prodi' => $prodi->id]) }}"
+           class="px-4 py-2 rounded-xl text-xs font-bold transition-all border
+                  {{ $prodiId == $prodi->id ? 'bg-primary text-white border-primary shadow-md shadow-primary/20' : 'bg-white text-slate-500 border-slate-200 hover:border-primary hover:text-primary' }}">
+            All {{ $prodi->singkatan }}
+        </a>
+        @endforeach
+    </div>
+    @endif
+
     <!-- Table Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-bold text-slate-800">Daftar Kelompok Kelas</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Menampilkan seluruh kelompok kelas yang terdaftar aktif</p>
+                <p class="text-xs text-slate-400 mt-0.5">
+                    @if($prodiId && $prodis->where('id', $prodiId)->first())
+                        Menampilkan kelompok kelas Program Studi <strong>{{ $prodis->where('id', $prodiId)->first()->nama }}</strong>
+                    @else
+                        Menampilkan seluruh kelompok kelas yang terdaftar aktif
+                    @endif
+                </p>
             </div>
             <span class="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-100">
                 Total: {{ $groups->total() }} Grup

@@ -16,6 +16,9 @@
 }
 
 @layer base {
+    html {
+        font-size: 14.5px;
+    }
     body {
         @apply font-sans text-text-dark antialiased;
     }
