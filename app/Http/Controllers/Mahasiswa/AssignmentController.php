@@ -152,4 +152,38 @@ class AssignmentController extends Controller
         return redirect()->route('mahasiswa.assignments.index')
             ->with('success', 'Tugas berhasil dikumpulkan!');
     }
+
+    /**
+     * Auto-submit an assignment if it only requires visiting an external link.
+     */
+    public function autoSubmit(Assignment $assignment)
+    {
+        $user = Auth::user();
+
+        // Validate deadline
+        if (now()->gt($assignment->due_date)) {
+            return redirect()->back()->with('error', 'Batas waktu pengumpulan tugas ini telah terlampaui!');
+        }
+
+        if (!$assignment->link) {
+            return redirect()->back()->with('error', 'Tugas ini tidak memiliki tautan eksternal yang bisa dikerjakan.');
+        }
+
+        // Check if already submitted
+        $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_id', $user->id)
+            ->first();
+
+        if (!$submission) {
+            AssignmentSubmission::create([
+                'assignment_id' => $assignment->id,
+                'student_id' => $user->id,
+                'submitted_link' => $assignment->link,
+                'notes' => 'Telah dikerjakan melalui tautan eksternal.',
+                'submitted_at' => now(),
+            ]);
+        }
+
+        return redirect()->away($assignment->link);
+    }
 }

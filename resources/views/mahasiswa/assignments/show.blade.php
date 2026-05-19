@@ -67,17 +67,37 @@
                                     </a>
                                 @endif
                                 @if($assignment->link)
-                                    <a href="{{ $assignment->link }}" target="_blank" class="flex items-center p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl hover:bg-indigo-50 transition-colors group">
-                                        <div class="p-3 bg-indigo-500 text-white rounded-xl mr-4 group-hover:scale-110 transition-transform">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                            </svg>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <p class="text-xs font-bold text-indigo-800 uppercase tracking-wider leading-none">Buka Referensi</p>
-                                            <p class="text-xs font-black text-gray-700 mt-1 truncate">{{ $assignment->link }}</p>
-                                        </div>
-                                    </a>
+                                    @php
+                                        $isOverdue = now()->gt($assignment->due_date);
+                                    @endphp
+                                    @if(!$submission && !$isOverdue)
+                                        <form action="{{ route('mahasiswa.assignments.auto-submit', $assignment) }}" method="POST" target="_blank" onsubmit="setTimeout(() => window.location.reload(), 1000)" class="block">
+                                            @csrf
+                                            <button type="submit" class="w-full flex items-center p-4 bg-indigo-600 hover:bg-indigo-700 transition-colors group rounded-2xl text-left border border-indigo-500 shadow-md shadow-indigo-500/20">
+                                                <div class="p-3 bg-white/20 text-white rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                    </svg>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-xs font-bold text-indigo-100 uppercase tracking-wider leading-none">Buka & Kerjakan (Auto-Submit)</p>
+                                                    <p class="text-xs font-black text-white mt-1 truncate">{{ $assignment->link }}</p>
+                                                </div>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="{{ $assignment->link }}" target="_blank" class="flex items-center p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl hover:bg-indigo-50 transition-colors group">
+                                            <div class="p-3 bg-indigo-500 text-white rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-xs font-bold text-indigo-800 uppercase tracking-wider leading-none">Buka Tautan / Form</p>
+                                                <p class="text-xs font-black text-gray-700 mt-1 truncate">{{ $assignment->link }}</p>
+                                            </div>
+                                        </a>
+                                    @endif
                                 @endif
                             </div>
                         </div>

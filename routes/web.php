@@ -150,6 +150,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/tugas', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'index'])->name('assignments.index');
     Route::get('/tugas/{assignment}', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'show'])->name('assignments.show');
     Route::post('/tugas/{assignment}/submit', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'submit'])->name('assignments.submit');
+    Route::post('/tugas/{assignment}/auto-submit', [\App\Http\Controllers\Mahasiswa\AssignmentController::class, 'autoSubmit'])->name('assignments.auto-submit');
 });
 
 // Backend Routes

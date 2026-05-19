@@ -131,9 +131,18 @@
                         </div>
  
                         {{-- Action button --}}
-                        <div class="mt-6 pt-4 border-t border-gray-50">
-                            <a href="{{ route('mahasiswa.assignments.show', $assignment) }}" class="w-full flex items-center justify-center py-3 bg-slate-50 hover:bg-emerald-600 group-hover:bg-emerald-500 hover:text-white group-hover:text-white text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">
-                                <span>Buka Rincian & Kumpulkan</span>
+                        <div class="mt-6 pt-4 border-t border-gray-50 flex flex-col gap-2">
+                            @if(!$sub && !$isOverdue && $assignment->link)
+                                <form action="{{ route('mahasiswa.assignments.auto-submit', $assignment) }}" method="POST" target="_blank" onsubmit="setTimeout(() => window.location.reload(), 1000)">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center justify-center py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm group-hover:shadow-indigo-500/20">
+                                        <span>Kerjakan Sekarang</span>
+                                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </button>
+                                </form>
+                            @endif
+                            <a href="{{ route('mahasiswa.assignments.show', $assignment) }}" class="w-full flex items-center justify-center py-3 {{ ($sub || $isOverdue) ? 'bg-slate-50 hover:bg-emerald-600 text-gray-600' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20' }} hover:text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+                                <span>{{ $sub ? 'Lihat Hasil Pengerjaan' : ($isOverdue ? 'Lihat Rincian Tugas' : 'Buka Rincian & Kumpulkan') }}</span>
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                 </svg>
