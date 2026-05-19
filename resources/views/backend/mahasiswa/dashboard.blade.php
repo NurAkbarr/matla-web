@@ -208,7 +208,7 @@
                 <a href="#" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">Lihat semua</a>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
                 <!-- KTM Digital -->
                 <a href="{{ route('mahasiswa.ktm') }}" target="_blank" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-50 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
                     <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -231,6 +231,14 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Jadwal Kuliah</span>
+                </a>
+
+                <!-- Tugas Saya -->
+                <a href="{{ route('mahasiswa.assignments.index') }}" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
+                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    </div>
+                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Tugas Saya</span>
                 </a>
 
                 <!-- Tagihan -->

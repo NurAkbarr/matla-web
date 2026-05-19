@@ -84,69 +84,95 @@
                 </div>
             </div>
  
-                {{-- Grading Results / Feedback if graded --}}
-                @if($submission && $submission->score !== null)
-                    <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white rounded-[2rem] p-8 shadow-xl shadow-emerald-700/10 relative overflow-hidden">
-                        <div class="absolute right-0 bottom-0 opacity-10 translate-x-4 translate-y-4">
-                            <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
-                        </div>
-                        <div class="relative z-10 space-y-4">
-                            <p class="text-emerald-100 font-bold uppercase tracking-widest text-[9px] leading-none">Hasil Penilaian</p>
-                            <div class="flex items-baseline">
-                                <span class="text-5xl font-black tracking-tight">{{ $submission->score }}</span>
-                                <span class="text-emerald-200/60 font-bold text-sm ml-1.5">/100 Poin</span>
-                            </div>
-                            @if($submission->feedback)
-                                <div class="pt-4 border-t border-white/20">
-                                    <p class="text-[9px] font-bold text-emerald-200/80 uppercase tracking-widest leading-none">Catatan Dosen</p>
-                                    <p class="text-sm font-semibold text-emerald-50/90 leading-relaxed mt-1.5">"{{ $submission->feedback }}"</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endif
- 
-                {{-- Student Submission Info if exists --}}
+                {{-- Unified Graded / Submitted Info Card --}}
                 @if($submission)
-                    <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4">
-                        <div class="flex items-center justify-between border-b border-gray-50 pb-4">
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pengumpulan Saya</h3>
-                            <span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase">DITERIMA</span>
-                        </div>
- 
-                        <div class="space-y-3">
-                            @if($submission->submitted_file_path)
-                                <div>
-                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Berkas Terlampir</p>
-                                    <a href="{{ route('foto.bypass', ['path' => $submission->submitted_file_path]) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-1">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                        {{ basename($submission->submitted_file_path) }}
-                                    </a>
+                    @php
+                        $otherCount = $assignment->submissions()->where('user_id', '!=', auth()->id())->count();
+                    @endphp
+                    <div class="bg-emerald-50 text-emerald-900 border border-emerald-100 rounded-[1.5rem] p-4 text-center text-sm font-semibold mb-6">
+                        Tugas mu sudah dikumpulkan bersama <span class="font-extrabold text-emerald-700">{{ $otherCount }}</span> mahasiswa lainnya! 🎉
+                    </div>
+
+                    <div class="bg-white rounded-[1.5rem] border border-gray-100 shadow-sm overflow-hidden mb-6">
+                        <div class="p-6 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-bold text-gray-900">Jawaban Anda</h3>
+                                <a href="#" class="inline-flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Riwayat Pengerjaan
+                                </a>
+                            </div>
+
+                            <p class="text-xs text-gray-400 font-semibold">{{ $submission->submitted_at->translatedFormat('d M Y, H:i') }}</p>
+
+                            <div class="space-y-3 pt-2">
+                                <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
+                                    <div class="p-2 bg-slate-50 rounded-xl text-slate-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <span>
+                                        @if($submission->submitted_file_path)
+                                            <a href="{{ route('foto.bypass', ['path' => $submission->submitted_file_path]) }}" target="_blank" class="text-emerald-600 hover:underline font-bold">{{ basename($submission->submitted_file_path) }}</a>
+                                        @else
+                                            0 Jawaban Berkas
+                                        @endif
+                                    </span>
                                 </div>
-                            @endif
- 
-                            @if($submission->submitted_link)
-                                <div class="pt-2">
-                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Tautan Pengumpulan</p>
-                                    <a href="{{ $submission->submitted_link }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 mt-1 truncate max-w-xs">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                                        {{ $submission->submitted_link }}
-                                    </a>
+
+                                @if($submission->submitted_link)
+                                <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
+                                    <div class="p-2 bg-slate-50 rounded-xl text-slate-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                    </div>
+                                    <a href="{{ $submission->submitted_link }}" target="_blank" class="text-indigo-600 hover:underline font-bold truncate max-w-[250px]">{{ $submission->submitted_link }}</a>
                                 </div>
-                            @endif
- 
-                            @if($submission->notes)
-                                <div class="pt-2">
-                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Catatan Tambahan</p>
-                                    <p class="text-xs font-semibold text-gray-600 mt-1 bg-slate-50 p-3 rounded-xl italic">"{{ $submission->notes }}"</p>
+                                @endif
+
+                                <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
+                                    <div class="p-2 bg-slate-50 rounded-xl text-slate-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                    </div>
+                                    <span>
+                                        @if($submission->score !== null && $submission->feedback)
+                                            1 Feedback Pengajar
+                                        @else
+                                            Belum Ada Feedback
+                                        @endif
+                                    </span>
                                 </div>
-                            @endif
- 
-                            <div class="pt-3 border-t border-gray-50 flex items-center justify-between text-[10px] text-gray-400 font-bold">
-                                <span>Diserahkan pada:</span>
-                                <span>{{ $submission->submitted_at->translatedFormat('d M Y, H:i') }}</span>
+
+                                @if($submission->notes)
+                                <div class="text-xs text-gray-400 bg-slate-50 p-3 rounded-2xl border border-slate-100 italic mt-2">
+                                    "{{ $submission->notes }}"
+                                </div>
+                                @endif
+
+                                @if($submission->feedback)
+                                <div class="text-xs text-emerald-800 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100 italic mt-2">
+                                    <strong>Catatan Dosen:</strong> "{{ $submission->feedback }}"
+                                </div>
+                                @endif
                             </div>
                         </div>
+
+                        {{-- Footer Bar --}}
+                        @if($submission->score !== null)
+                            <div class="bg-emerald-600 text-white px-6 py-4 flex items-center justify-between text-base font-bold">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Sudah dinilai
+                                </div>
+                                <div class="text-2xl font-black">{{ $submission->score }}</div>
+                            </div>
+                        @else
+                            <div class="bg-amber-500 text-white px-6 py-4 flex items-center justify-between text-base font-bold">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Sudah dikumpulkan (Belum dinilai)
+                                </div>
+                                <div class="text-xl font-black">-</div>
+                            </div>
+                        @endif
                     </div>
                 @endif
  
