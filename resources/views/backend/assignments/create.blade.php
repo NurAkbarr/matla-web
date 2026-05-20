@@ -22,7 +22,7 @@
         <form action="{{ route('backend.admin.assignments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {{-- Kelompok Kelas --}}
                 <div class="space-y-2">
                     <label for="class_group_id" class="text-sm font-bold text-slate-700">Target Kelompok Kelas <span class="text-rose-500">*</span></label>
@@ -46,6 +46,31 @@
                     @enderror
                 </div>
 
+                {{-- Mata Kuliah --}}
+                <div class="space-y-2">
+                    <label for="mata_kuliah_id" class="text-sm font-bold text-slate-700">Mata Kuliah <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <select name="mata_kuliah_id" id="mata_kuliah_id" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none appearance-none">
+                            <option value="">-- Pilih Mata Kuliah --</option>
+                            @foreach($mataKuliahs as $mk)
+                                <option value="{{ $mk->id }}" {{ old('mata_kuliah_id') == $mk->id ? 'selected' : '' }}>
+                                    {{ $mk->nama }} ({{ $mk->kode }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @error('mata_kuliah_id')
+                        <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {{-- Tipe Pengumpulan --}}
                 <div class="space-y-2">
                     <label for="submission_type" class="text-sm font-bold text-slate-700">Tipe Pengumpulan <span class="text-rose-500">*</span></label>

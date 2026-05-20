@@ -114,6 +114,11 @@
                                 <h3 class="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-tight">
                                     {{ $assignment->title }}
                                 </h3>
+                                @if($assignment->mataKuliah)
+                                    <p class="text-xs font-bold text-emerald-600 mt-2 bg-emerald-50 inline-block px-2 py-1 rounded-md">
+                                        {{ $assignment->mataKuliah->nama }}
+                                    </p>
+                                @endif
                             </div>
  
                             {{-- Due Date Info --}}

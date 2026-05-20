@@ -127,6 +127,29 @@ Route::get('/_foto/{path}', function ($path) {
     return response()->file($fullPath);
 })->where('path', '.*')->name('foto.bypass');
 
+// ===== Google Drive File Download Route (Tugas Mahasiswa) =====
+Route::get('/_tugas/{path}', function ($path) {
+    if (!auth()->check()) {
+        abort(403, 'Unauthorized');
+    }
+    
+    try {
+        $disk = \Illuminate\Support\Facades\Storage::disk('google');
+        if (!$disk->exists($path)) {
+            abort(404, 'File tidak ditemukan di Google Drive.');
+        }
+
+        $mimeType = $disk->mimeType($path) ?: 'application/octet-stream';
+        $fileName = basename($path);
+        
+        return response($disk->get($path))
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
+    } catch (\Exception $e) {
+        abort(500, 'Gagal mengunduh file dari Google Drive.');
+    }
+})->where('path', '.*')->name('tugas.download');
+
 // Deprecated (keamanan): jangan expose endpoint maintenance via GET/public.
 
 // ===== Mahasiswa Area =====

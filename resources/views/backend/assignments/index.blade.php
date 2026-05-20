@@ -43,6 +43,7 @@
                     <thead>
                         <tr class="bg-slate-50/50">
                             <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Judul Tugas</th>
+                            <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Mata Kuliah</th>
                             <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Target Kelas</th>
                             <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Batas Waktu</th>
                             <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Dibuat Oleh</th>
@@ -72,6 +73,14 @@
                                             </span>
                                         @endif
                                     </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="font-bold text-slate-700 text-sm">
+                                        {{ $assignment->mataKuliah ? $assignment->mataKuliah->nama : 'N/A' }}
+                                    </div>
+                                    @if($assignment->mataKuliah)
+                                        <div class="text-[10px] font-black text-slate-400 uppercase mt-0.5">{{ $assignment->mataKuliah->kode }}</div>
+                                    @endif
                                 </td>
                                 <td class="px-8 py-5">
                                     <span class="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">

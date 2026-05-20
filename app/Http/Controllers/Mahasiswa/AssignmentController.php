@@ -133,15 +133,24 @@ class AssignmentController extends Controller
  
         $submittedFilePath = $submission ? $submission->submitted_file_path : null;
         if ($request->hasFile('submitted_file')) {
-            // Delete old file if updating
+            // Delete old file from Google Drive if re-submitting
             if ($submittedFilePath) {
-                Storage::delete('public/' . $submittedFilePath);
+                try {
+                    Storage::disk('google')->delete($submittedFilePath);
+                } catch (\Exception $e) {
+                    // Silently fail if old file doesn't exist on Drive
+                }
             }
  
             $file = $request->file('submitted_file');
-            $fileName = 'submissions_' . time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $file->storeAs('public/submissions', $fileName);
-            $submittedFilePath = 'submissions/' . $fileName; // path for foto.bypass bypass route
+            $nim = $user->nim ?? $user->id;
+            $userName = str_replace(' ', '_', $user->name);
+            $fileName = $nim . '_' . $userName . '_' . time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $drivePath = 'submissions/' . $fileName;
+ 
+            // Upload to Google Drive instead of local server
+            Storage::disk('google')->put($drivePath, file_get_contents($file->getRealPath()));
+            $submittedFilePath = $drivePath;
         }
  
         AssignmentSubmission::updateOrCreate(

@@ -22,3 +22,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Google Drive Service Account Credentials (SENSITIVE - DO NOT COMMIT)
+google-credentials.json

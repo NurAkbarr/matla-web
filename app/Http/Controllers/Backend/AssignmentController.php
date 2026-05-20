@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\ClassGroup;
+use App\Models\MataKuliah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -18,10 +19,14 @@ class AssignmentController extends Controller
     public function index()
     {
         // Admin can see all, Dosen can see assignments they created
-        $query = Assignment::with(['classGroup', 'creator'])->latest();
+        $query = Assignment::with(['classGroup', 'mataKuliah', 'creator'])->latest();
         
         if (Auth::user()->role === 'dosen') {
-            $query->where('created_by', Auth::id());
+            $mataKuliahIds = Auth::user()->jadwals()->pluck('mata_kuliah_id');
+            $query->where(function($q) use ($mataKuliahIds) {
+                $q->whereIn('mata_kuliah_id', $mataKuliahIds)
+                  ->orWhere('created_by', Auth::id());
+            });
         }
  
         $assignments = $query->paginate(15);
@@ -35,7 +40,15 @@ class AssignmentController extends Controller
     public function create()
     {
         $classGroups = ClassGroup::orderBy('name')->get();
-        return view('backend.assignments.create', compact('classGroups'));
+        
+        if (Auth::user()->role === 'dosen') {
+            $mataKuliahIds = Auth::user()->jadwals()->pluck('mata_kuliah_id');
+            $mataKuliahs = MataKuliah::whereIn('id', $mataKuliahIds)->orderBy('nama')->get();
+        } else {
+            $mataKuliahs = MataKuliah::orderBy('nama')->get();
+        }
+
+        return view('backend.assignments.create', compact('classGroups', 'mataKuliahs'));
     }
  
     /**
@@ -45,6 +58,7 @@ class AssignmentController extends Controller
     {
         $request->validate([
             'class_group_id' => 'required|exists:class_groups,id',
+            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'file_attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB max
@@ -64,6 +78,7 @@ class AssignmentController extends Controller
  
         Assignment::create([
             'class_group_id' => $request->class_group_id,
+            'mata_kuliah_id' => $request->mata_kuliah_id,
             'title' => $request->title,
             'description' => $request->description,
             'file_path' => $filePath,

@@ -11,6 +11,7 @@ class Assignment extends Model
  
     protected $fillable = [
         'class_group_id',
+        'mata_kuliah_id',
         'title',
         'description',
         'file_path',
@@ -27,6 +28,11 @@ class Assignment extends Model
     public function classGroup()
     {
         return $this->belongsTo(ClassGroup::class, 'class_group_id');
+    }
+ 
+    public function mataKuliah()
+    {
+        return $this->belongsTo(MataKuliah::class, 'mata_kuliah_id');
     }
  
     public function creator()
