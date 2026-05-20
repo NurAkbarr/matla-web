@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->integer('angkatan');
             $table->string('name');
             $table->timestamps();
+            
         });
     }
 

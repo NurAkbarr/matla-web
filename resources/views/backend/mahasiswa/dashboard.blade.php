@@ -74,8 +74,8 @@
         @endphp
 
         @if($isProfileIncomplete)
-            <div class="mb-6 p-5 bg-white border border-amber-200 shadow-xl shadow-amber-500/5 rounded-2xl flex items-start">
-                <div class="p-3 bg-amber-50 text-amber-500 rounded-xl mr-4 flex-shrink-0">
+            <div class="mb-8 p-5 bg-gradient-to-r from-amber-50 to-white border border-amber-200/60 shadow-lg shadow-amber-500/5 rounded-2xl flex items-start group hover:shadow-xl transition-all duration-300">
+                <div class="p-3 bg-amber-100/50 text-amber-600 rounded-xl mr-4 flex-shrink-0 group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
                 <div class="flex-1">
@@ -90,64 +90,67 @@
         @endif
 
         <!-- Stats Grid (New Premium Style) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
             <!-- IPK Card -->
-            <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-emerald-50 flex items-center justify-between group hover:border-emerald-200 transition-all">
-                <div>
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex items-center justify-between group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
+                <div class="w-full">
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
                     </div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">IPK Terakhir</p>
                     <div class="flex items-baseline space-x-2">
-                        <span class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">0.00</span>
+                        <span class="text-3xl font-black text-gray-900 tracking-tight">0.00</span>
                     </div>
                     <p class="text-[9px] font-bold text-gray-300 mt-1 uppercase tracking-widest">Skala 4.00</p>
                 </div>
             </div>
 
             <!-- SKS Card -->
-            <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:border-emerald-200 transition-all">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                 </div>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">SKS Diambil</p>
                 <div class="flex items-baseline space-x-2">
-                    <span class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">{{ $totalSKS }}</span>
+                    <span class="text-3xl font-black text-gray-900 tracking-tight">{{ $totalSKS }}</span>
                 </div>
-                <div class="w-full h-2 mt-4 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-emerald-500 rounded-full" style="width: {{ ($totalSKS / 144) * 100 }}%"></div>
+                <div class="w-full h-1.5 mt-4 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full" style="width: {{ ($totalSKS / 144) * 100 }}%"></div>
                 </div>
-                <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-widest">Dari 144 SKS</p>
+                <p class="text-[9px] font-bold text-gray-300 mt-2 uppercase tracking-widest">Dari 144 SKS</p>
             </div>
 
             <!-- Jadwal Card -->
-            <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:border-emerald-200 transition-all">
+            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
-                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Jadwal Hari Ini</p>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Jadwal Hari Ini</p>
                 @if($jadwalHariIni->count() > 0)
                     <div class="mt-2 space-y-3">
                         @foreach($jadwalHariIni->take(2) as $jhi)
-                        <div class="flex items-start space-x-3">
-                            <div class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg">{{ substr($jhi->jam_mulai, 0, 5) }}</div>
+                        <div class="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                            <div class="text-[9px] font-black bg-emerald-100/50 text-emerald-700 px-2 py-1 rounded-lg tracking-wider">{{ substr($jhi->jam_mulai, 0, 5) }}</div>
                             <div class="min-w-0">
-                                <h4 class="text-[11px] font-bold text-gray-900 truncate">{{ $jhi->mata_kuliah }}</h4>
+                                <h4 class="text-[11px] font-bold text-gray-700 truncate leading-tight">{{ $jhi->mata_kuliah }}</h4>
                             </div>
                         </div>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-xs font-bold text-gray-400 mt-2">Tidak ada jadwal</p>
+                    <div class="flex flex-col justify-center mt-2">
+                        <span class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">-</span>
+                        <p class="text-[9px] font-bold text-gray-300 mt-1 uppercase tracking-widest">Tidak ada jadwal</p>
+                    </div>
                 @endif
             </div>
 
             <!-- Tugas Card -->
-            <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:border-emerald-200 transition-all">
+            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-50 text-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div class="w-12 h-12 bg-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-50 text-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-600 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-100 transition-all">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     @if($pendingTasks > 0)
