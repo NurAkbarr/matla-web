@@ -81,7 +81,7 @@ class AssignmentController extends Controller
                     ->where('angkatan', $angkatan)
                     ->first();
  
-                if ($classGroup && $assignment->class_group_id === $classGroup->id) {
+                if ($classGroup && (int) $assignment->class_group_id === (int) $classGroup->id) {
                     $authorized = true;
                 }
             }
