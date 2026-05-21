@@ -1,328 +1,314 @@
-@extends('layouts.app')
-
-@section('title', 'Mahasiswa Dashboard - Matla Islamic University')
-
-@section('content')
-<div class="bg-gray-50 min-h-screen pb-20">
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIAKAD - Dashboard Mahasiswa</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif !important;
-        }
-        .premium-banner::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: url('{{ asset('assets/motifbatik.jpg') }}');
-            background-size: 100% auto !important;
-            background-repeat: repeat-y !important;
-            opacity: 0.08;
-            filter: invert(1);
-            mix-blend-mode: screen;
-            pointer-events: none;
-        }
+        body { font-family: 'Inter', sans-serif !important; background-color: #f8fafc; }
+        .sidebar-active { background-color: #047857; color: white; } /* emerald-700 */
+        .sidebar-active svg { color: white; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-    <div class="premium-banner text-white pt-12 pb-12 px-4 lg:px-12 relative overflow-hidden shadow-lg" style="background-color: #065F46;">
-        <!-- Large decorative circles (right side) -->
-        <div class="absolute top-1/2 right-[-5rem] -translate-y-1/2 w-[22rem] h-[22rem] rounded-full border-2 border-white/10 pointer-events-none"></div>
-        <div class="absolute top-1/2 right-[-3rem] -translate-y-1/2 w-[17rem] h-[17rem] rounded-full border border-white/[0.06] pointer-events-none"></div>
+</head>
+<body class="text-slate-800 antialiased" x-data="{ sidebarOpen: false, mobileMenuOpen: false }">
+
+    @php
+        $hour = date('H');
+        if ($hour >= 5 && $hour < 11) {
+            $greeting = 'Selamat Pagi';
+        } elseif ($hour >= 11 && $hour < 15) {
+            $greeting = 'Selamat Siang';
+        } elseif ($hour >= 15 && $hour < 18) {
+            $greeting = 'Selamat Sore';
+        } else {
+            $greeting = 'Selamat Malam';
+        }
+    @endphp
+
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 bg-white shadow-xl w-72 z-50 transform transition-transform duration-300 flex flex-col"
+           :class="{'translate-x-0': sidebarOpen, '-translate-x-full lg:translate-x-0': !sidebarOpen}">
         
-        <div class="container mx-auto relative z-10">
-            <div class="flex flex-col space-y-6">
-                <!-- Date & Semester info -->
-                <div class="flex flex-wrap items-center gap-3 text-emerald-100/80 text-xs font-bold uppercase tracking-widest">
-                    <div class="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span>{{ now()->translatedFormat('l, d F Y') }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                        <span>Semester {{ Auth::user()->semester % 2 == 0 ? 'Genap' : 'Ganjil' }} {{ now()->format('Y') }}/{{ now()->addYear()->format('Y') }}</span>
-                    </div>
-                </div>
-
-                <!-- Main Greeting -->
-                <div>
-                    <h1 class="text-xl md:text-2xl font-black mb-1 tracking-tight">{{ Auth::user()->name }}</h1>
-                    <p class="text-emerald-100/70 font-bold text-[10px] uppercase tracking-[0.2em]">Sistem Informasi Akademik</p>
-                </div>
-
-                <!-- Badges -->
-                <div class="flex flex-wrap gap-2 pt-2">
-                    <div class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl flex items-center space-x-2">
-                        <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
-                        <span class="text-xs font-bold tracking-widest uppercase">NIM: {{ Auth::user()->nim ?? '-' }}</span>
-                    </div>
-                    <div class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl flex items-center space-x-2">
-                        <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path></svg>
-                        <span class="text-xs font-bold tracking-widest uppercase">{{ Auth::user()->education['program_studi'] ?? 'Belum Diisi' }}</span>
-                    </div>
-                    <div class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl flex items-center space-x-2">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                        <span class="text-xs font-bold tracking-widest uppercase">{{ Auth::user()->status ?? 'Aktif' }}</span>
-                    </div>
-                </div>
+        <!-- Sidebar Header -->
+        <div class="h-[76px] flex items-center px-6 border-b border-slate-100">
+            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="w-10 h-10 object-contain mr-3">
+            <div>
+                <h1 class="text-lg font-extrabold text-slate-900 leading-tight tracking-tight">Matla Academy</h1>
+                <p class="text-[10px] text-slate-500 font-medium">Academic Management</p>
             </div>
+            <button @click="sidebarOpen = false" class="ml-auto lg:hidden text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
-    </div>
 
-    <div class="container mx-auto px-4 lg:px-12 mt-8 relative z-20">
-        
-        @php
-            $user = Auth::user();
-            $profil = $user->profil;
-            $isProfileIncomplete = empty($user->phone) || empty($user->tanggal_lahir) || empty($user->jenis_kelamin) || empty($user->address) || empty($profil?->tentang_saya);
-        @endphp
+        <!-- Sidebar Navigation -->
+        <div class="flex-1 overflow-y-auto py-5 px-4 space-y-6 no-scrollbar">
+            
+            <a href="{{ route('backend.mahasiswa.dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl sidebar-active shadow-lg shadow-emerald-700/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6m-9 9h6m-6 0v-6"></path></svg>
+                <span class="font-bold text-[13px] tracking-wide">Portal Akademik</span>
+            </a>
 
-        @if($isProfileIncomplete)
-            <div class="mb-8 p-5 bg-gradient-to-r from-amber-50 to-white border border-amber-200/60 shadow-lg shadow-amber-500/5 rounded-2xl flex items-start group hover:shadow-xl transition-all duration-300">
-                <div class="p-3 bg-amber-100/50 text-amber-600 rounded-xl mr-4 flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-bold text-gray-900 text-lg mb-1 tracking-tight">Halo {{ explode(' ', $user->name)[0] }}, biodata kamu belum lengkap!</h3>
-                    <p class="text-sm font-medium text-gray-500 leading-relaxed mb-3">Sistem mendeteksi ada beberapa data profil yang masih kosong. Yuk, lengkapi datamu sekarang agar informasi di sistem sesuai dan lengkap.</p>
-                    <a href="{{ route('mahasiswa.profil') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-amber-500/20">
-                        Lengkapi Sekarang
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <div>
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-2">Akademik</p>
+                <nav class="space-y-1">
+                    <a href="{{ route('mahasiswa.profil') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="font-semibold text-[13px]">Biodata</span>
                     </a>
-                </div>
-            </div>
-        @endif
-
-        <!-- Stats Grid (New Premium Style) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-            <!-- IPK Card -->
-            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex items-center justify-between group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
-                <div class="w-full">
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
-                    </div>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">IPK Terakhir</p>
-                    <div class="flex items-baseline space-x-2">
-                        <span class="text-3xl font-black text-gray-900 tracking-tight">0.00</span>
-                    </div>
-                    <p class="text-[9px] font-bold text-gray-300 mt-1 uppercase tracking-widest">Skala 4.00</p>
-                </div>
-            </div>
-
-            <!-- SKS Card -->
-            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                </div>
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">SKS Diambil</p>
-                <div class="flex items-baseline space-x-2">
-                    <span class="text-3xl font-black text-gray-900 tracking-tight">{{ $totalSKS }}</span>
-                </div>
-                <div class="w-full h-1.5 mt-4 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full" style="width: {{ ($totalSKS / 144) * 100 }}%"></div>
-                </div>
-                <p class="text-[9px] font-bold text-gray-300 mt-2 uppercase tracking-widest">Dari 144 SKS</p>
-            </div>
-
-            <!-- Jadwal Card -->
-            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                </div>
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Jadwal Hari Ini</p>
-                @if($jadwalHariIni->count() > 0)
-                    <div class="mt-2 space-y-3">
-                        @foreach($jadwalHariIni->take(2) as $jhi)
-                        <div class="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
-                            <div class="text-[9px] font-black bg-emerald-100/50 text-emerald-700 px-2 py-1 rounded-lg tracking-wider">{{ substr($jhi->jam_mulai, 0, 5) }}</div>
-                            <div class="min-w-0">
-                                <h4 class="text-[11px] font-bold text-gray-700 truncate leading-tight">{{ $jhi->mata_kuliah }}</h4>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="flex flex-col justify-center mt-2">
-                        <span class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">-</span>
-                        <p class="text-[9px] font-bold text-gray-300 mt-1 uppercase tracking-widest">Tidak ada jadwal</p>
-                    </div>
-                @endif
-            </div>
-
-            <!-- Tugas Card -->
-            <div class="bg-white rounded-[2rem] p-7 shadow-lg shadow-emerald-900/5 border border-emerald-50 flex flex-col group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-900/10 hover:border-emerald-200 transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-50 text-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-600 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:bg-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-100 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    @if($pendingTasks > 0)
-                        <span class="flex h-3 w-3 relative">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                        </span>
-                    @endif
-                </div>
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tugas/Kuis</p>
-                <div class="flex items-baseline space-x-2">
-                    <span class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">{{ $pendingTasks }}</span>
-                </div>
-                <p class="text-[10px] font-bold text-{{ $pendingTasks > 0 ? 'red' : 'emerald' }}-600 mt-2 uppercase tracking-widest">
-                    {{ $pendingTasks > 0 ? 'Perlu Dikerjakan' : 'Sudah Selesai' }}
-                </p>
+                    <a href="{{ route('mahasiswa.elearning.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="font-semibold text-[13px]">Perkuliahan</span>
+                    </a>
+                    <a href="{{ route('mahasiswa.assignments.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        <span class="font-semibold text-[13px]">Tugas Saya</span>
+                    </a>
+                    <a href="{{ route('mahasiswa.ktm') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3z"></path></svg>
+                        <span class="font-semibold text-[13px]">KTM Digital</span>
+                    </a>
+                </nav>
             </div>
         </div>
 
-        @if($pendingAssignments->count() > 0)
-        <!-- Pending Assignments Reminder -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
+        <!-- Sidebar Footer / Profile -->
+        <div class="p-4 border-t border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{{ Auth::user()->foto_profil ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name) }}" class="w-10 h-10 rounded-xl border border-slate-200 shadow-sm object-cover" alt="Profile">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900 tracking-tight">Tugas Kuliah</h2>
-                    <p class="text-sm font-medium text-gray-500 mt-1">
-                        @if($pendingTasks > 0)
-                            Ada <span class="font-extrabold text-amber-600">{{ $pendingTasks }}</span> tugas atau kuis yang belum dikerjakan
-                        @else
-                            Semua tugas telah diselesaikan dengan baik! 🎉
-                        @endif
-                    </p>
+                    <p class="text-[13px] font-bold text-slate-900 leading-tight">{{ Auth::user()->name }}</p>
+                    <p class="text-[11px] text-slate-500 font-medium">{{ Auth::user()->education['program_studi'] ?? 'Teknik Informatika' }}</p>
                 </div>
-                <a href="{{ route('mahasiswa.assignments.index') }}" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-bold rounded-full hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Semua</a>
+            </div>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Keluar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Overlay for mobile -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 bg-slate-900/50 z-40 lg:hidden" style="display: none;"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-72 min-h-screen flex flex-col transition-all duration-300">
+        
+        <!-- Top Navbar -->
+        <header class="h-[76px] bg-white border-b border-slate-100 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30">
+            <div class="flex items-center gap-4">
+                <!-- Hamburger hidden on mobile since we use bottom nav -->
+                <button @click="sidebarOpen = true" class="hidden text-slate-500 hover:text-slate-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
             </div>
             
-            <div class="space-y-4">
-                @foreach($pendingAssignments as $assignment)
-                    @php
-                        $sub = $assignment->submission;
-                        $isOverdue = now()->gt($assignment->due_date);
-                    @endphp
-                    <div class="bg-white rounded-[2rem] p-5 shadow-sm border border-emerald-50 flex items-center justify-between hover:border-emerald-200 hover:shadow-md transition-all group">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                                </svg>
+            <div class="flex items-center gap-4 lg:gap-6">
+                <!-- Theme toggle -->
+                <button class="text-slate-400 hover:text-emerald-700 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+                
+                <!-- Notifications -->
+                <button class="text-slate-400 hover:text-emerald-700 transition-colors relative">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+                </button>
+                
+                <!-- Profile Dropdown -->
+                <div class="relative pl-4 lg:pl-6 border-l border-slate-200" x-data="{ profileOpen: false }">
+                    <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false" class="flex items-center gap-3 text-left focus:outline-none group">
+                        <div class="text-right hidden sm:block group-hover:opacity-80 transition-opacity">
+                            <p class="text-[13px] font-bold text-slate-800">{{ Auth::user()->name }}</p>
+                            <p class="text-[11px] text-slate-500 font-medium">{{ now()->format('l, d F Y') }}</p>
+                        </div>
+                        <img src="{{ Auth::user()->foto_profil ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name) }}" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover ring-2 ring-transparent group-hover:ring-emerald-500 transition-all" alt="Profile">
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="profileOpen" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                         class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 py-4 z-50" style="display: none;">
+                        
+                        <div class="px-5 pb-4 border-b border-slate-100 mb-2">
+                            <p class="text-[10px] font-bold tracking-widest text-emerald-600 uppercase mb-2">Profil Singkat</p>
+                            <h4 class="font-bold text-slate-800 text-sm truncate">{{ Auth::user()->name }}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">{{ Auth::user()->nim ?? 'NIM Belum Diatur' }}</p>
+                            <div class="flex items-center gap-2 mt-3">
+                                <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-md text-[10px] font-bold">{{ Auth::user()->education['program_studi'] ?? 'Prodi' }}</span>
+                                <span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-bold">SMT {{ Auth::user()->semester ?? 1 }}</span>
                             </div>
-                            <div>
-                                <h3 class="text-base font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{{ $assignment->title }}</h3>
-                                <div class="flex flex-wrap items-center gap-2 mt-1">
-                                    <p class="text-xs font-medium text-gray-500">Batas waktu: {{ $assignment->due_date->translatedFormat('d M Y H:i') }} WIB</p>
-                                    <span class="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
-                                    @if($sub)
-                                        <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-md text-[9px] font-black uppercase">Telah Dikerjakan</span>
-                                    @elseif($isOverdue)
-                                        <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-100 rounded-md text-[9px] font-black uppercase">Batas Waktu Habis</span>
-                                    @else
-                                        <span class="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-md text-[9px] font-black uppercase">Belum Dikerjakan</span>
-                                    @endif
+                        </div>
+
+                        <a href="{{ route('mahasiswa.profil') }}" class="flex items-center px-5 py-2.5 text-sm text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            Lihat Biodata Lengkap
+                        </a>
+                        <form action="{{ route('logout') }}" method="POST" class="block mt-1 border-t border-slate-100 pt-1">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center px-5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left">
+                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                Keluar Aplikasi
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 pb-24 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                
+                <!-- Top Green Header & Stats Section -->
+                <div class="bg-emerald-700 text-white rounded-[2rem] p-8 lg:p-10 mb-8 relative shadow-xl shadow-emerald-900/10 overflow-hidden">
+                    
+                    <!-- Aesthetic Background Elements -->
+                    <div class="absolute inset-0 pointer-events-none opacity-[0.15]">
+                        <svg class="absolute -top-24 -right-10 w-96 h-96 text-white transform rotate-12" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 20 100 C 60 20, 140 20, 180 100 C 140 180, 60 180, 20 100 Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            <path d="M 40 100 C 70 50, 130 50, 160 100 C 130 150, 70 150, 40 100 Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-dasharray="4 4" />
+                            <path d="M 60 100 C 80 70, 120 70, 140 100 C 120 130, 80 130, 60 100 Z" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" />
+                            <circle cx="180" cy="100" r="3" fill="currentColor" />
+                            <circle cx="20" cy="100" r="3" fill="currentColor" />
+                        </svg>
+                        <svg class="absolute -bottom-20 -left-20 w-80 h-80 text-white transform -rotate-12" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M -20 150 Q 80 100 180 150 T 380 150" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                            <path d="M -20 170 Q 80 120 180 170 T 380 170" stroke="currentColor" stroke-width="1" stroke-linecap="round" fill="none" stroke-dasharray="6 6"/>
+                            <circle cx="180" cy="150" r="2" fill="currentColor" />
+                        </svg>
+                        <svg class="absolute top-1/2 left-1/3 w-32 h-32 text-white transform -translate-y-1/2 opacity-50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 10 50 Q 30 30 50 50 T 90 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </div>
+
+                    <!-- Relative wrapper to keep content above background -->
+                    <div class="relative z-10">
+                        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
+                            <div class="max-w-2xl">
+                                <p class="text-xs uppercase tracking-[0.35em] text-emerald-200 font-bold mb-3">{{ Auth::user()->name }}</p>
+                                <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-2">{{ $greeting }}!</h1>
+                                <p class="text-emerald-100 text-sm opacity-90">Semoga harimu menyenangkan! Berikut adalah ringkasan akademik kamu hari ini.</p>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="rounded-2xl border border-white/20 bg-white/10 p-4 min-w-[120px] text-center backdrop-blur-sm">
+                                    <p class="text-[10px] uppercase tracking-[0.2em] text-emerald-100 font-bold mb-1">Semester</p>
+                                    @php $smt = Auth::user()->semester ?: 1; @endphp
+                                    <p class="text-lg font-bold">{{ $smt % 2 == 0 ? 'Genap' : 'Ganjil' }} ({{ $smt }})<br><span class="text-sm font-medium opacity-80">{{ now()->format('Y') }}/{{ now()->addYear()->format('Y') }}</span></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/20 bg-white/10 p-4 min-w-[120px] text-center backdrop-blur-sm">
+                                    <p class="text-[10px] uppercase tracking-[0.2em] text-emerald-100 font-bold mb-1">Status</p>
+                                    <p class="text-lg font-bold mt-2 uppercase tracking-wide">{{ Auth::user()->status ?? 'Aktif' }}</p>
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ route('mahasiswa.assignments.show', $assignment) }}" class="p-2 text-gray-400 hover:text-emerald-600 bg-gray-50 hover:bg-emerald-50 rounded-xl transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                        </a>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
 
-        <!-- Menu Akademik Section -->
-        <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 mb-8">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-xl font-bold text-gray-900 tracking-tight">Menu Akademik</h2>
-                <a href="#" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">Lihat semua</a>
-            </div>
-            
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-                <!-- KTM Digital -->
-                <a href="{{ route('mahasiswa.ktm') }}" target="_blank" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-50 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        <!-- 4 Stat Cards overlaying slightly -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-5">
+                        <div class="rounded-[1.5rem] bg-emerald-600 border border-emerald-500/50 p-6 shadow-inner text-white">
+                            <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-emerald-100 mb-4">IPK Terakhir</p>
+                            <h3 class="text-4xl font-bold mb-1">0.00</h3>
+                            <p class="text-[11px] text-emerald-200 uppercase tracking-widest">Skala 4.00</p>
+                        </div>
+                        <div class="rounded-[1.5rem] bg-white p-6 shadow-md border border-slate-100 text-slate-800">
+                            <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">SKS Diambil</p>
+                            <h3 class="text-4xl font-bold mb-1">{{ $totalSKS ?? 0 }}</h3>
+                            <p class="text-[11px] text-slate-500 uppercase tracking-widest">Dari 144 SKS</p>
+                        </div>
+                        <div class="rounded-[1.5rem] bg-white p-6 shadow-md border border-slate-100 text-slate-800">
+                            <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">Jadwal Hari Ini</p>
+                            <h3 class="text-4xl font-bold mb-1">-</h3>
+                            <p class="text-[11px] text-slate-500 uppercase tracking-widest">Belum ada jadwal</p>
+                        </div>
+                        <div class="rounded-[1.5rem] bg-white p-6 shadow-md border border-slate-100 text-slate-800">
+                            <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">Tugas / Kuis</p>
+                            <h3 class="text-4xl font-bold mb-1">0</h3>
+                            <p class="text-[11px] text-emerald-600 uppercase tracking-widest font-semibold">Sudah Selesai</p>
+                        </div>
                     </div>
-                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">KTM Digital</span>
-                </a>
-
-                <!-- Biodata -->
-                <a href="{{ route('mahasiswa.profil') }}" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
-                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Biodata</span>
-                </a>
-
-                <!-- Jadwal Kuliah -->
-                <a href="{{ route('mahasiswa.elearning.index') }}" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Jadwal Kuliah</span>
-                </a>
-
-                <!-- Tugas Saya -->
-                <a href="{{ route('mahasiswa.assignments.index') }}" class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                    </div>
-                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Tugas Saya</span>
-                </a>
-
-                <!-- Tagihan -->
-                <div class="group flex flex-col items-center p-4 bg-white rounded-3xl border border-gray-100 opacity-60 cursor-not-allowed">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
-                    <span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Tagihan UKT</span>
                 </div>
-            </div>
-        </div>
 
-        <!-- Berita & Pengumuman Section -->
-        <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 mb-12">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-xl font-bold text-gray-900 tracking-tight">Berita & Pengumuman</h2>
-                <a href="#" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">Selengkapnya</a>
-            </div>
-            
-            <div class="space-y-4">
-                @forelse($announcements as $announcement)
-                    @php
-                        $colorClass = 'emerald';
-                        if($announcement->category == 'Akademik') $colorClass = 'amber';
-                        if($announcement->category == 'Prestasi') $colorClass = 'indigo';
-                        if($announcement->category == 'Event') $colorClass = 'purple';
+                <!-- Bottom Section -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+                    
+                    <!-- Menu Akademik (Fitur Cepat) -->
+                    <div class="xl:col-span-2 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200">
                         
-                        $link = $announcement->pdf_file ? asset('storage/' . $announcement->pdf_file) : '#';
-                    @endphp
-                    <a href="{{ $link }}" target="_blank" class="group flex items-center p-4 bg-white rounded-3xl border border-gray-100 hover:border-{{ $colorClass }}-200 hover:shadow-lg hover:shadow-{{ $colorClass }}-500/5 transition-all cursor-pointer">
-                        <div class="w-16 h-16 flex-shrink-0 bg-{{ $colorClass }}-50 rounded-2xl flex items-center justify-center mr-6 text-2xl group-hover:scale-110 transition-transform">
-                            {{ $announcement->icon }}
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Biodata -->
+                            <a href="{{ route('mahasiswa.profil') }}" class="flex flex-col items-center p-5 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                                <span class="font-bold text-[13px] text-slate-800 group-hover:text-emerald-700">Biodata</span>
+                            </a>
+                            <!-- Perkuliahan -->
+                            <a href="{{ route('mahasiswa.elearning.index') }}" class="flex flex-col items-center p-5 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <span class="font-bold text-[13px] text-slate-800 group-hover:text-emerald-700">Perkuliahan</span>
+                            </a>
+                            <!-- Tugas Saya -->
+                            <a href="{{ route('mahasiswa.assignments.index') }}" class="flex flex-col items-center p-5 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                </div>
+                                <span class="font-bold text-[13px] text-slate-800 group-hover:text-emerald-700">Tugas Saya</span>
+                            </a>
+                            <!-- KTM Digital -->
+                            <a href="{{ route('mahasiswa.ktm') }}" class="flex flex-col items-center p-5 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3z"></path></svg>
+                                </div>
+                                <span class="font-bold text-[13px] text-slate-800 group-hover:text-emerald-700">KTM Digital</span>
+                            </a>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <span class="px-3 py-1 bg-{{ $colorClass }}-50 text-{{ $colorClass }}-600 text-[10px] font-bold uppercase tracking-wider rounded-full">{{ $announcement->category }}</span>
-                                @if($announcement->pdf_file)
-                                    <span class="flex items-center text-[9px] font-black text-red-500 uppercase tracking-tighter">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                        PDF
-                                    </span>
-                                @endif
-                            </div>
-                            <h3 class="text-base font-bold text-gray-800 group-hover:text-{{ $colorClass }}-600 transition-colors">{{ $announcement->title }}</h3>
-                            <div class="flex items-center mt-1 text-gray-400 text-xs font-medium">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                {{ $announcement->published_at->format('d M Y') }}
-                            </div>
-                        </div>
-                    </a>
-                @empty
-                    <div class="py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/50">
-                        <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 text-emerald-100">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
-                        </div>
-                        <p class="text-gray-400 font-bold tracking-tight">Belum ada informasi terbaru</p>
-                        <p class="text-gray-300 text-xs mt-1">Berita dan pengumuman akan muncul di sini</p>
                     </div>
-                @endforelse
+
+                    <!-- Grafik Kehadiran -->
+                    <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <p class="text-[11px] uppercase tracking-[0.2em] text-emerald-600 font-bold mb-1">Grafik Kehadiran</p>
+                                <h3 class="text-lg font-bold text-slate-800">Ringkasan Mingguan</h3>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-600">0%</span>
+                        </div>
+                        <div class="space-y-4 mt-8">
+                            @for($i = 1; $i <= 5; $i++)
+                                <div class="flex items-center gap-4">
+                                    <span class="w-16 text-[12px] font-medium text-slate-500">Minggu {{ $i }}</span>
+                                    <div class="h-2.5 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                                        <div class="h-full rounded-full bg-emerald-500" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="w-8 text-right text-[12px] font-bold text-slate-400">0</span>
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
-        </div>
+        </main>
+
     </div>
-</div>
-@endsection
+
+    @include('partials.mobile-bottom-nav')
+</body>
+</html>

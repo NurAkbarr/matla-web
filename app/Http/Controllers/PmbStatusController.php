@@ -16,13 +16,15 @@ class PmbStatusController extends Controller
     {
         $request->validate([
             'registration_code' => 'required|string',
+            'whatsapp_number' => 'required|string',
         ]);
 
         $registration = PmbRegistration::where('registration_code', $request->registration_code)
+                                     ->where('whatsapp_number', $request->whatsapp_number)
                                      ->first();
 
         if (!$registration) {
-            return back()->with('error', 'Nomor Registrasi tidak ditemukan. Harap periksa kembali ketikan Anda.')->withInput();
+            return back()->with('error', 'Kombinasi Nomor Registrasi dan Nomor WhatsApp tidak ditemukan. Harap periksa kembali.')->withInput();
         }
 
         // Store registration id in session briefly so we don't need URL params for status if unwanted, 
@@ -30,12 +32,20 @@ class PmbStatusController extends Controller
         // Actually we can simply return the view with the registration record injected.
         
         // Pass a flag to indicate search is complete along with the data
+        session(['pmb_whatsapp_number' => $request->whatsapp_number]);
+        
         return view('pmb.status', compact('registration'));
     }
 
     public function printLoa($registration_code)
     {
+        $whatsappNumber = session('pmb_whatsapp_number');
+        if (!$whatsappNumber) {
+            abort(403, 'Akses ditolak. Sesi tidak valid atau telah berakhir. Silakan cek status pendaftaran kembali.');
+        }
+
         $registration = PmbRegistration::where('registration_code', $registration_code)
+                                     ->where('whatsapp_number', $whatsappNumber)
                                      ->where('status', 'accepted')
                                      ->firstOrFail();
 

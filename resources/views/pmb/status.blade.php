@@ -33,6 +33,11 @@
                     <input type="text" name="registration_code" required class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-lg font-bold tracking-wider placeholder-gray-300" placeholder="PMB-202X-XXX" value="{{ old('registration_code') }}">
                 </div>
 
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Nomor WhatsApp Terdaftar</label>
+                    <input type="text" name="whatsapp_number" required class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-lg font-bold tracking-wider placeholder-gray-300" placeholder="08xxxxxxxxxx" value="{{ old('whatsapp_number') }}">
+                </div>
+
                 <div class="pt-4">
                     <button type="submit" class="w-full py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all text-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="loading">
                         <template x-if="!loading">

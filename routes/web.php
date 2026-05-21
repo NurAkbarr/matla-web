@@ -117,10 +117,15 @@ Route::middleware(['auth', 'role:super_admin', 'maintenance.gate'])->prefix('_ma
 // ===== FALLBACK ROUTE: Jika Symlink Gagal, Laravel yang akan mengirimkan gambarnya =====
 // Jalur Khusus Foto (Bypass Symlink cPanel yang sering rusak)
 Route::get('/_foto/{path}', function ($path) {
-    $baseDir = storage_path('app/public');
-    $fullPath = $baseDir . '/' . $path;
+    $baseDir = realpath(storage_path('app/public'));
+    $fullPath = realpath($baseDir . '/' . $path);
     
-    if (!file_exists($fullPath) || !is_file($fullPath)) {
+    // Pastikan path yang diselesaikan secara absolut dimulai dengan baseDir
+    if ($fullPath === false || !str_starts_with($fullPath, $baseDir)) {
+        abort(403, 'Akses tidak sah.');
+    }
+
+    if (!is_file($fullPath)) {
         abort(404);
     }
 
@@ -133,6 +138,29 @@ Route::get('/_tugas/{path}', function ($path) {
         abort(403, 'Unauthorized');
     }
     
+    $submission = \App\Models\AssignmentSubmission::where('submitted_file_path', $path)->first();
+    if (!$submission) {
+        abort(404, 'Data submission tidak ditemukan.');
+    }
+    
+    $user = auth()->user();
+
+    // Jika mahasiswa, pastikan dia hanya mengunduh filenya sendiri
+    if ($user->role === 'mahasiswa' && $submission->student_id !== $user->id) {
+        abort(403, 'Akses ditolak.');
+    }
+
+    // Jika dosen, pastikan dia mengajar kelas tugas tersebut
+    if ($user->role === 'dosen') {
+        $assignment = $submission->assignment;
+        if ($assignment) {
+            $isTeacher = $user->taughtSchedules()->where('id', $assignment->class_group_id)->exists();
+            if (!$isTeacher && $assignment->created_by !== $user->id) {
+                abort(403, 'Akses ditolak.');
+            }
+        }
+    }
+
     try {
         $disk = \Illuminate\Support\Facades\Storage::disk('google');
         if (!$disk->exists($path)) {

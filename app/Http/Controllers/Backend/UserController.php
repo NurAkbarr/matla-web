@@ -57,6 +57,10 @@ class UserController extends Controller
             'status' => ['required_if:role,mahasiswa', 'nullable', 'string'],
         ]);
 
+        if ($request->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
+            abort(403, 'Hanya Super Admin yang dapat menetapkan role Super Admin.');
+        }
+
         $password = $request->filled('password') ? $request->password : 'password123';
 
         $user = User::create([
@@ -128,9 +132,21 @@ class UserController extends Controller
             'status' => $request->status,
         ];
 
-        // Super Admin: role tidak boleh diubah
-        if ($user->role !== 'super_admin') {
-            $data['role'] = $request->role;
+        $currentUser = Auth::user();
+
+        // 1. Cegah non-super_admin mengedit akun super_admin
+        if ($user->role === 'super_admin' && $currentUser->role !== 'super_admin') {
+            abort(403, 'Hanya Super Admin yang dapat mengubah profil Super Admin.');
+        }
+
+        // 2. Cegah non-super_admin menaikkan level ke super_admin
+        if ($request->filled('role')) {
+            if ($request->role === 'super_admin' && $currentUser->role !== 'super_admin') {
+                abort(403, 'Hanya Super Admin yang dapat menetapkan role Super Admin.');
+            }
+            if ($user->role !== 'super_admin') {
+                $data['role'] = $request->role;
+            }
         }
 
         if ($request->filled('password')) {

@@ -25,7 +25,7 @@ class BrosurPmbController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'required|file|max:5120', // Use 'file' instead of 'image' to reduce finfo dependency
+            'image' => 'required|file|mimes:jpeg,png,jpg,webp,gif|max:5120', // Use 'file' instead of 'image' to reduce finfo dependency
             'order' => 'integer',
         ]);
 
@@ -53,7 +53,7 @@ class BrosurPmbController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|file|max:5120',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:5120',
             'order' => 'integer',
         ]);
 

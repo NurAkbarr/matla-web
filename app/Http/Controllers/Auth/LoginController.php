@@ -32,8 +32,8 @@ class LoginController extends Controller
 
         if (!$userCheck) {
             return back()->withErrors([
-                'login' => 'Email atau Nomor Telepon belum terdaftar.',
-            ])->with('error', 'Email atau Nomor Telepon belum terdaftar.')->onlyInput('login');
+                'login' => 'Email/Nomor Telepon atau password salah.',
+            ])->with('error', 'Email/Nomor Telepon atau password salah.')->onlyInput('login');
         }
 
         if (Auth::attempt($credentials, $remember)) {

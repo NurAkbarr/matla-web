@@ -55,4 +55,3 @@ class PmbSettingController extends Controller
         return redirect()->back()->with('success', 'Pengaturan PMB berhasil diperbarui.');
     }
 }
-http://127.0.0.1:8000/

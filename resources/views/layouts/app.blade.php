@@ -22,7 +22,7 @@
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-white font-sans text-text-dark">
+    <body class="bg-white font-sans text-text-dark" x-data="{ mobileMenuOpen: false }">
         <!-- Navigation Bar -->
         <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
             <div class="container mx-auto px-4 lg:px-12 py-3 lg:py-4">
@@ -445,5 +445,9 @@
 
         </script>
         @stack('scripts')
+        
+        @if(Auth::check() && Auth::user()->role === 'mahasiswa')
+            @include('partials.mobile-bottom-nav')
+        @endif
     </body>
 </html>
