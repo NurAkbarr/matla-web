@@ -18,7 +18,7 @@
 <body class="text-slate-800 antialiased" x-data="{ sidebarOpen: false, mobileMenuOpen: false }">
 
     @php
-        $hour = date('H');
+        $hour = now()->timezone('Asia/Jakarta')->format('H');
         if ($hour >= 5 && $hour < 11) {
             $greeting = 'Selamat Pagi';
         } elseif ($hour >= 11 && $hour < 15) {
