@@ -111,19 +111,16 @@ class AssignmentController extends Controller
             return redirect()->back()->with('error', 'Batas waktu pengumpulan tugas ini telah terlampaui!');
         }
  
-        // Validate based on submission_type
-        if ($assignment->submission_type === 'file') {
-            $request->validate([
-                'submitted_file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB
-                'notes' => 'nullable|string',
-            ]);
-        } elseif ($assignment->submission_type === 'link') {
-            $request->validate([
-                'submitted_link' => 'required|url|max:255',
-                'notes' => 'nullable|string',
-            ]);
-        } else {
-            return redirect()->back()->with('error', 'Tugas jenis ini hanya dapat dikerjakan dengan mengunjungi tautan eksternal.');
+        // Validate inputs: student can submit text, file, link, or any combination.
+        $request->validate([
+            'notes' => 'nullable|string',
+            'submitted_link' => 'nullable|url|max:255',
+            'submitted_file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB
+        ]);
+
+        // Require at least one form of answer
+        if (!$request->filled('notes') && !$request->filled('submitted_link') && !$request->hasFile('submitted_file')) {
+            return redirect()->back()->with('error', 'Anda harus mengisi teks jawaban, menyertakan tautan, atau mengunggah berkas.');
         }
  
         // Check if already submitted

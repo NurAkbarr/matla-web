@@ -111,20 +111,7 @@
                             <p class="text-xs text-gray-400 font-semibold">{{ $submission->submitted_at->translatedFormat('d M Y, H:i') }}</p>
 
                             <div class="space-y-3 pt-2">
-                                @php $subType = $assignment->submission_type ?? 'file'; @endphp
-
-                                @if($subType === 'external')
-                                    {{-- External: no file/link to show, just a status badge --}}
-                                    <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
-                                        <div class="p-2 bg-indigo-50 rounded-xl text-indigo-500">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                                        </div>
-                                        <span class="text-indigo-600 font-bold text-sm">Dikerjakan melalui tautan eksternal</span>
-                                    </div>
-                                    <p class="text-[11px] text-gray-400 italic pl-1">— Jawaban dikerjakan di luar sistem (Google Form / Quizizz / dll)</p>
-
-                                @elseif($subType === 'link')
-                                    {{-- Link type: show submitted link --}}
+                                    {{-- Unified representation: Show both text/link and file if they exist --}}
                                     @if($submission->submitted_link)
                                         <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
                                             <div class="p-2 bg-slate-50 rounded-xl text-slate-500">
@@ -134,8 +121,6 @@
                                         </div>
                                     @endif
 
-                                @else
-                                    {{-- File type: show file if uploaded --}}
                                     @if($submission->submitted_file_path)
                                         <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
                                             <div class="p-2 bg-slate-50 rounded-xl text-slate-500">
@@ -144,7 +129,6 @@
                                             <a href="{{ route('tugas.download', ['path' => $submission->submitted_file_path]) }}" target="_blank" class="text-emerald-600 hover:underline font-bold">{{ basename($submission->submitted_file_path) }}</a>
                                         </div>
                                     @endif
-                                @endif
 
                                 {{-- Feedback indicator --}}
                                 <div class="flex items-center space-x-3 text-sm text-gray-700 font-medium">
@@ -160,9 +144,9 @@
                                     </span>
                                 </div>
 
-                                @if($submission->notes && $subType !== 'external')
-                                <div class="text-xs text-gray-400 bg-slate-50 p-3 rounded-2xl border border-slate-100 italic mt-2">
-                                    "{{ $submission->notes }}"
+                                @if($submission->notes)
+                                <div class="text-xs text-gray-700 bg-slate-50 p-4 rounded-2xl border border-slate-100 mt-2 prose prose-sm max-w-none">
+                                    {!! $submission->notes !!}
                                 </div>
                                 @endif
 
@@ -218,43 +202,29 @@
                         <h4 class="text-xs font-bold text-red-700 uppercase tracking-wider">Batas Pengumpulan Berakhir</h4>
                         <p class="text-[10px] text-red-500 mt-1">Anda tidak mengumpulkan tugas ini tepat waktu dan pengumpulan telah ditutup.</p>
                     </div>
-                @elseif($submissionType === 'external')
-                    {{-- External link: show auto-submit button only if not yet submitted --}}
-                    @if(!$submission)
-                        <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4 text-center">
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">Tugas Eksternal</h3>
-                            <div class="py-4">
-                                <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                                </div>
-                                <p class="text-sm font-bold text-gray-800">Kerjakan Melalui Tautan Eksternal</p>
-                                <p class="text-xs font-medium text-gray-500 mt-2 px-4">Tugas ini dikerjakan melalui platform eksternal (Google Form, Quizizz, dll). Klik tombol di bawah, sistem akan otomatis merekam bahwa Anda telah mengerjakannya.</p>
-                            </div>
-                            <button
-                                id="btn-kerjakan"
-                                onclick="kerjakanEksternal(this)"
-                                data-url="{{ $assignment->link }}"
-                                data-action="{{ route('mahasiswa.assignments.auto-submit', $assignment) }}"
-                                data-token="{{ csrf_token() }}"
-                                class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-emerald-600/20"
-                            >
-                                Kerjakan Sekarang →
-                            </button>
-                        </div>
-                    @endif
-                @elseif($submissionType === 'link')
-                    {{-- Link submission --}}
+                @else
+                    {{-- Unified Submission Form --}}
                     <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">
-                            {{ $submission ? 'Perbarui Tautan Jawaban' : 'Kumpulkan Tautan Jawaban' }}
+                            {{ $submission ? 'Perbarui Pengumpulan Tugas' : 'Kumpulkan Jawaban' }}
                         </h3>
-                        <form action="{{ route('mahasiswa.assignments.submit', $assignment) }}" method="POST" class="space-y-5">
+                        <form action="{{ route('mahasiswa.assignments.submit', $assignment) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                             @csrf
-                            {{-- Link input --}}
+                            
+                            {{-- Rich Text Answer --}}
                             <div class="space-y-2">
-                                <label for="submitted_link" class="text-xs font-bold text-gray-700 block">Tautan Jawaban (Google Drive, YouTube, dll) <span class="text-rose-500">*</span></label>
+                                <label for="notes" class="text-xs font-bold text-gray-700 block">Teks Jawaban / Catatan Tambahan</label>
+                                <textarea name="notes" id="notes" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-sm text-gray-700 font-medium transition-all outline-none min-h-[150px]">{{ old('notes', $submission?->notes) }}</textarea>
+                                @error('notes')
+                                    <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Optional Tautan --}}
+                            <div class="space-y-2">
+                                <label for="submitted_link" class="text-xs font-bold text-gray-700 block">Tautan Jawaban Luar (Drive/Youtube/Dll) <span class="font-normal text-gray-400 ml-1">— Opsional</span></label>
                                 <div class="relative">
-                                    <input type="url" name="submitted_link" id="submitted_link" required placeholder="https://drive.google.com/..." value="{{ old('submitted_link', $submission?->submitted_link) }}" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-xs text-gray-700 font-semibold transition-all outline-none">
+                                    <input type="url" name="submitted_link" id="submitted_link" placeholder="https://..." value="{{ old('submitted_link', $submission?->submitted_link) }}" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-xs text-gray-700 font-semibold transition-all outline-none">
                                     <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                                     </div>
@@ -263,31 +233,13 @@
                                     <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-                            {{-- Notes --}}
-                            <div class="space-y-2">
-                                <label for="notes" class="text-xs font-bold text-gray-700 block">Catatan Tambahan (Opsional)</label>
-                                <textarea name="notes" id="notes" rows="3" placeholder="Tuliskan catatan tambahan jika ada..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-xs text-gray-700 font-semibold transition-all outline-none resize-none">{{ old('notes', $submission?->notes) }}</textarea>
-                            </div>
-                            <button type="submit" class="w-full py-4 border-2 border-emerald-600 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-bold rounded-2xl transition-all shadow-sm flex justify-center items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                                {{ $submission ? 'Perbarui Tautan Jawaban' : 'Kumpulkan Tautan Jawaban' }}
-                            </button>
-                        </form>
-                    </div>
-                @else
-                    {{-- File submission (default) --}}
-                    <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">
-                            {{ $submission ? 'Perbarui Berkas Jawaban' : 'Kumpulkan Berkas Jawaban' }}
-                        </h3>
-                        <form action="{{ route('mahasiswa.assignments.submit', $assignment) }}" method="POST" enctype="multipart/form-data" class="space-y-5">
-                            @csrf
+
                             {{-- File upload --}}
                             <div class="space-y-2">
                                 <label for="submitted_file" class="text-xs font-bold text-gray-700 block">
-                                    Berkas Jawaban (PDF / Word / Excel) <span class="text-rose-500">*</span>
+                                    Berkas Tambahan (PDF, Word, Excel, ZIP) <span class="font-normal text-gray-400 ml-1">— Opsional</span>
                                     @if($submission?->submitted_file_path)
-                                        <span class="font-normal text-gray-400 ml-1">— Sudah ada berkas sebelumnya</span>
+                                        <span class="font-normal text-gray-400 ml-1 block mt-1">Sudah ada berkas terunggah: {{ basename($submission->submitted_file_path) }}</span>
                                     @endif
                                 </label>
                                 <div class="relative flex items-center justify-center w-full">
@@ -296,7 +248,7 @@
                                             <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <p class="text-[10px] text-gray-400 font-bold">Pilih berkas jawaban (Max 10MB)</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Pilih berkas baru untuk mengunggah (Max 10MB)</p>
                                             <p id="sub-file-chosen" class="text-[10px] text-emerald-600 font-black mt-1 truncate max-w-[200px] hidden"></p>
                                         </div>
                                         <input type="file" name="submitted_file" id="submitted_file" class="hidden" onchange="document.getElementById('sub-file-chosen').textContent = this.files[0].name; document.getElementById('sub-file-chosen').classList.remove('hidden');" />
@@ -306,14 +258,10 @@
                                     <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-                            {{-- Notes --}}
-                            <div class="space-y-2">
-                                <label for="notes" class="text-xs font-bold text-gray-700 block">Catatan Tambahan (Opsional)</label>
-                                <textarea name="notes" id="notes" rows="3" placeholder="Tuliskan catatan tambahan jika ada..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-xs text-gray-700 font-semibold transition-all outline-none resize-none">{{ old('notes', $submission?->notes) }}</textarea>
-                            </div>
-                            <button type="submit" class="w-full py-4 border-2 border-emerald-600 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-bold rounded-2xl transition-all shadow-sm flex justify-center items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                {{ $submission ? 'Perbarui Berkas (Max 10 MB)' : 'Kumpulkan Berkas (Max 10 MB)' }}
+                            
+                            <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-2xl transition-all shadow-sm flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                {{ $submission ? 'Perbarui Jawaban' : 'Kirim Jawaban' }}
                             </button>
                         </form>
                     </div>
@@ -325,36 +273,16 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-function kerjakanEksternal(btn) {
-    const url    = btn.dataset.url;
-    const action = btn.dataset.action;
-    const token  = btn.dataset.token;
-
-    if (!url) {
-        alert('Tautan eksternal belum diatur oleh pengajar. Silakan hubungi dosen atau admin.');
-        return;
-    }
-
-    // Immediately open the external link in a new tab
-    window.open(url, '_blank');
-
-    // Disable button and show loading state
-    btn.disabled = true;
-    btn.textContent = 'Merekam kehadiran...';
-
-    // Record submission in background via fetch
-    fetch(action, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json',
-        },
-    })
-    .finally(() => {
-        // Reload page after a short delay to reflect submitted status
-        setTimeout(() => window.location.reload(), 800);
+    tinymce.init({
+        selector: '#notes',
+        menubar: false,
+        plugins: 'lists link image table code',
+        toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link table code',
+        content_style: 'body { font-family: Montserrat, sans-serif; font-size: 14px }',
+        height: 250,
+        branding: false
     });
-}
 </script>
 @endpush
