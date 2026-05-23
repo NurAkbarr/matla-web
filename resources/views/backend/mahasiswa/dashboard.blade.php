@@ -235,12 +235,44 @@
                         </div>
                         <div class="rounded-[1.5rem] bg-white p-6 shadow-md border border-slate-100 text-slate-800">
                             <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">Tugas / Kuis</p>
-                            <h3 class="text-4xl font-bold mb-1">0</h3>
-                            <p class="text-[11px] text-emerald-600 uppercase tracking-widest font-semibold">Sudah Selesai</p>
+                            <h3 class="text-4xl font-bold mb-1">{{ $pendingTasks ?? 0 }}</h3>
+                            <p class="text-[11px] text-emerald-600 uppercase tracking-widest font-semibold">Belum Dikerjakan</p>
                         </div>
                     </div>
                     </div>
                 </div>
+
+                <!-- To-Do List Section -->
+                @if(isset($pendingTasks) && $pendingTasks > 0)
+                <div class="mb-8">
+                    <div class="mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 tracking-tight">My To-Do List</h2>
+                        <p class="text-sm text-slate-500">Assignment or quiz you need to work on.</p>
+                    </div>
+                    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-200">
+                        <div class="space-y-2">
+                            @foreach($pendingAssignments as $task)
+                                @if(!$task->submission && now()->lte($task->due_date))
+                                <a href="{{ route('mahasiswa.assignments.show', $task->id) }}" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                                    <div class="w-14 h-14 rounded-2xl bg-[#E8F8F5] text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
+                                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-base font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">{{ $task->title }}</h4>
+                                        <p class="text-sm text-slate-500 mt-1 font-medium">Deadline: {{ \Carbon\Carbon::parse($task->due_date)->format('d M Y H:i') }}</p>
+                                    </div>
+                                    <div class="hidden md:block shrink-0">
+                                        <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+                                            {{ $task->mataKuliah->nama ?? 'Umum' }}
+                                        </span>
+                                    </div>
+                                </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <!-- Bottom Section -->
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
