@@ -224,9 +224,9 @@
                             <p class="text-[11px] text-emerald-200 uppercase tracking-widest">Skala 4.00</p>
                         </div>
                         <div class="rounded-[1.5rem] bg-white p-6 shadow-md border border-slate-100 text-slate-800">
-                            <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">SKS Diambil</p>
-                            <h3 class="text-4xl font-bold mb-1">{{ $totalSKS ?? 0 }}</h3>
-                            <p class="text-[11px] text-slate-500 uppercase tracking-widest">Dari 144 SKS</p>
+                            <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">Total Kelas</p>
+                            <h3 class="text-4xl font-bold mb-1">{{ $totalMataKuliah ?? 0 }}</h3>
+                            <p class="text-[11px] text-slate-500 uppercase tracking-widest">Sedang Diikuti</p>
                         </div>
                         <div class="rounded-[1.5rem] bg-white p-6 shadow-md border border-slate-100 text-slate-800">
                             <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-4">Jadwal Hari Ini</p>
