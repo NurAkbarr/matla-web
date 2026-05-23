@@ -204,65 +204,57 @@
                     </div>
                 @else
                     {{-- Unified Submission Form --}}
-                    <div class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm space-y-4">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">
-                            {{ $submission ? 'Perbarui Pengumpulan Tugas' : 'Kumpulkan Jawaban' }}
-                        </h3>
-                        <form action="{{ route('mahasiswa.assignments.submit', $assignment) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <div class="bg-white rounded-[2rem] p-6 md:p-8 border border-gray-100 shadow-sm mt-6">
+                        <form action="{{ route('mahasiswa.assignments.submit', $assignment) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             
-                            {{-- Rich Text Answer --}}
-                            <div class="space-y-2">
-                                <label for="notes" class="text-xs font-bold text-gray-700 block">Teks Jawaban / Catatan Tambahan</label>
-                                <textarea name="notes" id="notes" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-sm text-gray-700 font-medium transition-all outline-none min-h-[150px]">{{ old('notes', $submission?->notes) }}</textarea>
-                                @error('notes')
-                                    <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
-                                @enderror
+                            {{-- Header --}}
+                            <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-100 pb-4 mb-6 gap-4">
+                                <h3 class="text-base font-bold text-gray-900">
+                                    Jawaban:
+                                </h3>
+                                <div class="flex items-center gap-4">
+                                    @if($submission)
+                                    <a href="#" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Riwayat Pengumpulan
+                                    </a>
+                                    @endif
+                                    <a href="{{ route('mahasiswa.assignments.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700">Batal</a>
+                                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                        {{ $submission ? 'Perbarui Jawaban' : 'Kirim Jawaban' }}
+                                    </button>
+                                </div>
                             </div>
 
-                            {{-- Optional Tautan --}}
-                            <div class="space-y-2">
-                                <label for="submitted_link" class="text-xs font-bold text-gray-700 block">Tautan Jawaban Luar (Drive/Youtube/Dll) <span class="font-normal text-gray-400 ml-1">— Opsional</span></label>
-                                <div class="relative">
-                                    <input type="url" name="submitted_link" id="submitted_link" placeholder="https://..." value="{{ old('submitted_link', $submission?->submitted_link) }}" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-xs text-gray-700 font-semibold transition-all outline-none">
-                                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                            {{-- Textarea and Attachments --}}
+                            <div class="relative rounded-2xl border border-gray-200 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all bg-gray-50/50">
+                                <textarea name="notes" id="notes" class="w-full px-4 py-4 bg-transparent text-sm text-gray-700 border-none focus:ring-0 resize-none min-h-[150px] outline-none" placeholder="Ketik jawaban Anda di sini (opsional jika hanya mengirim berkas)...">{{ old('notes', $submission?->notes) }}</textarea>
+                                
+                                <div class="px-4 py-3 border-t border-gray-200 bg-white rounded-b-2xl flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <label class="cursor-pointer text-gray-500 hover:text-emerald-600 p-2 hover:bg-emerald-50 rounded-xl transition-colors relative group" title="Tambahkan Berkas">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                            <input type="file" name="submitted_file" id="submitted_file" class="hidden" onchange="document.getElementById('file-name').textContent = this.files[0].name;" />
+                                        </label>
+                                        <span id="file-name" class="text-xs font-bold text-emerald-600">
+                                            @if($submission?->submitted_file_path)
+                                                Berkas terunggah: {{ basename($submission->submitted_file_path) }}
+                                            @else
+                                                Belum ada berkas yang dipilih.
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
-                                @error('submitted_link')
-                                    <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- File upload --}}
-                            <div class="space-y-2">
-                                <label for="submitted_file" class="text-xs font-bold text-gray-700 block">
-                                    Berkas Tambahan (PDF, Word, Excel, ZIP) <span class="font-normal text-gray-400 ml-1">— Opsional</span>
-                                    @if($submission?->submitted_file_path)
-                                        <span class="font-normal text-gray-400 ml-1 block mt-1">Sudah ada berkas terunggah: {{ basename($submission->submitted_file_path) }}</span>
-                                    @endif
-                                </label>
-                                <div class="relative flex items-center justify-center w-full">
-                                    <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 hover:border-emerald-500 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all">
-                                        <div class="flex flex-col items-center justify-center pt-4 pb-4">
-                                            <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
-                                            <p class="text-[10px] text-gray-400 font-bold">Pilih berkas baru untuk mengunggah (Max 10MB)</p>
-                                            <p id="sub-file-chosen" class="text-[10px] text-emerald-600 font-black mt-1 truncate max-w-[200px] hidden"></p>
-                                        </div>
-                                        <input type="file" name="submitted_file" id="submitted_file" class="hidden" onchange="document.getElementById('sub-file-chosen').textContent = this.files[0].name; document.getElementById('sub-file-chosen').classList.remove('hidden');" />
-                                    </label>
-                                </div>
-                                @error('submitted_file')
-                                    <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
-                                @enderror
                             </div>
                             
-                            <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-2xl transition-all shadow-sm flex justify-center items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                {{ $submission ? 'Perbarui Jawaban' : 'Kirim Jawaban' }}
-                            </button>
+                            @error('notes') <p class="text-xs text-rose-500 font-bold mt-2">{{ $message }}</p> @enderror
+                            @error('submitted_file') <p class="text-xs text-rose-500 font-bold mt-2">{{ $message }}</p> @enderror
+
+                            <p class="text-[11px] text-gray-500 mt-4">
+                                <span class="font-bold text-gray-700">Tipe berkas yang dapat di unggah:</span> pdf, ppt, pptx, xls, xlsx, doc, docx, txt, jpeg, jpg, png, gif, rar, zip.
+                            </p>
                         </form>
                     </div>
                 @endif
@@ -272,17 +264,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    tinymce.init({
-        selector: '#notes',
-        menubar: false,
-        plugins: 'lists link image table code',
-        toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link table code',
-        content_style: 'body { font-family: Montserrat, sans-serif; font-size: 14px }',
-        height: 250,
-        branding: false
-    });
-</script>
-@endpush

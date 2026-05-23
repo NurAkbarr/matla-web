@@ -246,8 +246,8 @@
                 @if(isset($pendingTasks) && $pendingTasks > 0)
                 <div class="mb-8">
                     <div class="mb-4">
-                        <h2 class="text-xl font-bold text-slate-800 tracking-tight">My To-Do List</h2>
-                        <p class="text-sm text-slate-500">Assignment or quiz you need to work on.</p>
+                        <h2 class="text-xl font-bold text-slate-800 tracking-tight">Daftar Tugas Saya</h2>
+                        <p class="text-sm text-slate-500">Tugas atau kuis yang perlu segera Anda kerjakan.</p>
                     </div>
                     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-200">
                         <div class="space-y-2">
@@ -259,7 +259,7 @@
                                     </div>
                                     <div class="flex-1">
                                         <h4 class="text-base font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">{{ $task->title }}</h4>
-                                        <p class="text-sm text-slate-500 mt-1 font-medium">Deadline: {{ \Carbon\Carbon::parse($task->due_date)->format('d M Y H:i') }}</p>
+                                        <p class="text-sm text-slate-500 mt-1 font-medium">Batas Waktu: {{ \Carbon\Carbon::parse($task->due_date)->format('d M Y H:i') }} WIB</p>
                                     </div>
                                     <div class="hidden md:block shrink-0">
                                         <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
