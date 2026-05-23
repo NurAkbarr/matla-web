@@ -134,6 +134,7 @@ Route::get('/_foto/{path}', function ($path) {
 
 // ===== Google Drive File Download Route (Tugas Mahasiswa) =====
 Route::get('/_tugas/{path}', function ($path) {
+    $path = urldecode($path);
     if (!auth()->check()) {
         abort(403, 'Unauthorized');
     }
@@ -161,12 +162,12 @@ Route::get('/_tugas/{path}', function ($path) {
         }
     }
 
-    try {
-        $disk = \Illuminate\Support\Facades\Storage::disk('google');
-        if (!$disk->exists($path)) {
-            abort(404, 'File tidak ditemukan di Google Drive.');
-        }
+    $disk = \Illuminate\Support\Facades\Storage::disk('google');
+    if (!$disk->exists($path)) {
+        abort(404, 'File tidak ditemukan di Google Drive. Mungkin nama file mengandung karakter tidak valid.');
+    }
 
+    try {
         $mimeType = $disk->mimeType($path) ?: 'application/octet-stream';
         $fileName = basename($path);
         
@@ -174,7 +175,8 @@ Route::get('/_tugas/{path}', function ($path) {
             ->header('Content-Type', $mimeType)
             ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
     } catch (\Exception $e) {
-        abort(500, 'Gagal mengunduh file dari Google Drive.');
+        \Illuminate\Support\Facades\Log::error('Drive download error: ' . $e->getMessage(), ['exception' => $e]);
+        abort(500, 'Gagal mengunduh file dari Google Drive: ' . $e->getMessage());
     }
 })->where('path', '.*')->name('tugas.download');
 

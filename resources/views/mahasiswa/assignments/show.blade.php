@@ -126,7 +126,7 @@
                                             <div class="p-2 bg-slate-50 rounded-xl text-slate-500">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                             </div>
-                                            <a href="{{ route('tugas.download', ['path' => $submission->submitted_file_path]) }}" target="_blank" class="text-emerald-600 hover:underline font-bold">{{ basename($submission->submitted_file_path) }}</a>
+                                            <a href="{{ route('tugas.download', ['path' => str_replace('#', '%23', $submission->submitted_file_path)]) }}" target="_blank" class="text-emerald-600 hover:underline font-bold">{{ basename($submission->submitted_file_path) }}</a>
                                         </div>
                                     @endif
 
@@ -221,6 +221,15 @@
                                     </a>
                                     @endif
                                     <a href="{{ route('mahasiswa.assignments.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700">Batal</a>
+                                    
+                                    @php $isLinkOnly = !$assignment->file_path && $assignment->link; @endphp
+                                    @if($isLinkOnly)
+                                        <button type="submit" name="mark_as_done" value="1" class="px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 border border-indigo-200">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            Tandai Selesai
+                                        </button>
+                                    @endif
+                                    
                                     <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                                         {{ $submission ? 'Perbarui Jawaban' : 'Kirim Jawaban' }}
@@ -230,21 +239,14 @@
 
                             {{-- Textarea and Attachments --}}
                             <div class="relative rounded-2xl border border-gray-200 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all bg-gray-50/50">
-                                <textarea name="notes" id="notes" class="w-full px-4 py-4 bg-transparent text-sm text-gray-700 border-none focus:ring-0 resize-none min-h-[150px] outline-none" placeholder="Ketik jawaban Anda di sini (opsional jika hanya mengirim berkas)...">{{ old('notes', $submission?->notes) }}</textarea>
+                                <textarea name="notes" id="notes" class="w-full px-4 py-4 bg-transparent text-sm text-gray-700 border-none focus:ring-0 resize-none min-h-[150px] outline-none" placeholder="{{ $isLinkOnly ? 'Ketik catatan jika diperlukan, atau langsung klik Tandai Selesai di atas.' : 'Ketik jawaban Anda di sini (opsional jika hanya mengirim berkas)...' }}">{{ old('notes', $submission?->notes) }}</textarea>
                                 
                                 <div class="px-4 py-3 border-t border-gray-200 bg-white rounded-b-2xl flex items-center justify-between">
                                     <div class="flex items-center gap-3">
                                         <label class="cursor-pointer text-gray-500 hover:text-emerald-600 p-2 hover:bg-emerald-50 rounded-xl transition-colors relative group" title="Tambahkan Berkas">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                                            <input type="file" name="submitted_file" id="submitted_file" class="hidden" onchange="document.getElementById('file-name').textContent = this.files[0].name;" />
+                                            <input type="file" name="submitted_file" id="submitted_file" class="hidden" onchange="handleFileSelect(this)" />
                                         </label>
-                                        <span id="file-name" class="text-xs font-bold text-emerald-600">
-                                            @if($submission?->submitted_file_path)
-                                                Berkas terunggah: {{ basename($submission->submitted_file_path) }}
-                                            @else
-                                                Belum ada berkas yang dipilih.
-                                            @endif
-                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -252,9 +254,52 @@
                             @error('notes') <p class="text-xs text-rose-500 font-bold mt-2">{{ $message }}</p> @enderror
                             @error('submitted_file') <p class="text-xs text-rose-500 font-bold mt-2">{{ $message }}</p> @enderror
 
-                            <p class="text-[11px] text-gray-500 mt-4">
+                            <p class="text-[11px] text-gray-500 mt-4 mb-2">
                                 <span class="font-bold text-gray-700">Tipe berkas yang dapat di unggah:</span> pdf, ppt, pptx, xls, xlsx, doc, docx, txt, jpeg, jpg, png, gif, rar, zip.
                             </p>
+
+                            {{-- File Preview Container --}}
+                            <div id="file-preview-container" class="{{ $submission?->submitted_file_path ? '' : 'hidden' }}">
+                                <div class="flex items-center justify-between p-4 bg-[#Eef0f8] rounded-xl border border-transparent">
+                                    <div class="flex items-center gap-4 overflow-hidden">
+                                        <div class="w-8 h-8 rounded bg-rose-500 flex items-center justify-center text-white text-[9px] font-black shrink-0">
+                                            FILE
+                                        </div>
+                                        <span id="preview-file-name" class="text-sm text-slate-800 truncate">
+                                            @if($submission?->submitted_file_path)
+                                                {{ basename($submission->submitted_file_path) }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4 shrink-0 pl-4">
+                                        <button type="button" onclick="removeFile()" class="text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors">Hapus</button>
+                                        @if($submission?->submitted_file_path)
+                                        <a href="{{ route('tugas.download', ['path' => str_replace('#', '%23', $submission->submitted_file_path)]) }}" id="download-btn" target="_blank" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">Unduh</a>
+                                        @endif
+                                    </div>
+                                </div>
+                                {{-- Hidden input to mark deletion if needed in backend --}}
+                                <input type="hidden" name="delete_existing_file" id="delete_existing_file" value="0">
+                            </div>
+                            
+                            <script>
+                                function handleFileSelect(input) {
+                                    if (input.files && input.files[0]) {
+                                        document.getElementById('preview-file-name').textContent = input.files[0].name;
+                                        document.getElementById('file-preview-container').classList.remove('hidden');
+                                        document.getElementById('delete_existing_file').value = '0';
+                                        
+                                        let dlBtn = document.getElementById('download-btn');
+                                        if(dlBtn) dlBtn.classList.add('hidden');
+                                    }
+                                }
+
+                                function removeFile() {
+                                    document.getElementById('submitted_file').value = '';
+                                    document.getElementById('file-preview-container').classList.add('hidden');
+                                    document.getElementById('delete_existing_file').value = '1';
+                                }
+                            </script>
                         </form>
                     </div>
                 @endif

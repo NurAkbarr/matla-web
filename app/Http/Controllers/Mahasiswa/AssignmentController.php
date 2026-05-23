@@ -118,9 +118,14 @@ class AssignmentController extends Controller
             'submitted_file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB
         ]);
 
-        // Require at least one form of answer
-        if (!$request->filled('notes') && !$request->filled('submitted_link') && !$request->hasFile('submitted_file')) {
+        // Require at least one form of answer or marked as done
+        if (!$request->has('mark_as_done') && !$request->filled('notes') && !$request->filled('submitted_link') && !$request->hasFile('submitted_file')) {
             return redirect()->back()->with('error', 'Anda harus mengisi teks jawaban, menyertakan tautan, atau mengunggah berkas.');
+        }
+
+        $notesToSave = $request->notes;
+        if ($request->has('mark_as_done') && empty($notesToSave)) {
+            $notesToSave = 'Tugas ini telah ditandai selesai oleh mahasiswa melalui tautan eksternal.';
         }
  
         // Check if already submitted
@@ -142,7 +147,8 @@ class AssignmentController extends Controller
             $file = $request->file('submitted_file');
             $nim = $user->nim ?? $user->id;
             $userName = str_replace(' ', '_', $user->name);
-            $fileName = $nim . '_' . $userName . '_' . time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $safeFileName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $file->getClientOriginalName());
+            $fileName = $nim . '_' . $userName . '_' . time() . '_' . $safeFileName;
             $drivePath = 'submissions/' . $fileName;
  
             // Upload to Google Drive instead of local server
@@ -155,7 +161,7 @@ class AssignmentController extends Controller
             [
                 'submitted_file_path' => $submittedFilePath,
                 'submitted_link' => $request->submitted_link,
-                'notes' => $request->notes,
+                'notes' => $notesToSave,
                 'submitted_at' => now(),
             ]
         );
