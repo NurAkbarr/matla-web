@@ -43,9 +43,10 @@ class MataKuliahController extends Controller
             'program_studi_id' => 'required|exists:program_studis,id',
             'kode' => 'required|unique:mata_kuliahs,kode',
             'nama' => 'required|string|max:255',
-            'sks' => 'required|integer|min:1|max:8',
             'semester' => 'required|integer|min:1|max:14',
         ]);
+        
+        $validated['sks'] = 0; // Default since SKS is removed
 
         \App\Models\MataKuliah::create($validated);
 
@@ -64,9 +65,10 @@ class MataKuliahController extends Controller
             'program_studi_id' => 'required|exists:program_studis,id',
             'kode' => 'required|unique:mata_kuliahs,kode,' . $mataKuliah->id,
             'nama' => 'required|string|max:255',
-            'sks' => 'required|integer|min:1|max:8',
             'semester' => 'required|integer|min:1|max:14',
         ]);
+
+        $validated['sks'] = 0; // Default since SKS is removed
 
         $mataKuliah->update($validated);
 

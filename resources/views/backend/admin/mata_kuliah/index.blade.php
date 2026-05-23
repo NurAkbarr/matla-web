@@ -43,7 +43,7 @@
                         <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">#</th>
                         <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Kode</th>
                         <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Mata Kuliah</th>
-                        <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">SKS</th>
+
                         <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Semester</th>
                         <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 text-right">Aksi</th>
                     </tr>
@@ -61,9 +61,7 @@
                                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $mk->programStudi->nama }}</span>
                             </div>
                         </td>
-                        <td class="px-8 py-6">
-                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 text-slate-600 text-xs font-black">{{ $mk->sks }}</span>
-                        </td>
+
                         <td class="px-8 py-6">
                             <span class="text-xs font-bold text-slate-500 uppercase">Smt {{ $mk->semester }}</span>
                         </td>

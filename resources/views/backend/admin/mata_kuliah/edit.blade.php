@@ -47,15 +47,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- SKS -->
-            <div class="space-y-3">
-                <label for="sks" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Jumlah SKS</label>
-                <input type="number" name="sks" id="sks" required min="1" max="8"
-                    class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm font-bold @error('sks') border-red-500 @enderror" 
-                    value="{{ old('sks') ?? $mataKuliah->sks }}">
-                @error('sks') <p class="text-red-500 text-[10px] font-black uppercase tracking-tighter">{{ $message }}</p> @enderror
-            </div>
-
             <!-- Semester -->
             <div class="space-y-3">
                 <label for="semester" class="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Semester</label>
