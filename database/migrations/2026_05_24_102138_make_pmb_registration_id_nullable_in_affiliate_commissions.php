@@ -11,11 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Try dropping foreign key first if it exists
+        try {
+            Schema::table('affiliate_commissions', function (Blueprint $table) {
+                $table->dropForeign(['pmb_registration_id']);
+            });
+        } catch (\Exception $e) {
+            // Ignore error if foreign key does not exist (Error 1091)
+        }
+
         Schema::table('affiliate_commissions', function (Blueprint $table) {
-            // Drop foreign key first if needed, but SQLite might have issues. Assuming MySQL here.
-            $table->dropForeign(['pmb_registration_id']);
-            $table->foreignId('pmb_registration_id')->nullable()->change();
-            $table->foreign('pmb_registration_id')->references('id')->on('pmb_registrations')->onDelete('cascade');
+            $table->unsignedBigInteger('pmb_registration_id')->nullable()->change();
+            
+            // Re-add foreign key if we want to ensure it exists
+            try {
+                $table->foreign('pmb_registration_id')->references('id')->on('pmb_registrations')->onDelete('cascade');
+            } catch (\Exception $e) {
+                // Ignore if it already exists
+            }
         });
     }
 
