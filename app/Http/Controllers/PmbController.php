@@ -7,8 +7,13 @@ use Illuminate\Http\Request;
 
 class PmbController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Tracking Affiliate
+        if ($request->has('ref')) {
+            session(['pmb_referrer' => $request->query('ref')]);
+        }
+
         $settings = [
             'pmb_end_date' => \App\Models\Setting::get_value('pmb_end_date', date('Y-m-d\TH:i:s', strtotime('+30 days'))),
             'pmb_gelombang' => \App\Models\Setting::get_value('pmb_gelombang', '2024/2025 - Gelombang 1'),

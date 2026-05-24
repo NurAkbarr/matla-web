@@ -332,12 +332,15 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::prefix('admin/pmb/affiliates')->name('admin.affiliates.')->group(function () {
             Route::get('/', [AffiliateController::class, 'index'])->name('index');
             Route::post('/', [AffiliateController::class, 'store'])->name('store');
-            Route::patch('/{affiliate}/toggle', [AffiliateController::class, 'toggleStatus'])->name('toggle');
+            Route::get('/tiers', [App\Http\Controllers\Backend\AffiliateTierController::class, 'index'])->name('tiers');
+            Route::put('/tiers', [App\Http\Controllers\Backend\AffiliateTierController::class, 'update'])->name('tiers.update');
+
+            Route::patch('/{affiliate}/toggle', [App\Http\Controllers\Backend\AffiliateController::class, 'toggleStatus'])->name('toggle');
             Route::delete('/{affiliate}', [AffiliateController::class, 'destroy'])->name('destroy');
             
             // Commissions
-            Route::get('/commissions', [AffiliateController::class, 'commissions'])->name('commissions');
-            Route::patch('/commissions/{commission}/pay', [AffiliateController::class, 'markPaid'])->name('commissions.pay');
+            Route::get('/commissions', [App\Http\Controllers\Backend\AffiliateController::class, 'commissions'])->name('commissions');
+            Route::post('/commissions/{affiliate}/pay-balance', [App\Http\Controllers\Backend\AffiliateController::class, 'payBalance'])->name('commissions.pay_balance');
         });
     });
 

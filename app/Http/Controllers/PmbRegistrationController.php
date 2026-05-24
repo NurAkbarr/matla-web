@@ -172,13 +172,6 @@ class PmbRegistrationController extends Controller
 
         // Create Commission Record if using affiliate
         if ($affiliate) {
-            \App\Models\AffiliateCommission::create([
-                'affiliate_id' => $affiliate->id,
-                'pmb_registration_id' => $registration->id,
-                'amount' => $affiliate->commission_rate,
-                'status' => 'approved', // Immediately approved as requested
-            ]);
-            
             // Clear referrer from session
             session()->forget('pmb_referrer');
         }

@@ -26,7 +26,6 @@ class AffiliateController extends Controller
             'name' => 'nullable|string|max:255|required_without:user_id',
             'whatsapp_number' => 'nullable|string|max:20|required_without:user_id',
             'affiliate_code' => 'required|string|unique:affiliates,affiliate_code|max:20',
-            'commission_rate' => 'required|numeric|min:0',
         ]);
 
         Affiliate::create([
@@ -34,7 +33,6 @@ class AffiliateController extends Controller
             'name' => $request->name,
             'whatsapp_number' => $request->whatsapp_number,
             'affiliate_code' => strtoupper($request->affiliate_code),
-            'commission_rate' => $request->commission_rate,
             'is_active' => true,
         ]);
 
@@ -43,25 +41,53 @@ class AffiliateController extends Controller
 
     public function commissions()
     {
-        $commissions = AffiliateCommission::with(['affiliate.user', 'registration'])
-            ->latest()
+        $affiliates = Affiliate::with(['user', 'registrations', 'commissions'])
+            ->withCount('registrations')
+            ->having('registrations_count', '>', 0)
             ->paginate(15);
 
-        return view('backend.admin.affiliates.commissions', compact('commissions'));
-    }
+        // Calculate dynamic tiers
+        $tiers = \App\Models\AffiliateTier::orderBy('min_referrals', 'desc')->get();
 
-    public function markPaid(AffiliateCommission $commission)
-    {
-        if ($commission->status !== 'approved') {
-            return redirect()->back()->with('error', 'Hanya komisi dengan status "approved" yang bisa dicairkan.');
+        foreach ($affiliates as $aff) {
+            $totalReferrals = $aff->registrations_count;
+            $currentTier = $tiers->firstWhere('min_referrals', '<=', $totalReferrals);
+            
+            $aff->tier_name = $currentTier ? $currentTier->name : 'Tidak Ada Tier';
+            $aff->tier_rate = $currentTier ? $currentTier->commission_amount : 0;
+            $aff->total_earned = $totalReferrals * $aff->tier_rate;
+            $aff->total_paid = $aff->commissions()->where('status', 'paid')->sum('amount');
+            $aff->unpaid_balance = $aff->total_earned - $aff->total_paid;
         }
 
-        $commission->update([
+        return view('backend.admin.affiliates.commissions', compact('affiliates'));
+    }
+
+    public function payBalance(Affiliate $affiliate)
+    {
+        $totalReferrals = $affiliate->registrations()->count();
+        $tiers = \App\Models\AffiliateTier::orderBy('min_referrals', 'desc')->get();
+        $currentTier = $tiers->firstWhere('min_referrals', '<=', $totalReferrals);
+        
+        $tierRate = $currentTier ? $currentTier->commission_amount : 0;
+        $totalEarned = $totalReferrals * $tierRate;
+        $totalPaid = $affiliate->commissions()->where('status', 'paid')->sum('amount');
+        $unpaidBalance = $totalEarned - $totalPaid;
+
+        if ($unpaidBalance <= 0) {
+            return redirect()->back()->with('error', 'Tidak ada sisa komisi yang perlu dibayarkan.');
+        }
+
+        // Record the payment
+        AffiliateCommission::create([
+            'affiliate_id' => $affiliate->id,
+            'pmb_registration_id' => null, // Nullable now, represents a bulk payment
+            'amount' => $unpaidBalance,
             'status' => 'paid',
             'paid_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Komisi berhasil ditandai sebagai "Sudah Dibayar".');
+        return redirect()->back()->with('success', 'Sisa komisi sebesar Rp ' . number_format($unpaidBalance, 0, ',', '.') . ' berhasil dibayarkan.');
     }
 
     public function toggleStatus(Affiliate $affiliate)

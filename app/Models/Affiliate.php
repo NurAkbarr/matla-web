@@ -56,6 +56,6 @@ class Affiliate extends Model
      */
     public function getLinkAttribute(): string
     {
-        return route('pmb.register', ['ref' => $this->affiliate_code]);
+        return route('pmb', ['ref' => $this->affiliate_code]);
     }
 }
