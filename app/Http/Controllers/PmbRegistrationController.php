@@ -190,11 +190,19 @@ class PmbRegistrationController extends Controller
             \Illuminate\Support\Facades\Log::error('Registration Notification Failed: ' . $e->getMessage());
         }
 
+        // Store authorized registration code in session
+        session(['pmb_registered_code' => $registration->registration_code]);
+
         return redirect()->route('pmb.success', $registration->registration_code);
     }
 
     public function success($registration_code)
     {
+        // Enforce session check to prevent enumeration
+        if (session('pmb_registered_code') !== $registration_code) {
+            abort(403, 'Akses tidak sah.');
+        }
+
         $registration = PmbRegistration::where('registration_code', $registration_code)->firstOrFail();
         return view('pmb.success', compact('registration'));
     }

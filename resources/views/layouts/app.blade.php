@@ -14,7 +14,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
         <!-- Alpine.js -->
 
@@ -296,93 +296,109 @@
 
         @if(!request()->routeIs(['login', 'register']))
         <!-- Main Footer -->
-        <footer class="bg-gray-50 border-t border-gray-100 {{ request()->routeIs(['backend.*', 'mahasiswa.*']) ? 'pt-8 pb-8' : 'pt-16 pb-8' }}">
-            <div class="container mx-auto px-4 lg:px-12">
+        <footer class="bg-gray-50 border-t border-gray-100 {{ request()->routeIs(['backend.*', 'mahasiswa.*']) ? 'pt-8 pb-8' : 'pt-12 sm:pt-16 pb-8' }}">
+            <div class="container mx-auto px-5 sm:px-6 lg:px-12">
                 @if(!request()->routeIs(['backend.*', 'mahasiswa.*']))
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
-                    <!-- Column 1: Brand & Contact -->
-                    <div class="lg:col-span-2">
-                        <a href="#beranda" class="flex items-center space-x-2 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 lg:gap-8 mb-10 sm:mb-16">
+                    <!-- Column 1: Tentang -->
+                    <div>
+                        <a href="#beranda" class="flex items-center space-x-2 mb-4">
                             <img src="{{ asset('assets/logo.png') }}" alt="MATLA Logo" class="h-8 w-auto">
                             <span class="text-xl font-bold text-primary-dark tracking-wide uppercase">MATLA</span>
                         </a>
-                        <p class="text-lg font-bold text-[#1F2937] mb-2">
-                            Matla Islamic University - Kampus Islam Online
+                        <p class="text-sm font-bold text-[#1F2937] mb-3 leading-snug">
+                            Matla Islamic University — Kampus Islam Online Terdepan di Indonesia
                         </p>
-                        <div class="space-y-3 text-gray-500">
-                            <p class="flex items-start">
-                                <span class="max-w-xs">Jl. Conspet No. 123, Kota Santri, Indonesia.</span>
-                            </p>
-                            <p>
-                            <a href="mailto:matlaislamicuniversity@gmail.com" class="hover:text-primary transition-colors">matlaislamicuniversity@gmail.com</a>
-                            </p>
-                            <p>
-                                <a href="tel:+6287784538820" class="hover:text-primary transition-colors">+62 877-8453-8820</a>
-                            </p>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Matla adalah kampus Islam online yang menyediakan program Bahasa Arab dan S1 Pendidikan Agama Islam yang fleksibel, terjangkau, dan bersanad.
+                        </p>
+                    </div>
+
+                    <!-- Column 2: Program -->
+                    <div>
+                        <h4 class="text-lg font-bold text-[#1F2937] mb-6">Program</h4>
+                        <ul class="space-y-4">
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">Bahasa Arab</a></li>
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">S1 Pendidikan Agama Islam</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 3: Link Cepat -->
+                    <div>
+                        <h4 class="text-lg font-bold text-[#1F2937] mb-6">Link Cepat</h4>
+                        <ul class="space-y-4">
+                            <li><a href="#beranda" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">Beranda</a></li>
+                            <li><a href="#tentang" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">Tentang Kami</a></li>
+                            <li><a href="#keunggulan" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">Keunggulan</a></li>
+                            <li><a href="/pmb" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">PMB</a></li>
+                            <li><a href="#kontak" class="text-gray-500 hover:text-primary transition-colors text-sm font-medium">Kontak</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 4: Kontak & Sosmed -->
+                    <div>
+                        <h4 class="text-lg font-bold text-[#1F2937] mb-6">Kontak</h4>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-center space-x-3 text-gray-600 text-[15px]">
+                                <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 1.846.503 3.576 1.385 5.073L2 22l5.073-1.385A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.333a8.307 8.307 0 01-4.24-1.157l-.304-.18-3.153.86.86-3.153-.18-.304A8.307 8.307 0 013.667 12C3.667 7.405 7.405 3.667 12 3.667c4.595 0 8.333 3.738 8.333 8.333S16.595 20.333 12 20.333zm4.594-5.91c-.252-.126-1.488-.735-1.718-.82-.23-.083-.398-.126-.566.126-.168.252-.648.82-.795.988-.147.168-.293.189-.545.063-.252-.126-1.06-.391-2.02-1.246-.747-.665-1.252-1.488-1.4-1.74-.147-.252-.016-.388.11-.514.113-.113.252-.294.378-.44.126-.147.168-.252.252-.42.084-.168.042-.315-.021-.441-.063-.126-.566-1.365-.775-1.87-.204-.492-.412-.425-.566-.433-.147-.008-.315-.008-.483-.008-.168 0-.441.063-.672.315-.23.252-.881.861-.881 2.099s.902 2.435 1.028 2.603c.126.168 1.776 2.71 4.3 3.8.6.258 1.068.412 1.434.527.602.191 1.15.164 1.583.1.485-.072 1.488-.609 1.698-1.197.21-.588.21-1.092.147-1.197-.063-.105-.23-.168-.482-.294z" fill="#25D366"/>
+                                </svg>
+                                <a href="tel:+6287784538820" class="hover:text-[#25D366] transition-colors font-medium">0877 8453 8820</a>
+                            </li>
+                            <li class="flex items-center space-x-3 text-gray-600 text-[15px]">
+                                <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 6C22 4.9 21.1 4 20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6ZM20 6L12 11L4 6H20ZM20 18H4V8L12 13L20 8V18Z" fill="#EA4335"/>
+                                </svg>
+                                <a href="mailto:matlaislamicuniversity@gmail.com" class="hover:text-[#EA4335] transition-colors font-medium break-all">matlaislamicuniversity@gmail.com</a>
+                            </li>
+                            <li class="flex items-center space-x-3 text-gray-600 text-[15px]">
+                                <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 19.93C7.05 19.43 4 16.05 4 12C4 11.53 4.04 11.08 4.12 10.63L8.5 15V16C8.5 17.1 9.4 18 10.5 18V19.93H11ZM17.41 17.59C17.14 16.66 16.29 16 15.28 16H14.5V13C14.5 12.45 14.05 12 13.5 12H9.5V10H11.5C12.05 10 12.5 9.55 12.5 9V7H14.5C15.6 7 16.5 6.1 16.5 5V4.68C18.84 6.2 20.25 8.84 20.25 11.75C20.25 14.08 19.17 16.14 17.41 17.59Z" fill="#1A73E8"/>
+                                </svg>
+                                <a href="https://matla.id" target="_blank" class="hover:text-[#1A73E8] transition-colors font-medium">matla.id</a>
+                            </li>
+                        </ul>
+                        
+                        <h4 class="text-sm font-bold text-[#1F2937] mb-4">Sosmed</h4>
+                        <div class="flex space-x-4">
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/kampusmatla?igsh=dzhyZXVqem5ndjQ5" target="_blank" class="hover:opacity-80 transition-opacity transform hover:scale-110" title="Instagram">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="ig-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                                            <stop offset="0" stop-color="#f09433"/>
+                                            <stop offset="0.25" stop-color="#e6683c"/>
+                                            <stop offset="0.5" stop-color="#dc2743"/>
+                                            <stop offset="0.75" stop-color="#cc2366"/>
+                                            <stop offset="1" stop-color="#bc1888"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.975-9.61a1.44 1.44 0 100-2.88 1.44 1.44 0 000 2.88z" fill="url(#ig-grad)"/>
+                                </svg>
+                            </a>
+                            <!-- YouTube -->
+                            <a href="#" class="hover:opacity-80 transition-opacity transform hover:scale-110" title="YouTube">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21.58 7.19A2.71 2.71 0 0019.67 5.3C17.98 4.83 12 4.83 12 4.83s-5.98 0-7.67.47A2.71 2.71 0 002.42 7.19C1.96 8.87 1.96 12 1.96 12s0 3.13.46 4.81a2.71 2.71 0 001.91 1.89C5.98 19.17 12 19.17 12 19.17s5.98 0 7.67-.47a2.71 2.71 0 001.91-1.89c.46-1.68.46-4.81.46-4.81s0-3.13-.46-4.81z" fill="#FF0000"/>
+                                    <path d="M9.98 15.18L15.2 12l-5.22-3.18v6.36z" fill="#FFFFFF"/>
+                                </svg>
+                            </a>
+                            <!-- Telegram -->
+                            <a href="#" class="hover:opacity-80 transition-opacity transform hover:scale-110" title="Telegram">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" fill="#2AABEE"/>
+                                </svg>
+                            </a>
                         </div>
-                    </div>
-
-                    <!-- Column 2: Menu -->
-                    <div>
-                        <h4 class="text-lg font-bold text-[#1F2937] mb-6">Menu</h4>
-                        <ul class="space-y-4">
-                            <li><a href="#tentang" class="text-gray-500 hover:text-primary transition-colors">Tentang</a></li>
-                            <li><a href="#keunggulan" class="text-gray-500 hover:text-primary transition-colors">Program</a></li>
-                            <li><a href="#pmb" class="text-gray-500 hover:text-primary transition-colors">Informasi</a></li>
-                            <li><a href="#kontak" class="text-gray-500 hover:text-primary transition-colors">Kontak</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Column 3: Social Media -->
-                    <div>
-                        <h4 class="text-lg font-bold text-[#1F2937] mb-6">Ikuti Kami</h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="#" class="flex items-center space-x-3 text-gray-500 hover:text-primary transition-colors group">
-                                    <div class="p-2 border border-gray-200 rounded-lg group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="font-medium">Facebook</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="flex items-center space-x-3 text-gray-500 hover:text-primary transition-colors group">
-                                    <div class="p-2 border border-gray-200 rounded-lg group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="font-medium">Twitter</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="flex items-center space-x-3 text-gray-500 hover:text-primary transition-colors group">
-                                    <div class="p-2 border border-gray-200 rounded-lg group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="2"></rect>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
-                                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2"></line>
-                                        </svg>
-                                    </div>
-                                    <span class="font-medium">Instagram</span>
-                                </a>
-                            </li>
-                        </ul>
                     </div>
                 </div>
                 @endif
 
                 <!-- Copyright -->
-                <div class="{{ !request()->routeIs(['backend.*', 'mahasiswa.*']) ? 'pt-8 border-t border-gray-100' : '' }} flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
-                    <p class="text-gray-400 text-sm">
-                        &copy; {{ date('Y') }} Matla. All rights reserved.
+                <div class="{{ !request()->routeIs(['backend.*', 'mahasiswa.*']) ? 'pt-8 border-t border-gray-100' : '' }} flex justify-center items-center text-center">
+                    <p class="text-gray-500 text-sm font-medium">
+                        &copy; 2026 Matla Islamic University. All rights reserved.
                     </p>
-                    <div class="flex space-x-6 text-sm text-gray-400">
-                        <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
-                        <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>
-                    </div>
                 </div>
             </div>
         </footer>

@@ -129,6 +129,14 @@ Route::get('/_foto/{path}', function ($path) {
         abort(404);
     }
 
+    // Security Check: Protect sensitive PMB payment proofs from public access
+    if (str_starts_with($path, 'pmb_payments/')) {
+        $user = auth()->user();
+        if (!$user || !in_array($user->role, ['super_admin', 'admin', 'dosen'])) {
+            abort(403, 'Akses tidak sah untuk file pembayaran ini.');
+        }
+    }
+
     return response()->file($fullPath);
 })->where('path', '.*')->name('foto.bypass');
 

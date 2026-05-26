@@ -169,7 +169,7 @@
             </h2>
             
             <div class="relative rounded-xl md:rounded-2xl overflow-hidden bg-gray-100 cursor-pointer group" @click="zoom = true">
-                <img src="{{ Storage::url($registration->payment_proof) }}" alt="Bukti Pembayaran" class="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500">
+                <img src="{{ route('foto.bypass', ['path' => $registration->payment_proof]) }}" alt="Bukti Pembayaran" class="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500">
                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                     <span class="text-white opacity-0 group-hover:opacity-100 bg-black/50 px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-bold backdrop-blur-sm transition-opacity">Ketuk untuk Zoom</span>
                 </div>
@@ -179,11 +179,11 @@
                 <button @click="zoom = false" class="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-gray-300">
                     <svg class="w-7 h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-                <img src="{{ Storage::url($registration->payment_proof) }}" class="max-w-full max-h-[90vh] object-contain rounded-lg">
+                <img src="{{ route('foto.bypass', ['path' => $registration->payment_proof]) }}" class="max-w-full max-h-[90vh] object-contain rounded-lg">
             </div>
 
             <div class="mt-4 md:mt-5">
-                <a href="{{ Storage::url($registration->payment_proof) }}" download="Bukti_PMB_{{ $registration->registration_code }}.jpg" class="w-full flex items-center justify-center space-x-2 py-3 md:py-3.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest">
+                <a href="{{ route('foto.bypass', ['path' => $registration->payment_proof]) }}" download="Bukti_PMB_{{ $registration->registration_code }}.jpg" class="w-full flex items-center justify-center space-x-2 py-3 md:py-3.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <span>Download Bukti</span>
                 </a>

@@ -74,6 +74,12 @@ class ElearningController extends Controller
     public function updateLogTontonan(Request $request, Pertemuan $pertemuan)
     {
         $user = Auth::user();
+        $jadwal = $pertemuan->jadwal;
+
+        // Security Check: Ensure student is enrolled
+        if (!$jadwal || !$jadwal->participants()->where('mahasiswa_id', $user->id)->exists()) {
+            return response()->json(['error' => 'Anda tidak terdaftar di mata kuliah ini.'], 403);
+        }
         
         $request->validate([
             'detik_ditonton' => 'required|integer|min:0',
@@ -104,6 +110,12 @@ class ElearningController extends Controller
     public function submitEvaluasi(Request $request, Pertemuan $pertemuan)
     {
         $user = Auth::user();
+        $jadwal = $pertemuan->jadwal;
+
+        // Security Check: Ensure student is enrolled
+        if (!$jadwal || !$jadwal->participants()->where('mahasiswa_id', $user->id)->exists()) {
+            abort(403, 'Anda tidak terdaftar di mata kuliah ini.');
+        }
 
         // Validate they have watched the video
         $log = LogTontonan::where('mahasiswa_id', $user->id)

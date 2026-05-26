@@ -106,6 +106,30 @@ class AssignmentController extends Controller
     {
         $user = Auth::user();
  
+        // Security check: Ensure assignment belongs to student's class group
+        $prodiName = $user->education['program_studi'] ?? null;
+        $angkatan = $user->angkatan;
+        $authorized = false;
+
+        if ($prodiName && $angkatan) {
+            $prodi = ProgramStudi::where('nama', $prodiName)->first() 
+                ?? ProgramStudi::where('singkatan', $prodiName)->first();
+
+            if ($prodi) {
+                $classGroup = ClassGroup::where('prodi_id', $prodi->id)
+                    ->where('angkatan', $angkatan)
+                    ->first();
+
+                if ($classGroup && (int) $assignment->class_group_id === (int) $classGroup->id) {
+                    $authorized = true;
+                }
+            }
+        }
+
+        if (!$authorized) {
+            abort(403, 'Tugas ini tidak dialokasikan untuk kelas Anda.');
+        }
+
         // Validate deadline
         if (now()->gt($assignment->due_date)) {
             return redirect()->back()->with('error', 'Batas waktu pengumpulan tugas ini telah terlampaui!');
@@ -117,12 +141,12 @@ class AssignmentController extends Controller
             'submitted_link' => 'nullable|url|max:255',
             'submitted_file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB
         ]);
-
+ 
         // Require at least one form of answer or marked as done
         if (!$request->has('mark_as_done') && !$request->filled('notes') && !$request->filled('submitted_link') && !$request->hasFile('submitted_file')) {
             return redirect()->back()->with('error', 'Anda harus mengisi teks jawaban, menyertakan tautan, atau mengunggah berkas.');
         }
-
+ 
         $notesToSave = $request->notes;
         if ($request->has('mark_as_done') && empty($notesToSave)) {
             $notesToSave = 'Tugas ini telah ditandai selesai oleh mahasiswa melalui tautan eksternal.';
@@ -169,13 +193,37 @@ class AssignmentController extends Controller
         return redirect()->route('mahasiswa.assignments.index')
             ->with('success', 'Tugas berhasil dikumpulkan!');
     }
-
+ 
     /**
      * Auto-submit an assignment if it only requires visiting an external link.
      */
     public function autoSubmit(Assignment $assignment)
     {
         $user = Auth::user();
+ 
+        // Security check: Ensure assignment belongs to student's class group
+        $prodiName = $user->education['program_studi'] ?? null;
+        $angkatan = $user->angkatan;
+        $authorized = false;
+
+        if ($prodiName && $angkatan) {
+            $prodi = ProgramStudi::where('nama', $prodiName)->first() 
+                ?? ProgramStudi::where('singkatan', $prodiName)->first();
+
+            if ($prodi) {
+                $classGroup = ClassGroup::where('prodi_id', $prodi->id)
+                    ->where('angkatan', $angkatan)
+                    ->first();
+
+                if ($classGroup && (int) $assignment->class_group_id === (int) $classGroup->id) {
+                    $authorized = true;
+                }
+            }
+        }
+
+        if (!$authorized) {
+            abort(403, 'Tugas ini tidak dialokasikan untuk kelas Anda.');
+        }
 
         // Validate deadline
         if (now()->gt($assignment->due_date)) {
@@ -184,12 +232,12 @@ class AssignmentController extends Controller
             }
             return redirect()->back()->with('error', 'Batas waktu pengumpulan tugas ini telah terlampaui!');
         }
-
+ 
         // Check if already submitted — idempotent, just skip
         $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', $user->id)
             ->first();
-
+ 
         if (!$submission) {
             AssignmentSubmission::create([
                 'assignment_id' => $assignment->id,
@@ -199,11 +247,11 @@ class AssignmentController extends Controller
                 'submitted_at'  => now(),
             ]);
         }
-
+ 
         if (request()->expectsJson()) {
             return response()->json(['success' => true]);
         }
-
+ 
         return redirect()->away($assignment->link);
     }
 }
