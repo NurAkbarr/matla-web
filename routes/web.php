@@ -293,6 +293,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
 
         // Kotak Pesan (Inbox)
         Route::get('/admin/messages', [\App\Http\Controllers\Backend\ContactMessageController::class, 'index'])->name('admin.messages.index');
+        Route::post('/admin/messages/{message}/reply', [\App\Http\Controllers\Backend\ContactMessageController::class, 'reply'])->name('admin.messages.reply');
         Route::patch('/admin/messages/{message}/read', [\App\Http\Controllers\Backend\ContactMessageController::class, 'markAsRead'])->name('admin.messages.read');
         Route::delete('/admin/messages/{message}', [\App\Http\Controllers\Backend\ContactMessageController::class, 'destroy'])->name('admin.messages.destroy');
 
