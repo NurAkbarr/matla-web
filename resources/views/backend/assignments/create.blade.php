@@ -75,7 +75,7 @@
                 {{-- Batas Waktu --}}
                 <div class="space-y-2">
                     <label for="due_date" class="text-sm font-bold text-slate-700">Batas Waktu (Due Date) <span class="text-rose-500">*</span></label>
-                    <input type="text" name="due_date" id="due_date" required value="{{ old('due_date') }}" placeholder="Pilih tanggal dan waktu" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none">
+                    <input type="datetime-local" name="due_date" id="due_date" required value="{{ old('due_date') }}" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none">
                     @error('due_date')
                         <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
                     @enderror
@@ -154,18 +154,5 @@
 </div>
 
 @push('scripts')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/id.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        flatpickr("#due_date", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true,
-            locale: "id"
-        });
-    });
-</script>
 @endpush
 @endsection
