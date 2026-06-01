@@ -494,7 +494,7 @@
 </section>
 
 <!-- Cara Belajar Section -->
-<section id="cara-belajar" class="py-14 sm:py-20 lg:py-32 bg-white relative overflow-hidden border-t border-gray-100">
+<section id="cara-belajar" class="pt-14 pb-6 sm:pt-20 sm:pb-8 lg:pt-32 lg:pb-8 bg-white relative overflow-hidden border-t border-gray-100">
     <div class="container mx-auto px-5 sm:px-6 lg:px-12 relative z-10">
         <!-- Section Header -->
         <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-16 lg:mb-24">
@@ -563,7 +563,7 @@
         </div>
 
         <!-- CTA Button -->
-        <div class="mt-12 sm:mt-16 lg:mt-20 flex justify-center">
+        <div class="mt-10 sm:mt-12 lg:mt-14 flex justify-center">
             <style>
                 .animated-button {
                   position: relative;
@@ -680,6 +680,87 @@
                 <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
               </svg>
             </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimoni Section -->
+<section class="pt-10 pb-20 lg:pt-16 lg:pb-28 bg-white relative">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div class="text-center mb-16 lg:mb-20">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1F2937] uppercase tracking-widest mb-4">Testimoni Mahasiswa</h2>
+            <div class="w-20 h-1 bg-[#1E7040] mx-auto mb-6"></div>
+            <p class="text-[#1E7040] font-bold text-sm sm:text-lg">Kata Mereka yang Sudah Bergabung</p>
+        </div>
+
+        <style>
+            /* Hide scrollbar for Chrome, Safari and Opera */
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            /* Hide scrollbar for IE, Edge and Firefox */
+            .hide-scrollbar {
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+        </style>
+        <div class="flex overflow-x-auto md:grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 mt-0 pb-8 pt-16 px-4 sm:px-0 -mx-4 sm:mx-0 snap-x snap-mandatory hide-scrollbar scroll-smooth">
+            <!-- Card 1 -->
+            <div class="w-[85vw] sm:w-[320px] md:w-auto shrink-0 snap-center bg-gray-50 relative pt-24 pb-8 px-6 sm:px-8 text-center flex flex-col items-center shadow-md border border-gray-100 rounded-lg transform transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-gray-200 group">
+                <!-- Icon: Karyawan Swasta (Tie/Suit) -->
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-white rounded-full p-2 shadow-sm border border-gray-200 transform transition-transform duration-300 group-hover:scale-110">
+                    <div class="w-full h-full bg-[#1F2937] rounded-full flex items-center justify-center overflow-hidden">
+                        <svg class="w-10 h-10 text-[#469e6b]" fill="currentColor" viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm95.8 32.6L272 480l-32-136 32-56h-96l32 56-32 136-47.8-191.4C56.9 292 0 350.3 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-72.1-56.9-130.4-128.2-133.8z"/></svg>
+                    </div>
+                </div>
+                
+                <p class="text-[#1F2937] text-sm leading-relaxed mb-8 flex-1 mt-2 font-medium">
+                    <span class="text-[#1F2937] text-2xl font-serif leading-none mr-1">“</span>Saya sudah lama ingin belajar bahasa Arab tapi tidak punya waktu karena kerja. Di Matla saya bisa belajar malam hari, materinya terstruktur, dan dosennya sabar banget menjelaskan.<span class="text-[#1F2937] text-2xl font-serif leading-none ml-1">”</span>
+                </p>
+                
+                <div class="mt-auto w-full">
+                    <span class="text-[#1E7040] font-black text-base block mb-1">Ahmad Fauzi</span>
+                    <span class="text-gray-600 font-medium text-xs">32 tahun &middot; Karyawan Swasta &middot; Surabaya</span>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="w-[85vw] sm:w-[320px] md:w-auto shrink-0 snap-center bg-gray-50 relative pt-24 pb-8 px-6 sm:px-8 text-center flex flex-col items-center shadow-md border border-gray-100 rounded-lg transform transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-gray-200 group">
+                <!-- Icon: Ibu Rumah Tangga (Female silhouette) -->
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-white rounded-full p-2 shadow-sm border border-gray-200 transform transition-transform duration-300 group-hover:scale-110">
+                    <div class="w-full h-full bg-[#1F2937] rounded-full flex items-center justify-center overflow-hidden">
+                        <svg class="w-10 h-10 text-[#469e6b]" fill="currentColor" viewBox="0 0 320 512"><path d="M160 160c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zM245.9 176H74.1c-15.4 0-28.7 11.2-31.5 26.4L1.7 348.6c-4.4 23.4 14.8 44 38.8 42l16.1-1.3c15-1.2 27.5-12.2 30-27L96 321l-7.7 167.3c-1.1 23.5 17.6 43.1 41.2 43.7 21 .6 38.5-16.5 38.5-37.5v-79h-16v79c0 21 17.5 38.1 38.5 37.5 23.5-.6 42.2-20.2 41.2-43.7L224 321l9.4 41.2c2.5 14.8 15 25.8 30 27l16.1 1.3c23.9 2 43.1-18.6 38.8-42L277.4 202.4c-2.8-15.2-16.1-26.4-31.5-26.4z"/></svg>
+                    </div>
+                </div>
+                
+                <p class="text-[#1F2937] text-sm leading-relaxed mb-8 flex-1 mt-2 font-medium">
+                    <span class="text-[#1F2937] text-2xl font-serif leading-none mr-1">“</span>Sebagai ibu rumah tangga, Matla benar-benar solusi. Saya bisa kuliah S1 sambil mengurus anak. Jadwalnya fleksibel dan teman-teman di kelas sangat supportif.<span class="text-[#1F2937] text-2xl font-serif leading-none ml-1">”</span>
+                </p>
+                
+                <div class="mt-auto w-full">
+                    <span class="text-[#1E7040] font-black text-base block mb-1">Ummu Khalid</span>
+                    <span class="text-gray-600 font-medium text-xs">28 tahun &middot; Ibu Rumah Tangga &middot; Makassar</span>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="w-[85vw] sm:w-[320px] md:w-auto shrink-0 snap-center bg-gray-50 relative pt-24 pb-8 px-6 sm:px-8 text-center flex flex-col items-center shadow-md border border-gray-100 rounded-lg transform transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-gray-200 group">
+                <!-- Icon: Mahasiswa (Graduation Cap) -->
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-white rounded-full p-2 shadow-sm border border-gray-200 transform transition-transform duration-300 group-hover:scale-110">
+                    <div class="w-full h-full bg-[#1F2937] rounded-full flex items-center justify-center overflow-hidden">
+                        <svg class="w-12 h-12 text-[#469e6b]" fill="currentColor" viewBox="0 0 640 512"><path d="M320 32.1L64 153.2v200c0 10.9-6.3 20.8-16 25.6l-32 16v-400l304-142.3 304 142.3v400l-32-16c-9.7-4.8-16-14.7-16-25.6v-200L320 32.1zM112 189v158.4c0 36.1 40.8 69.9 104.9 88C248.8 444.6 283.4 448 320 448s71.2-3.4 103.1-12.6C487.2 417.3 528 383.5 528 347.4V189L320 286.7 112 189z"/></svg>
+                    </div>
+                </div>
+                
+                <p class="text-[#1F2937] text-sm leading-relaxed mb-8 flex-1 mt-2 font-medium">
+                    <span class="text-[#1F2937] text-2xl font-serif leading-none mr-1">“</span>Kualitas pengajarnya luar biasa. Bukan hanya pintar, tapi juga sabar dan metodis. Saya merasa seperti belajar langsung di pesantren meski dari rumah.<span class="text-[#1F2937] text-2xl font-serif leading-none ml-1">”</span>
+                </p>
+                
+                <div class="mt-auto w-full">
+                    <span class="text-[#1E7040] font-black text-base block mb-1">Rizal Hakim</span>
+                    <span class="text-gray-600 font-medium text-xs">24 tahun &middot; Mahasiswa &middot; Bandung</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
