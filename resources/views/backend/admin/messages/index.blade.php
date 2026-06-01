@@ -36,19 +36,71 @@
                                     <span class="inline-block px-2 py-1 text-xs bg-amber-100 text-amber-800 rounded">Baru</span>
                                 @endif
                             </td>
-                            <td class="py-2 px-3 text-center space-x-2">
+                            <td class="py-2 px-3 text-center space-x-2" x-data="{ showDetail: false }">
+                                <button type="button" @click="showDetail = true" class="text-xs text-blue-600 font-bold hover:underline">Detail</button>
                                 @if(!$msg->is_read)
                                     <form action="{{ route('backend.admin.messages.read', $msg) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="text-xs text-primary hover:underline">Tandai Baca</button>
+                                        <button type="submit" class="text-xs text-primary font-bold hover:underline">Baca</button>
                                     </form>
                                 @endif
                                 <form action="{{ route('backend.admin.messages.destroy', $msg) }}" method="POST" class="inline" onsubmit="return confirm('Hapus pesan ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-xs text-red-600 hover:underline">Hapus</button>
+                                    <button type="submit" class="text-xs text-red-600 font-bold hover:underline">Hapus</button>
                                 </form>
+
+                                <!-- Modal Detail Pesan -->
+                                <div x-show="showDetail" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                        <!-- Background backdrop -->
+                                        <div x-show="showDetail" 
+                                             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" 
+                                             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
+                                             @click="showDetail = false" class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" aria-hidden="true"></div>
+                                        
+                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                        
+                                        <!-- Modal panel -->
+                                        <div x-show="showDetail" 
+                                             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                                             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                                             class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-gray-100">
+                                            
+                                            <div class="bg-white px-6 pt-6 pb-6 sm:p-8">
+                                                <div class="flex items-start justify-between mb-5">
+                                                    <div>
+                                                        <h3 class="text-xl font-black text-gray-900" id="modal-title">
+                                                            Detail Pesan
+                                                        </h3>
+                                                        <p class="text-sm text-gray-500 font-medium mt-1">Dari: {{ $msg->name }} ({{ $msg->email }})</p>
+                                                    </div>
+                                                    <button @click="showDetail = false" class="text-gray-400 hover:text-gray-500 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                
+                                                <div class="mb-4 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Subjek</h4>
+                                                    <p class="text-sm font-semibold text-gray-800">{{ $msg->subject }}</p>
+                                                </div>
+
+                                                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Isi Pesan</h4>
+                                                    <p class="text-[15px] text-slate-700 whitespace-pre-wrap leading-relaxed">{{ $msg->message }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="bg-gray-50 px-6 py-4 sm:px-8 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                                                <button type="button" @click="showDetail = false" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-6 py-3 bg-gray-900 text-base font-bold text-white hover:bg-gray-800 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition-colors">
+                                                    Tutup
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
