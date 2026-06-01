@@ -221,7 +221,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     Route::middleware(['role:super_admin,admin,dosen'])->group(function() {
         Route::resource('/admin/assignments', \App\Http\Controllers\Backend\AssignmentController::class, [
             'names' => 'admin.assignments',
-        ])->except(['edit', 'update']);
+        ]);
         Route::post('/admin/submissions/{submission}/grade', [\App\Http\Controllers\Backend\AssignmentController::class, 'grade'])->name('admin.assignments.grade');
     });
  
