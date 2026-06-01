@@ -92,6 +92,72 @@ class AssignmentController extends Controller
     }
  
     /**
+     * Show edit form.
+     */
+    public function edit(Assignment $assignment)
+    {
+        if (Auth::user()->role === 'dosen' && $assignment->created_by !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $classGroups = ClassGroup::all();
+        
+        if (Auth::user()->role === 'dosen') {
+            $mataKuliahIds = Auth::user()->jadwals()->pluck('mata_kuliah_id');
+            $mataKuliahs = MataKuliah::whereIn('id', $mataKuliahIds)->get();
+        } else {
+            $mataKuliahs = MataKuliah::all();
+        }
+
+        return view('backend.assignments.edit', compact('assignment', 'classGroups', 'mataKuliahs'));
+    }
+
+    /**
+     * Update assignment.
+     */
+    public function update(Request $request, Assignment $assignment)
+    {
+        if (Auth::user()->role === 'dosen' && $assignment->created_by !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'class_group_id' => 'required|exists:class_groups,id',
+            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'file_attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240',
+            'link' => 'nullable|url|max:255',
+            'due_date' => 'required|date',
+        ]);
+ 
+        $filePath = $assignment->file_path;
+        if ($request->hasFile('file_attachment')) {
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+            
+            $file = $request->file('file_attachment');
+            $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $file->storeAs('assignments', $fileName, 'public');
+            $filePath = 'assignments/' . $fileName; 
+        }
+ 
+        $assignment->update([
+            'class_group_id' => $request->class_group_id,
+            'mata_kuliah_id' => $request->mata_kuliah_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'file_path' => $filePath,
+            'link' => $request->link,
+            'due_date' => $request->due_date,
+        ]);
+ 
+        return redirect()->route('backend.admin.assignments.index')
+            ->with('success', 'Tugas berhasil diperbarui!');
+    }
+ 
+    /**
      * View assignment submissions / grading center.
      */
     public function show(Assignment $assignment)
