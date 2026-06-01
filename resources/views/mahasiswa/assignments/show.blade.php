@@ -58,7 +58,7 @@
                         <p class="text-[13px] text-gray-500 mb-2">Lampiran</p>
                         <div class="flex flex-col gap-3">
                             @if($assignment->file_path)
-                                <a href="{{ route('foto.bypass', ['path' => $assignment->file_path]) }}" target="_blank" class="flex items-center p-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
+                                <a href="{{ route('assignment.download', ['path' => str_replace('#', '%23', $assignment->file_path)]) }}" target="_blank" class="flex items-center p-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
                                     <div class="w-12 h-12 bg-red-600 text-white rounded-[10px] flex items-center justify-center font-black text-xs mr-4 shrink-0 shadow-sm">
                                         PDF
                                     </div>

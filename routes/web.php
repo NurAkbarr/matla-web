@@ -188,6 +188,46 @@ Route::get('/_tugas/{path}', function ($path) {
     }
 })->where('path', '.*')->name('tugas.download');
 
+// ===== Google Drive File Download Route (Lampiran Soal Tugas) =====
+Route::get('/_soal/{path}', function ($path) {
+    $path = urldecode($path);
+    if (!auth()->check()) {
+        abort(403, 'Unauthorized');
+    }
+    
+    $assignment = \App\Models\Assignment::where('file_path', $path)->first();
+    if (!$assignment) {
+        abort(404, 'Data tugas tidak ditemukan.');
+    }
+    
+    $user = auth()->user();
+
+    // Jika dosen, pastikan dia mengajar kelas tugas tersebut atau pembuatnya
+    if ($user->role === 'dosen') {
+        $isTeacher = $user->taughtSchedules()->where('id', $assignment->class_group_id)->exists();
+        if (!$isTeacher && $assignment->created_by !== $user->id) {
+            abort(403, 'Akses ditolak.');
+        }
+    }
+
+    $disk = \Illuminate\Support\Facades\Storage::disk('google');
+    if (!$disk->exists($path)) {
+        abort(404, 'File tidak ditemukan di Google Drive.');
+    }
+
+    try {
+        $mimeType = $disk->mimeType($path) ?: 'application/octet-stream';
+        $fileName = basename($path);
+        
+        return response($disk->get($path))
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Drive download error: ' . $e->getMessage(), ['exception' => $e]);
+        abort(500, 'Gagal mengunduh file dari Google Drive: ' . $e->getMessage());
+    }
+})->where('path', '.*')->name('assignment.download');
+
 // Deprecated (keamanan): jangan expose endpoint maintenance via GET/public.
 
 // ===== Mahasiswa Area =====

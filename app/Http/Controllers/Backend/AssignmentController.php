@@ -68,13 +68,18 @@ class AssignmentController extends Controller
  
         $filePath = null;
         if ($request->hasFile('file_attachment')) {
+            $mataKuliah = \App\Models\MataKuliah::find($request->mata_kuliah_id);
+            $courseName = $mataKuliah ? $mataKuliah->nama : 'Umum';
+            $folderName = preg_replace('/[^A-Za-z0-9_\-\s]/', '', $courseName);
+            $folderName = str_replace(' ', '_', $folderName);
+            
             $file = $request->file('file_attachment');
-            // Store inside public/assignments directory inside storage using public disk
             $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $file->storeAs('assignments', $fileName, 'public');
-            $filePath = 'assignments/' . $fileName; // path for foto.bypass bypass route
+            $drivePath = 'soal_tugas/' . $folderName . '/' . $fileName;
+            
+            \Illuminate\Support\Facades\Storage::disk('google')->put($drivePath, file_get_contents($file->getRealPath()));
+            $filePath = $drivePath;
         }
- 
         Assignment::create([
             'class_group_id' => $request->class_group_id,
             'mata_kuliah_id' => $request->mata_kuliah_id,
@@ -133,14 +138,25 @@ class AssignmentController extends Controller
  
         $filePath = $assignment->file_path;
         if ($request->hasFile('file_attachment')) {
-            if ($filePath && Storage::disk('public')->exists($filePath)) {
-                Storage::disk('public')->delete($filePath);
+            if ($filePath) {
+                try {
+                    \Illuminate\Support\Facades\Storage::disk('google')->delete($filePath);
+                } catch (\Exception $e) {
+                    // Silently fail if old file doesn't exist on Drive
+                }
             }
+            
+            $mataKuliah = \App\Models\MataKuliah::find($request->mata_kuliah_id);
+            $courseName = $mataKuliah ? $mataKuliah->nama : 'Umum';
+            $folderName = preg_replace('/[^A-Za-z0-9_\-\s]/', '', $courseName);
+            $folderName = str_replace(' ', '_', $folderName);
             
             $file = $request->file('file_attachment');
             $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $file->storeAs('assignments', $fileName, 'public');
-            $filePath = 'assignments/' . $fileName; 
+            $drivePath = 'soal_tugas/' . $folderName . '/' . $fileName;
+            
+            \Illuminate\Support\Facades\Storage::disk('google')->put($drivePath, file_get_contents($file->getRealPath()));
+            $filePath = $drivePath;
         }
  
         $assignment->update([
