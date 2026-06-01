@@ -157,20 +157,18 @@
 </div>
 
 @push('scripts')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/id.min.js"></script>
 <script>
-    (function initDatepicker() {
-        if (typeof flatpickr !== 'undefined') {
-            flatpickr("#due_date", {
-                enableTime: true,
-                dateFormat: "Y-m-d H:i",
-                time_24hr: true
-            });
-        } else {
-            setTimeout(initDatepicker, 100);
-        }
-    })();
+    document.addEventListener("DOMContentLoaded", function() {
+        flatpickr("#due_date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            locale: "id"
+        });
+    });
 </script>
 @endpush
 @endsection
