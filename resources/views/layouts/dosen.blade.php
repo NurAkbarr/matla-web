@@ -112,5 +112,7 @@
     </div>
 
     @include('partials.dosen-mobile-bottom-nav')
+
+    @stack('scripts')
 </body>
 </html>
