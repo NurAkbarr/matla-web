@@ -147,7 +147,7 @@
                                 {{-- Loop 4x for infinite effect --}}
                                 @for ($i = 0; $i < 4; $i++)
                                     @foreach($currentQuickInfos as $item)
-                                    <a href="{{ $item->link ?? '#' }}" class="flex items-center px-4 py-1.5 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100/80 rounded-full shadow-sm hover:-translate-y-0.5 transition-all w-max shrink-0 group">
+                                    <a href="{{ $item->link ?? '#' }}" target="_blank" class="flex items-center px-4 py-1.5 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100/80 rounded-full shadow-sm hover:-translate-y-0.5 transition-all w-max shrink-0 group">
                                         <span class="text-[10px] font-bold uppercase tracking-wider">{{ $item->label }}</span>
                                         <svg class="w-3 h-3 ml-1.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                     </a>
