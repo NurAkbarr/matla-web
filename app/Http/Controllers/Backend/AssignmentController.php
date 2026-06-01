@@ -69,9 +69,9 @@ class AssignmentController extends Controller
         $filePath = null;
         if ($request->hasFile('file_attachment')) {
             $file = $request->file('file_attachment');
-            // Store inside public/assignments directory inside storage
+            // Store inside public/assignments directory inside storage using public disk
             $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $file->storeAs('public/assignments', $fileName);
+            $file->storeAs('assignments', $fileName, 'public');
             $filePath = 'assignments/' . $fileName; // path for foto.bypass bypass route
         }
  
