@@ -160,13 +160,17 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        flatpickr("#due_date", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true
-        });
-    });
+    (function initDatepicker() {
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr("#due_date", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true
+            });
+        } else {
+            setTimeout(initDatepicker, 100);
+        }
+    })();
 </script>
 @endpush
 @endsection
