@@ -184,7 +184,7 @@
                         <h4 class="text-[#0f172a] font-black text-lg uppercase tracking-widest mb-2">Ingin Jadi Duta Kampus?</h4>
                         <p class="text-[#0f172a] text-xs font-medium leading-relaxed mb-6 max-w-[280px]">Bantu sebarkan manfaat ilmu dan dapatkan apresiasi (bisyaroh) dari kampus.</p>
                         
-                        <a href="{{ route('pmb') }}#brosur-pmb" class="inline-block bg-[#469e6b] text-white font-black uppercase tracking-widest text-[10px] px-6 py-3 hover:bg-[#398458] transition-colors shadow-lg shadow-emerald-700/30" style="clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);">
+                        <a href="https://wa.me/6287784538820?text={{ rawurlencode('Assalamualaikum warahmatullahi wabarakatuh. Halo Admin, saya tertarik dan ingin mendaftar menjadi Duta Kampus Matla University. Mohon panduan dan informasinya lebih lanjut. Terima kasih.') }}" target="_blank" class="inline-block bg-[#469e6b] text-white font-black uppercase tracking-widest text-[10px] px-6 py-3 hover:bg-[#398458] transition-colors shadow-lg shadow-emerald-700/30" style="clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);">
                             Daftar Jadi Duta
                         </a>
                     </div>
