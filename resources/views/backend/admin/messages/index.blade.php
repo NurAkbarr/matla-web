@@ -37,7 +37,7 @@
                                 @endif
                             </td>
                             <td class="py-2 px-3 text-center space-x-2">
-                                <a href="mailto:{{ $msg->email }}?subject=Balasan: {{ rawurlencode($msg->subject) }}" class="text-xs text-blue-600 font-bold hover:underline">Balas</a>
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ $msg->email }}&su=Balasan: {{ rawurlencode($msg->subject) }}" target="_blank" class="text-xs text-blue-600 font-bold hover:underline">Balas</a>
                                 @if(!$msg->is_read)
                                     <form action="{{ route('backend.admin.messages.read', $msg) }}" method="POST" class="inline">
                                         @csrf
