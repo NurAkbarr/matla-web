@@ -114,11 +114,11 @@
 
                     <div class="space-y-0 relative">
                         <div class="absolute left-4 top-0 bottom-0 w-[1px] bg-gray-200 z-0"></div>
-                        @foreach($topDutas->skip(1) as $index => $duta)
+                        @forelse($topDutas->skip(1) as $duta)
                         <div class="flex items-center justify-between py-4 border-b border-gray-200 relative group hover:bg-gray-50/50 transition-colors z-10">
                             <div class="flex items-center space-x-4 pl-1">
-                                <div class="w-7 h-7 flex items-center justify-center font-black text-white text-xs {{ $index == 0 ? 'bg-[#469e6b]' : 'bg-[#469e6b]/80' }} shadow-sm" style="clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);">
-                                    {{ $index + 2 }}
+                                <div class="w-7 h-7 flex items-center justify-center font-black text-white text-xs {{ $loop->iteration == 1 ? 'bg-[#469e6b]' : 'bg-[#469e6b]/80' }} shadow-sm" style="clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);">
+                                    {{ $loop->iteration + 1 }}
                                 </div>
                                 <div class="font-black text-[#1e293b] uppercase tracking-wider text-xs">{{ $duta->display_name }}</div>
                             </div>
@@ -128,7 +128,11 @@
                                 <div class="w-2 h-3 bg-[#469e6b]" style="clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
                             </div>
                         </div>
-                        @endforeach
+                        @empty
+                        <div class="py-6 text-center z-10 relative">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Belum ada duta di klasemen.</p>
+                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

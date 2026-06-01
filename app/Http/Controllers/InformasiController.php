@@ -41,6 +41,7 @@ class InformasiController extends Controller
             // Get Top 10 Affiliates
             $topDutas = Affiliate::withCount('registrations')
                 ->where('is_active', true)
+                ->having('registrations_count', '>', 0)
                 ->orderBy('registrations_count', 'desc')
                 ->limit(10)
                 ->get();
