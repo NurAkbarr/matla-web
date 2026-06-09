@@ -89,7 +89,7 @@
         background: rgba(30, 112, 64, 0.1);
     }
 </style>
-<section id="beranda" class="relative min-h-[500px] sm:min-h-[600px] lg:min-h-screen lg:h-screen lg:max-h-[850px] flex flex-col justify-start sm:justify-center overflow-hidden pb-12 sm:pb-16 lg:pb-24 pt-8 sm:pt-4 lg:pt-8">
+<section id="beranda" class="relative min-h-[500px] sm:min-h-[600px] lg:min-h-screen lg:h-screen lg:max-h-[850px] flex flex-col justify-start sm:justify-center overflow-hidden pb-12 sm:pb-16 lg:pb-24 pt-28 sm:pt-28 lg:pt-32">
     <!-- Background Image -->
     <div class="absolute inset-0 z-0">
         <img src="{{ asset('assets/bg-web.png') }}" alt="MATLA Background" class="w-full h-full object-cover">
