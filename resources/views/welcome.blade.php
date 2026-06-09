@@ -779,15 +779,8 @@
             </p>
         </div>
 
-        <div class="w-full h-[600px] bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative">
-            <!-- Loading indicator -->
-            <div class="absolute inset-0 flex items-center justify-center -z-10">
-                <span class="text-gray-400">Loading Instagram Feed...</span>
-            </div>
-            
-            <!-- Tagembed Widget Exact Code -->
-            <div class="tagembed-widget" style="width:100%;height:100%;overflow:auto;" data-widget-id="327650" data-website="1"></div>
-            <script src="https://widget.tagembed.com/embed.min.js" type="text/javascript"></script>
+        <div style="width:100%; height:700px; overflow:hidden; border-radius:12px;">
+            <iframe src="https://widget.tagembed.com/327650?website=1" allow="fullscreen" style="width:100%;height:700px;overflow:auto;border:none;"></iframe>
         </div>
     </div>
 </section>
