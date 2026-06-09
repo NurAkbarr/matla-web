@@ -73,13 +73,24 @@ class InstagramPostController extends Controller
 
         $shortcode = $this->extractShortcode($request->instagram_link);
 
+        $oldOrder = $instagram_post->order;
+        $newOrder = $request->order ?? 0;
+
+        // Logic Tukar Posisi (Swap Order)
+        if ($oldOrder != $newOrder) {
+            $conflictPost = InstagramPost::where('order', $newOrder)->where('id', '!=', $instagram_post->id)->first();
+            if ($conflictPost) {
+                $conflictPost->update(['order' => $oldOrder]);
+            }
+        }
+
         $data = [
             'title'          => $request->title,
             'type'           => 'image',
             'instagram_link' => $request->instagram_link,
             'caption'        => $shortcode,
             'is_active'      => $request->has('is_active'),
-            'order'          => $request->order ?? 0,
+            'order'          => $newOrder,
         ];
 
         if ($request->hasFile('image')) {
