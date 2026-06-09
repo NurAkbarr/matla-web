@@ -20,11 +20,13 @@ Route::get('/', function () {
     // Safety check agar tidak crash kalau belum migrate
     try {
         $quickInfos = \App\Models\QuickInfo::where('is_active', true)->orderBy('order', 'asc')->get();
+        $instagramPosts = \App\Models\InstagramPost::where('is_active', true)->orderBy('order', 'asc')->take(8)->get();
     } catch (\Exception $e) {
         $quickInfos = collect();
+        $instagramPosts = collect();
     }
 
-    return view('welcome', compact('brosurs', 'quickInfos'));
+    return view('welcome', compact('brosurs', 'quickInfos', 'instagramPosts'));
 });
 
 // Authentication
@@ -296,6 +298,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/admin/messages/{message}/reply', [\App\Http\Controllers\Backend\ContactMessageController::class, 'reply'])->name('admin.messages.reply');
         Route::patch('/admin/messages/{message}/read', [\App\Http\Controllers\Backend\ContactMessageController::class, 'markAsRead'])->name('admin.messages.read');
         Route::delete('/admin/messages/{message}', [\App\Http\Controllers\Backend\ContactMessageController::class, 'destroy'])->name('admin.messages.destroy');
+
+        // Manajemen Informasi Instagram
+        Route::resource('/admin/instagram-posts', \App\Http\Controllers\Backend\InstagramPostController::class, [
+            'names' => 'admin.instagram-posts'
+        ])->except(['show']);
 
         // Akademik Management
         Route::get('/admin/mahasiswa', [DashboardController::class, 'mahasiswaAktif'])->name('admin.mahasiswa');

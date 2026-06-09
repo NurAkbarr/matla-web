@@ -254,4 +254,155 @@ class AssignmentController extends Controller
  
         return redirect()->away($assignment->link);
     }
+
+    /**
+     * Show quiz form.
+     */
+    public function quiz(Assignment $assignment)
+    {
+        $user = Auth::user();
+        
+        if ($assignment->type !== 'quiz') {
+            abort(404, 'Tugas ini bukan berupa kuis.');
+        }
+
+        // Security check
+        $prodiName = $user->education['program_studi'] ?? null;
+        $angkatan = $user->angkatan;
+        $authorized = false;
+
+        if ($prodiName && $angkatan) {
+            $prodi = \App\Models\ProgramStudi::where('nama', $prodiName)->first() 
+                ?? \App\Models\ProgramStudi::where('singkatan', $prodiName)->first();
+
+            if ($prodi) {
+                $classGroup = \App\Models\ClassGroup::where('prodi_id', $prodi->id)
+                    ->where('angkatan', $angkatan)
+                    ->first();
+
+                if ($classGroup && (int) $assignment->class_group_id === (int) $classGroup->id) {
+                    $authorized = true;
+                }
+            }
+        }
+
+        if (!$authorized) {
+            abort(403, 'Kuis ini tidak dialokasikan untuk kelas Anda.');
+        }
+
+        $submission = \App\Models\AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_id', $user->id)
+            ->first();
+
+        // Load questions and options
+        $assignment->load(['questions' => function($q) {
+            $q->inRandomOrder(); // Optional: randomize questions
+        }, 'questions.options' => function($q) {
+            $q->inRandomOrder(); // Optional: randomize options
+        }]);
+
+        return view('mahasiswa.assignments.quiz', compact('assignment', 'submission'));
+    }
+
+    /**
+     * Submit quiz answers.
+     */
+    public function submitQuiz(Request $request, Assignment $assignment)
+    {
+        $user = Auth::user();
+        
+        if ($assignment->type !== 'quiz') {
+            abort(404, 'Tugas ini bukan berupa kuis.');
+        }
+
+        // Validate deadline
+        if (now()->gt($assignment->due_date)) {
+            return redirect()->back()->with('error', 'Batas waktu pengerjaan kuis telah terlampaui!');
+        }
+
+        // Check if already submitted and graded
+        $submission = \App\Models\AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_id', $user->id)
+            ->first();
+            
+        if ($submission && $submission->score !== null) {
+            return redirect()->back()->with('error', 'Kuis ini sudah dinilai dan tidak dapat direvisi.');
+        }
+
+        $answers = $request->input('answers', []);
+        
+        // Ensure submission exists
+        if (!$submission) {
+            $submission = \App\Models\AssignmentSubmission::create([
+                'assignment_id' => $assignment->id,
+                'student_id'    => $user->id,
+                'notes'         => 'Disubmit via form kuis.',
+                'submitted_at'  => now(),
+            ]);
+        } else {
+            $submission->update([
+                'submitted_at' => now()
+            ]);
+            // Clear old answers
+            $submission->quizAnswers()->delete();
+        }
+
+        $assignment->load('questions.options');
+        $totalPoints = 0;
+        $earnedPoints = 0;
+
+        foreach ($assignment->questions as $question) {
+            $totalPoints += $question->points;
+            
+            $answerData = $answers[$question->id] ?? null;
+            
+            $quizAnswer = $submission->quizAnswers()->create([
+                'assignment_question_id' => $question->id,
+                'answer_text' => in_array($question->type, ['short_answer', 'paragraph']) ? $answerData : null,
+            ]);
+
+            $isCorrect = false;
+
+            if ($question->type === 'multiple_choice' && $answerData) {
+                $quizAnswer->selectedOptions()->create(['assignment_question_option_id' => $answerData]);
+                $selectedOption = $question->options->where('id', $answerData)->first();
+                if ($selectedOption && $selectedOption->is_correct) {
+                    $isCorrect = true;
+                }
+            } else if ($question->type === 'checkbox' && is_array($answerData)) {
+                $correctOptionIds = $question->options->where('is_correct', true)->pluck('id')->toArray();
+                $selectedOptionIds = [];
+                
+                foreach ($answerData as $optId) {
+                    $quizAnswer->selectedOptions()->create(['assignment_question_option_id' => $optId]);
+                    $selectedOptionIds[] = (int) $optId;
+                }
+                
+                // Compare selected vs correct
+                sort($correctOptionIds);
+                sort($selectedOptionIds);
+                if ($correctOptionIds === $selectedOptionIds) {
+                    $isCorrect = true;
+                }
+            }
+
+            if (in_array($question->type, ['multiple_choice', 'checkbox'])) {
+                $quizAnswer->update(['is_correct' => $isCorrect]);
+                if ($isCorrect) {
+                    $earnedPoints += $question->points;
+                }
+            }
+        }
+
+        // If only multiple choice / checkbox, we can auto grade
+        $needsManualGrading = $assignment->questions->whereIn('type', ['short_answer', 'paragraph'])->count() > 0;
+        
+        if (!$needsManualGrading) {
+            $score = $totalPoints > 0 ? round(($earnedPoints / $totalPoints) * 100) : 0;
+            $submission->update(['score' => $score]);
+        }
+
+        return redirect()->route('mahasiswa.assignments.show', $assignment->id)
+            ->with('success', 'Kuis berhasil dikirim!');
+    }
 }

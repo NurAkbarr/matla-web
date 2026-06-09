@@ -18,8 +18,8 @@
     </div>
  
     {{-- Form --}}
-    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden p-10">
-        <form action="{{ route('backend.admin.assignments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden p-10" x-data="quizBuilder()">
+        <form action="{{ route('backend.admin.assignments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="assignmentForm">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -80,6 +80,22 @@
                         <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                {{-- Tipe Tugas --}}
+                <div class="space-y-2">
+                    <label for="type" class="text-sm font-bold text-slate-700">Tipe Tugas <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <select name="type" id="type" x-model="assignmentType" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none appearance-none">
+                            <option value="upload">Upload File & Link</option>
+                            <option value="quiz">Kuis / Form Online</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div>
  
             {{-- Judul Tugas --}}
@@ -100,7 +116,8 @@
                 @enderror
             </div>
  
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Form Upload/Link -->
+            <div x-show="assignmentType === 'upload'" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {{-- Upload Berkas Lampiran --}}
                 <div class="space-y-2">
                     <label for="file_attachment" class="text-sm font-bold text-slate-700">Lampiran Berkas (PDF, Word, zip, rar)</label>
@@ -124,7 +141,7 @@
                 {{-- Link Rujukan --}}
                 <div class="space-y-2">
                     <label for="link" class="text-sm font-bold text-slate-700">
-                        <span id="link-label">Tautan Eksternal (Google Form, Quiz, Drive, dll)</span>
+                        <span id="link-label">Tautan Eksternal (Referensi materi)</span>
                     </label>
                     <div class="relative">
                         <input type="url" name="link" id="link" placeholder="https://example.com/panduan" value="{{ old('link') }}" class="w-full pl-12 pr-5 py-4 bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white rounded-2xl text-slate-700 font-medium transition-all outline-none">
@@ -139,9 +156,85 @@
                     @enderror
                 </div>
             </div>
+
+            <!-- Form Quiz Builder -->
+            <div x-cloak x-show="assignmentType === 'quiz'" class="space-y-6 border-t border-slate-100 pt-8 mt-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-slate-800">Builder Soal (Kuis)</h3>
+                    <div class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl">
+                        Total Poin: <span x-text="getTotalPoints()"></span>
+                    </div>
+                </div>
+                
+                <template x-for="(question, index) in questions" :key="question.id">
+                    <div class="p-5 bg-white border-2 border-slate-800 rounded-xl relative space-y-4 transition-all">
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-slate-800" x-text="'Soal ' + (index + 1)"></span>
+                            <button type="button" @click="removeQuestion(index)" class="text-rose-500 hover:text-rose-700 p-1.5 transition-colors" title="Hapus Soal">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Question Text -->
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Pertanyaan</label>
+                            <input type="text" x-model="question.text" :name="'questions['+index+'][text]'" placeholder="Ketik pertanyaan di sini..." class="w-full px-4 py-2.5 border-2 border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-lg outline-none transition-all font-medium text-sm" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Type -->
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Tipe Soal</label>
+                                <select x-model="question.type" :name="'questions['+index+'][type]'" class="w-full px-4 py-2.5 border-2 border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-lg outline-none transition-all font-medium appearance-none bg-white text-sm">
+                                    <option value="multiple_choice">Pilihan Ganda</option>
+                                    <option value="checkbox">Kotak Centang (Checkboxes)</option>
+                                    <option value="short_answer">Jawaban Singkat</option>
+                                    <option value="paragraph">Paragraf / Essay</option>
+                                </select>
+                            </div>
+                            <!-- Points -->
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Poin Soal</label>
+                                <input type="number" min="0" x-model.number="question.points" :name="'questions['+index+'][points]'" placeholder="Misal: 10" class="w-full px-4 py-2.5 border-2 border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-lg outline-none transition-all font-medium bg-white text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Options for multiple choice / checkbox -->
+                        <template x-if="['multiple_choice', 'checkbox'].includes(question.type)">
+                            <div class="space-y-2.5 mt-4 pt-4 border-t-2 border-slate-100">
+                                <label class="text-[11px] font-bold text-slate-800 uppercase tracking-wider block mb-2">Opsi Jawaban (Tandai yang benar)</label>
+                                <template x-for="(option, optIndex) in question.options" :key="optIndex">
+                                    <div class="flex items-center space-x-3 group">
+                                        <div class="relative flex items-center justify-center w-6 h-6 border-2 border-slate-800 bg-white group-hover:border-emerald-500 transition-colors cursor-pointer" :class="question.type === 'multiple_choice' ? 'rounded-full' : 'rounded-md'" @click="toggleCorrectOption(index, optIndex)">
+                                            <!-- Hidden input to store value -->
+                                            <input type="hidden" :name="'questions['+index+'][options]['+optIndex+'][is_correct]'" :value="option.is_correct ? '1' : '0'">
+                                            
+                                            <!-- Custom UI for Radio/Checkbox -->
+                                            <div x-show="option.is_correct" class="w-3 h-3 bg-emerald-600 absolute" :class="question.type === 'multiple_choice' ? 'rounded-full' : 'rounded-[2px]'"></div>
+                                        </div>
+                                        <input type="text" x-model="option.text" :name="'questions['+index+'][options]['+optIndex+'][text]'" placeholder="Opsi jawaban" class="flex-1 px-3 py-2 border-2 border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-lg outline-none transition-all font-medium bg-white text-sm" required>
+                                        <button type="button" @click="removeOption(index, optIndex)" class="text-slate-400 hover:text-rose-500 p-1.5 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <button type="button" @click="addOption(index)" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 mt-2 inline-flex items-center px-3 py-1.5 border-2 border-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                                    <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    Tambah Opsi
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <button type="button" @click="addQuestion()" class="w-full py-4 border-2 border-dashed border-slate-800 text-slate-800 hover:bg-slate-50 rounded-xl font-bold transition-all flex items-center justify-center text-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Tambah Soal Baru
+                </button>
+            </div>
  
             {{-- Submit --}}
-            <div class="pt-4 border-t border-slate-100 flex justify-end space-x-3">
+            <div class="pt-6 border-t border-slate-100 flex justify-end space-x-3">
                 <a href="{{ route('backend.admin.assignments.index') }}" class="px-6 py-4 bg-slate-50 hover:bg-slate-100 text-slate-500 font-bold rounded-2xl text-sm transition-colors">
                     Batal
                 </a>
@@ -154,5 +247,67 @@
 </div>
 
 @push('scripts')
+<script>
+    function quizBuilder() {
+        return {
+            assignmentType: 'upload',
+            questions: [],
+            init() {
+                // Add initial question
+                this.addQuestion();
+            },
+            generateId() {
+                return Math.random().toString(36).substr(2, 9);
+            },
+            addQuestion() {
+                this.questions.push({
+                    id: this.generateId(),
+                    type: 'multiple_choice',
+                    text: '',
+                    points: 10,
+                    options: [
+                        { text: 'Opsi 1', is_correct: false },
+                        { text: 'Opsi 2', is_correct: false }
+                    ]
+                });
+            },
+            removeQuestion(index) {
+                if (this.questions.length > 1) {
+                    this.questions.splice(index, 1);
+                } else {
+                    alert('Minimal harus ada 1 soal.');
+                }
+            },
+            addOption(questionIndex) {
+                this.questions[questionIndex].options.push({
+                    text: 'Opsi ' + (this.questions[questionIndex].options.length + 1),
+                    is_correct: false
+                });
+            },
+            removeOption(questionIndex, optionIndex) {
+                if (this.questions[questionIndex].options.length > 2) {
+                    this.questions[questionIndex].options.splice(optionIndex, 1);
+                } else {
+                    alert('Soal pilihan ganda minimal harus memiliki 2 opsi.');
+                }
+            },
+            toggleCorrectOption(questionIndex, optionIndex) {
+                const question = this.questions[questionIndex];
+                if (question.type === 'multiple_choice') {
+                    const currentState = question.options[optionIndex].is_correct;
+                    question.options.forEach((opt) => {
+                        opt.is_correct = false;
+                    });
+                    question.options[optionIndex].is_correct = !currentState;
+                } else {
+                    question.options[optionIndex].is_correct = !question.options[optionIndex].is_correct;
+                }
+            },
+            getTotalPoints() {
+                return this.questions.reduce((total, q) => total + (parseInt(q.points) || 0), 0);
+            }
+        }
+    }
+</script>
 @endpush
 @endsection

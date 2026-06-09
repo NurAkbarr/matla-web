@@ -17,6 +17,7 @@ class Assignment extends Model
         'file_path',
         'link',
         'submission_type',
+        'type',
         'due_date',
         'created_by'
     ];
@@ -43,5 +44,10 @@ class Assignment extends Model
     public function submissions()
     {
         return $this->hasMany(AssignmentSubmission::class, 'assignment_id');
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(AssignmentQuestion::class, 'assignment_id');
     }
 }

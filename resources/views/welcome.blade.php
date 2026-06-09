@@ -684,6 +684,7 @@
     </div>
 </section>
 
+
 <!-- Testimoni Section -->
 <section class="pt-10 pb-20 lg:pt-16 lg:pb-28 bg-white relative">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
@@ -764,6 +765,33 @@
         </div>
     </div>
 </section>
+
+<!-- Informasi / Instagram Section -->
+<section id="informasi" class="pt-20 pb-10 bg-gray-50 relative overflow-hidden">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div class="text-center mb-12">
+            <span class="text-emerald-600 font-bold tracking-widest uppercase text-xs sm:text-sm mb-3 block">Info & Update</span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1F2937] tracking-tight mb-4">
+                Informasi <span class="text-[#1E7040]">Terbaru</span>
+            </h2>
+            <p class="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+                Ikuti terus update kegiatan, kajian, dan informasi penting lainnya langsung dari Instagram resmi kami.
+            </p>
+        </div>
+
+        <div class="w-full h-[600px] bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative">
+            <!-- Loading indicator -->
+            <div class="absolute inset-0 flex items-center justify-center -z-10">
+                <span class="text-gray-400">Loading Instagram Feed...</span>
+            </div>
+            
+            <!-- Tagembed Widget Exact Code -->
+            <div class="tagembed-widget" style="width:100%;height:100%;overflow:auto;" data-widget-id="327650" data-website="1"></div>
+            <script src="https://widget.tagembed.com/embed.min.js" type="text/javascript"></script>
+        </div>
+    </div>
+</section>
+
 
 @if(count($brosurs) > 0 && \App\Models\Setting::get_value('pmb_is_open') == '1')
 <!-- PMB Announcement Popup -->

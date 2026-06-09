@@ -37,6 +37,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'direct_instagram' => [
+            'driver' => 'local',
+            'root' => (file_exists('/home/cnnelcmz/public_html') ? '/home/cnnelcmz/public_html' : public_path()) . '/instagram-posts',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/instagram-posts',
+            'visibility' => 'public',
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),

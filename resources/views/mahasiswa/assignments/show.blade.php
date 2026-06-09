@@ -222,20 +222,29 @@
                                     @endif
                                     <a href="{{ route('mahasiswa.assignments.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700">Batal</a>
                                     
-                                    @php $isLinkOnly = !$assignment->file_path && $assignment->link; @endphp
-                                    @if($isLinkOnly)
-                                        <button type="submit" name="mark_as_done" value="1" class="px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 border border-indigo-200">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Tandai Selesai
+                                    @if($assignment->type === 'quiz')
+                                        <a href="{{ route('mahasiswa.assignments.quiz', $assignment->id) }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                            Mulai Kuis
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
+                                    @else
+                                        @php $isLinkOnly = !$assignment->file_path && $assignment->link; @endphp
+                                        @if($isLinkOnly)
+                                            <button type="submit" name="mark_as_done" value="1" class="px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 border border-indigo-200">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Tandai Selesai
+                                            </button>
+                                        @endif
+                                        
+                                        <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                            {{ $submission ? 'Perbarui Jawaban' : 'Kirim Jawaban' }}
                                         </button>
                                     @endif
-                                    
-                                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                                        {{ $submission ? 'Perbarui Jawaban' : 'Kirim Jawaban' }}
-                                    </button>
                                 </div>
                             </div>
+                            
+                            @if($assignment->type !== 'quiz')
 
                             {{-- Textarea and Attachments --}}
                             <div class="relative rounded-2xl border border-gray-200 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all bg-gray-50/50">
@@ -300,6 +309,7 @@
                                     document.getElementById('delete_existing_file').value = '1';
                                 }
                             </script>
+                            @endif
                         </form>
                     </div>
                 @endif

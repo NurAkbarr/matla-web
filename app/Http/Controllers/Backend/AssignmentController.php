@@ -61,13 +61,20 @@ class AssignmentController extends Controller
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'type' => 'required|in:upload,quiz',
             'file_attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240', // 10MB max
             'link' => 'nullable|url|max:255',
             'due_date' => 'required|date|after:now',
+            'questions' => 'nullable|array',
+            'questions.*.type' => 'required_with:questions|in:multiple_choice,checkbox,short_answer,paragraph',
+            'questions.*.text' => 'required_with:questions|string',
+            'questions.*.points' => 'nullable|numeric|min:0',
+            'questions.*.options' => 'nullable|array',
+            'questions.*.options.*.text' => 'required_with:questions.*.options|string',
         ]);
  
         $filePath = null;
-        if ($request->hasFile('file_attachment')) {
+        if ($request->type === 'upload' && $request->hasFile('file_attachment')) {
             $mataKuliah = \App\Models\MataKuliah::find($request->mata_kuliah_id);
             $courseName = $mataKuliah ? $mataKuliah->nama : 'Umum';
             $folderName = preg_replace('/[^A-Za-z0-9_\-\s]/', '', $courseName);
@@ -80,17 +87,41 @@ class AssignmentController extends Controller
             \Illuminate\Support\Facades\Storage::disk('google')->put($drivePath, file_get_contents($file->getRealPath()));
             $filePath = $drivePath;
         }
-        Assignment::create([
+
+        $assignment = Assignment::create([
             'class_group_id' => $request->class_group_id,
             'mata_kuliah_id' => $request->mata_kuliah_id,
             'title' => $request->title,
             'description' => $request->description,
-            'file_path' => $filePath,
-            'link' => $request->link,
+            'type' => $request->type,
+            'file_path' => $request->type === 'upload' ? $filePath : null,
+            'link' => $request->type === 'upload' ? $request->link : null,
             'submission_type' => 'file', // Default value for DB compatibility
             'due_date' => $request->due_date,
             'created_by' => Auth::id(),
         ]);
+
+        if ($request->type === 'quiz' && $request->has('questions')) {
+            foreach ($request->questions as $qData) {
+                $question = $assignment->questions()->create([
+                    'type' => $qData['type'],
+                    'question_text' => $qData['text'],
+                    'points' => $qData['points'] ?? 0,
+                    'is_required' => true,
+                ]);
+
+                if (in_array($qData['type'], ['multiple_choice', 'checkbox']) && !empty($qData['options'])) {
+                    foreach ($qData['options'] as $optIndex => $optData) {
+                        $isCorrect = (isset($optData['is_correct']) && $optData['is_correct'] == '1');
+
+                        $question->options()->create([
+                            'option_text' => $optData['text'],
+                            'is_correct' => $isCorrect,
+                        ]);
+                    }
+                }
+            }
+        }
  
         return redirect()->route('backend.admin.assignments.index')
             ->with('success', 'Tugas berhasil dipublikasikan ke kelompok kelas!');
@@ -131,13 +162,20 @@ class AssignmentController extends Controller
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'type' => 'required|in:upload,quiz',
             'file_attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,rar|max:10240',
             'link' => 'nullable|url|max:255',
             'due_date' => 'required|date',
+            'questions' => 'nullable|array',
+            'questions.*.type' => 'required_with:questions|in:multiple_choice,checkbox,short_answer,paragraph',
+            'questions.*.text' => 'required_with:questions|string',
+            'questions.*.points' => 'nullable|numeric|min:0',
+            'questions.*.options' => 'nullable|array',
+            'questions.*.options.*.text' => 'required_with:questions.*.options|string',
         ]);
  
         $filePath = $assignment->file_path;
-        if ($request->hasFile('file_attachment')) {
+        if ($request->type === 'upload' && $request->hasFile('file_attachment')) {
             if ($filePath) {
                 try {
                     \Illuminate\Support\Facades\Storage::disk('google')->delete($filePath);
@@ -157,6 +195,14 @@ class AssignmentController extends Controller
             
             \Illuminate\Support\Facades\Storage::disk('google')->put($drivePath, file_get_contents($file->getRealPath()));
             $filePath = $drivePath;
+        } else if ($request->type === 'quiz' && $filePath) {
+            // Delete old file if changing from upload to quiz
+            try {
+                \Illuminate\Support\Facades\Storage::disk('google')->delete($filePath);
+                $filePath = null;
+            } catch (\Exception $e) {
+                // Silently fail
+            }
         }
  
         $assignment->update([
@@ -164,10 +210,41 @@ class AssignmentController extends Controller
             'mata_kuliah_id' => $request->mata_kuliah_id,
             'title' => $request->title,
             'description' => $request->description,
-            'file_path' => $filePath,
-            'link' => $request->link,
+            'type' => $request->type,
+            'file_path' => $request->type === 'upload' ? $filePath : null,
+            'link' => $request->type === 'upload' ? $request->link : null,
             'due_date' => $request->due_date,
         ]);
+
+        if ($request->type === 'quiz') {
+            // Remove existing questions first
+            $assignment->questions()->delete();
+
+            if ($request->has('questions')) {
+                foreach ($request->questions as $qData) {
+                    $question = $assignment->questions()->create([
+                        'type' => $qData['type'],
+                        'question_text' => $qData['text'],
+                        'points' => $qData['points'] ?? 0,
+                        'is_required' => true,
+                    ]);
+
+                    if (in_array($qData['type'], ['multiple_choice', 'checkbox']) && !empty($qData['options'])) {
+                        foreach ($qData['options'] as $optIndex => $optData) {
+                                $isCorrect = (isset($optData['is_correct']) && $optData['is_correct'] == '1');
+
+                            $question->options()->create([
+                                'option_text' => $optData['text'],
+                                'is_correct' => $isCorrect,
+                            ]);
+                        }
+                    }
+                }
+            }
+        } else {
+            // If changing to upload, remove any existing questions
+            $assignment->questions()->delete();
+        }
  
         return redirect()->route('backend.admin.assignments.index')
             ->with('success', 'Tugas berhasil diperbarui!');
@@ -232,5 +309,27 @@ class AssignmentController extends Controller
  
         return redirect()->route('backend.admin.assignments.index')
             ->with('success', 'Tugas berhasil dihapus.');
+    }
+
+    /**
+     * View student's quiz answers.
+     */
+    public function quizAnswers(AssignmentSubmission $submission)
+    {
+        $assignment = $submission->assignment;
+        
+        // Security check for Dosen
+        if (Auth::user()->role === 'dosen' && $assignment->created_by !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($assignment->type !== 'quiz') {
+            abort(404, 'Tugas ini bukan kuis.');
+        }
+
+        $assignment->load('questions.options');
+        $submission->load('quizAnswers.selectedOptions');
+
+        return view('backend.assignments.quiz-answers', compact('assignment', 'submission'));
     }
 }

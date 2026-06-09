@@ -24,13 +24,13 @@
     </head>
     <body class="bg-white font-sans text-text-dark" x-data="{ mobileMenuOpen: false }">
         <!-- Navigation Bar -->
-        <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100 font-sans">
             <div class="container mx-auto px-4 lg:px-12 py-3 lg:py-4">
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <a href="{{ url('/') }}" class="flex items-center space-x-2">
                         <img src="{{ asset('assets/logo.png') }}" alt="MATLA Logo" class="h-8 lg:h-10 w-auto">
-                        <span class="text-lg lg:text-xl font-bold text-primary-dark tracking-wide">MATLA</span>
+                        <span class="text-lg lg:text-xl font-bold font-sans text-primary-dark tracking-wide">MATLA</span>
                     </a>
 
                     <!-- Desktop Navigation Items -->

@@ -378,10 +378,17 @@
                 ];
 
                 for (let field of required) {
-                    if (!this.formData[field.key]) {
+                    // Cek dari state formData, jika kosong cek langsung dari elemen DOM (mengatasi issue autofill di HP)
+                    let domElement = document.querySelector('[name="' + field.key + '"]');
+                    let actualValue = this.formData[field.key] || (domElement ? domElement.value : '');
+                    
+                    if (!actualValue) {
                         this.showAlert(`Mohon lengkapi bagian: ${field.label}`);
                         return;
                     }
+                    
+                    // Update back to state just in case
+                    this.formData[field.key] = actualValue;
                 }
 
                 if (!this.formData.commitment_check) {
