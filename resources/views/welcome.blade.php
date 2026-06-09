@@ -786,7 +786,7 @@
             @php
                 $isVideo = str_contains($post->instagram_link, '/reel/') || str_contains($post->instagram_link, '/tv/') || str_contains($post->instagram_link, '/video/');
                 $isLarge = ($index === 4); // Postingan ke-5 (index 4) dibuat lebih besar
-                $gridClass = $isLarge ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto h-full' : 'aspect-square';
+                $gridClass = $isLarge ? 'md:col-span-2 md:row-span-2 aspect-square' : 'aspect-square';
             @endphp
             @if($isVideo)
             <a href="{{ $post->instagram_link }}" target="_blank" rel="noopener"
