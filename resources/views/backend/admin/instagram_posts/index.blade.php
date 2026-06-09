@@ -24,6 +24,17 @@
 </div>
 @endif
 
+@if($posts->where('is_active', true)->count() > 11)
+<div class="mb-6 md:mb-8 p-3 md:p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl md:rounded-2xl font-medium text-sm flex items-center gap-3">
+    <svg class="w-6 h-6 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+    </svg>
+    <div>
+        <strong>Perhatian:</strong> Jumlah postingan aktif melebihi batas maksimal (11 postingan). Postingan ke-12 dan seterusnya tidak akan ditampilkan di Halaman Utama. Harap non-aktifkan atau hapus postingan yang sudah lama.
+    </div>
+</div>
+@endif
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
     @forelse($posts as $post)
     <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-500">

@@ -20,7 +20,7 @@ Route::get('/', function () {
     // Safety check agar tidak crash kalau belum migrate
     try {
         $quickInfos = \App\Models\QuickInfo::where('is_active', true)->orderBy('order', 'asc')->get();
-        $instagramPosts = \App\Models\InstagramPost::where('is_active', true)->orderBy('order', 'asc')->take(8)->get();
+        $instagramPosts = \App\Models\InstagramPost::where('is_active', true)->orderBy('order', 'asc')->take(11)->get();
     } catch (\Exception $e) {
         $quickInfos = collect();
         $instagramPosts = collect();
