@@ -686,7 +686,7 @@
 
 
 <!-- Testimoni Section -->
-<section class="pt-10 pb-20 lg:pt-16 lg:pb-28 bg-white relative">
+<section class="pt-10 pb-10 lg:pt-16 lg:pb-12 bg-white relative">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         <div class="text-center mb-16 lg:mb-20">
             <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1F2937] uppercase tracking-widest mb-4">Testimoni Mahasiswa</h2>
@@ -767,7 +767,7 @@
 </section>
 
 <!-- Informasi / Instagram Section -->
-<section id="informasi" class="pt-20 pb-10 bg-gray-50 relative overflow-hidden">
+<section id="informasi" class="pt-10 lg:pt-12 pb-10 bg-gray-50 relative overflow-hidden">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div class="text-center mb-12">
             <span class="text-emerald-600 font-bold tracking-widest uppercase text-xs sm:text-sm mb-3 block">Info & Update</span>
