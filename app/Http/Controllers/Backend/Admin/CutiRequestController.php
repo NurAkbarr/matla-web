@@ -48,4 +48,26 @@ class CutiRequestController extends Controller
         return redirect()->route('backend.admin.cuti.index')
             ->with('success', "Pengajuan cuti berhasil {$message}.");
     }
+
+    public function destroy($id)
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $cutiRequest = CutiRequest::findOrFail($id);
+
+        // Jika form yang dihapus sebelumnya sudah di-Acc (status mahasiswa sedang CUTI),
+        // maka kembalikan status mahasiswanya menjadi AKTIF
+        if ($cutiRequest->status === 'approved' && $cutiRequest->user && $cutiRequest->user->status === 'CUTI') {
+            $cutiRequest->user->update([
+                'status' => 'AKTIF'
+            ]);
+        }
+
+        $cutiRequest->delete();
+
+        return redirect()->route('backend.admin.cuti.index')
+            ->with('success', 'Data pengajuan cuti berhasil dihapus secara permanen.');
+    }
 }

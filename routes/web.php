@@ -404,6 +404,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
             Route::get('/', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'index'])->name('index');
             Route::get('/{id}', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'show'])->name('show');
             Route::put('/{id}', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'destroy'])->name('destroy');
         });
     });
 
