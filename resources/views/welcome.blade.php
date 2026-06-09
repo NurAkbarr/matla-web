@@ -783,14 +783,7 @@
         {{-- Grid Thumbnail --}}
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             @foreach($instagramPosts as $post)
-            @php
-                // Extract shortcode from instagram_link
-                preg_match('/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/', $post->instagram_link, $m);
-                $shortcode = $m[1] ?? null;
-                // Use caption field if shortcode extraction failed (stored during save)
-                if (!$shortcode && $post->caption) $shortcode = $post->caption;
-            @endphp
-            <button onclick="openIgModal('{{ $shortcode }}', '{{ $post->instagram_link }}')"
+            <button onclick="openIgModal('{{ asset('instagram-posts/' . $post->image) }}', '{{ $post->instagram_link }}')"
                     class="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left">
                 
                 <img src="{{ asset('instagram-posts/' . $post->image) }}" 
@@ -822,65 +815,53 @@
         </div>
         @endif
 
-        {{-- Modal — Menggunakan official Instagram embed (/embed/) 100% gratis --}}
-        <div id="ig-modal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-            <div id="ig-modal-box" class="relative bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300 shadow-2xl">
+        {{-- Modal Lightbox — Menampilkan foto full-size + tombol ke IG --}}
+        <div id="ig-modal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="ig-modal-box" class="relative w-full max-w-2xl transform scale-95 transition-transform duration-300">
                 {{-- Close Button --}}
-                <button onclick="closeIgModal()" class="absolute top-3 right-3 z-10 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors">
+                <button onclick="closeIgModal()" class="absolute -top-12 right-0 z-20 text-white/70 hover:text-white flex items-center space-x-2 text-sm transition-colors">
+                    <span>Tutup</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
 
-                {{-- Instagram Official Embed iframe --}}
-                <div id="ig-embed-container" style="min-height:500px; display:flex; align-items:center; justify-content:center;">
-                    <div class="text-gray-400 text-sm">Memuat postingan Instagram...</div>
-                </div>
+                {{-- Image Container --}}
+                <div class="bg-black rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="relative">
+                        <img id="ig-modal-img" src="" alt="" class="w-full max-h-[70vh] object-contain block">
 
-                {{-- Fallback: Open in Instagram button --}}
-                <div class="p-4 bg-gray-50 border-t border-gray-100">
-                    <a id="ig-open-link" href="#" target="_blank" class="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white py-3 rounded-xl font-bold transition-all shadow-md text-sm">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
-                        <span>Buka di Instagram</span>
-                    </a>
+                        {{-- Gradient overlay bottom --}}
+                        <div class="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                    </div>
+
+                    {{-- Footer —  Buka di Instagram --}}
+                    <div class="px-5 py-4 bg-black flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px] flex-shrink-0">
+                                <div class="bg-black rounded-full w-full h-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                                </div>
+                            </div>
+                            <span class="text-white/80 text-sm font-medium">kampusmatla</span>
+                        </div>
+                        <a id="ig-open-link" href="#" target="_blank" rel="noopener"
+                           class="flex items-center space-x-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white px-5 py-2 rounded-full font-bold transition-all text-sm shadow-lg">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                            <span>Lihat di Instagram</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <script async src="https://www.instagram.com/embed.js"></script>
         <script>
-            function openIgModal(shortcode, igLink) {
-                const modal     = document.getElementById('ig-modal');
-                const box       = document.getElementById('ig-modal-box');
-                const container = document.getElementById('ig-embed-container');
-                const openLink  = document.getElementById('ig-open-link');
+            function openIgModal(imgSrc, igLink) {
+                const modal    = document.getElementById('ig-modal');
+                const box      = document.getElementById('ig-modal-box');
+                const img      = document.getElementById('ig-modal-img');
+                const openLink = document.getElementById('ig-open-link');
 
+                img.src       = imgSrc;
                 openLink.href = igLink;
-
-                if (shortcode) {
-                    // Gunakan blockquote resmi Instagram — sama persis dengan tombol "Embed" di IG
-                    // Ini dikonversi otomatis oleh embed.js Instagram menjadi embed asli
-                    container.innerHTML = `
-                        <div style="padding:8px; width:100%; max-width:540px; margin:0 auto; overflow-y:auto; max-height:75vh;">
-                            <blockquote
-                                class="instagram-media"
-                                data-instgrm-captioned
-                                data-instgrm-permalink="https://www.instagram.com/p/${shortcode}/?utm_source=ig_embed"
-                                data-instgrm-version="14"
-                                style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:1px; max-width:540px; min-width:326px; padding:0; width:calc(100% - 2px);">
-                            </blockquote>
-                        </div>`;
-
-                    // Proses embed setelah DOM diperbarui
-                    setTimeout(() => {
-                        if (window.instgrm && window.instgrm.Embeds) {
-                            window.instgrm.Embeds.process();
-                        }
-                    }, 100);
-                } else {
-                    container.innerHTML = `<div class="p-8 text-center text-gray-500 text-sm">
-                        <p>Tidak dapat memuat embed.</p>
-                        <p class="mt-2">Silakan buka langsung di Instagram.</p>
-                    </div>`;
-                }
 
                 modal.classList.remove('opacity-0', 'pointer-events-none');
                 box.classList.remove('scale-95');
@@ -889,21 +870,25 @@
             }
 
             function closeIgModal() {
-                const modal     = document.getElementById('ig-modal');
-                const box       = document.getElementById('ig-modal-box');
-                const container = document.getElementById('ig-embed-container');
+                const modal = document.getElementById('ig-modal');
+                const box   = document.getElementById('ig-modal-box');
+                const img   = document.getElementById('ig-modal-img');
 
                 modal.classList.add('opacity-0', 'pointer-events-none');
                 box.classList.remove('scale-100');
                 box.classList.add('scale-95');
                 document.body.style.overflow = '';
-
-                setTimeout(() => { container.innerHTML = '<div class="text-gray-400 text-sm p-8 text-center">Memuat postingan Instagram...</div>'; }, 300);
+                setTimeout(() => { img.src = ''; }, 300);
             }
 
             // Close on backdrop click
             document.getElementById('ig-modal').addEventListener('click', function(e) {
                 if (e.target === this) closeIgModal();
+            });
+
+            // Close with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeIgModal();
             });
         </script>
     </div>
