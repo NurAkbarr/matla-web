@@ -781,7 +781,7 @@
 
         @if(isset($instagramPosts) && count($instagramPosts) > 0)
         {{-- Grid Thumbnail --}}
-        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @foreach($instagramPosts as $post)
             <button onclick="openIgModal('{{ asset('instagram-posts/' . $post->image) }}', '{{ $post->instagram_link }}')"
                     class="group relative aspect-square overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left">
