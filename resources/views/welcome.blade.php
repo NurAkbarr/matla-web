@@ -781,7 +781,7 @@
 
         @if(isset($instagramPosts) && count($instagramPosts) > 0)
         {{-- Grid Thumbnail --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 grid-flow-dense">
             @foreach($instagramPosts as $index => $post)
             @php
                 $isVideo = str_contains($post->instagram_link, '/reel/') || str_contains($post->instagram_link, '/tv/') || str_contains($post->instagram_link, '/video/');
