@@ -782,21 +782,23 @@
         @if(isset($instagramPosts) && count($instagramPosts) > 0)
         {{-- Grid Thumbnail --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            @foreach($instagramPosts as $post)
+            @foreach($instagramPosts as $index => $post)
             @php
                 $isVideo = str_contains($post->instagram_link, '/reel/') || str_contains($post->instagram_link, '/tv/') || str_contains($post->instagram_link, '/video/');
+                $isLarge = ($index === 4); // Postingan ke-5 (index 4) dibuat lebih besar
+                $gridClass = $isLarge ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto h-full' : 'aspect-square';
             @endphp
             @if($isVideo)
             <a href="{{ $post->instagram_link }}" target="_blank" rel="noopener"
-               class="group relative aspect-square overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left">
+               class="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left {{ $gridClass }}">
             @else
             <button onclick="openIgModal('{{ asset('instagram-posts/' . $post->image) }}', '{{ $post->instagram_link }}')"
-                    class="group relative aspect-square overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left">
+                    class="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left {{ $gridClass }}">
             @endif
                 
                 <img src="{{ asset('instagram-posts/' . $post->image) }}" 
                      alt="{{ $post->title ?? 'Instagram Post' }}" 
-                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                     class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
 
                 {{-- Overlay Play Button (Center) for Videos --}}
                 @if($isVideo)
