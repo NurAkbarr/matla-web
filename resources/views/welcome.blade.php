@@ -845,23 +845,36 @@
             </div>
         </div>
 
+        <script async src="https://www.instagram.com/embed.js"></script>
         <script>
             function openIgModal(shortcode, igLink) {
-                const modal    = document.getElementById('ig-modal');
-                const box      = document.getElementById('ig-modal-box');
-                const container= document.getElementById('ig-embed-container');
-                const openLink = document.getElementById('ig-open-link');
+                const modal     = document.getElementById('ig-modal');
+                const box       = document.getElementById('ig-modal-box');
+                const container = document.getElementById('ig-embed-container');
+                const openLink  = document.getElementById('ig-open-link');
 
                 openLink.href = igLink;
 
-                // Build official Instagram embed iframe
                 if (shortcode) {
-                    container.innerHTML = `<iframe 
-                        src="https://www.instagram.com/p/${shortcode}/embed/"
-                        width="400" height="500"
-                        frameborder="0" scrolling="no" allowtransparency="true"
-                        style="width:100%;min-height:500px;border:none;display:block;"
-                    ></iframe>`;
+                    // Gunakan blockquote resmi Instagram — sama persis dengan tombol "Embed" di IG
+                    // Ini dikonversi otomatis oleh embed.js Instagram menjadi embed asli
+                    container.innerHTML = `
+                        <div style="padding:8px; width:100%; max-width:540px; margin:0 auto; overflow-y:auto; max-height:75vh;">
+                            <blockquote
+                                class="instagram-media"
+                                data-instgrm-captioned
+                                data-instgrm-permalink="https://www.instagram.com/p/${shortcode}/?utm_source=ig_embed"
+                                data-instgrm-version="14"
+                                style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:1px; max-width:540px; min-width:326px; padding:0; width:calc(100% - 2px);">
+                            </blockquote>
+                        </div>`;
+
+                    // Proses embed setelah DOM diperbarui
+                    setTimeout(() => {
+                        if (window.instgrm && window.instgrm.Embeds) {
+                            window.instgrm.Embeds.process();
+                        }
+                    }, 100);
                 } else {
                     container.innerHTML = `<div class="p-8 text-center text-gray-500 text-sm">
                         <p>Tidak dapat memuat embed.</p>
@@ -876,8 +889,8 @@
             }
 
             function closeIgModal() {
-                const modal = document.getElementById('ig-modal');
-                const box   = document.getElementById('ig-modal-box');
+                const modal     = document.getElementById('ig-modal');
+                const box       = document.getElementById('ig-modal-box');
                 const container = document.getElementById('ig-embed-container');
 
                 modal.classList.add('opacity-0', 'pointer-events-none');
@@ -885,7 +898,7 @@
                 box.classList.add('scale-95');
                 document.body.style.overflow = '';
 
-                setTimeout(() => { container.innerHTML = '<div class="text-gray-400 text-sm">Memuat postingan Instagram...</div>'; }, 300);
+                setTimeout(() => { container.innerHTML = '<div class="text-gray-400 text-sm p-8 text-center">Memuat postingan Instagram...</div>'; }, 300);
             }
 
             // Close on backdrop click
