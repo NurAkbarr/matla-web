@@ -11,7 +11,7 @@
         </a>
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Edit Postingan</h1>
     </div>
-    <p class="text-xs md:text-sm text-gray-500 font-medium italic ml-12">Perbarui gambar atau tautan Instagram</p>
+    <p class="text-xs md:text-sm text-gray-500 font-medium italic ml-12">Perbarui thumbnail atau link Instagram</p>
 </div>
 
 <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 md:p-10 max-w-3xl">
@@ -29,18 +29,6 @@
                 @enderror
             </div>
 
-            <!-- Tipe Media -->
-            <div>
-                <label for="type" class="block text-sm font-bold text-gray-700 mb-2">Tipe Postingan <span class="text-red-500">*</span></label>
-                <select name="type" id="type" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-colors">
-                    <option value="image" {{ old('type', $instagram_post->type) == 'image' ? 'selected' : '' }}>Foto / Gambar</option>
-                    <option value="video" {{ old('type', $instagram_post->type) == 'video' ? 'selected' : '' }}>Video (MP4 / MOV)</option>
-                </select>
-                @error('type')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
             <!-- Link Instagram -->
             <div>
                 <label for="instagram_link" class="block text-sm font-bold text-gray-700 mb-2">Link Postingan Instagram <span class="text-red-500">*</span></label>
@@ -48,35 +36,26 @@
                 @error('instagram_link')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+                <p class="text-xs text-gray-400 mt-2 italic">Bisa link foto, video, maupun Reels Instagram.</p>
             </div>
 
-            <!-- Gambar / Video -->
+            <!-- Thumbnail saat ini -->
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">File Saat Ini</label>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Thumbnail Saat Ini</label>
                 @if($instagram_post->image)
                     <div class="mb-4 bg-gray-50 p-2 rounded-xl border border-gray-200 inline-block">
-                        @if($instagram_post->type == 'video')
-                        <video src="{{ asset('instagram-posts/' . $instagram_post->image) }}" class="h-32 rounded-lg" controls></video>
-                        @else
-                        <img src="{{ asset('instagram-posts/' . $instagram_post->image) }}" class="h-32 object-contain rounded-lg">
-                        @endif
+                        <img src="{{ asset('instagram-posts/' . $instagram_post->image) }}" class="h-36 object-contain rounded-lg">
                     </div>
                 @endif
-                <label for="image" class="block text-sm font-bold text-gray-700 mb-2">Ganti File Foto/Video (Opsional)</label>
-                <input type="file" name="image" id="image" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-colors" accept="image/*,video/mp4,video/quicktime">
+                <label for="image" class="block text-sm font-bold text-gray-700 mb-2">Ganti Thumbnail (Opsional)</label>
+                <input type="file" name="image" id="image" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-colors" accept="image/*" onchange="previewImage(this)">
+                <div id="preview-container" class="hidden mt-3">
+                    <img id="preview-img" src="" alt="Preview baru" class="h-32 rounded-xl object-cover border border-gray-200">
+                </div>
                 @error('image')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="text-xs text-gray-400 mt-2 italic">Format Foto: JPG, PNG. Format Video: MP4, MOV. Maks 20MB. Kosongkan jika tidak ingin mengganti file.</p>
-            </div>
-
-            <!-- Caption -->
-            <div>
-                <label for="caption" class="block text-sm font-bold text-gray-700 mb-2">Caption / Deskripsi (Opsional)</label>
-                <textarea name="caption" id="caption" rows="4" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-colors" placeholder="Ketik caption lengkap di sini...">{{ old('caption', $instagram_post->caption) }}</textarea>
-                @error('caption')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
+                <p class="text-xs text-gray-400 mt-2 italic">Format: JPG, PNG, WEBP — Maks. 10MB. Kosongkan jika tidak ingin mengganti.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
@@ -84,6 +63,7 @@
                 <div>
                     <label for="order" class="block text-sm font-bold text-gray-700 mb-2">Urutan Tampil</label>
                     <input type="number" name="order" id="order" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-colors" value="{{ old('order', $instagram_post->order) }}">
+                    <p class="text-xs text-gray-400 mt-2 italic">Angka terkecil tampil paling depan.</p>
                 </div>
 
                 <!-- Status Aktif -->
@@ -91,7 +71,7 @@
                     <label class="block text-sm font-bold text-gray-700 mb-2">Status Penayangan</label>
                     <label class="inline-flex items-center cursor-pointer mt-2">
                         <input type="checkbox" name="is_active" value="1" class="sr-only peer" {{ old('is_active', $instagram_post->is_active) ? 'checked' : '' }}>
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                         <span class="ml-3 text-sm font-bold text-gray-700">Tampilkan di Halaman Utama</span>
                     </label>
                 </div>
@@ -106,4 +86,17 @@
         </div>
     </form>
 </div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('preview-container').classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 @endsection

@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Storage;
 
 class InstagramPostController extends Controller
 {
+    /**
+     * Extract shortcode from Instagram URL
+     * e.g. https://www.instagram.com/p/ABC123/ -> ABC123
+     */
+    private function extractShortcode(string $url): ?string
+    {
+        if (preg_match('/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
+    }
+
     public function index()
     {
         $posts = InstagramPost::orderBy('order')->get();
@@ -23,24 +35,23 @@ class InstagramPostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'type' => 'required|in:image,video',
-            'title' => 'nullable|string|max:255',
-            'image' => 'required|file|mimes:jpeg,png,jpg,webp,gif,mp4,mov|max:20480',
-            'instagram_link' => 'required|url|max:500',
-            'caption' => 'nullable|string',
-            'order' => 'integer',
+            'title'           => 'nullable|string|max:255',
+            'image'           => 'required|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'instagram_link'  => 'required|url|max:500',
+            'order'           => 'integer',
         ]);
 
         $imagePath = $request->file('image')->store('', 'direct_instagram');
+        $shortcode = $this->extractShortcode($request->instagram_link);
 
         InstagramPost::create([
-            'title' => $request->title,
-            'type' => $request->type,
-            'image' => $imagePath,
+            'title'          => $request->title,
+            'type'           => 'image',
+            'image'          => $imagePath,
             'instagram_link' => $request->instagram_link,
-            'caption' => $request->caption,
-            'is_active' => $request->has('is_active'),
-            'order' => $request->order ?? (InstagramPost::max('order') + 1),
+            'caption'        => $shortcode, // reuse caption field to store shortcode
+            'is_active'      => $request->has('is_active'),
+            'order'          => $request->order ?? (InstagramPost::max('order') + 1),
         ]);
 
         return redirect()->route('backend.admin.instagram-posts.index')->with('success', 'Postingan Instagram berhasil ditambahkan.');
@@ -54,21 +65,21 @@ class InstagramPostController extends Controller
     public function update(Request $request, InstagramPost $instagram_post)
     {
         $request->validate([
-            'type' => 'required|in:image,video',
-            'title' => 'nullable|string|max:255',
-            'image' => 'nullable|file|mimes:jpeg,png,jpg,webp,gif,mp4,mov|max:20480',
-            'instagram_link' => 'required|url|max:500',
-            'caption' => 'nullable|string',
-            'order' => 'integer',
+            'title'           => 'nullable|string|max:255',
+            'image'           => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'instagram_link'  => 'required|url|max:500',
+            'order'           => 'integer',
         ]);
 
+        $shortcode = $this->extractShortcode($request->instagram_link);
+
         $data = [
-            'title' => $request->title,
-            'type' => $request->type,
+            'title'          => $request->title,
+            'type'           => 'image',
             'instagram_link' => $request->instagram_link,
-            'caption' => $request->caption,
-            'is_active' => $request->has('is_active'),
-            'order' => $request->order ?? 0,
+            'caption'        => $shortcode,
+            'is_active'      => $request->has('is_active'),
+            'order'          => $request->order ?? 0,
         ];
 
         if ($request->hasFile('image')) {

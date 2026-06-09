@@ -779,9 +779,120 @@
             </p>
         </div>
 
-        <div style="width:100%; height:700px; overflow:hidden; border-radius:12px;">
-            <iframe src="https://widget.tagembed.com/327650?website=1" allow="fullscreen" style="width:100%;height:700px;overflow:auto;border:none;"></iframe>
+        @if(isset($instagramPosts) && count($instagramPosts) > 0)
+        {{-- Grid Thumbnail --}}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            @foreach($instagramPosts as $post)
+            @php
+                // Extract shortcode from instagram_link
+                preg_match('/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/', $post->instagram_link, $m);
+                $shortcode = $m[1] ?? null;
+                // Use caption field if shortcode extraction failed (stored during save)
+                if (!$shortcode && $post->caption) $shortcode = $post->caption;
+            @endphp
+            <button onclick="openIgModal('{{ $shortcode }}', '{{ $post->instagram_link }}')"
+                    class="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left">
+                
+                <img src="{{ asset('instagram-posts/' . $post->image) }}" 
+                     alt="{{ $post->title ?? 'Instagram Post' }}" 
+                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+
+                {{-- Overlay on hover --}}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 z-10">
+                    <div class="transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300">
+                        <svg class="w-6 h-6 text-white mb-1" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                        <p class="text-white text-xs font-semibold">Lihat di Instagram →</p>
+                    </div>
+                </div>
+
+                {{-- Instagram Icon Badge --}}
+                <div class="absolute top-2.5 right-2.5 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                    <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                </div>
+            </button>
+            @endforeach
         </div>
+        @else
+        <div class="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100 text-center">
+            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-gray-300" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Postingan</h3>
+            <p class="text-gray-500 text-sm">Postingan Instagram akan muncul di sini setelah ditambahkan di Dashboard Admin.</p>
+        </div>
+        @endif
+
+        {{-- Modal — Menggunakan official Instagram embed (/embed/) 100% gratis --}}
+        <div id="ig-modal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="ig-modal-box" class="relative bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300 shadow-2xl">
+                {{-- Close Button --}}
+                <button onclick="closeIgModal()" class="absolute top-3 right-3 z-10 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+
+                {{-- Instagram Official Embed iframe --}}
+                <div id="ig-embed-container" style="min-height:500px; display:flex; align-items:center; justify-content:center;">
+                    <div class="text-gray-400 text-sm">Memuat postingan Instagram...</div>
+                </div>
+
+                {{-- Fallback: Open in Instagram button --}}
+                <div class="p-4 bg-gray-50 border-t border-gray-100">
+                    <a id="ig-open-link" href="#" target="_blank" class="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 text-white py-3 rounded-xl font-bold transition-all shadow-md text-sm">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                        <span>Buka di Instagram</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openIgModal(shortcode, igLink) {
+                const modal    = document.getElementById('ig-modal');
+                const box      = document.getElementById('ig-modal-box');
+                const container= document.getElementById('ig-embed-container');
+                const openLink = document.getElementById('ig-open-link');
+
+                openLink.href = igLink;
+
+                // Build official Instagram embed iframe
+                if (shortcode) {
+                    container.innerHTML = `<iframe 
+                        src="https://www.instagram.com/p/${shortcode}/embed/"
+                        width="400" height="500"
+                        frameborder="0" scrolling="no" allowtransparency="true"
+                        style="width:100%;min-height:500px;border:none;display:block;"
+                    ></iframe>`;
+                } else {
+                    container.innerHTML = `<div class="p-8 text-center text-gray-500 text-sm">
+                        <p>Tidak dapat memuat embed.</p>
+                        <p class="mt-2">Silakan buka langsung di Instagram.</p>
+                    </div>`;
+                }
+
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeIgModal() {
+                const modal = document.getElementById('ig-modal');
+                const box   = document.getElementById('ig-modal-box');
+                const container = document.getElementById('ig-embed-container');
+
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                box.classList.remove('scale-100');
+                box.classList.add('scale-95');
+                document.body.style.overflow = '';
+
+                setTimeout(() => { container.innerHTML = '<div class="text-gray-400 text-sm">Memuat postingan Instagram...</div>'; }, 300);
+            }
+
+            // Close on backdrop click
+            document.getElementById('ig-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeIgModal();
+            });
+        </script>
     </div>
 </section>
 
