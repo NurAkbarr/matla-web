@@ -783,6 +783,9 @@
         {{-- Grid Thumbnail --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @foreach($instagramPosts as $post)
+            @php
+                $isVideo = str_contains($post->instagram_link, '/reel/') || str_contains($post->instagram_link, '/tv/') || str_contains($post->instagram_link, '/video/');
+            @endphp
             <button onclick="openIgModal('{{ asset('instagram-posts/' . $post->image) }}', '{{ $post->instagram_link }}')"
                     class="group relative aspect-square overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left">
                 
@@ -790,15 +793,26 @@
                      alt="{{ $post->title ?? 'Instagram Post' }}" 
                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
 
-                {{-- Overlay on hover --}}
+                {{-- Overlay Play Button (Center) for Videos --}}
+                @if($isVideo)
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
+                    <div class="bg-black/40 p-4 rounded-full backdrop-blur-sm transform scale-50 group-hover:scale-100 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 384 512"><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Overlay on hover (Bottom Gradient) --}}
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 z-10">
                     <div class="transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300">
+                        @if(!$isVideo)
                         <svg class="w-6 h-6 text-white mb-1" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                        @endif
                         <p class="text-white text-xs font-semibold">Lihat di Instagram →</p>
                     </div>
                 </div>
 
-                {{-- Instagram Icon Badge --}}
+                {{-- Instagram Icon Badge (Always Visible Top Right) --}}
                 <div class="absolute top-2.5 right-2.5 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
                     <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12.2 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
                 </div>
