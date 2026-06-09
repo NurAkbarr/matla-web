@@ -781,19 +781,28 @@
 
         @if(isset($instagramPosts) && count($instagramPosts) > 0)
         {{-- Grid Thumbnail --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 grid-flow-row-dense">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 grid-flow-row-dense">
             @foreach($instagramPosts as $index => $post)
             @php
                 $isVideo = str_contains($post->instagram_link, '/reel/') || str_contains($post->instagram_link, '/tv/') || str_contains($post->instagram_link, '/video/');
                 $isLarge = ($index === 4); // Postingan ke-5 (index 4) dibuat lebih besar
-                $gridClass = $isLarge ? 'md:col-span-2 md:row-span-2 aspect-square' : 'aspect-square';
+                
+                // Styling dinamis berdasarkan ukuran layar
+                $gridClass = $isLarge ? 'col-span-2 md:row-span-2 aspect-video md:aspect-square' : 'aspect-square';
+                
+                // Sembunyikan postingan ke 6-9 di mode HP (mobile)
+                if ($index > 4) {
+                    $gridClass .= ' hidden md:block';
+                } else {
+                    $gridClass .= ' block';
+                }
             @endphp
             @if($isVideo)
             <a href="{{ $post->instagram_link }}" target="_blank" rel="noopener"
-               class="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left {{ $gridClass }}">
+               class="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 w-full text-left {{ $gridClass }}">
             @else
             <button onclick="openIgModal('{{ asset('instagram-posts/' . $post->image) }}', '{{ $post->instagram_link }}')"
-                    class="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 block w-full text-left {{ $gridClass }}">
+                    class="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-gray-100 w-full text-left {{ $gridClass }}">
             @endif
                 
                 <img src="{{ asset('instagram-posts/' . $post->image) }}" 
