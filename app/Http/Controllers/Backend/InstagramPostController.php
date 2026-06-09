@@ -38,7 +38,7 @@ class InstagramPostController extends Controller
             'title'           => 'nullable|string|max:255',
             'image'           => 'required|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
             'instagram_link'  => 'required|url|max:500',
-            'order'           => 'integer',
+            'order'           => 'nullable|integer',
         ]);
 
         $imagePath = $request->file('image')->store('', 'direct_instagram');
@@ -68,7 +68,7 @@ class InstagramPostController extends Controller
             'title'           => 'nullable|string|max:255',
             'image'           => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
             'instagram_link'  => 'required|url|max:500',
-            'order'           => 'integer',
+            'order'           => 'nullable|integer',
         ]);
 
         $shortcode = $this->extractShortcode($request->instagram_link);
