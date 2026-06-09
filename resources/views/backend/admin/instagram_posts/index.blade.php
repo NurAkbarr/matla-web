@@ -39,7 +39,7 @@
     @forelse($posts as $post)
     <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-500">
         <!-- Thumbnail -->
-        <div class="relative aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
+        <div class="relative h-48 sm:h-auto sm:aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
             @if($post->type == 'video')
                 <video src="{{ asset('instagram-posts/' . $post->image) }}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" muted preload="metadata"></video>
                 <!-- Play Icon Indicator -->

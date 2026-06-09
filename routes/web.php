@@ -398,6 +398,13 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
             Route::get('/commissions', [App\Http\Controllers\Backend\AffiliateController::class, 'commissions'])->name('commissions');
             Route::post('/commissions/{affiliate}/pay-balance', [App\Http\Controllers\Backend\AffiliateController::class, 'payBalance'])->name('commissions.pay_balance');
         });
+        
+        // Pengajuan Cuti (Admin)
+        Route::prefix('admin/cuti')->name('admin.cuti.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'index'])->name('index');
+            Route::get('/{id}', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'show'])->name('show');
+            Route::put('/{id}', [\App\Http\Controllers\Backend\Admin\CutiRequestController::class, 'update'])->name('update');
+        });
     });
 
 
@@ -428,6 +435,13 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     // Mahasiswa Area
     Route::middleware(['role:mahasiswa'])->group(function () {
         Route::get('/mahasiswa/dashboard', [DashboardController::class, 'mahasiswa'])->name('mahasiswa.dashboard');
+
+        // Pengajuan Cuti (Mahasiswa)
+        Route::prefix('mahasiswa/cuti')->name('mahasiswa.cuti.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Mahasiswa\CutiRequestController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Mahasiswa\CutiRequestController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Mahasiswa\CutiRequestController::class, 'store'])->name('store');
+        });
     });
 
 });

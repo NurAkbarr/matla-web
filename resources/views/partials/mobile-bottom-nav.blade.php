@@ -67,11 +67,11 @@
                     <span class="text-[11px] font-semibold text-slate-600">Presensi</span>
                 </a>
                 
-                <a href="#" class="flex flex-col items-center text-center group">
+                <a href="{{ route('backend.mahasiswa.cuti.index') }}" class="flex flex-col items-center text-center group">
                     <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-600">KHS</span>
+                    <span class="text-[11px] font-semibold text-slate-600">Cuti</span>
                 </a>
             </div>
 
