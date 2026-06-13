@@ -89,7 +89,7 @@
         background: rgba(30, 112, 64, 0.1);
     }
 </style>
-<section id="beranda" class="relative min-h-[100dvh] flex flex-col justify-start overflow-hidden pb-28 sm:pb-32 lg:pb-36 pt-24 sm:pt-32 lg:pt-40">
+<section id="beranda" class="relative min-h-[100dvh] lg:min-h-screen flex flex-col justify-start lg:justify-center overflow-hidden pb-20 sm:pb-24 lg:pb-0 pt-32 sm:pt-40 lg:pt-28">
     <!-- Background Image -->
     <div class="absolute inset-0 z-0">
         <img src="{{ asset('assets/bg-web.png') }}" alt="MATLA Background" class="w-full h-full object-cover">
@@ -101,16 +101,16 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 flex-1">
             
             <!-- Left Content (Headline, Subheadline, Buttons) -->
-            <div class="lg:col-span-8 xl:col-span-9 flex flex-col">
+            <div class="lg:col-span-7 xl:col-span-8 flex flex-col justify-center">
                 
                 <!-- Group 1: Title & Description -->
                 <div>
-                    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#1F2937] leading-[1.1] tracking-tight mb-4 opacity-0 animate-fade-in-left" style="animation-delay: 100ms;">
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-5xl font-black text-[#1F2937] leading-[1.1] lg:leading-[1.15] tracking-tight mb-4 opacity-0 animate-fade-in-left" style="animation-delay: 100ms;">
                         Kuliah online sesuai Alquran dan As Sunnah. 
                         <span class="block text-emerald-600 mt-2">Flexible. Terarah</span>
                     </h1>
 
-                    <p class="text-base sm:text-lg lg:text-xl font-medium text-gray-700 leading-relaxed mb-6 sm:mb-8 max-w-3xl opacity-0 animate-fade-in-left" style="animation-delay: 300ms;">
+                    <p class="text-base sm:text-lg lg:text-lg font-medium text-gray-700 leading-relaxed mb-6 sm:mb-8 max-w-3xl opacity-0 animate-fade-in-left" style="animation-delay: 300ms;">
                         Pelajari Bahasa Arab dan Ilmu Agama Islam bersama pengajar kompeten — dari mana saja, kapan saja, tanpa batasan umur dengan kurikulum yang terstruktur dan terarah.
                     </p>
                 </div>
