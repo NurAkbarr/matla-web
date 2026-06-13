@@ -58,6 +58,7 @@
                                     <a href="{{ route('informasi.karya-dosen') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">Karya Dosen</a>
                                     <a href="{{ route('informasi.staf-pengajar') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">Staf Pengajar</a>
                                     <a href="{{ route('informasi.galeri') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">Galeri</a>
+                                    <a href="{{ route('informasi.struktur-organisasi') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-primary rounded-lg transition-colors">Struktur Organisasi</a>
                                 </div>
                             </div>
                         </div>
@@ -208,6 +209,7 @@
                             <a href="{{ route('informasi.karya-dosen') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Karya Dosen</a>
                             <a href="{{ route('informasi.staf-pengajar') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Staf Pengajar</a>
                             <a href="{{ route('informasi.galeri') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Galeri</a>
+                            <a href="{{ route('informasi.struktur-organisasi') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Struktur Organisasi</a>
                         </div>
                     </div>
 

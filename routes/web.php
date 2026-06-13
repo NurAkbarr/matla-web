@@ -466,6 +466,7 @@ Route::prefix('informasi')->name('informasi.')->group(function () {
     Route::get('/staf-pengajar', [InformasiController::class, 'stafPengajar'])->name('staf-pengajar');
     Route::get('/galeri', [InformasiController::class, 'galeri'])->name('galeri');
     Route::get('/duta-kampus', [InformasiController::class, 'leaderboard'])->name('leaderboard');
+    Route::get('/struktur-organisasi', [InformasiController::class, 'strukturOrganisasi'])->name('struktur-organisasi');
 });
 
 // Deprecated (keamanan): jangan expose migrate via GET/public.

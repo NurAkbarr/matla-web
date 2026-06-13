@@ -59,4 +59,9 @@ class InformasiController extends Controller
 
         return view('informasi.leaderboard', compact('topDutas', 'recentActivities'));
     }
+
+    public function strukturOrganisasi()
+    {
+        return view('informasi.struktur-organisasi');
+    }
 }
