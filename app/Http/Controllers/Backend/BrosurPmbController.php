@@ -15,6 +15,17 @@ class BrosurPmbController extends Controller
         return view('backend.admin.pmb.brosur.index', compact('brosurs'));
     }
 
+    public function togglePopup(Request $request)
+    {
+        $value = $request->has('show_brosur_popup') ? '1' : '0';
+        \App\Models\Setting::set_value('show_brosur_popup', $value, 'boolean');
+        // Prevent auto-off from running immediately if manually turned on
+        if ($value == '1') {
+            \App\Models\Setting::set_value('pmb_auto_off_handled', '1', 'boolean');
+        }
+        return back()->with('success', 'Status Pop-up Beranda berhasil diperbarui.');
+    }
+
     public function create()
     {
         return view('backend.admin.pmb.brosur.create');

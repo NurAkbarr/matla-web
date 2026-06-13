@@ -930,7 +930,7 @@
 </section>
 
 
-@if(count($brosurs) > 0 && \App\Models\Setting::get_value('pmb_is_open') == '1')
+@if(count($brosurs) > 0 && \App\Models\Setting::get_value('show_brosur_popup', '1') == '1')
 <!-- PMB Announcement Popup -->
 <div id="pmb-popup" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-500">
     <div class="relative w-full max-w-lg transform scale-90 transition-all duration-500 shadow-2xl" id="pmb-popup-content">

@@ -12,6 +12,13 @@ class PmbRegistrationController extends Controller
 {
     public function create(Request $request)
     {
+        $pmb_is_open = \App\Models\Setting::get_value('pmb_is_open', '1');
+        $pmb_end_date = \App\Models\Setting::get_value('pmb_end_date', date('Y-m-d\TH:i:s', strtotime('+30 days')));
+
+        if ($pmb_is_open != '1' || strtotime($pmb_end_date) < time()) {
+            return redirect()->route('pmb')->with('error', 'Pendaftaran Mahasiswa Baru saat ini telah ditutup.');
+        }
+
         $type = $request->query('type', 'pai');
         
         // Tracking Affiliate
@@ -53,6 +60,13 @@ class PmbRegistrationController extends Controller
 
     public function store(Request $request)
     {
+        $pmb_is_open = \App\Models\Setting::get_value('pmb_is_open', '1');
+        $pmb_end_date = \App\Models\Setting::get_value('pmb_end_date', date('Y-m-d\TH:i:s', strtotime('+30 days')));
+
+        if ($pmb_is_open != '1' || strtotime($pmb_end_date) < time()) {
+            return redirect()->route('pmb')->with('error', 'Pendaftaran Mahasiswa Baru saat ini telah ditutup.');
+        }
+
         $validated = $request->validate([
             // Section 1: Data Pribadi
             'full_name' => [

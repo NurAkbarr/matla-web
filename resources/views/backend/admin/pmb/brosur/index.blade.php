@@ -9,13 +9,27 @@
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Manajemen Brosur PMB</h1>
         <p class="text-xs md:text-sm text-gray-500 font-medium italic">Kelola brosur yang tampil di halaman PMB</p>
     </div>
-    <a href="{{ route('backend.admin.pmb.brosur.create') }}" 
-       class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-5 md:px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl md:rounded-2xl font-bold text-xs md:text-sm shadow-xl shadow-primary/20 transition-all">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        <span>Tambah Brosur</span>
-    </a>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <!-- Toggle Popup Form -->
+        <div class="bg-white px-4 py-2.5 rounded-xl md:rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+            <span class="text-xs font-bold text-gray-700 mr-3">Tampilkan Pop-up Beranda</span>
+            <form action="{{ route('backend.admin.pmb.brosur.toggle-popup') }}" method="POST" class="flex items-center">
+                @csrf
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="show_brosur_popup" class="sr-only peer" onchange="this.form.submit()" {{ \App\Models\Setting::get_value('show_brosur_popup', '1') == '1' ? 'checked' : '' }}>
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+            </form>
+        </div>
+
+        <a href="{{ route('backend.admin.pmb.brosur.create') }}" 
+           class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-5 md:px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl md:rounded-2xl font-bold text-xs md:text-sm shadow-xl shadow-primary/20 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <span>Tambah Brosur</span>
+        </a>
+    </div>
 </div>
 
 @if(session('success'))

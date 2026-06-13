@@ -15,6 +15,16 @@ use App\Http\Controllers\Backend\ClassGroupController;
 
 
 Route::get('/', function () {
+    $pmb_end_date = \App\Models\Setting::get_value('pmb_end_date', date('Y-m-d\TH:i:s', strtotime('+30 days')));
+    
+    // Auto turn off popup if PMB ended
+    if (strtotime($pmb_end_date) < time()) {
+        if (\App\Models\Setting::get_value('pmb_auto_off_handled', '0') == '0') {
+            \App\Models\Setting::set_value('show_brosur_popup', '0', 'boolean');
+            \App\Models\Setting::set_value('pmb_auto_off_handled', '1', 'boolean');
+        }
+    }
+
     $brosurs = \App\Models\BrosurPmb::orderBy('order')->get();
     
     // Safety check agar tidak crash kalau belum migrate
@@ -358,6 +368,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/admin/pmb/settings', [\App\Http\Controllers\Backend\PmbSettingController::class, 'update'])->name('admin.pmb.settings.update');
 
         // PMB Brochure Management
+        Route::post('/admin/pmb/brosur/toggle-popup', [\App\Http\Controllers\Backend\BrosurPmbController::class, 'togglePopup'])->name('admin.pmb.brosur.toggle-popup');
         Route::resource('/admin/pmb/brosur', \App\Http\Controllers\Backend\BrosurPmbController::class, [
             'names' => 'admin.pmb.brosur',
         ]);

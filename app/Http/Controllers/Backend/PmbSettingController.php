@@ -43,6 +43,10 @@ class PmbSettingController extends Controller
         Setting::set_value('pmb_status_link', $request->pmb_status_link, 'string');
         Setting::set_value('pmb_is_open', $request->pmb_is_open, 'boolean');
         Setting::set_value('pmb_start_date', $request->pmb_start_date, 'datetime');
+
+        if (strtotime($request->pmb_end_date) > time()) {
+            Setting::set_value('pmb_auto_off_handled', '0', 'boolean');
+        }
         
         if ($request->has('pmb_is_active')) {
             Setting::set_value('pmb_is_active', $request->pmb_is_active, 'boolean');

@@ -13,11 +13,12 @@ class DashboardController extends Controller
     {
         $totalMahasiswa = User::where('role', 'mahasiswa')->count();
         $totalDosen     = User::where('role', 'dosen')->count();
+        $totalAdmin     = User::whereIn('role', ['admin', 'super_admin'])->count();
         $pendaftarBaru  = \App\Models\PmbRegistration::where('status', 'pending')->count();
         
         $recentActivities = \App\Models\PmbRegistration::latest()->take(5)->get();
 
-        return view('backend.admin.dashboard', compact('totalMahasiswa', 'totalDosen', 'pendaftarBaru', 'recentActivities'));
+        return view('backend.admin.dashboard', compact('totalMahasiswa', 'totalDosen', 'totalAdmin', 'pendaftarBaru', 'recentActivities'));
     }
 
     public function dosen()
