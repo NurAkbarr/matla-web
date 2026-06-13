@@ -89,7 +89,7 @@
         background: rgba(30, 112, 64, 0.1);
     }
 </style>
-<section id="beranda" class="relative min-h-[500px] sm:min-h-[600px] lg:min-h-screen lg:h-screen lg:max-h-[850px] flex flex-col justify-start sm:justify-center overflow-hidden pb-12 sm:pb-16 lg:pb-24 pt-28 sm:pt-28 lg:pt-32">
+<section id="beranda" class="relative min-h-[100dvh] flex flex-col justify-start overflow-hidden pb-28 sm:pb-32 lg:pb-36 pt-24 sm:pt-32 lg:pt-40">
     <!-- Background Image -->
     <div class="absolute inset-0 z-0">
         <img src="{{ asset('assets/bg-web.png') }}" alt="MATLA Background" class="w-full h-full object-cover">
@@ -97,21 +97,27 @@
         <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/60 lg:to-transparent"></div>
     </div>
 
-    <div class="container mx-auto px-5 sm:px-6 lg:px-12 relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
+    <div class="container mx-auto px-5 sm:px-6 lg:px-12 relative z-10 flex flex-col flex-1">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 flex-1">
             
             <!-- Left Content (Headline, Subheadline, Buttons) -->
-            <div class="lg:col-span-7 xl:col-span-8 flex flex-col justify-center">
-                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#1F2937] leading-[1.15] tracking-tight mb-4 opacity-0 animate-fade-in-left" style="animation-delay: 100ms;">
-                    Kuliah online sesuai Alquran dan As Sunnah. 
-                    <span class="block text-emerald-600 mt-1">Flexible. Terarah</span>
-                </h1>
+            <div class="lg:col-span-8 xl:col-span-9 flex flex-col">
+                
+                <!-- Group 1: Title & Description -->
+                <div>
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#1F2937] leading-[1.1] tracking-tight mb-4 opacity-0 animate-fade-in-left" style="animation-delay: 100ms;">
+                        Kuliah online sesuai Alquran dan As Sunnah. 
+                        <span class="block text-emerald-600 mt-2">Flexible. Terarah</span>
+                    </h1>
 
-                <p class="text-sm sm:text-base lg:text-lg font-medium text-gray-700 leading-relaxed mb-28 sm:mb-8 max-w-2xl opacity-0 animate-fade-in-left" style="animation-delay: 300ms;">
-                    Pelajari Bahasa Arab dan Ilmu Agama Islam bersama pengajar kompeten — dari mana saja, kapan saja, tanpa batasan umur dengan kurikulum yang terstruktur dan terarah.
-                </p>
+                    <p class="text-base sm:text-lg lg:text-xl font-medium text-gray-700 leading-relaxed mb-6 sm:mb-8 max-w-3xl opacity-0 animate-fade-in-left" style="animation-delay: 300ms;">
+                        Pelajari Bahasa Arab dan Ilmu Agama Islam bersama pengajar kompeten — dari mana saja, kapan saja, tanpa batasan umur dengan kurikulum yang terstruktur dan terarah.
+                    </p>
+                </div>
 
-                <div class="flex flex-row gap-3 mb-6 sm:mb-10 opacity-0 animate-fade-in-up" style="animation-delay: 500ms;">
+                <!-- Group 2: Buttons & Info -->
+                <div class="mt-auto pt-10 sm:pt-16">
+                    <div class="flex flex-row gap-3 mb-6 sm:mb-10 opacity-0 animate-fade-in-up" style="animation-delay: 500ms;">
                     @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
                     <a href="{{ route('pmb') }}" class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 text-white rounded-xl text-sm sm:text-base font-bold shadow-lg shadow-emerald-600/30 group btn-daftar-sekarang btn-type1">
                         <span>Daftar Sekarang</span>
@@ -177,11 +183,12 @@
                         <div class="font-black text-lg sm:text-xl lg:text-2xl text-emerald-600 mb-1">2024</div>
                         <div class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase tracking-wider">Matla Berdiri</div>
                     </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Right Content (Card) -->
-            <div class="hidden xl:block lg:col-span-5 xl:col-span-4 opacity-0 animate-fade-in-right" style="animation-delay: 400ms;">
+            <div class="hidden xl:block lg:col-span-5 xl:col-span-4 self-center opacity-0 animate-fade-in-right" style="animation-delay: 400ms;">
                 <div class="bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-3xl shadow-[0_20px_50px_rgba(16,185,129,0.1)] border border-white relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] transition-shadow duration-300">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-100/50 rounded-full blur-3xl -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
                     <div class="absolute bottom-0 left-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl -ml-12 -mb-12 transition-transform group-hover:scale-110"></div>
