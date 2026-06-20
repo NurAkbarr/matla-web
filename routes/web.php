@@ -21,58 +21,72 @@ Route::get('/run-bot-kuesioner', function () {
         $kendala = ['Tidak ada', 'Aman-aman saja', 'Terkadang loading sedikit lama saat koneksi jelek', 'Belum ada kendala berarti', 'Tidak ada kendala, sudah bagus'];
         $saran = ['Pertahankan kinerjanya', 'Lebih ditingkatkan lagi kecepatannya', 'Tolong tambahkan notifikasi WhatsApp', 'Sudah sangat bagus'];
         
-        $success = 0;
-        $errorMsg = '';
-        foreach ($users as $user) {
+        $formsHtml = "";
+        $scriptJs = "let current = 0; const total = " . count($users) . ";";
+
+        foreach ($users as $index => $user) {
             $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
-            
+
             $payload = [
                 'entry.1173135949' => $user->name,
                 'entry.113244303' => $user->email,
                 'entry.1376259667' => $roleStr,
-                'entry.1786802780' => (string)rand(1, 5),
-                'entry.688265404' => (string)rand(1, 5),
-                'entry.589641822' => (string)rand(1, 5),
-                'entry.711945778' => (string)rand(1, 5),
-                'entry.1095513650' => (string)rand(1, 5),
-                'entry.1144558180' => (string)rand(1, 5),
-                'entry.1058748373' => (string)rand(1, 5),
-                'entry.1028371416' => (string)rand(1, 5),
-                'entry.358765560' => (string)rand(1, 5),
-                'entry.738494701' => (string)rand(1, 5),
+                'entry.1786802780' => rand(1, 5),
+                'entry.688265404' => rand(1, 5),
+                'entry.589641822' => rand(1, 5),
+                'entry.711945778' => rand(1, 5),
+                'entry.1095513650' => rand(1, 5),
+                'entry.1144558180' => rand(1, 5),
+                'entry.1058748373' => rand(1, 5),
+                'entry.1028371416' => rand(1, 5),
+                'entry.358765560' => rand(1, 5),
+                'entry.738494701' => rand(1, 5),
                 'entry.1840559073' => $fiturMembantu[array_rand($fiturMembantu)],
                 'entry.1891876594' => $kendala[array_rand($kendala)],
                 'entry.950301174' => $saran[array_rand($saran)],
                 'pageHistory' => '0,1,2',
             ];
-            
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-                'Referer' => 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/viewform',
-                'Origin' => 'https://docs.google.com',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-                'Accept-Language' => 'en-US,en;q=0.9,id;q=0.8',
-            ])->asForm()->post($formUrl, $payload);
-            
-            if ($response->successful()) {
-                $success++;
-            } else {
-                if(empty($errorMsg)) $errorMsg = "Status: " . $response->status() . " | Body: " . substr($response->body(), 0, 500);
+
+            $inputsHtml = "";
+            foreach($payload as $key => $val) {
+                $inputsHtml .= "<input type='hidden' name='$key' value='$val'>\n";
             }
-            usleep(100000); // 0.1 detik saja
+
+            $formsHtml .= "
+                <form id='gform_$index' target='hidden_iframe_$index' action='$formUrl' method='POST'>
+                    $inputsHtml
+                </form>
+                <iframe name='hidden_iframe_$index' id='hidden_iframe_$index' style='display:none;'></iframe>
+            ";
+
+            $scriptJs .= "
+                setTimeout(() => {
+                    document.getElementById('gform_$index').submit();
+                    document.getElementById('status').innerText = 'Mengirim data ' + (" . ($index + 1) . ") + '...';
+                }, " . ($index * 1500) . ");
+            ";
         }
 
-        $errorHtml = $errorMsg ? "<p style='color:red'>Pesan Error dari Google: <br><textarea style='width:100%; height:150px;'>$errorMsg</textarea></p>" : "";
+        $scriptJs .= "
+            setTimeout(() => {
+                window.location.reload();
+            }, " . (count($users) * 1500 + 2000) . ");
+        ";
 
         return response("
             <html>
-            <head><meta http-equiv='refresh' content='1'></head>
+            <head>
+                <title>Bot Kuesioner</title>
+            </head>
             <body style='font-family:sans-serif; text-align:center; padding:50px;'>
-                <h2>Bot sedang berjalan! 🤖</h2>
-                <p>Berhasil mengirim <b>$success</b> data dari gelombang ini.</p>
-                $errorHtml
-                <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setiap 1 detik...<br>Biarkan tab terbuka.</p>
+                <h2>Bot sedang berjalan via Browser! 🤖</h2>
+                <h3 id='status'>Memulai...</h3>
+                <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setelah pengiriman selesai...<br>Biarkan tab terbuka.</p>
+                $formsHtml
+                <script>
+                    $scriptJs
+                </script>
             </body>
             </html>
         ");
