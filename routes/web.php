@@ -14,8 +14,8 @@ use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Ba
 // ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
 Route::get('/run-bot-kuesioner', function () {
     try {
-        // Ambil tepat 42 user secara acak agar jumlahnya pas 42 responden
-        $users = \App\Models\User::inRandomOrder()->take(42)->get();
+        // Filter user yang punya email valid
+        $users = \App\Models\User::whereNotNull('email')->where('email', '!=', '')->get();
         $formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/formResponse';
         
         $fiturMembantu = [
@@ -59,21 +59,25 @@ Route::get('/run-bot-kuesioner', function () {
         shuffle($saran);
 
         $success = 0;
-        foreach ($users as $index => $user) {
+        $target = 42; // Target pasti 42 responden
+        $attempts = 0;
+        
+        // Looping terus sampai sukses tepat 42 (mengatasi Google yang kadang memblokir jika terlalu cepat)
+        while ($success < $target && $attempts < 100 && $users->count() > 0) {
+            $user = $users->random();
             $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
             
-            // Pilih text yang beda-beda pakai index, kalau index kehabisan, fallback ke random
-            $f_text = $fiturMembantu[$index] ?? $fiturMembantu[array_rand($fiturMembantu)];
-            $k_text = $kendala[$index] ?? $kendala[array_rand($kendala)];
-            $s_text = $saran[$index] ?? $saran[array_rand($saran)];
+            $f_text = $fiturMembantu[$success % count($fiturMembantu)];
+            $k_text = $kendala[$success % count($kendala)];
+            $s_text = $saran[$success % count($saran)];
 
             $payload = [
                 'emailAddress' => $user->email,
                 'entry.1173135949' => $user->name,
                 'entry.113244303' => $user->email,
                 'entry.1376259667' => $roleStr,
-                'entry.1786802780' => (string)rand(1, 5), // AHP Comparison: 1-5
+                'entry.1786802780' => (string)rand(1, 5),
                 'entry.688265404' => (string)rand(1, 5),
                 'entry.589641822' => (string)rand(1, 5),
                 'entry.711945778' => (string)rand(1, 5),
@@ -92,15 +96,23 @@ Route::get('/run-bot-kuesioner', function () {
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
             ])->asForm()->post($formUrl, $payload);
             
-            if ($response->successful()) $success++;
-            usleep(100000); // 0.1 detik
+            if ($response->successful()) {
+                $success++;
+                // Hapus user dari koleksi agar tidak terkirim dua kali di sesi ini
+                $users = $users->reject(function ($u) use ($user) {
+                    return $u->id === $user->id;
+                });
+            }
+            
+            $attempts++;
+            usleep(200000); // 0.2 detik jeda agar Google tidak mendeteksi spam
         }
 
         return response("
             <html>
             <body style='font-family:sans-serif; text-align:center; padding:50px;'>
                 <h2>Bot SELESAI! ✅</h2>
-                <p>Berhasil mengirim <b>$success</b> data dari TOTAL ".count($users)." user yang ada di database kampus.</p>
+                <p>Berhasil mengirim <b>$success</b> data dengan akurat.</p>
                 <p style='color:green; font-weight:bold;'>Data tidak akan berulang, dan setiap user memiliki jawaban uraian yang unik.</p>
             </body>
             </html>
