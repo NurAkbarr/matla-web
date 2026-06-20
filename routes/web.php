@@ -13,12 +13,24 @@ use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Ba
 
 // ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
 Route::get('/run-bot-kuesioner', function () {
-    set_time_limit(300); // Mencegah timeout di shared hosting
+    set_time_limit(300);
     
     try {
         \Illuminate\Support\Facades\Artisan::call('app:fill-questionnaire');
         $output = \Illuminate\Support\Facades\Artisan::output();
-        return response("Bot berhasil dijalankan!<br><pre>$output</pre>");
+        return response("
+            <html>
+            <head><meta http-equiv='refresh' content='2'></head>
+            <body style='font-family:sans-serif; text-align:center; padding:50px;'>
+                <h2>Bot sedang berjalan! 🤖</h2>
+                <p>Mengirim 20 data per sesi untuk menghindari Timeout Server...</p>
+                <div style='background:#f4f4f4; padding:20px; border-radius:10px; display:inline-block; text-align:left;'>
+                    <pre>$output</pre>
+                </div>
+                <p style='color:green; font-weight:bold;'>Halaman ini akan me-refresh otomatis setiap 2 detik untuk mengirim gelombang data selanjutnya.<br>Biarkan tab ini terbuka. Jika jumlah sudah cukup, silakan tutup tab ini.</p>
+            </body>
+            </html>
+        ");
     } catch (\Exception $e) {
         return response("Terjadi kesalahan: " . $e->getMessage());
     }

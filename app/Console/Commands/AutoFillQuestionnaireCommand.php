@@ -29,7 +29,8 @@ class AutoFillQuestionnaireCommand extends Command
     {
         $this->info('Starting Auto-Fill Questionnaire...');
 
-        $users = User::all();
+        // Ambil 20 user secara acak per eksekusi untuk menghindari Timeout di shared hosting
+        $users = User::inRandomOrder()->take(20)->get();
         $total = $users->count();
         $successCount = 0;
         $errorCount = 0;
