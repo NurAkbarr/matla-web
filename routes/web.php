@@ -21,72 +21,46 @@ Route::get('/run-bot-kuesioner', function () {
         $kendala = ['Tidak ada', 'Aman-aman saja', 'Terkadang loading sedikit lama saat koneksi jelek', 'Belum ada kendala berarti', 'Tidak ada kendala, sudah bagus'];
         $saran = ['Pertahankan kinerjanya', 'Lebih ditingkatkan lagi kecepatannya', 'Tolong tambahkan notifikasi WhatsApp', 'Sudah sangat bagus'];
         
-        $formsHtml = "";
-        $scriptJs = "let current = 0; const total = " . count($users) . ";";
-
-        foreach ($users as $index => $user) {
+        $success = 0;
+        foreach ($users as $user) {
             $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
-
+            
             $payload = [
-                'emailAddress' => $user->email, // Built-in email collection
+                'emailAddress' => $user->email,
                 'entry.1173135949' => $user->name,
                 'entry.113244303' => $user->email,
                 'entry.1376259667' => $roleStr,
-                'entry.1786802780' => rand(1, 5),
-                'entry.688265404' => rand(1, 5),
-                'entry.589641822' => rand(1, 5),
-                'entry.711945778' => rand(1, 5),
-                'entry.1095513650' => rand(1, 5),
-                'entry.1144558180' => rand(1, 5),
-                'entry.1058748373' => rand(1, 5),
-                'entry.1028371416' => rand(1, 5),
-                'entry.358765560' => rand(1, 5),
-                'entry.738494701' => rand(1, 5),
+                'entry.1786802780' => (string)rand(1, 5),
+                'entry.688265404' => (string)rand(1, 5),
+                'entry.589641822' => (string)rand(1, 5),
+                'entry.711945778' => (string)rand(1, 5),
+                'entry.1095513650' => (string)rand(1, 5),
+                'entry.1144558180' => (string)rand(1, 5),
+                'entry.1058748373' => (string)rand(1, 5),
+                'entry.1028371416' => (string)rand(1, 5),
+                'entry.358765560' => (string)rand(1, 5),
+                'entry.738494701' => (string)rand(1, 5),
                 'entry.1840559073' => $fiturMembantu[array_rand($fiturMembantu)],
                 'entry.1891876594' => $kendala[array_rand($kendala)],
-                'entry.950301174' => $saran[array_rand($saran)],
+                'entry.950301174' => $saran[array_rand($saran)]
             ];
-
-            $inputsHtml = "";
-            foreach($payload as $key => $val) {
-                $inputsHtml .= "<input type='hidden' name='$key' value='$val'>\n";
-            }
-
-            $formsHtml .= "
-                <form id='gform_$index' target='hidden_iframe_$index' action='$formUrl' method='POST'>
-                    $inputsHtml
-                </form>
-                <iframe name='hidden_iframe_$index' id='hidden_iframe_$index' style='display:none;'></iframe>
-            ";
-
-            $scriptJs .= "
-                setTimeout(() => {
-                    document.getElementById('gform_$index').submit();
-                    document.getElementById('status').innerText = 'Mengirim data ' + (" . ($index + 1) . ") + '...';
-                }, " . ($index * 1500) . ");
-            ";
+            
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+            ])->asForm()->post($formUrl, $payload);
+            
+            if ($response->successful()) $success++;
+            usleep(100000); // 0.1 detik
         }
-
-        $scriptJs .= "
-            setTimeout(() => {
-                window.location.reload();
-            }, " . (count($users) * 1500 + 2000) . ");
-        ";
 
         return response("
             <html>
-            <head>
-                <title>Bot Kuesioner</title>
-            </head>
+            <head><meta http-equiv='refresh' content='1'></head>
             <body style='font-family:sans-serif; text-align:center; padding:50px;'>
-                <h2>Bot sedang berjalan via Browser! 🤖</h2>
-                <h3 id='status'>Memulai...</h3>
-                <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setelah pengiriman selesai...<br>Biarkan tab terbuka.</p>
-                $formsHtml
-                <script>
-                    $scriptJs
-                </script>
+                <h2>Bot sedang berjalan! 🤖</h2>
+                <p>Berhasil mengirim <b>$success</b> data dari database kampus.</p>
+                <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setiap 1 detik...<br>Biarkan tab terbuka.</p>
             </body>
             </html>
         ");
