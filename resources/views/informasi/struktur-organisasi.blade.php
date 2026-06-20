@@ -82,7 +82,7 @@
                 <!-- Bag Akademik -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 text-center shadow-sm w-full max-w-sm">
                     <div class="text-gray-900 font-bold text-base md:text-lg mb-1">Bag. Akademik</div>
-                    <div class="text-gray-800 font-medium text-sm italic">— (kosong)</div>
+                    <div class="text-gray-800 font-medium text-sm">Yolanda Windy</div>
                 </div>
 
                 <div class="w-[3px] h-8 bg-gray-800"></div>
@@ -159,7 +159,7 @@
                             <!-- Child: Bag Akademik -->
                             <div class="bg-gray-50 border border-gray-200 rounded-2xl px-8 py-4 text-center shadow-sm w-[300px] relative z-10">
                                 <div class="text-gray-900 font-bold text-lg mb-1">Bag. Akademik</div>
-                                <div class="text-gray-800 font-medium text-sm italic">— (kosong)</div>
+                                <div class="text-gray-800 font-medium text-sm">Yolanda Windy</div>
                             </div>
                         </div>
 
