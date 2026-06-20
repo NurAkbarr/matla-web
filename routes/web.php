@@ -45,7 +45,6 @@ Route::get('/run-bot-kuesioner', function () {
                 'entry.1840559073' => $fiturMembantu[array_rand($fiturMembantu)],
                 'entry.1891876594' => $kendala[array_rand($kendala)],
                 'entry.950301174' => $saran[array_rand($saran)],
-                'pageHistory' => '0,1,2',
             ];
 
             $inputsHtml = "";
