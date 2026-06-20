@@ -29,6 +29,7 @@ Route::get('/run-bot-kuesioner', function () {
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
 
             $payload = [
+                'emailAddress' => $user->email, // Built-in email collection
                 'entry.1173135949' => $user->name,
                 'entry.113244303' => $user->email,
                 'entry.1376259667' => $roleStr,
