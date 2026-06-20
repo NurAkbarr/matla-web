@@ -14,8 +14,8 @@ use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Ba
 // ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
 Route::get('/run-bot-kuesioner', function () {
     try {
-        // Filter user yang punya email valid
-        $users = \App\Models\User::whereNotNull('email')->where('email', '!=', '')->get();
+        // Ambil SEMUA user, termasuk Dosen yang tidak punya email
+        $users = \App\Models\User::all();
         $formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/formResponse';
         
         $fiturMembantu = [
@@ -62,20 +62,31 @@ Route::get('/run-bot-kuesioner', function () {
         $target = 42; // Target pasti 42 responden
         $attempts = 0;
         
-        // Looping terus sampai sukses tepat 42 (mengatasi Google yang kadang memblokir jika terlalu cepat)
-        while ($success < $target && $attempts < 100 && $users->count() > 0) {
-            $user = $users->random();
+        // Looping terus sampai sukses tepat 42
+        while ($success < $target && $attempts < 100) {
+            if ($users->count() > 0) {
+                $user = $users->random();
+            } else {
+                break; // Jika habis, keluar saja
+            }
+
             $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
+            
+            // JIKA EMAIL KOSONG (Khusus Dosen dll), kita buatkan email buatan agar tidak ditolak Google
+            $userEmail = $user->email;
+            if (empty($userEmail)) {
+                $userEmail = str_replace(' ', '', strtolower($user->name)) . '@matla.id';
+            }
             
             $f_text = $fiturMembantu[$success % count($fiturMembantu)];
             $k_text = $kendala[$success % count($kendala)];
             $s_text = $saran[$success % count($saran)];
 
             $payload = [
-                'emailAddress' => $user->email,
+                'emailAddress' => $userEmail,
                 'entry.1173135949' => $user->name,
-                'entry.113244303' => $user->email,
+                'entry.113244303' => $userEmail,
                 'entry.1376259667' => $roleStr,
                 'entry.1786802780' => (string)rand(1, 5),
                 'entry.688265404' => (string)rand(1, 5),
@@ -99,9 +110,11 @@ Route::get('/run-bot-kuesioner', function () {
             if ($response->successful()) {
                 $success++;
                 // Hapus user dari koleksi agar tidak terkirim dua kali di sesi ini
-                $users = $users->reject(function ($u) use ($user) {
-                    return $u->id === $user->id;
-                });
+                if ($users->count() > 0) {
+                    $users = $users->reject(function ($u) use ($user) {
+                        return $u->id === $user->id;
+                    });
+                }
             }
             
             $attempts++;
