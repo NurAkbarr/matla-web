@@ -14,7 +14,8 @@ use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Ba
 // ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
 Route::get('/run-bot-kuesioner', function () {
     try {
-        $users = \App\Models\User::all();
+        // Ambil tepat 42 user secara acak agar jumlahnya pas 42 responden
+        $users = \App\Models\User::inRandomOrder()->take(42)->get();
         $formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/formResponse';
         
         $fiturMembantu = [
