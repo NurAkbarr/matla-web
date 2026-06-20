@@ -22,6 +22,7 @@ Route::get('/run-bot-kuesioner', function () {
         $saran = ['Pertahankan kinerjanya', 'Lebih ditingkatkan lagi kecepatannya', 'Tolong tambahkan notifikasi WhatsApp', 'Sudah sangat bagus'];
         
         $success = 0;
+        $errorMsg = '';
         foreach ($users as $user) {
             $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
@@ -46,10 +47,23 @@ Route::get('/run-bot-kuesioner', function () {
                 'pageHistory' => '0,1,2',
             ];
             
-            $response = \Illuminate\Support\Facades\Http::asForm()->post($formUrl, $payload);
-            if ($response->successful()) $success++;
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+                'Referer' => 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/viewform',
+                'Origin' => 'https://docs.google.com',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language' => 'en-US,en;q=0.9,id;q=0.8',
+            ])->asForm()->post($formUrl, $payload);
+            
+            if ($response->successful()) {
+                $success++;
+            } else {
+                if(empty($errorMsg)) $errorMsg = "Status: " . $response->status() . " | Body: " . substr($response->body(), 0, 500);
+            }
             usleep(100000); // 0.1 detik saja
         }
+
+        $errorHtml = $errorMsg ? "<p style='color:red'>Pesan Error dari Google: <br><textarea style='width:100%; height:150px;'>$errorMsg</textarea></p>" : "";
 
         return response("
             <html>
@@ -57,6 +71,7 @@ Route::get('/run-bot-kuesioner', function () {
             <body style='font-family:sans-serif; text-align:center; padding:50px;'>
                 <h2>Bot sedang berjalan! 🤖</h2>
                 <p>Berhasil mengirim <b>$success</b> data dari gelombang ini.</p>
+                $errorHtml
                 <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setiap 1 detik...<br>Biarkan tab terbuka.</p>
             </body>
             </html>
