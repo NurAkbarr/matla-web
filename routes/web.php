@@ -9,9 +9,20 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProgramStudiController;
-use App\Http\Controllers\Backend\AffiliateController;
-use App\Http\Controllers\Backend\ClassGroupController;
+use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Backend\ClassGroupController;
 
+// ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
+Route::get('/run-bot-kuesioner', function () {
+    set_time_limit(300); // Mencegah timeout di shared hosting
+    
+    try {
+        \Illuminate\Support\Facades\Artisan::call('app:fill-questionnaire');
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response("Bot berhasil dijalankan!<br><pre>$output</pre>");
+    } catch (\Exception $e) {
+        return response("Terjadi kesalahan: " . $e->getMessage());
+    }
+});
 
 
 Route::get('/', function () {
