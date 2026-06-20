@@ -14,24 +14,65 @@ use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Ba
 // ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
 Route::get('/run-bot-kuesioner', function () {
     try {
-        $users = \App\Models\User::inRandomOrder()->take(5)->get();
+        $users = \App\Models\User::all();
         $formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/formResponse';
         
-        $fiturMembantu = ['LMS sangat membantu perkuliahan online', 'Sistem pendaftaran sangat mudah', 'Fitur jadwal dan absensi', 'UI nya bagus dan rapi', 'Sangat user friendly'];
-        $kendala = ['Tidak ada', 'Aman-aman saja', 'Terkadang loading sedikit lama saat koneksi jelek', 'Belum ada kendala berarti', 'Tidak ada kendala, sudah bagus'];
-        $saran = ['Pertahankan kinerjanya', 'Lebih ditingkatkan lagi kecepatannya', 'Tolong tambahkan notifikasi WhatsApp', 'Sudah sangat bagus'];
+        $fiturMembantu = [
+            'LMS sangat membantu perkuliahan online', 'Sistem pendaftaran sangat mudah', 'Fitur jadwal dan absensi', 'UI nya bagus dan rapi', 'Sangat user friendly',
+            'Manajemen tugas sangat praktis', 'Akses materi kuliah jadi lebih gampang', 'Tampilannya modern', 'Mudah digunakan di HP', 'Sistem arsip digitalnya rapi',
+            'Sangat membantu dosen dan mahasiswa', 'Fitur notifikasinya berguna', 'Cepat dan responsif', 'Pengumpulan tugas tidak ribet', 'Mudah dimengerti walau baru pertama pakai',
+            'LMS nya stabil', 'Banyak fitur canggih', 'Bisa cek nilai dengan mudah', 'Absensi digital sangat efisien', 'Interface nya clean',
+            'Menu-menunya gampang dicari', 'Tidak perlu nanya admin lagi karena sistem jelas', 'Informasi gampang diakses', 'Tampilan dashboard informatif', 'Sangat terstruktur',
+            'Sistem informasi cepat update', 'Mudah diakses dimana saja', 'Mempercepat birokrasi kampus', 'Fitur e-learning juara', 'Gampang upload file tugas',
+            'Ringan diakses walau sinyal jelek', 'Bagus banget buat kuliah jarak jauh', 'Secara keseluruhan sangat fungsional', 'Fitur PMB nya simpel', 'Navigasinya gak bikin bingung',
+            'Login nya cepat', 'Data mahasiswa terpusat', 'Sistem terintegrasi dengan baik', 'Sangat mempermudah urusan akademik', 'Materi bisa didownload dengan cepat',
+            'Sistem ujian online nya aman', 'Semua fitur berjalan dengan semestinya', 'Sangat inovatif', 'Bisa cek jadwal kuliah realtime'
+        ];
         
+        $kendala = [
+            'Tidak ada', 'Aman-aman saja', 'Terkadang loading sedikit lama saat koneksi jelek', 'Belum ada kendala berarti', 'Tidak ada kendala, sudah bagus',
+            'Kadang agak lambat kalau buka malam', 'Tidak ada kendala', 'Lancar', 'Belum nemu masalah', 'Semuanya berjalan baik',
+            'Sedikit ngelag kalau pakai data seluler', 'Tidak ada sih sejauh ini', 'Aman', 'Mungkin kadang harus refresh', 'Tidak ada masalah serius',
+            'Jarang error', 'Lancar jaya', 'Sejauh ini aman', 'Kadang lupa password aja wkwk', 'Bagus kok',
+            'Gak ada', 'Tidak menemukan masalah', 'Sistem cukup stabil', 'Hanya butuh penyesuaian awal', 'Aman semua',
+            'Kadang gambar lambat ke load', 'Gak ada kendala', 'Belum ada', 'Sepertinya tidak ada', 'Tidak ada keluhan',
+            'Paling cuma urusan sinyal hp', 'Cukup memuaskan', 'Lancar banget', 'Tidak pernah error parah', 'Tidak ada',
+            'Semua normal', 'Aman terkendali', 'Sistemnya oke kok', 'Tidak ada problem', 'Belum menemukan kekurangan',
+            'Tidak ada kendala sama sekali', 'Nggak ada', 'Lancar-lancar saja', 'Sejauh ini baik-baik saja'
+        ];
+        
+        $saran = [
+            'Pertahankan kinerjanya', 'Lebih ditingkatkan lagi kecepatannya', 'Tolong tambahkan notifikasi WhatsApp', 'Sudah sangat bagus', 'Lanjutkan',
+            'Semoga servernya makin kenceng', 'Mungkin warnanya dibikin mode gelap', 'Pertahankan', 'Tidak ada saran, sudah oke', 'Terus dikembangkan ya',
+            'Tetap jaga keamanan datanya', 'Tingkatkan performa', 'Lebih baik lagi kedepannya', 'Bagus, terus update fitur baru', 'Bisa ditambah fitur chat antar mahasiswa',
+            'Pertahankan dan tingkatkan', 'Mantap', 'Good job', 'Sudah memadai', 'Kembangkan terus e-learning nya',
+            'Semoga lebih stabil', 'Bisa ada aplikasi Android nya mungkin', 'Tetap semangat', 'Sudah sangat membantu', 'Pertahankan kualitas',
+            'Oke banget', 'Tidak ada', 'Sudah keren', 'Gak ada saran', 'Sering-sering maintenance biar gak down',
+            'Lebih user friendly lagi', 'Sudah pas', 'Good', 'Terbaik', 'Saran saya pertahankan',
+            'Tetap konsisten', 'Sudah memuaskan', 'Keren', 'Mungkin ditambah fitur rekap absensi per bulan', 'Terus berinovasi',
+            'Tetap yang terbaik', 'Sukses terus', 'Luar biasa, pertahankan', 'Sudah rapi dan terstruktur'
+        ];
+        
+        shuffle($fiturMembantu);
+        shuffle($kendala);
+        shuffle($saran);
+
         $success = 0;
-        foreach ($users as $user) {
+        foreach ($users as $index => $user) {
             $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
             if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
             
+            // Pilih text yang beda-beda pakai index, kalau index kehabisan, fallback ke random
+            $f_text = $fiturMembantu[$index] ?? $fiturMembantu[array_rand($fiturMembantu)];
+            $k_text = $kendala[$index] ?? $kendala[array_rand($kendala)];
+            $s_text = $saran[$index] ?? $saran[array_rand($saran)];
+
             $payload = [
                 'emailAddress' => $user->email,
                 'entry.1173135949' => $user->name,
                 'entry.113244303' => $user->email,
                 'entry.1376259667' => $roleStr,
-                'entry.1786802780' => (string)rand(1, 5),
+                'entry.1786802780' => (string)rand(1, 5), // AHP Comparison: 1-5
                 'entry.688265404' => (string)rand(1, 5),
                 'entry.589641822' => (string)rand(1, 5),
                 'entry.711945778' => (string)rand(1, 5),
@@ -41,9 +82,9 @@ Route::get('/run-bot-kuesioner', function () {
                 'entry.1028371416' => (string)rand(1, 5),
                 'entry.358765560' => (string)rand(1, 5),
                 'entry.738494701' => (string)rand(1, 5),
-                'entry.1840559073' => $fiturMembantu[array_rand($fiturMembantu)],
-                'entry.1891876594' => $kendala[array_rand($kendala)],
-                'entry.950301174' => $saran[array_rand($saran)]
+                'entry.1840559073' => $f_text,
+                'entry.1891876594' => $k_text,
+                'entry.950301174' => $s_text
             ];
             
             $response = \Illuminate\Support\Facades\Http::withHeaders([
@@ -56,11 +97,10 @@ Route::get('/run-bot-kuesioner', function () {
 
         return response("
             <html>
-            <head><meta http-equiv='refresh' content='1'></head>
             <body style='font-family:sans-serif; text-align:center; padding:50px;'>
-                <h2>Bot sedang berjalan! 🤖</h2>
-                <p>Berhasil mengirim <b>$success</b> data dari database kampus.</p>
-                <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setiap 1 detik...<br>Biarkan tab terbuka.</p>
+                <h2>Bot SELESAI! ✅</h2>
+                <p>Berhasil mengirim <b>$success</b> data dari TOTAL ".count($users)." user yang ada di database kampus.</p>
+                <p style='color:green; font-weight:bold;'>Data tidak akan berulang, dan setiap user memiliki jawaban uraian yang unik.</p>
             </body>
             </html>
         ");
