@@ -13,21 +13,51 @@ use App\Http\Controllers\Backend\AffiliateController;use App\Http\Controllers\Ba
 
 // ROUTE SEMENTARA UNTUK BOT KUESIONER DI HOSTING
 Route::get('/run-bot-kuesioner', function () {
-    set_time_limit(300);
-    
     try {
-        \Illuminate\Support\Facades\Artisan::call('app:fill-questionnaire');
-        $output = \Illuminate\Support\Facades\Artisan::output();
+        $users = \App\Models\User::inRandomOrder()->take(5)->get();
+        $formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfsoHqxeEzLYDV_eXTJaXFGAODj7aYA9u0aqcLiM9rwH2t30A/formResponse';
+        
+        $fiturMembantu = ['LMS sangat membantu perkuliahan online', 'Sistem pendaftaran sangat mudah', 'Fitur jadwal dan absensi', 'UI nya bagus dan rapi', 'Sangat user friendly'];
+        $kendala = ['Tidak ada', 'Aman-aman saja', 'Terkadang loading sedikit lama saat koneksi jelek', 'Belum ada kendala berarti', 'Tidak ada kendala, sudah bagus'];
+        $saran = ['Pertahankan kinerjanya', 'Lebih ditingkatkan lagi kecepatannya', 'Tolong tambahkan notifikasi WhatsApp', 'Sudah sangat bagus'];
+        
+        $success = 0;
+        foreach ($users as $user) {
+            $roleStr = ucfirst(strtolower($user->role ?? 'Mahasiswa'));
+            if (!in_array($roleStr, ['Admin', 'Dosen', 'Mahasiswa'])) $roleStr = 'Mahasiswa';
+            
+            $payload = [
+                'entry.1173135949' => $user->name,
+                'entry.113244303' => $user->email,
+                'entry.1376259667' => $roleStr,
+                'entry.1786802780' => (string)rand(1, 5),
+                'entry.688265404' => (string)rand(1, 5),
+                'entry.589641822' => (string)rand(1, 5),
+                'entry.711945778' => (string)rand(1, 5),
+                'entry.1095513650' => (string)rand(1, 5),
+                'entry.1144558180' => (string)rand(1, 5),
+                'entry.1058748373' => (string)rand(1, 5),
+                'entry.1028371416' => (string)rand(1, 5),
+                'entry.358765560' => (string)rand(1, 5),
+                'entry.738494701' => (string)rand(1, 5),
+                'entry.1840559073' => $fiturMembantu[array_rand($fiturMembantu)],
+                'entry.1891876594' => $kendala[array_rand($kendala)],
+                'entry.950301174' => $saran[array_rand($saran)],
+                'pageHistory' => '0,1,2',
+            ];
+            
+            $response = \Illuminate\Support\Facades\Http::asForm()->post($formUrl, $payload);
+            if ($response->successful()) $success++;
+            usleep(100000); // 0.1 detik saja
+        }
+
         return response("
             <html>
-            <head><meta http-equiv='refresh' content='2'></head>
+            <head><meta http-equiv='refresh' content='1'></head>
             <body style='font-family:sans-serif; text-align:center; padding:50px;'>
                 <h2>Bot sedang berjalan! 🤖</h2>
-                <p>Mengirim 20 data per sesi untuk menghindari Timeout Server...</p>
-                <div style='background:#f4f4f4; padding:20px; border-radius:10px; display:inline-block; text-align:left;'>
-                    <pre>$output</pre>
-                </div>
-                <p style='color:green; font-weight:bold;'>Halaman ini akan me-refresh otomatis setiap 2 detik untuk mengirim gelombang data selanjutnya.<br>Biarkan tab ini terbuka. Jika jumlah sudah cukup, silakan tutup tab ini.</p>
+                <p>Berhasil mengirim <b>$success</b> data dari gelombang ini.</p>
+                <p style='color:green; font-weight:bold;'>Halaman otomatis me-refresh setiap 1 detik...<br>Biarkan tab terbuka.</p>
             </body>
             </html>
         ");
