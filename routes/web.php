@@ -374,6 +374,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::post('/portofolio', [\App\Http\Controllers\Mahasiswa\PortofolioController::class, 'store'])->name('portofolio.store');
     Route::delete('/portofolio/{id}', [\App\Http\Controllers\Mahasiswa\PortofolioController::class, 'destroy'])->name('portofolio.destroy');
     
+    // KHS
+    Route::get('/khs', [\App\Http\Controllers\Mahasiswa\KhsController::class, 'index'])->name('khs.index');
+    Route::get('/khs/download/{khs}', [\App\Http\Controllers\Mahasiswa\KhsController::class, 'download'])->name('khs.download');
+    
     // E-Learning Routes
     Route::get('/elearning', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'index'])->name('elearning.index');
     Route::get('/elearning/jadwal/{jadwal}', [\App\Http\Controllers\Mahasiswa\ElearningController::class, 'showJadwal'])->name('elearning.jadwal');
@@ -428,6 +432,15 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         // Kotak Pesan (Inbox)
         Route::get('/admin/messages', [\App\Http\Controllers\Backend\ContactMessageController::class, 'index'])->name('admin.messages.index');
         Route::post('/admin/messages/{message}/reply', [\App\Http\Controllers\Backend\ContactMessageController::class, 'reply'])->name('admin.messages.reply');
+
+        // KHS Management
+        Route::get('/admin/khs', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'index'])->name('admin.khs.index');
+        Route::get('/admin/khs/{prodi}', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'showProdi'])->name('admin.khs.prodi');
+        Route::get('/admin/khs/{prodi}/angkatan/{angkatan}', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'showAngkatan'])->name('admin.khs.angkatan');
+        Route::get('/admin/khs/{prodi}/angkatan/{angkatan}/semester/{semester}', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'showSemester'])->name('admin.khs.semester');
+        Route::post('/admin/khs/upload/{mahasiswa}', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'store'])->name('admin.khs.store');
+        Route::get('/admin/khs/download/{khs}', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'download'])->name('admin.khs.download');
+        Route::delete('/admin/khs/{khs}', [\App\Http\Controllers\Backend\Admin\KhsController::class, 'destroy'])->name('admin.khs.destroy');
         Route::patch('/admin/messages/{message}/read', [\App\Http\Controllers\Backend\ContactMessageController::class, 'markAsRead'])->name('admin.messages.read');
         Route::delete('/admin/messages/{message}', [\App\Http\Controllers\Backend\ContactMessageController::class, 'destroy'])->name('admin.messages.destroy');
 

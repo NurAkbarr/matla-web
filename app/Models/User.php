@@ -148,4 +148,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(JawabanEvaluasi::class, 'mahasiswa_id');
     }
+    public function khs()
+    {
+        return $this->hasMany(Khs::class, 'mahasiswa_id');
+    }
 }

@@ -114,6 +114,7 @@
                         <a href="{{ route('backend.admin.kelompok-kelas.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.kelompok-kelas.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Kelompok Kelas</a>
                         <a href="{{ route('backend.admin.assignments.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.assignments.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Tugas MHS</a>
                         <a href="{{ route('backend.admin.cuti.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.cuti.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Pengajuan Cuti</a>
+                        <a href="{{ route('backend.admin.khs.index') }}" class="block px-4 py-2 text-sm font-semibold {{ request()->routeIs('backend.admin.khs.*') ? 'text-primary' : 'text-slate-400 hover:text-primary' }}">Upload KHS</a>
                     </div>
                 </div>
 
