@@ -76,7 +76,7 @@
 
                         {{-- Action button --}}
                         <div class="mt-6 pt-4 border-t border-gray-50 flex flex-col gap-2">
-                            <a href="{{ route('khs.download', $khs) }}" target="_blank" class="w-full flex items-center justify-center py-3 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:text-white text-xs font-bold rounded-xl transition-all">
+                            <a href="{{ route('mahasiswa.khs.download', $khs) }}" target="_blank" class="w-full flex items-center justify-center py-3 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:text-white text-xs font-bold rounded-xl transition-all">
                                 <span>Lihat KHS (PDF)</span>
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
