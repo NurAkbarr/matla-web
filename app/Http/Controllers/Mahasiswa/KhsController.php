@@ -21,7 +21,7 @@ class KhsController extends Controller
     
     public function download(Khs $khs)
     {
-        if ($khs->mahasiswa_id !== Auth::id()) {
+        if ($khs->mahasiswa_id != Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
