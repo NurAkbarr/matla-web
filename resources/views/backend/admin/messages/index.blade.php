@@ -30,7 +30,9 @@
                             <td class="py-2 px-3 border-r border-gray-200">{{ $msg->subject }}</td>
                             <td class="py-2 px-3 border-r border-gray-200 whitespace-pre-wrap min-w-[300px]">{{ $msg->message }}</td>
                             <td class="py-2 px-3 text-center">
-                                @if($msg->is_read)
+                                @if($msg->is_replied)
+                                    <span class="inline-block px-2 py-1 text-xs bg-indigo-100 text-indigo-800 rounded font-bold">Dibalas</span>
+                                @elseif($msg->is_read)
                                     <span class="inline-block px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded">Dibaca</span>
                                 @else
                                     <span class="inline-block px-2 py-1 text-xs bg-amber-100 text-amber-800 rounded">Baru</span>

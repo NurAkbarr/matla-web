@@ -30,8 +30,11 @@ class ContactMessageController extends Controller
                 $message->name
             ));
 
-            // Mark as read when replied
-            $message->update(['is_read' => true]);
+            // Mark as read and replied when replied
+            $message->update([
+                'is_read' => true,
+                'is_replied' => true
+            ]);
 
             return back()->with('success', 'Balasan berhasil dikirim ke email ' . $message->email);
         } catch (\Exception $e) {
