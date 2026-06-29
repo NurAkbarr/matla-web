@@ -24,7 +24,7 @@ class SecurityHeaders
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
         // Clickjacking protection (CSP frame-ancestors is primary, XFO for legacy)
-        $response->headers->set('X-Frame-Options', 'DENY');
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
         // Reduce referrer leakage
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -43,7 +43,7 @@ class SecurityHeaders
             "default-src 'self'",
             "base-uri 'self'",
             "object-src 'none'",
-            "frame-ancestors 'none'",
+            "frame-ancestors 'self'",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.youtube.com https://s.ytimg.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: https: blob: https://i.ytimg.com",
