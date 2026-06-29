@@ -31,7 +31,7 @@
                     </svg>
                 </div>
                 <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Alamat</h3>
-                <p class="text-gray-700 font-medium">Jl. Conspet No. 123, Kota Tangerang, Banten, Indonesia</p>
+                <p class="text-gray-700 font-medium text-sm leading-relaxed">Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat,<br>Kec. Pondok Aren, Kota Tangerang Selatan, Banten.</p>
             </div>
 
             <!-- Email Card -->
