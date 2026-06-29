@@ -59,7 +59,7 @@
                                     Semester {{ $khs->semester }}
                                 </h3>
                                 <p class="text-xs font-bold text-emerald-600 mt-2 bg-emerald-50 inline-block px-2 py-1 rounded-md">
-                                    Tahun Akademik {{ Auth::user()->angkatan ?? '-' }}
+                                    Angkatan {{ Auth::user()->angkatan ?? '-' }}
                                 </p>
                             </div>
                         </div>

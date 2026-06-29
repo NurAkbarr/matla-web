@@ -42,7 +42,7 @@ class KhsController extends Controller
     </style>
 </head>
 <body>
-    <iframe src="{$fileUrl}#toolbar=0&navpanes=0" title="{$fileName}"></iframe>
+    <iframe src="{$fileUrl}#navpanes=0" title="{$fileName}"></iframe>
 </body>
 </html>
 HTML);
