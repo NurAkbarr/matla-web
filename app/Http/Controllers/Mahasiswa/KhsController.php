@@ -26,7 +26,8 @@ class KhsController extends Controller
         }
 
         $fileName = basename($khs->file_path);
-        $fileUrl = route('mahasiswa.khs.file', $khs->id);
+        // Use relative URL to prevent cross-origin iframe blocking
+        $fileUrl = route('mahasiswa.khs.file', $khs->id, false);
 
         return response(<<<HTML
 <!DOCTYPE html>

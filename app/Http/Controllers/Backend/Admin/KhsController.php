@@ -61,7 +61,6 @@ class KhsController extends Controller
                       ->orWhere('education->program_studi', $prodi->singkatan);
             })
             ->where('angkatan', $angkatan)
-            ->where('semester', $semester)
             ->with(['khs' => function($query) use ($semester) {
                 $query->where('semester', $semester);
             }])
@@ -122,7 +121,8 @@ class KhsController extends Controller
     public function preview(Khs $khs)
     {
         $fileName = basename($khs->file_path);
-        $fileUrl = route('backend.admin.khs.file', $khs->id);
+        // Use relative URL to prevent cross-origin iframe blocking if APP_URL doesn't match
+        $fileUrl = route('backend.admin.khs.file', $khs->id, false);
 
         return response(<<<HTML
 <!DOCTYPE html>
