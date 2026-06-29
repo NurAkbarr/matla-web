@@ -29,6 +29,12 @@ class KhsController extends Controller
         // Use relative URL to prevent cross-origin iframe blocking
         $fileUrl = route('mahasiswa.khs.file', $khs->id, false);
 
+        // Mobile browsers generally do not support inline PDF viewing via iframe.
+        $userAgent = request()->header('User-Agent');
+        if (preg_match('/Mobile|Android|BlackBerry|iPhone|iPad|iPod|Windows Phone/i', $userAgent)) {
+            return redirect($fileUrl);
+        }
+
         return response(<<<HTML
 <!DOCTYPE html>
 <html lang="en">
