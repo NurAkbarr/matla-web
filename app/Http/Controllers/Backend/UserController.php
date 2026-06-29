@@ -92,7 +92,14 @@ class UserController extends Controller
             }
         }
 
-        return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil ditambahkan.');
+        $redirectRoute = 'backend.admin.users.index';
+        if ($user->role === 'mahasiswa') {
+            $redirectRoute = 'backend.admin.mahasiswa';
+        } elseif ($user->role === 'dosen') {
+            $redirectRoute = 'backend.admin.dosen';
+        }
+
+        return redirect()->route($redirectRoute)->with('success', 'User berhasil ditambahkan.');
     }
 
     public function show(User $user)
@@ -169,7 +176,14 @@ class UserController extends Controller
             }
         }
 
-        return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil diperbarui.');
+        $redirectRoute = 'backend.admin.users.index';
+        if ($user->role === 'mahasiswa') {
+            $redirectRoute = 'backend.admin.mahasiswa';
+        } elseif ($user->role === 'dosen') {
+            $redirectRoute = 'backend.admin.dosen';
+        }
+
+        return redirect()->route($redirectRoute)->with('success', 'User berhasil diperbarui.');
     }
 
     public function destroy(User $user)
@@ -187,8 +201,17 @@ class UserController extends Controller
         }
 
         if ($user) {
+            $role = $user->role;
             $user->delete();
-            return redirect()->route('backend.admin.users.index')->with('success', 'User berhasil dihapus.');
+            
+            $redirectRoute = 'backend.admin.users.index';
+            if ($role === 'mahasiswa') {
+                $redirectRoute = 'backend.admin.mahasiswa';
+            } elseif ($role === 'dosen') {
+                $redirectRoute = 'backend.admin.dosen';
+            }
+            
+            return redirect()->route($redirectRoute)->with('success', 'User berhasil dihapus.');
         }
 
         return redirect()->back()->with('error', 'User tidak ditemukan.');

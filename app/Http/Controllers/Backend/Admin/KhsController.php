@@ -37,19 +37,18 @@ class KhsController extends Controller
 
     public function showAngkatan(ProgramStudi $prodi, $angkatan)
     {
-        // Get distinct semesters for this prodi and angkatan
-        $semesters = User::where('role', 'mahasiswa')
+        // Get highest semester for this prodi and angkatan
+        $maxSemester = User::where('role', 'mahasiswa')
             ->where(function($query) use ($prodi) {
                 $query->where('education->program_studi', $prodi->nama)
                       ->orWhere('education->program_studi', $prodi->singkatan);
             })
             ->where('angkatan', $angkatan)
-            ->whereNotNull('semester')
-            ->where('semester', '!=', '')
-            ->distinct()
-            ->pluck('semester')
-            ->sort()
-            ->values();
+            ->max('semester');
+
+        // Generate semesters from 1 up to the highest semester (minimum 1)
+        $highest = max(1, (int) $maxSemester);
+        $semesters = collect(range(1, $highest));
 
         return view('backend.admin.khs.semester', compact('prodi', 'angkatan', 'semesters'));
     }
@@ -120,7 +119,31 @@ class KhsController extends Controller
         return back()->with('success', 'KHS berhasil dihapus!');
     }
 
-    public function download(Khs $khs)
+    public function preview(Khs $khs)
+    {
+        $fileName = basename($khs->file_path);
+        $fileUrl = route('backend.admin.khs.file', $khs->id);
+
+        return response(<<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$fileName}</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #323639; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+    <iframe src="{$fileUrl}#toolbar=0&navpanes=0" title="{$fileName}"></iframe>
+</body>
+</html>
+HTML);
+    }
+
+    public function file(Khs $khs)
     {
         $disk = Storage::disk('google');
         if (!$disk->exists($khs->file_path)) {

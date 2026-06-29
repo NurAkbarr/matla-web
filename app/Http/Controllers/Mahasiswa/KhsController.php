@@ -19,7 +19,35 @@ class KhsController extends Controller
         return view('mahasiswa.khs.index', compact('khsList'));
     }
     
-    public function download(Khs $khs)
+    public function preview(Khs $khs)
+    {
+        if ($khs->mahasiswa_id != Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $fileName = basename($khs->file_path);
+        $fileUrl = route('mahasiswa.khs.file', $khs->id);
+
+        return response(<<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$fileName}</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #323639; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+    <iframe src="{$fileUrl}#toolbar=0&navpanes=0" title="{$fileName}"></iframe>
+</body>
+</html>
+HTML);
+    }
+
+    public function file(Khs $khs)
     {
         if ($khs->mahasiswa_id != Auth::id()) {
             abort(403, 'Unauthorized action.');
