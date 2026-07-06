@@ -21,13 +21,24 @@
     <div x-cloak x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden"></div>
 
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-64 bg-[#022c22] text-emerald-100/70 flex flex-col h-full shrink-0 border-r border-emerald-900 fixed inset-y-0 left-0 md:relative z-50 transition-transform duration-300 ease-in-out md:translate-x-0">
+    <aside 
+        x-data="{ touchStartX: 0 }"
+        @touchstart="touchStartX = $event.changedTouches[0].screenX"
+        @touchend="if (touchStartX - $event.changedTouches[0].screenX > 50) sidebarOpen = false"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+        class="w-64 bg-[#022c22] text-emerald-100/70 flex flex-col h-full shrink-0 border-r border-emerald-900 fixed inset-y-0 left-0 md:relative z-50 transition-transform duration-300 ease-in-out md:translate-x-0"
+    >
         <!-- Logo Area -->
-        <div class="h-20 flex items-center px-6 bg-emerald-950/50 border-b border-emerald-900/80">
-            <div class="w-10 h-10 bg-white flex items-center justify-center mr-3 shadow-md">
-                <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="w-7 h-7 object-contain">
+        <div class="h-20 flex items-center justify-between px-6 bg-emerald-950/50 border-b border-emerald-900/80">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-white flex items-center justify-center mr-3 shadow-md">
+                    <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="w-7 h-7 object-contain">
+                </div>
+                <span class="font-black text-xl text-white tracking-widest drop-shadow-sm">MATLA</span>
             </div>
-            <span class="font-black text-xl text-white tracking-widest drop-shadow-sm">MATLA</span>
+            <button @click="sidebarOpen = false" class="md:hidden text-emerald-400 hover:text-white p-2 -mr-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
 
         <!-- Navigation -->
