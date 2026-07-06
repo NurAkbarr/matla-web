@@ -58,7 +58,7 @@
             <p class="text-slate-500 max-w-md mx-auto text-sm">Anda belum mencatat transaksi keuangan apapun. Mulai catat sekarang menggunakan tombol di atas.</p>
         </div>
     @else
-        <div class="bg-white border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white border border-slate-200 shadow-sm overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-[#022c22] text-white uppercase font-bold text-xs tracking-wider">
                     <tr>

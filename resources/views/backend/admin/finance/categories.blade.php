@@ -45,7 +45,7 @@
 
     <!-- Tabel Daftar Kategori -->
     <div class="lg:col-span-2">
-        <div class="bg-white border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white border border-slate-200 shadow-sm overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-xs tracking-wider">
                     <tr>
