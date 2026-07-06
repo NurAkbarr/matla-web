@@ -15,10 +15,13 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex selection:bg-emerald-600 selection:text-white sharp-edges">
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex selection:bg-emerald-600 selection:text-white sharp-edges" x-data="{ sidebarOpen: false }">
     
+    <!-- Mobile overlay -->
+    <div x-cloak x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden"></div>
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-[#022c22] text-emerald-100/70 flex flex-col h-full shrink-0 border-r border-emerald-900">
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-64 bg-[#022c22] text-emerald-100/70 flex flex-col h-full shrink-0 border-r border-emerald-900 absolute md:relative z-50 transition-transform duration-300 ease-in-out md:translate-x-0">
         <!-- Logo Area -->
         <div class="h-20 flex items-center px-6 bg-emerald-950/50 border-b border-emerald-900/80">
             <div class="w-10 h-10 bg-white flex items-center justify-center mr-3 shadow-md">
@@ -67,11 +70,16 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50">
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50 w-full">
         
         <!-- Header -->
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-            <h2 class="text-lg font-bold text-slate-800 tracking-tight">@yield('header', 'Overview')</h2>
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0">
+            <div class="flex items-center space-x-3">
+                <button @click="sidebarOpen = true" class="md:hidden text-slate-500 hover:text-emerald-600 focus:outline-none p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <h2 class="text-lg font-bold text-slate-800 tracking-tight">@yield('header', 'Overview')</h2>
+            </div>
             <div class="flex items-center space-x-4">
                 <div class="text-right">
                     <p class="text-sm font-bold text-slate-800">Super Admin</p>
@@ -84,7 +92,7 @@
         </header>
 
         <!-- Main Scrollable Area -->
-        <main class="flex-1 overflow-y-auto p-8">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
             @if(session('success'))
                 <div class="mb-6 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 p-4 font-medium text-sm">
                     {{ session('success') }}
