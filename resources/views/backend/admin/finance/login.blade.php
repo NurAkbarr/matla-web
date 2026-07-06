@@ -41,19 +41,19 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 selection:bg-emerald-500 selection:text-white relative overflow-hidden">
+<body class="min-h-screen flex md:items-center justify-center p-4 selection:bg-emerald-500 selection:text-white relative overflow-y-auto bg-[#022c22]">
     
     <!-- Big background abstract wave behind the whole card -->
-    <div class="absolute inset-0 bg-emerald-950 pointer-events-none">
+    <div class="absolute inset-0 bg-emerald-950 pointer-events-none fixed">
         <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-emerald-800/40 rounded-full blur-[120px]"></div>
         <div class="absolute bottom-[10%] right-[5%] w-[50%] h-[50%] bg-emerald-900/60 rounded-full blur-[100px]"></div>
     </div>
 
     <!-- Main Container -->
-    <div class="w-full max-w-[750px] h-[500px] max-h-[90vh] bg-white rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col md:flex-row z-10 border border-emerald-800/20">
+    <div class="w-full max-w-[750px] my-auto min-h-[500px] h-auto bg-white rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col md:flex-row z-10 border border-emerald-800/20">
         
         <!-- Left Side: Branding -->
-        <div class="md:w-5/12 bg-wave-left relative overflow-hidden p-8 flex flex-col justify-center border-r border-emerald-900/20">
+        <div class="md:w-5/12 bg-wave-left relative overflow-hidden p-6 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-emerald-900/20">
             <!-- decorative overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/80 to-emerald-900/70 z-0"></div>
             
@@ -64,18 +64,18 @@
 
             <div class="relative z-10">
                 <!-- Logo -->
-                <div class="flex items-center space-x-3 mb-10">
-                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                        <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
+                <div class="flex items-center space-x-3 mb-6 md:mb-10">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                        <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="w-6 h-6 md:w-8 md:h-8 object-contain">
                     </div>
-                    <span class="text-white font-black tracking-widest text-2xl drop-shadow-md">MATLA</span>
+                    <span class="text-white font-black tracking-widest text-xl md:text-2xl drop-shadow-md">MATLA</span>
                 </div>
                 
                 <!-- Text -->
                 <div>
-                    <h2 class="text-emerald-100 text-base font-medium mb-1">Selamat datang di</h2>
-                    <h1 class="text-white text-3xl font-black tracking-tight mb-3 drop-shadow-lg">My Finance</h1>
-                    <p class="text-emerald-200/90 text-xs leading-relaxed max-w-[95%] font-medium">
+                    <h2 class="text-emerald-100 text-sm md:text-base font-medium mb-1">Selamat datang di</h2>
+                    <h1 class="text-white text-2xl md:text-3xl font-black tracking-tight mb-2 md:mb-3 drop-shadow-lg">My Finance</h1>
+                    <p class="text-emerald-200/90 text-[11px] md:text-xs leading-relaxed max-w-[95%] font-medium">
                         Kelola keuangan kampus dengan mudah, aman, dan terintegrasi.
                     </p>
                 </div>
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Right Side: PIN Form -->
-        <div class="md:w-7/12 bg-white p-6 flex flex-col justify-center items-center relative">
+        <div class="md:w-7/12 bg-white p-6 py-8 md:py-6 flex flex-col justify-center items-center relative">
             
             <div class="w-full max-w-xs flex flex-col items-center">
                 
