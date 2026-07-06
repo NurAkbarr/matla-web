@@ -21,7 +21,7 @@
     <div x-cloak x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden"></div>
 
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-64 bg-[#022c22] text-emerald-100/70 flex flex-col h-full shrink-0 border-r border-emerald-900 absolute md:relative z-50 transition-transform duration-300 ease-in-out md:translate-x-0">
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-64 bg-[#022c22] text-emerald-100/70 flex flex-col h-full shrink-0 border-r border-emerald-900 fixed inset-y-0 left-0 md:relative z-50 transition-transform duration-300 ease-in-out md:translate-x-0">
         <!-- Logo Area -->
         <div class="h-20 flex items-center px-6 bg-emerald-950/50 border-b border-emerald-900/80">
             <div class="w-10 h-10 bg-white flex items-center justify-center mr-3 shadow-md">
