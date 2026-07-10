@@ -604,24 +604,5 @@ Route::prefix('informasi')->name('informasi.')->group(function () {
     Route::get('/struktur-organisasi', [InformasiController::class, 'strukturOrganisasi'])->name('struktur-organisasi');
 });
 
-// Private Finance Module (Standalone, No Matla Auth Required)
-Route::prefix('backend/admin/finance')->name('backend.admin.finance.')->group(function () {
-    Route::get('/login', [\App\Http\Controllers\Backend\FinanceController::class, 'login'])->name('login');
-    Route::post('/auth', [\App\Http\Controllers\Backend\FinanceController::class, 'auth'])->name('auth');
-    Route::get('/dashboard', [\App\Http\Controllers\Backend\FinanceController::class, 'dashboard'])->name('dashboard');
-    Route::post('/dashboard', [\App\Http\Controllers\Backend\FinanceController::class, 'store'])->name('store');
-    
-    // Categories
-    Route::get('/categories', [\App\Http\Controllers\Backend\FinanceController::class, 'categories'])->name('categories');
-    Route::post('/categories', [\App\Http\Controllers\Backend\FinanceController::class, 'storeCategory'])->name('categories.store');
-    Route::delete('/categories/{id}', [\App\Http\Controllers\Backend\FinanceController::class, 'destroyCategory'])->name('categories.destroy');
-    
-    // Wallets
-    Route::get('/wallets', [\App\Http\Controllers\Backend\FinanceController::class, 'wallets'])->name('wallets');
-    Route::post('/wallets', [\App\Http\Controllers\Backend\FinanceController::class, 'storeWallet'])->name('wallets.store');
-    Route::delete('/wallets/{id}', [\App\Http\Controllers\Backend\FinanceController::class, 'destroyWallet'])->name('wallets.destroy');
-    
-    Route::post('/logout', [\App\Http\Controllers\Backend\FinanceController::class, 'logout'])->name('logout');
-});
 
 // Deprecated (keamanan): jangan expose migrate via GET/public.
