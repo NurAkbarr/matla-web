@@ -36,12 +36,14 @@
     <table>
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th width="15%">No. Reg</th>
-                <th width="25%">Nama Lengkap</th>
-                <th width="20%">Program Studi</th>
-                <th width="15%">WhatsApp</th>
-                <th width="10%">Status</th>
+                <th width="3%">No</th>
+                <th width="10%">No. Reg</th>
+                <th width="15%">Nama Lengkap</th>
+                <th width="15%">Program Studi</th>
+                <th width="12%">WhatsApp</th>
+                <th width="12%">Sumber Ref.</th>
+                <th width="15%">Afiliator</th>
+                <th width="8%">Status</th>
                 <th width="10%">Tgl Daftar</th>
             </tr>
         </thead>
@@ -53,6 +55,8 @@
                 <td>{{ $reg->full_name }}</td>
                 <td>{{ $reg->study_program }}</td>
                 <td>{{ $reg->whatsapp_number }}</td>
+                <td>{{ $reg->reference_source ?? '-' }}</td>
+                <td>{{ $reg->affiliate ? $reg->affiliate->name : '-' }}</td>
                 <td>
                     <span class="status" style="color: {{ 
                         $reg->status == 'accepted' ? '#059669' : 

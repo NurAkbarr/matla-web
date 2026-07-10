@@ -23,7 +23,7 @@ class PmbRegistrationExport implements FromQuery, WithHeadings, WithMapping, Sho
 
     public function query()
     {
-        $query = PmbRegistration::query();
+        $query = PmbRegistration::with('affiliate');
 
         if ($this->status) {
             $query->where('status', $this->status);
@@ -52,6 +52,8 @@ class PmbRegistrationExport implements FromQuery, WithHeadings, WithMapping, Sho
             'Tahun Lulus',
             'Status',
             'Tanggal Daftar',
+            'Sumber Referensi / Info',
+            'Afiliator (Referral)'
         ];
     }
 
@@ -71,6 +73,8 @@ class PmbRegistrationExport implements FromQuery, WithHeadings, WithMapping, Sho
             $registration->graduation_year,
             ucfirst($registration->status),
             $registration->created_at->format('d/m/Y H:i'),
+            $registration->reference_source ?? '-',
+            $registration->affiliate ? $registration->affiliate->name : '-',
         ];
     }
 
