@@ -19,11 +19,9 @@ class PmbStatusController extends Controller
             'whatsapp_number' => 'required|string',
         ]);
 
-        $registration = PmbRegistration::where('registration_code', $request->registration_code)
-                                     ->where('whatsapp_number', $request->whatsapp_number)
-                                     ->first();
+        $registration = PmbRegistration::where('registration_code', $request->registration_code)->first();
 
-        if (!$registration) {
+        if (!$registration || $registration->whatsapp_number !== $request->whatsapp_number) {
             return back()->with('error', 'Kombinasi Nomor Registrasi dan Nomor WhatsApp tidak ditemukan. Harap periksa kembali.')->withInput();
         }
 
@@ -45,9 +43,12 @@ class PmbStatusController extends Controller
         }
 
         $registration = PmbRegistration::where('registration_code', $registration_code)
-                                     ->where('whatsapp_number', $whatsappNumber)
                                      ->where('status', 'accepted')
                                      ->firstOrFail();
+
+        if ($registration->whatsapp_number !== $whatsappNumber) {
+            abort(403, 'Akses ditolak. Sesi tidak valid atau telah berakhir. Silakan cek status pendaftaran kembali.');
+        }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pmb.loa', compact('registration'))
                   ->setPaper('a4', 'portrait');
