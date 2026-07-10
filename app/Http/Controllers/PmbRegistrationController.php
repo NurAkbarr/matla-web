@@ -85,9 +85,28 @@ class PmbRegistrationController extends Controller
                 'min:10',
                 'max:15',
                 'regex:/^[0-9]+$/',
-                'unique:pmb_registrations,whatsapp_number',
+                function ($attribute, $value, $fail) {
+                    $exists = \App\Models\PmbRegistration::all(['id', 'whatsapp_number'])->contains(function ($reg) use ($value) {
+                        return $reg->whatsapp_number === $value;
+                    });
+                    if ($exists) {
+                        $fail('Nomor WhatsApp ini sudah terdaftar.');
+                    }
+                },
             ],
-            'email' => 'required|email:rfc,dns|max:255|unique:pmb_registrations,email',
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $exists = \App\Models\PmbRegistration::all(['id', 'email'])->contains(function ($reg) use ($value) {
+                        return $reg->email === $value;
+                    });
+                    if ($exists) {
+                        $fail('Email ini sudah terdaftar dalam sistem PMB kami.');
+                    }
+                },
+            ],
             'address' => 'required|string|max:500',
             'activity_status' => 'required|string|max:255',
             'school_name' => [
