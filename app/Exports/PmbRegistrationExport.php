@@ -73,7 +73,7 @@ class PmbRegistrationExport implements FromQuery, WithHeadings, WithMapping, Sho
             $registration->graduation_year,
             ucfirst($registration->status),
             $registration->created_at->format('d/m/Y H:i'),
-            $registration->reference_source ?? '-',
+            $registration->reference ?? '-',
             $registration->affiliate ? $registration->affiliate->name : '-',
         ];
     }

@@ -55,7 +55,7 @@
                 <td>{{ $reg->full_name }}</td>
                 <td>{{ $reg->study_program }}</td>
                 <td>{{ $reg->whatsapp_number }}</td>
-                <td>{{ $reg->reference_source ?? '-' }}</td>
+                <td>{{ $reg->reference ?? '-' }}</td>
                 <td>{{ $reg->affiliate ? $reg->affiliate->name : '-' }}</td>
                 <td>
                     <span class="status" style="color: {{ 
