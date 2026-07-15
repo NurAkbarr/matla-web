@@ -52,6 +52,8 @@ class GoogleController extends Controller
                     return redirect()->route('backend.admin.dashboard');
                 } else if ($user->role == 'mahasiswa') {
                     return redirect()->route('backend.mahasiswa.dashboard');
+                } else if ($user->role == 'dosen') {
+                    return redirect()->route('backend.dosen.dashboard');
                 } else {
                     return redirect('/');
                 }
