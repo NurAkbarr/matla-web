@@ -49,9 +49,9 @@ class GoogleController extends Controller
 
                 // Redirect based on role
                 if ($user->role == 'super_admin' || $user->role == 'admin') {
-                    return redirect()->route('backend.dashboard');
+                    return redirect()->route('backend.admin.dashboard');
                 } else if ($user->role == 'mahasiswa') {
-                    return redirect()->route('mahasiswa.dashboard');
+                    return redirect()->route('backend.mahasiswa.dashboard');
                 } else {
                     return redirect('/');
                 }
