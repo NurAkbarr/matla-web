@@ -166,6 +166,10 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Google OAuth Routes
+Route::get('/auth/google', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback']);
+
 
 
 Route::get('/pmb', [PmbController::class, 'index'])->name('pmb');
