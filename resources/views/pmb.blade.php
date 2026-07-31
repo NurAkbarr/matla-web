@@ -449,7 +449,6 @@
         @endif
     </div>
 </section>
-@endif
 
 <script>
     // ---- Brosur Carousel ----
@@ -495,6 +494,7 @@
         autoSlideInterval = setInterval(() => goToSlide(currentSlide + 1), 4000);
     }
 </script>
+@endif
 
 <style>
     .brosur-overlay {
