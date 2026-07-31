@@ -370,6 +370,7 @@
     </div>
 </section>
 
+@if($settings['pmb_is_open'] == '1')
 <!-- Brosur Section -->
 <section class="py-20 bg-white overflow-hidden" id="brosur-pmb">
     <div class="container mx-auto px-4 lg:px-12">
@@ -448,6 +449,7 @@
         @endif
     </div>
 </section>
+@endif
 
 <script>
     // ---- Brosur Carousel ----
