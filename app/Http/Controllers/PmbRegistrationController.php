@@ -113,7 +113,6 @@ class PmbRegistrationController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'regex:/^[a-zA-Z\\s]+$/',
             ],
             'graduation_year' => [
                 'required',
