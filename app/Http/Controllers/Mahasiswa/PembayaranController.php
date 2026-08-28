@@ -81,7 +81,7 @@ class PembayaranController extends Controller
             }
         }
 
-        \App\Models\Pembayaran::create([
+        $pembayaran = \App\Models\Pembayaran::create([
             'tagihan_id' => $tagihan->id,
             'user_id' => auth()->id(),
             'jenis_pembayaran' => $request->jenis_pembayaran,
@@ -91,6 +91,16 @@ class PembayaranController extends Controller
             'catatan' => $request->catatan,
             'status' => 'pending'
         ]);
+
+        try {
+            // Get first finance admin email, fallback to a default email if none exists
+            $adminKeuangan = \App\Models\User::where('role', 'keuangan')->first();
+            $adminEmail = $adminKeuangan ? $adminKeuangan->email : 'finance@matla.id';
+            
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\PaymentSubmittedMail($pembayaran, auth()->user()));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send payment submitted email: ' . $e->getMessage());
+        }
 
         return redirect()->route('backend.mahasiswa.pembayaran.tagihan')->with('success', 'Konfirmasi pembayaran berhasil dikirim dan menunggu verifikasi Admin.');
     }

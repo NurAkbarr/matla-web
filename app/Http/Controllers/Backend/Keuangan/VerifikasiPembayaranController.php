@@ -57,6 +57,15 @@ class VerifikasiPembayaranController extends Controller
                 // Ignore PDF upload errors so it doesn't break the approval process
                 \Illuminate\Support\Facades\Log::error('Gagal upload kwitansi ke Google Drive: ' . $e->getMessage());
             }
+
+            // Send Email to Mahasiswa
+            try {
+                if ($pembayaran->user && $pembayaran->user->email) {
+                    \Illuminate\Support\Facades\Mail::to($pembayaran->user->email)->send(new \App\Mail\PaymentApprovedMail($pembayaran, $pembayaran->user));
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send payment approved email: ' . $e->getMessage());
+            }
         }
 
         return back()->with('success', 'Pembayaran berhasil diverifikasi.');
