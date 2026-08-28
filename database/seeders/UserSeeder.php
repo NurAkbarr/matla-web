@@ -33,12 +33,23 @@ class UserSeeder extends Seeder
             'role' => 'dosen'
         ]);
 
-        \App\Models\User::create([
-            'name' => 'Mahasiswa Matla',
-            'email' => 'mahasiswa@matla.id',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
-            'role' => 'mahasiswa'
-        ]);
+        \App\Models\User::firstOrCreate(
+            ['email' => 'mahasiswa@matla.id'],
+            [
+                'name' => 'Mahasiswa Matla',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'role' => 'mahasiswa'
+            ]
+        );
+
+        \App\Models\User::firstOrCreate(
+            ['email' => 'financematla12@gmail.com'],
+            [
+                'name' => 'Admin Keuangan',
+                'password' => \Illuminate\Support\Facades\Hash::make('Admin123'),
+                'role' => 'keuangan'
+            ]
+        );
     }
 
 }

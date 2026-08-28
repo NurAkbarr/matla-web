@@ -59,6 +59,7 @@
                         <option value="dosen">Dosen</option>
                         <option value="admin">Admin Kampus</option>
                         <option value="super_admin">Super Admin</option>
+                        <option value="keuangan">Admin Keuangan</option>
                     </select>
                 </div>
 

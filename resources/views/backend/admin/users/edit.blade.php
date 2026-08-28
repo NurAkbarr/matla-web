@@ -68,6 +68,7 @@
                                 <option value="mahasiswa">Mahasiswa</option>
                                 <option value="dosen">Dosen</option>
                                 <option value="admin">Admin Kampus</option>
+                                <option value="keuangan">Admin Keuangan</option>
                             </select>
                             <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

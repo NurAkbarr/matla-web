@@ -49,7 +49,7 @@ class UserController extends Controller
             'phone' => ['required', 'string', 'max:20', 'unique:users'],
             'nidn' => ['nullable', 'string', 'max:50', 'unique:users'],
             'password' => ['nullable', 'string', 'min:8'],
-            'role' => ['required', 'in:admin,dosen,mahasiswa,super_admin'],
+            'role' => ['required', 'in:admin,dosen,mahasiswa,super_admin,keuangan'],
             'nim' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:50', 'unique:users'],
             'program_studi' => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:100'],
             'angkatan' => ['required_if:role,mahasiswa', 'nullable', 'string'],
