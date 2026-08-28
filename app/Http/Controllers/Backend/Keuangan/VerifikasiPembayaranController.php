@@ -11,7 +11,7 @@ class VerifikasiPembayaranController extends Controller
 {
     public function index()
     {
-        $pembayarans = \App\Models\Pembayaran::with(['user', 'tagihan'])->latest()->get();
+        $pembayarans = \App\Models\Pembayaran::with(['user', 'tagihan'])->has('tagihan')->latest()->get();
 
         return view('backend.keuangan.verifikasi.index', compact('pembayarans'));
     }
