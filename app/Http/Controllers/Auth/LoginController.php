@@ -66,6 +66,7 @@ class LoginController extends Controller
             'super_admin', 'admin' => '/backend/admin/dashboard',
             'dosen' => '/backend/dosen/dashboard',
             'mahasiswa' => '/backend/mahasiswa/dashboard',
+            'keuangan' => '/backend/keuangan/dashboard',
             default => '/',
         };
     }

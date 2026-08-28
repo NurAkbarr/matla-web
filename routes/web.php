@@ -588,12 +588,46 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     Route::middleware(['role:mahasiswa'])->group(function () {
         Route::get('/mahasiswa/dashboard', [DashboardController::class, 'mahasiswa'])->name('mahasiswa.dashboard');
 
+        // Pembayaran
+        Route::prefix('mahasiswa/pembayaran')->name('mahasiswa.pembayaran.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'create'])->name('create');
+            Route::get('/tagihan', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'tagihan'])->name('tagihan');
+            Route::get('/tagihan/{id}/konfirmasi', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'konfirmasiForm'])->name('konfirmasi');
+            Route::post('/tagihan/{id}/konfirmasi', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'submitKonfirmasi'])->name('submitKonfirmasi');
+            Route::get('/riwayat', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'riwayat'])->name('riwayat');
+            Route::get('/kwitansi/{id}', [\App\Http\Controllers\Mahasiswa\PembayaranController::class, 'kwitansi'])->name('kwitansi');
+        });
+
         // Pengajuan Cuti (Mahasiswa)
         Route::prefix('mahasiswa/cuti')->name('mahasiswa.cuti.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Mahasiswa\CutiRequestController::class, 'index'])->name('index');
             Route::get('/create', [\App\Http\Controllers\Mahasiswa\CutiRequestController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Mahasiswa\CutiRequestController::class, 'store'])->name('store');
         });
+    });
+
+    // Keuangan Area
+    Route::prefix('keuangan')->name('keuangan.')->middleware(['role:keuangan'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Backend\Keuangan\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/mahasiswa', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'index'])->name('mahasiswa.index');
+        Route::get('/verifikasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'index'])->name('verifikasi.index');
+        Route::post('/verifikasi/{id}/approve', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'approve'])->name('verifikasi.approve');
+        Route::post('/verifikasi/{id}/reject', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'reject'])->name('verifikasi.reject');
+        Route::get('/verifikasi/{id}/kwitansi-drive', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'kwitansiDrive'])->name('verifikasi.kwitansi-drive');
+        
+        // Tagihan
+        Route::get('/tagihan', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'index'])->name('tagihan.index');
+        Route::post('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'storeMass'])->name('tagihan.storeMass');
+        Route::post('/tagihan/personal', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'storePersonal'])->name('tagihan.storePersonal');
+        Route::put('/tagihan/personal/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updatePersonal'])->name('tagihan.updatePersonal');
+        Route::put('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updateMassal'])->name('tagihan.updateMassal');
+        Route::delete('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal'])->name('tagihan.destroyMassal');
+        Route::get('/tagihan/spreadsheet', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'spreadsheet'])->name('tagihan.spreadsheet');
+        Route::delete('/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy'])->name('tagihan.destroy');
+
+        // Laporan (Coming Soon)
+        Route::view('/laporan', 'backend.keuangan.laporan.index')->name('laporan.index');
     });
 
 });

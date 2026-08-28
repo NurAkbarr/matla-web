@@ -1,0 +1,25 @@
+Laporan Progress dan Update Pengembangan Website
+================================================
+
+Halo Bapak/Ibu sekalian,
+
+Melalui catatan ini, saya ingin menyampaikan sedikit update terkait progress pengembangan website kita sejauh ini, beserta beberapa kendala yang sedang saya hadapi di lapangan.
+
+1. Progress Pengembangan
+Secara keseluruhan, pengerjaan modul-modul masih terus berjalan (seperti terkait data mahasiswa, backend, dll). Namun, memang kecepatannya tidak bisa semaksimal yang saya harapkan.
+
+2. Kendala yang Dihadapi
+Terus terang, ada beberapa hal yang jadi penghambat speed pengerjaan saya akhir-akhir ini:
+
+- Waktu Pengerjaan Terbatas: Saat ini saya baru bisa fokus full mengerjakan coding website ini di malam hari. Jadi, secara jam terbang per harinya memang agak terbatas dan progressnya tidak bisa terlalu ngebut.
+- Bekerja Sendiri (Solo Fighter): Karena saya handle project ini sendirian dari A sampai Z, kadang saya mengalami "mentok" atau kehabisan ide untuk flow dan pengembangannya. Gak ada teman untuk brainstorming teknis kadang bikin proses mikirnya jadi lebih lama.
+- Logic yang Kompleks: Beberapa kali saya berhadapan dengan logic atau alur sistem yang cukup rumit. Ini suka bikin stuck, muter-muter di situ aja, dan ujung-ujungnya memakan waktu lama untuk diselesaikan (bahkan kadang belum kelar-kelar juga).
+
+3. Isu Terkait Sistem Akademik (Penting untuk Didiskusikan!)
+Saya juga mau mengangkat isu soal "Kenaikan Semester Mahasiswa".
+Seperti yang kita tahu, saat ini sistem kita belum mengakomodasi fitur KRS (Kartu Rencana Studi) online. Kita baru punya modul KHS (Kartu Hasil Studi), dan itupun proses berjalannya masih manual. 
+Menurut saya ini krusial untuk dibahas. Kita perlu pikirkan dan sepakati bagaimana flow atau logic di dalam website nantinya untuk menangani otomatisasi kenaikan semester mahasiswa ini. Kalau tidak disiapkan sistemnya dari sekarang, takutnya kedepan operasional kampus akan kerepotan kalau masih serba manual.
+
+Mungkin itu saja poin-poin utama dari saya untuk rapat kali ini. Harapannya kita bisa diskusi lebih lanjut, mungkin menyesuaikan ekspektasi waktu penyelesaian (timeline), atau bisa mencari solusi bareng-bareng terkait sistem akademik dan flow aplikasi yang masih membingungkan.
+
+Terima kasih!

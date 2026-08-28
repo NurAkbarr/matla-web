@@ -83,6 +83,15 @@ return [
             'teamDriveId' => env('GOOGLE_DRIVE_TEAM_DRIVE_ID'),
         ],
 
+        'google_keuangan' => [
+            'driver' => 'google',
+            'clientId' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_ID'),
+            'clientSecret' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_SECRET'),
+            'refreshToken' => env('GOOGLE_DRIVE_KEUANGAN_REFRESH_TOKEN'),
+            'folder' => env('GOOGLE_DRIVE_KEUANGAN_FOLDER_ID'),
+            'teamDriveId' => env('GOOGLE_DRIVE_KEUANGAN_TEAM_DRIVE_ID'),
+        ],
+
     ],
 
     /*
