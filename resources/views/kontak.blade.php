@@ -21,19 +21,7 @@
 <!-- Contact Info Cards -->
 <section class="py-16 bg-white -mt-10 lg:-mt-20 relative z-20">
     <div class="container mx-auto px-4 lg:px-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Alamat Card -->
-            <div class="bg-white p-8 rounded-3xl shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:border-primary transition-all">
-                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors text-primary group-hover:text-white">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Alamat</h3>
-                <p class="text-gray-700 font-medium text-sm leading-relaxed">Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat,<br>Kec. Pondok Aren, Kota Tangerang Selatan, Banten.</p>
-            </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <!-- Email Card -->
             <div class="bg-white p-8 rounded-3xl shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:border-primary transition-all">
                 <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors text-primary group-hover:text-white">
