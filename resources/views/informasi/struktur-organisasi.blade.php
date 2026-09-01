@@ -13,46 +13,6 @@
 <div class="bg-white py-16">
     <div class="container mx-auto px-4">
         
-        <!-- Struktur Yayasan -->
-        <div class="mb-24">
-            <div class="text-center mb-10">
-                <span class="text-emerald-600 font-bold tracking-widest uppercase text-sm">Yayasan MATLA</span>
-                <h2 class="text-3xl font-black text-gray-900 mt-2">Struktur Yayasan</h2>
-            </div>
-            
-            <!-- Yayasan Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
-                <!-- Pembina -->
-                <div class="col-span-full flex justify-center mb-2 md:mb-4">
-                    <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-center shadow-sm w-full max-w-sm hover:-translate-y-1 transition-transform">
-                        <div class="text-gray-900 font-black text-lg mb-1">Pembina</div>
-                        <div class="text-gray-800 font-medium">Heru Fantono</div>
-                    </div>
-                </div>
-                <!-- Ketua -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:border-emerald-500 hover:shadow-md transition-all">
-                    <div class="text-gray-900 font-black text-lg mb-1">Ketua</div>
-                    <div class="text-gray-800 font-medium">Taufik Akbar</div>
-                </div>
-                <!-- Sekretaris -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:border-emerald-500 hover:shadow-md transition-all">
-                    <div class="text-gray-900 font-black text-lg mb-1">Sekretaris</div>
-                    <div class="text-gray-800 font-medium">Habil Habani</div>
-                </div>
-                <!-- Bendahara -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:border-emerald-500 hover:shadow-md transition-all">
-                    <div class="text-gray-900 font-black text-lg mb-1">Bendahara</div>
-                    <div class="text-gray-800 font-medium">Ainil Ahadi</div>
-                </div>
-                <!-- Pengawas -->
-                <div class="col-span-full flex justify-center mt-2 md:mt-4">
-                    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center shadow-sm w-full max-w-sm hover:border-emerald-500 hover:shadow-md transition-all">
-                        <div class="text-gray-900 font-black text-lg mb-1">Pengawas</div>
-                        <div class="text-gray-800 font-medium">Muhammad Fikri Arrasyid</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Struktur Kampus -->
         <div>

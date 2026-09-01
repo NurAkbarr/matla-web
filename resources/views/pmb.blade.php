@@ -178,8 +178,8 @@
             <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">2</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Upload Berkas</h3>
-                    <p class="text-gray-600 leading-relaxed">Unggah dokumen yang dibutuhkan sesuai dengan ketentuan yang berlaku.</p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Pembayaran Biaya Pendaftaran</h3>
+                    <p class="text-gray-600 leading-relaxed">Lakukan pembayaran biaya pendaftaran sesuai dengan instruksi dan nominal yang tertera pada sistem.</p>
                 </div>
             </div>
 
@@ -187,8 +187,8 @@
             <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">3</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Pembayaran Biaya Pendaftaran</h3>
-                    <p class="text-gray-600 leading-relaxed">Lakukan pembayaran biaya pendaftaran sesuai instruksi yang tersedia.</p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Upload Bukti Pembayaran</h3>
+                    <p class="text-gray-600 leading-relaxed">Unggah foto atau *screenshot* bukti transfer pembayaran pendaftaran Anda ke dalam sistem PMB.</p>
                 </div>
             </div>
 
@@ -196,26 +196,17 @@
             <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">4</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Verifikasi Data</h3>
-                    <p class="text-gray-600 leading-relaxed">Tim PMB MATLA akan melakukan verifikasi data dan berkas yang telah dikirimkan.</p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Verifikasi Pembayaran</h3>
+                    <p class="text-gray-600 leading-relaxed">Tim Keuangan MATLA akan melakukan pengecekan dan memverifikasi bukti pembayaran yang telah Anda kirimkan.</p>
                 </div>
             </div>
 
             <!-- Step 5 -->
-            <div class="flex items-start space-x-6 relative pb-8 border-l-2 border-emerald-100 ml-4 lg:ml-8 pl-8">
+            <div class="flex items-start space-x-6 relative ml-4 lg:ml-8 pl-8">
                 <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">5</div>
                 <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Tes / Seleksi</h3>
-                    <p class="text-gray-600 leading-relaxed">Mengikuti proses seleksi sesuai jadwal yang telah ditentukan.</p>
-                </div>
-            </div>
-
-            <!-- Step 6 -->
-            <div class="flex items-start space-x-6 relative ml-4 lg:ml-8 pl-8">
-                <div class="absolute -left-[17px] top-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/30">6</div>
-                <div class="bg-gray-50 p-6 lg:p-8 rounded-3xl border border-gray-100 flex-1 hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold text-primary mb-3">Pengumuman Hasil 🎉</h3>
-                    <p class="text-gray-600 leading-relaxed">Hasil seleksi akan diumumkan melalui email dan WhatsApp yang terdaftar. Peserta yang dinyatakan lulus wajib bergabung ke grup kelas dan melunasi biaya administrasi sesuai ketentuan.</p>
+                    <h3 class="text-xl font-bold text-primary mb-3">Bergabung Grup Kelas 🎉</h3>
+                    <p class="text-gray-600 leading-relaxed">Setelah pembayaran terverifikasi, Anda resmi terdaftar! Silakan bergabung ke grup komunikasi kelas sesuai dengan program studi (Prodi) yang telah Anda pilih.</p>
                 </div>
             </div>
         </div>
