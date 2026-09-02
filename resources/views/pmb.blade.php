@@ -251,16 +251,8 @@
                             'a' => "Betul."
                         ],
                         [
-                            'q' => "Siapa pembinanya?",
-                            'a' => "Ustaz Erfidel Fajri."
-                        ],
-                        [
                             'q' => "Apakah Matla' untuk akhwat?",
                             'a' => "Tidak. Kampus Matla' untuk ikhwan dan akhwat segala usia (sudah lulus SMA/sederajat)."
-                        ],
-                        [
-                            'q' => "Lokasinya dimana?",
-                            'a' => "Sekretariat kami berada di:<br>Masjid Al-Munawwaroh, Pondok Kacang Timur<br>Jl. Anggrek (bertepatan dengan PKBM SMP-SMA Abu Dzar), Pondok Aren, Tangerang Selatan – Banten<br>(hanya janji temu)"
                         ]
                     ],
                     'sistem' => [
