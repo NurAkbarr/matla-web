@@ -61,7 +61,7 @@
                     <svg class="w-5 h-5 mr-2 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 11-2 0v-.07A8.001 8.001 0 014.07 11H5a1 1 0 110 2h-.93A8.001 8.001 0 0111 19.93zm0-13.86V5a1 1 0 112 0v.07A8.001 8.001 0 0119.93 11H19a1 1 0 110-2h.93A8.001 8.001 0 0113 3.07zM12 8v4l2.5 2.5a1 1 0 01-1.414 1.414l-3-3A1 1 0 0110 12V8a1 1 0 012 0z"/>
                     </svg>
-                    Pendaftaran Gelombang 1 Dibuka Dalam
+                    Pendaftaran {{ $settings['pmb_gelombang'] }} Dibuka Dalam
                 </p>
                 <div class="flex space-x-3 md:space-x-5">
                     <div class="text-center">

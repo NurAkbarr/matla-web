@@ -84,7 +84,33 @@ class AdminPmbController extends Controller
             'admin_notes' => $request->admin_notes
         ]);
 
-        return redirect()->back()->with('success', 'Status pendaftar berhasil diperbarui.');
+        $message = 'Status pendaftar berhasil diperbarui.';
+
+        // Otomatis generate akun mahasiswa jika diterima
+        if ($request->status === 'accepted') {
+            $userExists = User::where('email', $registration->email)->exists();
+            
+            if (!$userExists) {
+                try {
+                    User::create([
+                        'name' => $registration->full_name,
+                        'email' => $registration->email,
+                        'password' => Hash::make('password123'), // Default password
+                        'role' => 'mahasiswa',
+                        'status' => 'AKTIF',
+                        'phone' => $registration->whatsapp_number,
+                        'address' => $registration->address,
+                        'angkatan' => date('Y'),
+                        'semester' => 1,
+                    ]);
+                    $message = 'Status berhasil diperbarui & Akun Mahasiswa otomatis dibuat (Password: password123)';
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('error', 'Status diperbarui, tapi gagal membuat akun mahasiswa otomatis: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function generateStudent(PmbRegistration $registration)
