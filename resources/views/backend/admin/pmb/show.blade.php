@@ -204,8 +204,8 @@
                     <label class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-2">Update Status Pendaftar</label>
                     <select name="status" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary text-gray-900 font-bold text-xs md:text-sm">
                         <option value="pending" {{ $registration->status == 'pending' ? 'selected' : '' }}>🟡 Pending</option>
-                        <option value="verified" {{ $registration->status == 'verified' ? 'selected' : '' }}>🔵 Terverifikasi (Lulus Admin)</option>
-                        <option value="accepted" {{ $registration->status == 'accepted' ? 'selected' : '' }}>🟢 Diterima (Lulus Final)</option>
+                        <option value="verified" {{ $registration->status == 'verified' ? 'selected' : '' }}>🔵 Terverifikasi Lulus Admin Keuangan</option>
+                        <option value="accepted" {{ $registration->status == 'accepted' ? 'selected' : '' }}>🟢 Terverifikasi Lulus Admin PMB</option>
                         <option value="rejected" {{ $registration->status == 'rejected' ? 'selected' : '' }}>🔴 Ditolak</option>
                     </select>
                 </div>
