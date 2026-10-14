@@ -66,7 +66,7 @@
         @csrf
         <div id="hiddenInputsContainer"></div>
     </form>
-    @if(Auth::user()->role === 'super_admin')
+    @if(in_array(Auth::user()->role, ['super_admin', 'admin']))
     <div class="p-4 border-b border-gray-100 bg-red-50/50 hidden" id="bulkActionContainer">
             <div class="flex items-center justify-between">
                 <span class="text-sm font-bold text-red-600" id="selectedCount">0 item terpilih</span>
@@ -81,7 +81,7 @@
             <table class="w-full text-left">
                 <thead class="bg-gray-50/50">
                     <tr>
-                        @if(Auth::user()->role === 'super_admin')
+                        @if(in_array(Auth::user()->role, ['super_admin', 'admin']))
                         <th class="w-10 px-6 py-4">
                             <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-red-500 focus:ring-red-500 cursor-pointer">
                         </th>
@@ -95,7 +95,7 @@
                 <tbody class="divide-y divide-gray-50">
                 @forelse($users as $user)
                 <tr class="hover:bg-gray-50/30 transition-colors">
-                    @if(Auth::user()->role === 'super_admin')
+                    @if(in_array(Auth::user()->role, ['super_admin', 'admin']))
                     <td class="px-6 py-5">
                         <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox rounded border-gray-300 text-red-500 focus:ring-red-500 cursor-pointer" onclick="updateBulkDeleteUI()">
                     </td>
@@ -133,7 +133,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </a>
-                            @if(Auth::user()->role === 'super_admin' && auth()->id() !== $user->id && $user->role !== 'super_admin')
+                            @if((Auth::user()->role === 'super_admin' || (Auth::user()->role === 'admin' && !in_array($user->role, ['admin', 'super_admin']))) && auth()->id() !== $user->id && $user->role !== 'super_admin')
                             <form action="{{ route('backend.admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                 @csrf
                                 @method('DELETE')
@@ -164,7 +164,7 @@
     @endif
 </div>
 
-@if(Auth::user()->role === 'super_admin')
+@if(in_array(Auth::user()->role, ['super_admin', 'admin']))
 <script>
     const selectAllBtn = document.getElementById('selectAll');
     const checkboxes = document.querySelectorAll('.user-checkbox');

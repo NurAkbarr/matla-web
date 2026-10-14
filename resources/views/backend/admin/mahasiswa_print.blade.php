@@ -109,20 +109,24 @@
         <table class="w-full text-left text-xs border border-gray-900 mb-8">
             <thead>
                 <tr class="bg-gray-100 uppercase tracking-wider text-[10px] font-bold border-b border-gray-900">
-                    <th class="py-2 px-3 border-r border-gray-900 text-center w-10">No</th>
+                    <th class="py-2 px-3 border-r border-gray-900 text-center w-8">No</th>
+                    <th class="py-2 px-3 border-r border-gray-900 w-24">NIM</th>
                     <th class="py-2 px-3 border-r border-gray-900">Nama Mahasiswa</th>
-                    <th class="py-2 px-3 border-r border-gray-900">Alamat Email</th>
-                    <th class="py-2 px-3 border-r border-gray-900 text-center w-24">Angkatan</th>
-                    <th class="py-2 px-3 border-r border-gray-900 text-center w-24">Semester</th>
-                    <th class="py-2 px-3 text-center w-24">Status</th>
+                    <th class="py-2 px-3 border-r border-gray-900">Program Studi</th>
+                    <th class="py-2 px-3 border-r border-gray-900">No. Telepon</th>
+                    <th class="py-2 px-3 border-r border-gray-900 text-center w-16">Angkatan</th>
+                    <th class="py-2 px-3 border-r border-gray-900 text-center w-16">Semester</th>
+                    <th class="py-2 px-3 text-center w-20">Status</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($users as $index => $user)
                 <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="py-2 px-3 border-r border-gray-900 text-center text-[10px] font-medium">{{ $index + 1 }}</td>
+                    <td class="py-2 px-3 border-r border-gray-900 font-mono text-[11px]">{{ $user->nim ?? '-' }}</td>
                     <td class="py-2 px-3 border-r border-gray-900 font-bold uppercase">{{ $user->name }}</td>
-                    <td class="py-2 px-3 border-r border-gray-900">{{ $user->email }}</td>
+                    <td class="py-2 px-3 border-r border-gray-900 text-[11px]">{{ $user->education['program_studi'] ?? '-' }}</td>
+                    <td class="py-2 px-3 border-r border-gray-900 text-[11px]">{{ $user->phone ?? '-' }}</td>
                     <td class="py-2 px-3 border-r border-gray-900 text-center">{{ $user->angkatan ?? '-' }}</td>
                     <td class="py-2 px-3 border-r border-gray-900 text-center">{{ $user->semester ?? '-' }}</td>
                     <td class="py-2 px-3 text-center font-bold text-[10px]">{{ $user->status ?? 'AKTIF' }}</td>

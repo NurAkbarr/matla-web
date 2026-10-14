@@ -134,7 +134,8 @@ class DashboardController extends Controller
             $query->where(function($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
                   ->orWhere('email', 'like', "%{$searchTerm}%")
-                  ->orWhere('nim', 'like', "%{$searchTerm}%");
+                  ->orWhere('nim', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -165,12 +166,47 @@ class DashboardController extends Controller
     public function exportExcel(Request $request)
     {
         $filename = "mahasiswa_" . date('Y-m-d') . ".csv";
-        $columns = ['Nama', 'Email', 'Angkatan', 'Semester', 'Status'];
+        $columns = [
+            'NIM',
+            'Nama',
+            'Email',
+            'No Telepon',
+            'Program Studi',
+            'Angkatan',
+            'Semester',
+            'Status',
+            'Jenis Kelamin'
+        ];
 
-        $users = User::where('role', 'mahasiswa')->get();
+        $query = User::where('role', 'mahasiswa');
+
+        // Terapkan filter jika ada parameter pencarian/filter
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('nim', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone', 'like', "%{$searchTerm}%");
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('angkatan')) {
+            $query->where('angkatan', $request->angkatan);
+        }
+        if ($request->filled('semester')) {
+            $query->where('semester', $request->semester);
+        }
+        if ($request->filled('program_studi')) {
+            $query->where('education->program_studi', $request->program_studi);
+        }
+
+        $users = $query->orderBy('angkatan', 'desc')->orderBy('name', 'asc')->get();
 
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type"        => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=$filename",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
@@ -179,14 +215,21 @@ class DashboardController extends Controller
 
         $callback = function() use($users, $columns) {
             $file = fopen('php://output', 'w');
+            // Menulis UTF-8 BOM agar Excel di Windows membaca karakter & format dengan tepat
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
             fputcsv($file, $columns);
             foreach ($users as $user) {
                 fputcsv($file, [
+                    $user->nim ?? '',
                     $user->name,
                     $user->email,
-                    $user->angkatan,
-                    $user->semester,
-                    $user->status
+                    $user->phone ?? '',
+                    $user->education['program_studi'] ?? '',
+                    $user->angkatan ?? '',
+                    $user->semester ?? '',
+                    $user->status ?? 'AKTIF',
+                    $user->jenis_kelamin ?? ''
                 ]);
             }
             fclose($file);
@@ -197,8 +240,31 @@ class DashboardController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $users = User::where('role', 'mahasiswa')
-                    ->orderBy('angkatan', 'desc')
+        $query = User::where('role', 'mahasiswa');
+
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('nim', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone', 'like', "%{$searchTerm}%");
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('angkatan')) {
+            $query->where('angkatan', $request->angkatan);
+        }
+        if ($request->filled('semester')) {
+            $query->where('semester', $request->semester);
+        }
+        if ($request->filled('program_studi')) {
+            $query->where('education->program_studi', $request->program_studi);
+        }
+
+        $users = $query->orderBy('angkatan', 'desc')
                     ->orderBy('name', 'asc')
                     ->get();
                     
@@ -208,69 +274,186 @@ class DashboardController extends Controller
     public function importExcel(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|mimes:csv,txt|max:2048',
+            'csv_file' => 'required|mimes:csv,txt|max:4096',
         ]);
 
         $file = $request->file('csv_file');
         $fileHandle = fopen($file->getPathname(), 'r');
-        
-        $headerLine = fgets($fileHandle);
-        // Reset file pointer if first line doesn't look like our header
-        if (stripos($headerLine, 'nama') === false && stripos($headerLine, 'email') === false) {
+        if (!$fileHandle) {
+            return redirect()->back()->with('error', 'Gagal membuka file CSV.');
+        }
+
+        // Baca baris pertama untuk mendeteksi delimiter dan header
+        $firstLine = fgets($fileHandle);
+        if ($firstLine === false) {
+            fclose($fileHandle);
+            return redirect()->back()->with('error', 'File CSV kosong.');
+        }
+
+        // Hilangkan UTF-8 BOM jika ada
+        $firstLine = preg_replace('/^\xEF\xBB\xBF/', '', $firstLine);
+
+        // Deteksi delimiter: koma (,) atau titik koma (;)
+        $delimiter = (substr_count($firstLine, ';') > substr_count($firstLine, ',')) ? ';' : ',';
+
+        $headerRow = str_getcsv($firstLine, $delimiter);
+
+        // Deteksi apakah baris pertama adalah baris judul kolom (header)
+        $headerMap = [];
+        $hasHeader = false;
+        foreach ($headerRow as $idx => $colName) {
+            $cleanName = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $colName)));
+            if (in_array($cleanName, ['nim', 'nama', 'name', 'email', 'telepon', 'phone', 'notelepon', 'notelp', 'nomortelepon', 'prodi', 'programstudi', 'angkatan', 'semester', 'status', 'jeniskelamin', 'gender'])) {
+                $hasHeader = true;
+                $headerMap[$cleanName] = $idx;
+            }
+        }
+
+        // Jika baris pertama bukan header, kembalikan pointer ke awal file
+        if (!$hasHeader) {
             rewind($fileHandle);
         }
 
         $count = 0;
-        while (($row = fgetcsv($fileHandle, 1000, ',')) !== false) {
-            // Karena kadang delimiter di excel CSV indonesia pakai titik koma (;), kita cek
-            if (count($row) == 1 && strpos($row[0], ';') !== false) {
-                $row = explode(';', $row[0]);
+        $updatedCount = 0;
+
+        while (($row = fgetcsv($fileHandle, 2000, $delimiter)) !== false) {
+            // Lewati baris kosong
+            if (empty(array_filter($row, fn($val) => trim($val) !== ''))) {
+                continue;
             }
 
-            // Cek minimum 3 kolom (NIM, Nama, Email) dan pastikan email valid
-            if (count($row) >= 3 && filter_var(trim($row[2]), FILTER_VALIDATE_EMAIL)) {
-                
-                $nim = trim($row[0]);
-                $nama = trim($row[1]);
-                $email = trim($row[2]);
-                $prodi = count($row) >= 4 ? trim($row[3]) : null;
-                $status = count($row) >= 6 ? strtoupper(trim($row[5])) : 'AKTIF';
-                
-                // Jika NIM kosong, set ke null agar tidak melanggar unique constraint
-                $nimValue = empty($nim) ? null : $nim;
-                
-                $user = User::updateOrCreate(
-                    ['email' => $email],
-                    [
-                        'name' => $nama,
-                        'nim' => $nimValue,
-                        'role' => 'mahasiswa',
-                        'password' => bcrypt('password123'),
-                        'status' => $status
-                    ]
-                );
+            // Bersihkan BOM di kolom pertama jika ada
+            if (isset($row[0])) {
+                $row[0] = preg_replace('/^\xEF\xBB\xBF/', '', $row[0]);
+            }
 
-                // Update info Prodi ke dalam array JSON education
-                $education = $user->education ?? [];
-                if ($prodi) {
-                    $education['program_studi'] = $prodi;
+            $nim = null;
+            $nama = null;
+            $email = null;
+            $phone = null;
+            $prodi = null;
+            $angkatan = null;
+            $semester = null;
+            $status = 'AKTIF';
+            $jenisKelamin = null;
+
+            if ($hasHeader) {
+                $getCol = function($keys) use ($row, $headerMap) {
+                    foreach ((array)$keys as $k) {
+                        if (isset($headerMap[$k]) && isset($row[$headerMap[$k]])) {
+                            $val = trim($row[$headerMap[$k]]);
+                            if ($val !== '') return $val;
+                        }
+                    }
+                    return null;
+                };
+
+                $nim = $getCol(['nim']);
+                $nama = $getCol(['nama', 'name']);
+                $email = $getCol(['email']);
+                $phone = $getCol(['notelepon', 'nomortelepon', 'telepon', 'phone', 'notelp']);
+                $prodi = $getCol(['programstudi', 'prodi']);
+                $angkatan = $getCol(['angkatan']);
+                $semester = $getCol(['semester']);
+                $status = $getCol(['status']) ?? 'AKTIF';
+                $jenisKelamin = $getCol(['jeniskelamin', 'gender']);
+            } else {
+                // Pemetaan posisi fallback jika tanpa header
+                $nim = isset($row[0]) ? trim($row[0]) : null;
+                $nama = isset($row[1]) ? trim($row[1]) : null;
+                $email = isset($row[2]) ? trim($row[2]) : null;
+
+                if (count($row) >= 7) {
+                    // Format baru: NIM, Nama, Email, No Telepon, Prodi, Angkatan, Semester, Status, Jenis Kelamin
+                    $phone = isset($row[3]) ? trim($row[3]) : null;
+                    $prodi = isset($row[4]) ? trim($row[4]) : null;
+                    $angkatan = isset($row[5]) ? trim($row[5]) : null;
+                    $semester = isset($row[6]) ? trim($row[6]) : null;
+                    $status = isset($row[7]) ? trim($row[7]) : 'AKTIF';
+                    $jenisKelamin = isset($row[8]) ? trim($row[8]) : null;
+                } elseif (count($row) >= 4) {
+                    // Format lama: NIM, Nama, Email, Prodi, Jenis Kelamin, Status
+                    $prodi = isset($row[3]) ? trim($row[3]) : null;
+                    $jenisKelamin = isset($row[4]) ? trim($row[4]) : null;
+                    $status = isset($row[5]) ? trim($row[5]) : 'AKTIF';
                 }
-                $user->education = $education;
-                $user->save();
+            }
 
+            // Pastikan email valid
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+
+            if (empty($nama)) {
+                $nama = explode('@', $email)[0];
+            }
+
+            $nimValue = !empty($nim) ? $nim : null;
+
+            // Cari apakah user sudah terdaftar berdasarkan email atau NIM
+            $user = User::where('email', $email)->first();
+            if (!$user && $nimValue) {
+                $user = User::where('nim', $nimValue)->first();
+            }
+
+            $isNew = false;
+            if (!$user) {
+                $isNew = true;
+                $user = new User();
+                $user->email = $email;
+                $user->role = 'mahasiswa';
+                $user->password = \Illuminate\Support\Facades\Hash::make('password123');
+            }
+
+            $user->name = $nama;
+            if ($nimValue) {
+                $user->nim = $nimValue;
+            }
+            if (!empty($phone)) {
+                $user->phone = $phone;
+            }
+            if (!empty($angkatan)) {
+                $user->angkatan = $angkatan;
+            }
+            if (!empty($semester)) {
+                $user->semester = (int)$semester;
+            }
+            if (!empty($status)) {
+                $user->status = strtoupper($status);
+            }
+            if (!empty($jenisKelamin)) {
+                $user->jenis_kelamin = $jenisKelamin;
+            }
+
+            $education = $user->education ?? [];
+            if (!empty($prodi)) {
+                $education['program_studi'] = $prodi;
+            }
+            $user->education = $education;
+            $user->save();
+
+            if ($isNew) {
                 $count++;
+            } else {
+                $updatedCount++;
             }
         }
         fclose($fileHandle);
 
-        // Auto-synchronize class groups on successful import
+        // Sinkronisasi kelompok kelas otomatis setelah import
         try {
             \Illuminate\Support\Facades\Artisan::call('classgroup:sync');
         } catch (\Exception $e) {
-            // Keep going if anything goes wrong with artisan call
+            // Lanjut jika terjadi kendala pada command
         }
 
-        return redirect()->back()->with('success', "$count data mahasiswa berhasil di-import/diperbarui.");
+        $msg = "Proses import selesai. ";
+        if ($count > 0) $msg .= "$count mahasiswa baru ditambahkan. ";
+        if ($updatedCount > 0) $msg .= "$updatedCount data mahasiswa diperbarui. ";
+        if ($count === 0 && $updatedCount === 0) $msg = "Tidak ada baris data mahasiswa valid yang berhasil diproses.";
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function dataDosen()

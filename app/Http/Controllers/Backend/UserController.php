@@ -188,16 +188,21 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if (Auth::user()->role !== 'super_admin') {
-            return redirect()->back()->with('error', 'Hanya Super Admin yang dapat menghapus data.');
+        $currentUser = Auth::user();
+        if (!in_array($currentUser->role, ['super_admin', 'admin'])) {
+            return redirect()->back()->with('error', 'Hanya Super Admin dan Admin yang dapat menghapus data.');
         }
 
-        if (Auth::id() == $user->id) {
+        if ($currentUser->id == $user->id) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         if ($user->role === 'super_admin') {
             return redirect()->back()->with('error', 'Akun Super Admin tidak dapat dihapus.');
+        }
+
+        if ($currentUser->role === 'admin' && in_array($user->role, ['admin', 'super_admin'])) {
+            return redirect()->back()->with('error', 'Admin tidak dapat menghapus akun sesama Admin atau Super Admin.');
         }
 
         if ($user) {
@@ -219,8 +224,9 @@ class UserController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        if (Auth::user()->role !== 'super_admin') {
-            return redirect()->back()->with('error', 'Akses ditolak. Hanya Super Admin yang dapat melakukan Bulk Delete.');
+        $currentUser = Auth::user();
+        if (!in_array($currentUser->role, ['super_admin', 'admin'])) {
+            return redirect()->back()->with('error', 'Akses ditolak. Hanya Super Admin dan Admin yang dapat melakukan Bulk Delete.');
         }
 
         $request->validate([
@@ -230,14 +236,22 @@ class UserController extends Controller
 
         $ids = $request->user_ids;
 
-        // Cegah Super Admin menghapus dirinya sendiri atau Super Admin lain
+        // Cegah Super Admin dihapus
         $superAdmins = User::whereIn('id', $ids)->where('role', 'super_admin')->count();
         if ($superAdmins > 0) {
             return redirect()->back()->with('error', 'Terdapat akun Super Admin dalam pilihan Anda. Akun Super Admin tidak dapat dihapus massal.');
         }
 
+        // Jika Admin, cegah menghapus akun Admin
+        if ($currentUser->role === 'admin') {
+            $adminCount = User::whereIn('id', $ids)->where('role', 'admin')->count();
+            if ($adminCount > 0) {
+                return redirect()->back()->with('error', 'Terdapat akun Admin dalam pilihan Anda. Admin tidak dapat menghapus sesama akun Admin.');
+            }
+        }
+
         // Pastikan tidak menghapus diri sendiri
-        if (in_array(Auth::id(), $ids)) {
+        if (in_array($currentUser->id, $ids)) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
