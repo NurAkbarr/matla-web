@@ -21,6 +21,8 @@
         .dropdown-content { overflow: hidden; transition: max-height 0.2s ease-out; max-height: 0; }
         .dropdown-content.open { max-height: 300px; }
         .chevron-rotate { transform: rotate(180deg); }
+        .scrollbar-hide::-webkit-scrollbar { display: none !important; }
+        .scrollbar-hide { -ms-overflow-style: none !important; scrollbar-width: none !important; }
     </style>
 
     {{-- Early Dark Mode Detection to prevent flash --}}
