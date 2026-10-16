@@ -116,6 +116,9 @@ class VerifikasiPembayaranController extends Controller
             if (Storage::disk('google_keuangan')->exists($drivePath)) {
                 $url = Storage::disk('google_keuangan')->url($drivePath);
                 if ($url) {
+                    if (preg_match('/id=([a-zA-Z0-9_-]+)/', $url, $m)) {
+                        $url = "https://drive.google.com/file/d/{$m[1]}/view";
+                    }
                     return redirect()->away($url);
                 }
             }
@@ -128,6 +131,9 @@ class VerifikasiPembayaranController extends Controller
             if (Storage::disk('google')->exists($mainDrivePath)) {
                 $url = Storage::disk('google')->url($mainDrivePath);
                 if ($url) {
+                    if (preg_match('/id=([a-zA-Z0-9_-]+)/', $url, $m)) {
+                        $url = "https://drive.google.com/file/d/{$m[1]}/view";
+                    }
                     return redirect()->away($url);
                 }
             }
@@ -148,9 +154,14 @@ class VerifikasiPembayaranController extends Controller
             return back()->with('error', 'Bukti transfer tidak ditemukan.');
         }
 
-        // Jika URL eksternal (Google Drive / http), redirect langsung
+        // Jika URL eksternal (Google Drive / http)
         if (str_starts_with($pembayaran->bukti_tf, 'http')) {
-            return redirect()->away($pembayaran->bukti_tf);
+            $url = $pembayaran->bukti_tf;
+            // Ubah link direct media Google Drive menjadi link viewer resmi agar tidak tampil hitam/raw
+            if (preg_match('/id=([a-zA-Z0-9_-]+)/', $url, $m)) {
+                $url = "https://drive.google.com/file/d/{$m[1]}/view";
+            }
+            return redirect()->away($url);
         }
 
         // Jika path lokal di storage public

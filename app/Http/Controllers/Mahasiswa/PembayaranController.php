@@ -98,6 +98,13 @@ class PembayaranController extends Controller
             }
         }
 
+        if ($buktiTfUrl && preg_match('/id=([a-zA-Z0-9_-]+)/', $buktiTfUrl, $m)) {
+            $buktiTfUrl = "https://drive.google.com/file/d/{$m[1]}/view";
+        }
+        if ($berkasPendukungUrl && preg_match('/id=([a-zA-Z0-9_-]+)/', $berkasPendukungUrl, $m)) {
+            $berkasPendukungUrl = "https://drive.google.com/file/d/{$m[1]}/view";
+        }
+
         $pembayaran = \App\Models\Pembayaran::create([
             'tagihan_id' => $tagihan->id,
             'user_id' => auth()->id(),
