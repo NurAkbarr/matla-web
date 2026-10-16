@@ -85,10 +85,10 @@ return [
 
         'google_keuangan' => [
             'driver' => 'google',
-            'clientId' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_ID'),
-            'clientSecret' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_SECRET'),
-            'refreshToken' => env('GOOGLE_DRIVE_KEUANGAN_REFRESH_TOKEN'),
-            'folder' => env('GOOGLE_DRIVE_KEUANGAN_FOLDER_ID'),
+            'clientId' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_ID') ?: env('GOOGLE_DRIVE_CLIENT_ID'),
+            'clientSecret' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_SECRET') ?: env('GOOGLE_DRIVE_CLIENT_SECRET'),
+            'refreshToken' => env('GOOGLE_DRIVE_KEUANGAN_REFRESH_TOKEN') ?: env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+            'folder' => env('GOOGLE_DRIVE_KEUANGAN_FOLDER_ID', '1hs8XSf-FSvyRwKKzOYp1DZGlb1AYKAuo'),
             'teamDriveId' => env('GOOGLE_DRIVE_KEUANGAN_TEAM_DRIVE_ID'),
         ],
 
