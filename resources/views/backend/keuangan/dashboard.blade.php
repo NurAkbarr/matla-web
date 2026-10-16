@@ -138,7 +138,12 @@
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-sm font-semibold text-[var(--text-heading)] truncate">{{ $riwayat->user->name ?? 'Mahasiswa' }}</p>
-                                        <p class="text-xs text-[var(--text-muted)] mt-0.5 truncate">{{ $riwayat->tagihan->nama_tagihan ?? 'Pembayaran' }}</p>
+                                        <p class="text-xs text-[var(--text-muted)] mt-0.5 truncate">
+                                            {{ $riwayat->tagihan->nama_tagihan ?? 'Pembayaran' }}
+                                            @if(!empty($riwayat->user->education['program_studi']))
+                                                <span class="opacity-80">• {{ $riwayat->user->education['program_studi'] }}</span>
+                                            @endif
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="text-right shrink-0">

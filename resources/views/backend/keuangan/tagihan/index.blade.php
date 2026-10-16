@@ -440,6 +440,7 @@
                     <tr class="border-b border-slate-100 text-slate-400 font-bold tracking-wider text-[10px] uppercase">
                         <th class="py-4 px-5">Tgl Dibuat</th>
                         <th class="py-4 px-5">Mahasiswa</th>
+                        <th class="py-4 px-5">Prodi</th>
                         <th class="py-4 px-5">Angkatan</th>
                         <th class="py-4 px-5">Nama Tagihan</th>
                         <th class="py-4 px-5 text-right">Total</th>
@@ -453,7 +454,7 @@
                         $historyColors = ['bg-emerald-100 text-emerald-700', 'bg-blue-100 text-blue-700', 'bg-purple-100 text-purple-700', 'bg-amber-100 text-amber-700', 'bg-rose-100 text-rose-700', 'bg-cyan-100 text-cyan-700'];
                     @endphp
                     @forelse($recentTagihans as $i => $tagihan)
-                    <tr class="hover:bg-slate-50/50 transition-colors" x-show="searchQuery === '' || '{{ strtolower(str_replace("'", "\'", $tagihan->user->name ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->nama_tagihan)) }}'.includes(searchQuery.toLowerCase())">
+                    <tr class="hover:bg-slate-50/50 transition-colors" x-show="searchQuery === '' || '{{ strtolower(str_replace("'", "\'", $tagihan->user->name ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->nama_tagihan)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->user->education['program_studi'] ?? '')) }}'.includes(searchQuery.toLowerCase())">
                         <td class="py-4 px-5">
                             <span class="block text-sm font-medium text-slate-700">{{ \Carbon\Carbon::parse($tagihan->created_at)->format('d M Y') }}</span>
                             <span class="block text-[11px] text-slate-400">{{ \Carbon\Carbon::parse($tagihan->created_at)->format('H:i') }}</span>
@@ -465,6 +466,11 @@
                                 </div>
                                 <span class="font-bold text-slate-800 text-sm">{{ $tagihan->user->name ?? 'Unknown' }}</span>
                             </div>
+                        </td>
+                        <td class="py-4 px-5">
+                            <span class="text-xs font-semibold text-slate-700 block whitespace-nowrap">
+                                {{ $tagihan->user->education['program_studi'] ?? '-' }}
+                            </span>
                         </td>
                         <td class="py-4 px-5">
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
@@ -498,8 +504,8 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-slate-400 text-sm" x-show="searchQuery === ''">Belum ada tagihan yang dibuat.</td>
-                        <td colspan="8" class="py-12 text-center text-slate-400 text-sm" x-show="searchQuery !== ''" style="display: none;">Data tidak ditemukan.</td>
+                        <td colspan="9" class="py-12 text-center text-slate-400 text-sm" x-show="searchQuery === ''">Belum ada tagihan yang dibuat.</td>
+                        <td colspan="9" class="py-12 text-center text-slate-400 text-sm" x-show="searchQuery !== ''" style="display: none;">Data tidak ditemukan.</td>
                     </tr>
                     @endforelse
                 </tbody>
