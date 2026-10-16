@@ -615,6 +615,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/verifikasi/{id}/approve', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'approve'])->name('verifikasi.approve');
         Route::post('/verifikasi/{id}/reject', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'reject'])->name('verifikasi.reject');
         Route::get('/verifikasi/{id}/kwitansi-drive', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'kwitansiDrive'])->name('verifikasi.kwitansi-drive');
+        Route::get('/verifikasi/{id}/bukti', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'lihatBukti'])->name('verifikasi.bukti');
         
         // Tagihan
         Route::get('/tagihan', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'index'])->name('tagihan.index');

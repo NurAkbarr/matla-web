@@ -51,8 +51,22 @@ class VerifikasiPembayaranController extends Controller
                 // Path di dalam Google Drive: Kwitansi_Pembayaran / 2022 / Mhsasep / Kwitansi-INV-....pdf
                 $drivePath = "Kwitansi_Pembayaran/{$angkatan}/{$nama}/Kwitansi_{$kwitansiNo}.pdf";
                 
-                // Upload ke Google Drive
-                Storage::disk('google_keuangan')->put($drivePath, $pdf->output());
+                // 1. Coba upload ke Google Drive Keuangan
+                try {
+                    Storage::disk('google_keuangan')->put($drivePath, $pdf->output());
+                } catch (\Exception $eKeuangan) {
+                    \Illuminate\Support\Facades\Log::warning('Gagal upload kwitansi ke Drive Keuangan, mencoba Drive Utama: ' . $eKeuangan->getMessage());
+                    // 2. Fallback ke Google Drive Utama (kampus)
+                    $mainDrivePath = "Keuangan/{$drivePath}";
+                    Storage::disk('google')->put($mainDrivePath, $pdf->output());
+                }
+
+                // 3. Simpan juga salinan lokal sebagai cadangan
+                try {
+                    Storage::disk('public')->put("kwitansi/Kwitansi_{$kwitansiNo}.pdf", $pdf->output());
+                } catch (\Exception $eLocal) {
+                    // Ignore local storage error
+                }
             } catch (\Exception $e) {
                 // Ignore PDF upload errors so it doesn't break the approval process
                 \Illuminate\Support\Facades\Log::error('Gagal upload kwitansi ke Google Drive: ' . $e->getMessage());
@@ -84,7 +98,7 @@ class VerifikasiPembayaranController extends Controller
 
     public function kwitansiDrive($id)
     {
-        $pembayaran = \App\Models\Pembayaran::with('user')->findOrFail($id);
+        $pembayaran = \App\Models\Pembayaran::with(['user', 'tagihan'])->findOrFail($id);
         
         if (!$pembayaran->kwitansi) {
             return back()->with('error', 'Kwitansi belum terbit.');
@@ -92,14 +106,60 @@ class VerifikasiPembayaranController extends Controller
 
         $angkatan = $pembayaran->user->angkatan ?? 'Tanpa Angkatan';
         $nama = preg_replace('/[^A-Za-z0-9 ]/', '', $pembayaran->user->name ?? 'Unknown');
+        $kwitansiNo = $pembayaran->kwitansi;
         
-        $drivePath = "Kwitansi_Pembayaran/{$angkatan}/{$nama}/Kwitansi_{$pembayaran->kwitansi}.pdf";
+        $drivePath = "Kwitansi_Pembayaran/{$angkatan}/{$nama}/Kwitansi_{$kwitansiNo}.pdf";
+        $mainDrivePath = "Keuangan/{$drivePath}";
         
+        // 1. Coba ambil URL dari Google Drive Keuangan
         try {
-            $url = Storage::disk('google_keuangan')->url($drivePath);
-            return redirect()->away($url);
+            if (Storage::disk('google_keuangan')->exists($drivePath)) {
+                $url = Storage::disk('google_keuangan')->url($drivePath);
+                if ($url) {
+                    return redirect()->away($url);
+                }
+            }
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mendapatkan tautan dari Google Drive: ' . $e->getMessage());
+            // Lanjut ke fallback
         }
+
+        // 2. Coba ambil URL dari Google Drive Utama
+        try {
+            if (Storage::disk('google')->exists($mainDrivePath)) {
+                $url = Storage::disk('google')->url($mainDrivePath);
+                if ($url) {
+                    return redirect()->away($url);
+                }
+            }
+        } catch (\Exception $e) {
+            // Lanjut ke fallback
+        }
+
+        // 3. Fallback: jika di drive belum ada, stream/tampilkan langsung PDF kwitansi
+        $pdf = Pdf::loadView('mahasiswa.pembayaran.kwitansi', compact('pembayaran'));
+        return $pdf->stream("Kwitansi_{$kwitansiNo}.pdf");
+    }
+
+    public function lihatBukti($id)
+    {
+        $pembayaran = \App\Models\Pembayaran::findOrFail($id);
+        
+        if (!$pembayaran->bukti_tf) {
+            return back()->with('error', 'Bukti transfer tidak ditemukan.');
+        }
+
+        // Jika URL eksternal (Google Drive / http), redirect langsung
+        if (str_starts_with($pembayaran->bukti_tf, 'http')) {
+            return redirect()->away($pembayaran->bukti_tf);
+        }
+
+        // Jika path lokal di storage public
+        $filePath = storage_path('app/public/' . $pembayaran->bukti_tf);
+        if (file_exists($filePath)) {
+            $mimeType = mime_content_type($filePath) ?: 'image/jpeg';
+            return response()->file($filePath, ['Content-Type' => $mimeType]);
+        }
+
+        return back()->with('error', 'File bukti transfer tidak ditemukan di server.');
     }
 }

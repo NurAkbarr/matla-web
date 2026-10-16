@@ -61,13 +61,24 @@ class PembayaranController extends Controller
         // Membentuk struktur folder bersarang (Angkatan / Nama Mahasiswa)
         $folderName = "{$angkatan}/{$nama}";
 
+        // 1. Coba upload ke Google Drive Keuangan
         try {
             $buktiPath = $request->file('bukti_tf')->store($folderName, 'google_keuangan');
             $buktiTfUrl = \Illuminate\Support\Facades\Storage::disk('google_keuangan')->url($buktiPath);
         } catch (\Exception $e) {
-            // Fallback to local public disk if Google Drive Keuangan is not yet configured
-            $buktiPath = $request->file('bukti_tf')->store('pembayaran', 'public');
-            $buktiTfUrl = $buktiPath;
+            \Illuminate\Support\Facades\Log::warning('Google Drive Keuangan upload failed, trying main Google Drive: ' . $e->getMessage());
+            
+            // 2. Fallback ke Google Drive Utama (kampus)
+            try {
+                $mainDrivePath = "Keuangan/{$folderName}/Bukti_TF_" . $request->file('bukti_tf')->hashName();
+                \Illuminate\Support\Facades\Storage::disk('google')->put($mainDrivePath, file_get_contents($request->file('bukti_tf')->getRealPath()));
+                $buktiTfUrl = \Illuminate\Support\Facades\Storage::disk('google')->url($mainDrivePath);
+            } catch (\Exception $e2) {
+                \Illuminate\Support\Facades\Log::error('Main Google Drive upload also failed, fallback to local storage: ' . $e2->getMessage());
+                // 3. Fallback terakhir ke penyimpanan lokal
+                $buktiPath = $request->file('bukti_tf')->store('pembayaran', 'public');
+                $buktiTfUrl = $buktiPath;
+            }
         }
         
         $berkasPendukungUrl = null;
@@ -76,8 +87,14 @@ class PembayaranController extends Controller
                 $berkasPath = $request->file('berkas_pendukung')->store($folderName, 'google_keuangan');
                 $berkasPendukungUrl = \Illuminate\Support\Facades\Storage::disk('google_keuangan')->url($berkasPath);
             } catch (\Exception $e) {
-                $berkasPath = $request->file('berkas_pendukung')->store('pembayaran/pendukung', 'public');
-                $berkasPendukungUrl = $berkasPath;
+                try {
+                    $mainDrivePath = "Keuangan/{$folderName}/Berkas_" . $request->file('berkas_pendukung')->hashName();
+                    \Illuminate\Support\Facades\Storage::disk('google')->put($mainDrivePath, file_get_contents($request->file('berkas_pendukung')->getRealPath()));
+                    $berkasPendukungUrl = \Illuminate\Support\Facades\Storage::disk('google')->url($mainDrivePath);
+                } catch (\Exception $e2) {
+                    $berkasPath = $request->file('berkas_pendukung')->store('pembayaran/pendukung', 'public');
+                    $berkasPendukungUrl = $berkasPath;
+                }
             }
         }
 
