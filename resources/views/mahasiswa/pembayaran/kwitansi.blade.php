@@ -1,3 +1,13 @@
+@php
+    $logoPath = public_path('assets/logo.png');
+    $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
+
+    $capPath = public_path('assets/Cap_Kampus.png');
+    if (!file_exists($capPath)) {
+        $capPath = public_path('assets/Cap_kampus.png');
+    }
+    $capBase64 = file_exists($capPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($capPath)) : '';
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -44,6 +54,7 @@
         }
         .header-logo img {
             max-width: 90px;
+            height: auto;
         }
         .header-text {
             width: 85%;
@@ -171,7 +182,7 @@
             vertical-align: top;
         }
         .footer-note {
-            width: 50%;
+            width: 48%;
             font-size: 11px;
             font-style: italic;
             color: #555;
@@ -179,19 +190,37 @@
             line-height: 1.4;
         }
         .footer-sign {
-            width: 50%;
+            width: 52%;
             text-align: center;
             font-size: 12px;
             color: #333;
+        }
+        .sign-container {
+            position: relative;
+            margin-top: 10px;
+            min-height: 95px;
+        }
+        .cap-stamp {
+            position: absolute;
+            left: 50%;
+            top: 5px;
+            margin-left: -90px;
+            width: 105px;
+            height: auto;
+            z-index: 10;
         }
         .sign-line {
             width: 80%;
             margin: 60px auto 5px auto;
             border-bottom: 1px solid #333;
+            position: relative;
+            z-index: 5;
         }
         .sign-title {
             font-size: 11px;
             color: #666;
+            position: relative;
+            z-index: 5;
         }
 
         /* BOTTOM BORDER */
@@ -213,9 +242,11 @@
         <table class="header-table">
             <tr>
                 <td class="header-logo">
-                    <!-- Base64 Logo (Atau URL absolute) -->
-                    <!-- Jika logo tidak muncul, pastikan path public_path terjangkau oleh DomPDF -->
-                    <img src="{{ public_path('assets/logo.png') }}" alt="Logo Matla" onerror="this.style.display='none'">
+                    @if($logoBase64)
+                        <img src="{{ $logoBase64 }}" alt="Logo Matla">
+                    @else
+                        <img src="{{ public_path('assets/logo.png') }}" alt="Logo Matla">
+                    @endif
                 </td>
                 <td class="header-text">
                     <h1>KAMPUS MAHAD TA'LIM LUGHOH AROBIYYAH<br>(MATLA)</h1>
@@ -281,8 +312,13 @@
             </td>
             <td class="footer-sign">
                 Tangerang Selatan, {{ $pembayaran->updated_at ? $pembayaran->updated_at->format('d F Y') : date('d F Y') }}
-                <div class="sign-line"></div>
-                <div class="sign-title">Bendahara / Admin Kampus Matla</div>
+                <div class="sign-container">
+                    @if($capBase64)
+                        <img src="{{ $capBase64 }}" class="cap-stamp" alt="Cap Kampus">
+                    @endif
+                    <div class="sign-line"></div>
+                    <div class="sign-title">Bendahara / Admin Kampus Matla</div>
+                </div>
             </td>
         </tr>
     </table>
