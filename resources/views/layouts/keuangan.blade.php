@@ -187,11 +187,11 @@
                         {{-- User Profile --}}
                         <div class="flex items-center space-x-3 pl-2 border-l border-[var(--border)]">
                             <div class="text-right hidden sm:block">
-                                <p class="text-sm font-semibold text-[var(--text-heading)] capitalize leading-tight">{{ Auth::user()->name }}</p>
+                                <p class="text-sm font-semibold text-[var(--text-heading)] capitalize leading-tight">{{ Auth::user()->name ?? 'Staff Keuangan' }}</p>
                                 <p class="text-[11px] text-[var(--text-muted)] font-normal mt-0.5">{{ date('l, d M Y') }}</p>
                             </div>
                             <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[var(--primary-100)] text-[var(--primary-600)] dark:text-[var(--primary-300)] flex items-center justify-center font-bold text-sm shadow-sm ring-1 ring-[var(--border)]">
-                                <span>{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                <span>{{ substr(Auth::user()->name ?? 'K', 0, 1) }}</span>
                             </div>
                         </div>
                     </div>

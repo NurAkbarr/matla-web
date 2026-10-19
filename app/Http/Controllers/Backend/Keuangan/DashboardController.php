@@ -3,39 +3,180 @@
 namespace App\Http\Controllers\Backend\Keuangan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pembayaran;
+use App\Models\Tagihan;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Saldo Akun (Total Pembayaran Verified)
-        $saldoAkun = \App\Models\Pembayaran::has('tagihan')->where('status', 'verified')->sum('nominal');
+        Carbon::setLocale('id');
+        $now = Carbon::now();
 
-        // 2. Total Tagihan (Sisa tagihan belum lunas)
-        $tagihanBelumLunas = \App\Models\Tagihan::where('status', '!=', 'lunas');
-        $totalTagihan = $tagihanBelumLunas->sum('sisa_tagihan');
-        $jumlahTagihan = $tagihanBelumLunas->count();
+        // -----------------------------------------------------------------
+        // 1. TOP CARDS (ROW 1 - 3 Kolom Sejajar)
+        // -----------------------------------------------------------------
+        // A. Saldo Akun / Saldo Utama: Total saldo bersih keseluruhan yayasan/kampus
+        $totalPengeluaranAllTime = 0; // Default Rp 0 jika belum ada tabel pengeluaran
+        $saldoAkun = (float) Pembayaran::where('status', 'verified')->sum('nominal') - $totalPengeluaranAllTime;
+        $saldoAkun = max(0, $saldoAkun);
 
-        // 3. Pembayaran Bulan Ini
-        $startOfMonth = now()->startOfMonth();
-        $endOfMonth = now()->endOfMonth();
-        
-        $pembayaranBulanIni = \App\Models\Pembayaran::has('tagihan')->where('status', 'verified')
-            ->whereBetween('updated_at', [$startOfMonth, $endOfMonth]);
-            
-        $totalPembayaranBulanIni = $pembayaranBulanIni->sum('nominal');
-        $pembayaranTerakhir = $pembayaranBulanIni->latest('updated_at')->first();
-        $tanggalTerakhir = $pembayaranTerakhir ? $pembayaranTerakhir->updated_at->format('d M Y') : '-';
+        // B. Total Tagihan: Akumulasi tagihan mahasiswa yang belum lunas (bulanan & semesteran)
+        $tagihanBelumLunasQuery = Tagihan::where('status', '!=', 'lunas');
+        $totalTagihan = (float) $tagihanBelumLunasQuery->sum('sisa_tagihan');
+        $jumlahTagihan = $tagihanBelumLunasQuery->count();
 
-        // 4. Riwayat Transaksi (Semua tercatat)
-        $totalTransaksi = \App\Models\Pembayaran::has('tagihan')->count();
+        // C. Riwayat Transaksi: Total seluruh transaksi tercatat di sistem
+        $totalTransaksi = Pembayaran::count();
 
-        // 5. Total Pengeluaran (Dummy/0 for now)
-        $totalPengeluaran = 0;
+        // -----------------------------------------------------------------
+        // 2. DYNAMIC MONTH FILTER (Laporan Keuangan Bulanan)
+        // -----------------------------------------------------------------
+        // Generate list of months dynamically from earliest transaction (or at least past 12 months) up to now()
+        $earliestCreated = Pembayaran::min('created_at') ?? Tagihan::min('created_at');
+        $startRange = $earliestCreated ? Carbon::parse($earliestCreated)->startOfMonth() : $now->copy()->subMonths(11)->startOfMonth();
 
-        // 6. Riwayat Transaksi Terkini
-        $riwayatTerkini = \App\Models\Pembayaran::with(['user', 'tagihan'])
+        // Pastikan minimal 12 bulan terakhir tersedia di dropdown
+        $minMonths = $now->copy()->subMonths(11)->startOfMonth();
+        if ($startRange->greaterThan($minMonths)) {
+            $startRange = $minMonths;
+        }
+
+        $daftarBulan = [];
+        $cursor = $now->copy()->startOfMonth();
+        while ($cursor->greaterThanOrEqualTo($startRange)) {
+            $daftarBulan[] = [
+                'value' => $cursor->format('Y-m'),
+                'bulan' => (int) $cursor->format('m'),
+                'tahun' => (int) $cursor->format('Y'),
+                'label' => $cursor->translatedFormat('F Y'),
+            ];
+            $cursor->subMonth();
+        }
+
+        // Tentukan periode terpilih (mendukung ?periode=YYYY-MM maupun ?bulan=MM&tahun=YYYY)
+        $selectedPeriode = $request->query('periode');
+        if (!$selectedPeriode && $request->filled('bulan') && $request->filled('tahun')) {
+            $selectedPeriode = sprintf('%04d-%02d', (int) $request->query('tahun'), (int) $request->query('bulan'));
+        }
+
+        if (!$selectedPeriode || !preg_match('/^\d{4}-\d{2}$/', $selectedPeriode)) {
+            $selectedPeriode = $now->format('Y-m');
+        }
+
+        // Jika periode pilihan di luar rentang default daftarBulan, tambahkan secara dinamis
+        $existsInList = collect($daftarBulan)->contains('value', $selectedPeriode);
+        if (!$existsInList) {
+            try {
+                $customCarbon = Carbon::createFromFormat('Y-m', $selectedPeriode)->startOfMonth();
+                $daftarBulan[] = [
+                    'value' => $customCarbon->format('Y-m'),
+                    'bulan' => (int) $customCarbon->format('m'),
+                    'tahun' => (int) $customCarbon->format('Y'),
+                    'label' => $customCarbon->translatedFormat('F Y'),
+                ];
+                // Urutkan kembali descending
+                usort($daftarBulan, fn($a, $b) => strcmp($b['value'], $a['value']));
+            } catch (\Exception $e) {
+                $selectedPeriode = $now->format('Y-m');
+            }
+        }
+
+        $selectedCarbon = Carbon::createFromFormat('Y-m', $selectedPeriode)->startOfMonth();
+        $selectedLabel = $selectedCarbon->translatedFormat('F Y');
+        $startOfSelectedMonth = $selectedCarbon->copy()->startOfMonth();
+        $endOfSelectedMonth = $selectedCarbon->copy()->endOfMonth();
+
+        // -----------------------------------------------------------------
+        // 3. LAPORAN KEUANGAN BULANAN - BARIS 1 (4 KOLOM)
+        // -----------------------------------------------------------------
+        // Transaksi pembayaran terverifikasi pada bulan yang dipilih
+        $pembayaranBulanIni = Pembayaran::where('status', 'verified')
+            ->whereBetween('updated_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
+
+        // 1. Total Pemasukan SPP
+        $pemasukanSpp = (float) (clone $pembayaranBulanIni)
+            ->where(function($q) {
+                $q->whereHas('tagihan', function($t) {
+                    $t->whereRaw('LOWER(nama_tagihan) LIKE ?', ['%spp%']);
+                })->orWhereRaw('LOWER(jenis_pembayaran) LIKE ?', ['%spp%']);
+            })
+            ->sum('nominal');
+
+        // 2. Total Pemasukan Saldo Lain (termasuk saldo bulan sebelumnya)
+        // A. Pemasukan non-SPP pada bulan tersebut
+        $pemasukanNonSppBulanIni = (float) (clone $pembayaranBulanIni)
+            ->where(function($q) {
+                $q->whereDoesntHave('tagihan', function($t) {
+                    $t->whereRaw('LOWER(nama_tagihan) LIKE ?', ['%spp%']);
+                })->whereRaw('LOWER(jenis_pembayaran) NOT LIKE ?', ['%spp%']);
+            })
+            ->sum('nominal');
+
+        // B. Sisa saldo akumulasi sebelum bulan yang dipilih
+        $pengeluaranSebelumnya = 0;
+        $saldoSebelumnya = (float) Pembayaran::where('status', 'verified')
+            ->where('updated_at', '<', $startOfSelectedMonth)
+            ->sum('nominal') - $pengeluaranSebelumnya;
+        $saldoSebelumnya = max(0, $saldoSebelumnya);
+
+        $pemasukanLain = $pemasukanNonSppBulanIni + $saldoSebelumnya;
+
+        // 3. Total Pengeluaran pada bulan yang dipilih (default 0 jika belum ada tabelnya)
+        $totalPengeluaranBulanIni = 0;
+
+        // 4. Total Tunggakan SPP (Saldo Minus) pada bulan tersebut
+        $tunggakanSpp = (float) Tagihan::where('status', '!=', 'lunas')
+            ->whereRaw('LOWER(nama_tagihan) LIKE ?', ['%spp%'])
+            ->where(function($q) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                $q->whereBetween('jatuh_tempo', [$startOfSelectedMonth, $endOfSelectedMonth])
+                  ->orWhere(function($sub) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                      $sub->whereNull('jatuh_tempo')
+                          ->whereBetween('created_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
+                  });
+            })
+            ->sum('sisa_tagihan');
+
+        // -----------------------------------------------------------------
+        // 4. LAPORAN KEUANGAN BULANAN - BARIS 2 (TOTAL KESELURUHAN)
+        // -----------------------------------------------------------------
+        // Rumus: (Total Pemasukan SPP + Total Pemasukan Saldo Lain) - Total Pengeluaran
+        $totalKeseluruhan = ($pemasukanSpp + $pemasukanLain) - $totalPengeluaranBulanIni;
+
+        // -----------------------------------------------------------------
+        // 5. LAPORAN KEUANGAN BULANAN - BARIS 3 (STATISTIK MAHASISWA - 3 KOLOM)
+        // -----------------------------------------------------------------
+        // 1. Jumlah Seluruh Mahasiswa Aktif
+        $totalMahasiswaAktif = User::where('role', 'mahasiswa')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) = ?', ['aktif']);
+            })
+            ->count();
+
+        // 2. Mahasiswa Menunggak (memiliki tagihan belum lunas pada periode bulan tersebut)
+        $tagihanBulanTerpilih = Tagihan::where(function($q) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+            $q->whereBetween('jatuh_tempo', [$startOfSelectedMonth, $endOfSelectedMonth])
+              ->orWhere(function($sub) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                  $sub->whereNull('jatuh_tempo')
+                      ->whereBetween('created_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
+              });
+        });
+
+        $mahasiswaMenunggak = (clone $tagihanBulanTerpilih)
+            ->where('status', '!=', 'lunas')
+            ->distinct('user_id')
+            ->count('user_id');
+
+        // 3. Mahasiswa Lunas pada periode bulan tersebut
+        $mahasiswaLunas = max(0, $totalMahasiswaAktif - $mahasiswaMenunggak);
+
+        // -----------------------------------------------------------------
+        // 6. RIWAYAT TRANSAKSI TERKINI
+        // -----------------------------------------------------------------
+        $riwayatTerkini = Pembayaran::with(['user', 'tagihan'])
             ->has('tagihan')
             ->where('status', 'verified')
             ->latest('updated_at')
@@ -46,10 +187,20 @@ class DashboardController extends Controller
             'saldoAkun',
             'totalTagihan',
             'jumlahTagihan',
-            'totalPembayaranBulanIni',
-            'tanggalTerakhir',
             'totalTransaksi',
-            'totalPengeluaran',
+            'daftarBulan',
+            'selectedPeriode',
+            'selectedLabel',
+            'pemasukanSpp',
+            'pemasukanLain',
+            'saldoSebelumnya',
+            'pemasukanNonSppBulanIni',
+            'totalPengeluaranBulanIni',
+            'tunggakanSpp',
+            'totalKeseluruhan',
+            'totalMahasiswaAktif',
+            'mahasiswaMenunggak',
+            'mahasiswaLunas',
             'riwayatTerkini'
         ));
     }
