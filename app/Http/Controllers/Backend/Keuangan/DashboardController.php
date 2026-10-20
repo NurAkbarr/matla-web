@@ -24,8 +24,14 @@ class DashboardController extends Controller
         $saldoAkun = (float) Pembayaran::where('status', 'verified')->sum('nominal') - $totalPengeluaranAllTime;
         $saldoAkun = max(0, $saldoAkun);
 
-        // B. Total Tagihan: Akumulasi tagihan mahasiswa yang belum lunas (bulanan & semesteran)
-        $tagihanBelumLunasQuery = Tagihan::where('status', '!=', 'lunas');
+        // B. Total Tagihan: Akumulasi tagihan mahasiswa AKTIF yang belum lunas (bulanan & semesteran)
+        $tagihanBelumLunasQuery = Tagihan::where('status', '!=', 'lunas')
+            ->whereHas('user', function($u) {
+                $u->where('role', 'mahasiswa')
+                  ->where(function($q) {
+                      $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
+                  });
+            });
         $totalTagihan = (float) $tagihanBelumLunasQuery->sum('sisa_tagihan');
         $jumlahTagihan = $tagihanBelumLunasQuery->count();
 
@@ -128,8 +134,14 @@ class DashboardController extends Controller
         // 3. Total Pengeluaran pada bulan yang dipilih (default 0 jika belum ada tabelnya)
         $totalPengeluaranBulanIni = 0;
 
-        // 4. Total Tunggakan SPP (Saldo Minus) pada bulan tersebut
+        // 4. Total Tunggakan SPP (Saldo Minus) pada bulan tersebut (Hanya mahasiswa AKTIF)
         $tunggakanSpp = (float) Tagihan::where('status', '!=', 'lunas')
+            ->whereHas('user', function($u) {
+                $u->where('role', 'mahasiswa')
+                  ->where(function($q) {
+                      $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
+                  });
+            })
             ->whereRaw('LOWER(nama_tagihan) LIKE ?', ['%spp%'])
             ->where(function($q) use ($startOfSelectedMonth, $endOfSelectedMonth) {
                 $q->whereBetween('jatuh_tempo', [$startOfSelectedMonth, $endOfSelectedMonth])
@@ -152,18 +164,24 @@ class DashboardController extends Controller
         // 1. Jumlah Seluruh Mahasiswa Aktif
         $totalMahasiswaAktif = User::where('role', 'mahasiswa')
             ->where(function($q) {
-                $q->whereNull('status')->orWhereRaw('LOWER(status) = ?', ['aktif']);
+                $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
             })
             ->count();
 
-        // 2. Mahasiswa Menunggak (memiliki tagihan belum lunas pada periode bulan tersebut)
-        $tagihanBulanTerpilih = Tagihan::where(function($q) use ($startOfSelectedMonth, $endOfSelectedMonth) {
-            $q->whereBetween('jatuh_tempo', [$startOfSelectedMonth, $endOfSelectedMonth])
-              ->orWhere(function($sub) use ($startOfSelectedMonth, $endOfSelectedMonth) {
-                  $sub->whereNull('jatuh_tempo')
-                      ->whereBetween('created_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
-              });
-        });
+        // 2. Mahasiswa Menunggak (memiliki tagihan belum lunas pada periode bulan tersebut, hanya mahasiswa AKTIF)
+        $tagihanBulanTerpilih = Tagihan::whereHas('user', function($u) {
+                $u->where('role', 'mahasiswa')
+                  ->where(function($q) {
+                      $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
+                  });
+            })
+            ->where(function($q) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                $q->whereBetween('jatuh_tempo', [$startOfSelectedMonth, $endOfSelectedMonth])
+                  ->orWhere(function($sub) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                      $sub->whereNull('jatuh_tempo')
+                          ->whereBetween('created_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
+                  });
+            });
 
         $mahasiswaMenunggak = (clone $tagihanBulanTerpilih)
             ->where('status', '!=', 'lunas')

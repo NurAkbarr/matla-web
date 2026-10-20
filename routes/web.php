@@ -611,6 +611,9 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     Route::prefix('keuangan')->name('keuangan.')->middleware(['role:keuangan'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Backend\Keuangan\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/mahasiswa', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'index'])->name('mahasiswa.index');
+        Route::get('/mahasiswa/export/excel', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportExcel'])->name('mahasiswa.export.excel');
+        Route::get('/mahasiswa/export/pdf', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportPdf'])->name('mahasiswa.export.pdf');
+        Route::put('/mahasiswa/{id}/nominal-spp', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'updateNominalSpp'])->name('mahasiswa.updateNominalSpp');
         Route::get('/verifikasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'index'])->name('verifikasi.index');
         Route::post('/verifikasi/{id}/approve', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'approve'])->name('verifikasi.approve');
         Route::post('/verifikasi/{id}/reject', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'reject'])->name('verifikasi.reject');

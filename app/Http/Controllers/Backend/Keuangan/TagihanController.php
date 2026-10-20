@@ -130,8 +130,13 @@ class TagihanController extends Controller
 
     public function index()
     {
-        // For mass billing filters
-        $mahasiswas = User::where('role', 'mahasiswa')->orderBy('name', 'asc')->get();
+        // For mass billing filters (hanya mahasiswa aktif)
+        $mahasiswas = User::where('role', 'mahasiswa')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
+            })
+            ->orderBy('name', 'asc')
+            ->get();
 
         $programStudis = $mahasiswas->map(function($mhs) {
             return $mhs->education['program_studi'] ?? null;
@@ -162,7 +167,11 @@ class TagihanController extends Controller
             'jenis_tagihan' => 'required|in:lunas,cicilan',
         ]);
 
-        $query = User::where('role', 'mahasiswa');
+        // HANYA mahasiswa aktif yang diikutsertakan dalam pembuatan tagihan massal
+        $query = User::where('role', 'mahasiswa')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
+            });
 
         if ($request->filled('angkatan')) {
             $query->where('angkatan', $request->angkatan);
@@ -178,6 +187,7 @@ class TagihanController extends Controller
         $mahasiswas = $query->get();
         $count = 0;
         $skipped = 0;
+        $isSpp = stripos($request->nama_tagihan, 'spp') !== false;
 
         foreach ($mahasiswas as $mhs) {
             $exists = Tagihan::where('user_id', $mhs->id)
@@ -185,11 +195,16 @@ class TagihanController extends Controller
                              ->exists();
 
             if (!$exists) {
+                // Untuk tagihan SPP, gunakan nominal_spp masing-masing mahasiswa jika tersedia
+                $nominal = ($isSpp && $mhs->nominal_spp !== null && (float)$mhs->nominal_spp > 0)
+                    ? (float)$mhs->nominal_spp
+                    : (float)$request->nominal_total;
+
                 Tagihan::create([
                     'user_id' => $mhs->id,
                     'nama_tagihan' => $request->nama_tagihan,
-                    'nominal_total' => $request->nominal_total,
-                    'sisa_tagihan' => $request->nominal_total,
+                    'nominal_total' => $nominal,
+                    'sisa_tagihan' => $nominal,
                     'status' => 'belum lunas',
                     'jatuh_tempo' => $request->jatuh_tempo,
                     'keterangan' => 'Tagihan Massal',
