@@ -97,7 +97,7 @@ class MahasiswaController extends Controller
         $html .= '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; border: 1px solid #000000; font-family: Arial, sans-serif; font-size: 11pt;">';
         $html .= '<thead>';
         $html .= '<tr style="background-color: #00FF00; height: 36px;">';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; width: 50px;">NO</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; width: 110px;">NIM</th>';
         $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; vertical-align: middle; border: 1px solid #000000; min-width: 220px;">Nama Mahasiswa</th>';
         $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; width: 90px;">Angkatan</th>';
         $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; min-width: 180px;">Program / Kelas</th>';
@@ -107,8 +107,8 @@ class MahasiswaController extends Controller
         $html .= '</thead>';
         $html .= '<tbody>';
 
-        $no = 1;
         foreach ($users as $user) {
+            $nim = !empty($user->nim) ? (string) $user->nim : '-';
             $prodi = $user->education['program_studi'] ?? 'S1';
             $semester = $user->semester ? 'Sems ' . $user->semester : 'Sems -';
             $programKelas = "{$prodi} / {$semester}";
@@ -117,7 +117,7 @@ class MahasiswaController extends Controller
             $phone = !empty($user->phone) ? (string) $user->phone : '-';
 
             $html .= '<tr style="background-color: #FFFFFF; height: 30px;">';
-            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF; mso-number-format:\'@\'; font-weight: bold;">' . htmlspecialchars($nim, ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: left; vertical-align: middle; background-color: #FFFFFF; font-weight: 500;">' . htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF;">' . htmlspecialchars($user->angkatan ?? '-', ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF;">' . htmlspecialchars($programKelas, ENT_QUOTES, 'UTF-8') . '</td>';

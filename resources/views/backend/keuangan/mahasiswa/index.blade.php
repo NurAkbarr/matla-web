@@ -103,8 +103,7 @@
             <table class="w-full text-left text-xs md:text-sm whitespace-nowrap" id="mhs-table">
                 <thead>
                     <tr class="border-b border-[var(--border)] text-[var(--text-muted)] font-bold tracking-wider text-[10px] md:text-[11px] uppercase bg-[var(--bg-page)]/50">
-                        <th class="py-4 pl-6 pr-3 text-center w-14">No</th>
-                        <th class="py-4 px-4 font-bold">NIM</th>
+                        <th class="py-4 pl-6 pr-4 font-bold">NIM</th>
                         <th class="py-4 px-5 font-bold">Nama Mahasiswa</th>
                         <th class="py-4 px-4 text-center font-bold">Angkatan</th>
                         <th class="py-4 px-5 font-bold">Program Studi & Semester</th>
@@ -129,14 +128,10 @@
                     @php
                         $statusLower = strtolower($mhs->status ?? 'aktif');
                         $nominalSpp = (float) ($mhs->nominal_spp ?? 300000);
-                        $rowNumber = ($mahasiswas->currentPage() - 1) * $mahasiswas->perPage() + $index + 1;
                     @endphp
                     <tr class="hover:bg-[var(--primary-50)]/30 dark:hover:bg-[var(--primary-900)]/10 transition-colors">
-                        {{-- No (pl-6 untuk padding lega sisi kiri) --}}
-                        <td class="py-4 pl-6 pr-3 text-center font-semibold text-[var(--text-muted)]">{{ $rowNumber }}</td>
-                        
-                        {{-- NIM --}}
-                        <td class="py-4 px-4 font-semibold text-[var(--text-heading)] tabular-nums">{{ $mhs->nim ?? '-' }}</td>
+                        {{-- NIM (pl-6 untuk padding lega sisi kiri) --}}
+                        <td class="py-4 pl-6 pr-4 font-semibold text-[var(--text-heading)] tabular-nums">{{ $mhs->nim ?? '-' }}</td>
                         
                         {{-- Nama Mahasiswa & Email --}}
                         <td class="py-4 px-5">
@@ -242,7 +237,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="py-12 text-center text-[var(--text-muted)] text-sm">
+                        <td colspan="8" class="py-12 text-center text-[var(--text-muted)] text-sm">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-12 h-12 rounded-full bg-[var(--bg-page)] flex items-center justify-center text-[var(--text-muted)] mb-2">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
