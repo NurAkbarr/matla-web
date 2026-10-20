@@ -24,7 +24,7 @@
             {{-- Export Excel --}}
             <a href="{{ route('backend.keuangan.mahasiswa.export.excel', request()->all()) }}" 
                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-300 dark:border-emerald-800 shadow-xs transition-colors"
-               title="Unduh Data dalam Format Excel / CSV">
+               title="Unduh Data dalam Format Excel Rapi & Berwarna">
                 <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -99,19 +99,19 @@
 
     {{-- Table Container --}}
     <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-card">
-        <div class="overflow-x-auto min-w-full">
+        <div class="overflow-x-auto w-full">
             <table class="w-full text-left text-xs md:text-sm whitespace-nowrap" id="mhs-table">
                 <thead>
                     <tr class="border-b border-[var(--border)] text-[var(--text-muted)] font-bold tracking-wider text-[10px] md:text-[11px] uppercase bg-[var(--bg-page)]/50">
-                        <th class="py-4 px-4 text-center w-12">No</th>
-                        <th class="py-4 px-4">NIM</th>
-                        <th class="py-4 px-5">Nama Mahasiswa</th>
-                        <th class="py-4 px-4 text-center">Angkatan</th>
-                        <th class="py-4 px-5">Program Studi & Semester</th>
-                        <th class="py-4 px-5 text-right">SPP per Bulan</th>
-                        <th class="py-4 px-5">No HP / WhatsApp</th>
-                        <th class="py-4 px-5 text-center">Status Akademik</th>
-                        <th class="py-4 px-5 text-center min-w-[130px]">Aksi</th>
+                        <th class="py-4 pl-6 pr-3 text-center w-14">No</th>
+                        <th class="py-4 px-4 font-bold">NIM</th>
+                        <th class="py-4 px-5 font-bold">Nama Mahasiswa</th>
+                        <th class="py-4 px-4 text-center font-bold">Angkatan</th>
+                        <th class="py-4 px-5 font-bold">Program Studi & Semester</th>
+                        <th class="py-4 px-5 text-center font-bold">SPP per Bulan</th>
+                        <th class="py-4 px-5 font-bold">No HP / WhatsApp</th>
+                        <th class="py-4 px-5 text-center font-bold">Status Akademik</th>
+                        <th class="py-4 pl-3 pr-6 text-center font-bold min-w-[130px]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[var(--border)] text-[var(--text-body)]" id="mhs-tbody">
@@ -132,8 +132,8 @@
                         $rowNumber = ($mahasiswas->currentPage() - 1) * $mahasiswas->perPage() + $index + 1;
                     @endphp
                     <tr class="hover:bg-[var(--primary-50)]/30 dark:hover:bg-[var(--primary-900)]/10 transition-colors">
-                        {{-- No --}}
-                        <td class="py-4 px-4 text-center font-medium text-[var(--text-muted)]">{{ $rowNumber }}</td>
+                        {{-- No (pl-6 untuk padding lega sisi kiri) --}}
+                        <td class="py-4 pl-6 pr-3 text-center font-semibold text-[var(--text-muted)]">{{ $rowNumber }}</td>
                         
                         {{-- NIM --}}
                         <td class="py-4 px-4 font-semibold text-[var(--text-heading)] tabular-nums">{{ $mhs->nim ?? '-' }}</td>
@@ -166,25 +166,17 @@
                             </p>
                         </td>
 
-                        {{-- SPP per Bulan (Rp) --}}
-                        <td class="py-4 px-5 text-right">
-                            <div class="inline-flex flex-col items-end">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 tabular-nums">
-                                    Rp {{ number_format($nominalSpp, 0, ',', '.') }}
-                                </span>
-                                @if(!empty($mhs->catatan_spp))
-                                    <span class="text-[10px] text-amber-700 dark:text-amber-400 font-medium italic mt-0.5 max-w-[140px] truncate" title="{{ $mhs->catatan_spp }}">
-                                        {{ $mhs->catatan_spp }}
-                                    </span>
-                                @endif
-                            </div>
+                        {{-- SPP per Bulan (Rp) (Badge Bersih Tanpa Catatan) --}}
+                        <td class="py-4 px-5 text-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 tabular-nums shadow-2xs">
+                                Rp {{ number_format($nominalSpp, 0, ',', '.') }}
+                            </span>
                         </td>
 
                         {{-- No HP / WA --}}
                         <td class="py-4 px-5">
                             @if(!empty($mhs->phone))
                                 @php
-                                    // Bersihkan nomor untuk link WA
                                     $waNumber = preg_replace('/[^0-9]/', '', $mhs->phone);
                                     if (str_starts_with($waNumber, '0')) {
                                         $waNumber = '62' . substr($waNumber, 1);
@@ -224,12 +216,12 @@
                             @endif
                         </td>
 
-                        {{-- Kolom Aksi --}}
-                        <td class="py-4 px-5 text-center">
+                        {{-- Kolom Aksi (pr-6 untuk padding sisi kanan) --}}
+                        <td class="py-4 pl-3 pr-6 text-center">
                             <div class="flex items-center justify-center gap-1.5">
                                 {{-- Tombol Edit Nominal SPP --}}
                                 <button type="button" 
-                                        onclick="openSppModal('{{ $mhs->id }}', '{{ addslashes($mhs->name) }}', '{{ $mhs->nim ?? '-' }}', '{{ $mhs->education['program_studi'] ?? '-' }}', '{{ $nominalSpp }}', '{{ addslashes($mhs->catatan_spp ?? '') }}')"
+                                        onclick="openSppModal('{{ $mhs->id }}', '{{ addslashes($mhs->name) }}', '{{ $mhs->nim ?? '-' }}', '{{ $mhs->education['program_studi'] ?? '-' }}', '{{ $nominalSpp }}')"
                                         class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-[var(--primary-700)] dark:text-[var(--primary-300)] bg-[var(--primary-50)] dark:bg-[var(--primary-900)]/40 hover:bg-[var(--primary-100)] dark:hover:bg-[var(--primary-900)]/70 border border-[var(--primary-200)] dark:border-[var(--primary-800)] rounded-lg transition-all shadow-xs"
                                         title="Atur / Edit Nominal SPP Mahasiswa">
                                     <svg class="w-3.5 h-3.5 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +232,7 @@
 
                                 {{-- Tombol Detail Mahasiswa --}}
                                 <button type="button" 
-                                        onclick="openDetailModal('{{ addslashes($mhs->name) }}', '{{ $mhs->nim ?? '-' }}', '{{ $mhs->email ?? '-' }}', '{{ $mhs->phone ?? '-' }}', '{{ $mhs->education['program_studi'] ?? '-' }}', '{{ $mhs->angkatan ?? '-' }}', '{{ $mhs->semester ?? '-' }}', '{{ strtoupper($mhs->status ?? 'AKTIF') }}', '{{ number_format($nominalSpp, 0, ',', '.') }}', '{{ addslashes($mhs->catatan_spp ?? '-') }}')"
+                                        onclick="openDetailModal('{{ addslashes($mhs->name) }}', '{{ $mhs->nim ?? '-' }}', '{{ $mhs->email ?? '-' }}', '{{ $mhs->phone ?? '-' }}', '{{ $mhs->education['program_studi'] ?? '-' }}', '{{ $mhs->angkatan ?? '-' }}', '{{ $mhs->semester ?? '-' }}', '{{ strtoupper($mhs->status ?? 'AKTIF') }}', '{{ number_format($nominalSpp, 0, ',', '.') }}')"
                                         class="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--bg-page)] border border-transparent hover:border-[var(--border)] rounded-lg transition" 
                                         title="Lihat Detail Profil">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -279,9 +271,9 @@
 
                 <select id="per-page-select" onchange="document.getElementById('filter-per-page').value = this.value; document.getElementById('filter-form').submit();" class="border border-[var(--border)] bg-[var(--surface)] text-[var(--text-body)] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[var(--primary-500)] ml-2 cursor-pointer transition-colors shadow-xs">
                     <option value="10" {{ request('per_page', $perPage ?? 10) == 10 ? 'selected' : '' }}>10 / halaman</option>
-                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 / halaman</option>
-                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / halaman</option>
-                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / halaman</option>
+                    <option value="25" {{ request('per_page', $perPage ?? 10) == 25 ? 'selected' : '' }}>25 / halaman</option>
+                    <option value="50" {{ request('per_page', $perPage ?? 10) == 50 ? 'selected' : '' }}>50 / halaman</option>
+                    <option value="100" {{ request('per_page', $perPage ?? 10) == 100 ? 'selected' : '' }}>100 / halaman</option>
                 </select>
             </div>
         </div>
@@ -350,7 +342,7 @@
                     </div>
                     
                     {{-- Quick Preset Buttons --}}
-                    <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                    <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
                         <span class="text-[10px] text-[var(--text-muted)] font-medium mr-1">Pilihan Cepat:</span>
                         <button type="button" onclick="setNominalPreset(200000)" class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--bg-page)] hover:bg-[var(--primary-50)] text-[var(--text-body)] border border-[var(--border)] transition">200rb</button>
                         <button type="button" onclick="setNominalPreset(250000)" class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--bg-page)] hover:bg-[var(--primary-50)] text-[var(--text-body)] border border-[var(--border)] transition">250rb</button>
@@ -359,20 +351,6 @@
                         <button type="button" onclick="setNominalPreset(400000)" class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--bg-page)] hover:bg-[var(--primary-50)] text-[var(--text-body)] border border-[var(--border)] transition">400rb</button>
                         <button type="button" onclick="setNominalPreset(500000)" class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--bg-page)] hover:bg-[var(--primary-50)] text-[var(--text-body)] border border-[var(--border)] transition">500rb</button>
                     </div>
-                </div>
-
-                {{-- Input Catatan Keringanan / SPP --}}
-                <div>
-                    <label for="catatan_spp" class="block text-xs font-bold text-[var(--text-heading)] uppercase tracking-wider mb-1.5">
-                        Catatan Khusus / Keringanan / Beasiswa <span class="text-[10px] font-normal text-[var(--text-muted)]">(Opsional)</span>
-                    </label>
-                    <input type="text" 
-                           id="catatan_spp" 
-                           name="catatan_spp" 
-                           maxlength="255"
-                           placeholder="Contoh: Beasiswa Prestasi 50%, Keringanan Yayasan, dll."
-                           class="w-full px-3.5 py-2.5 text-xs md:text-sm text-[var(--text-body)] bg-[var(--surface)] border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--primary-500)] focus:ring-2 focus:ring-[var(--primary-500)]/20 transition-all">
-                    <p class="text-[10px] text-[var(--text-muted)] mt-1">Catatan ini akan tampil pada rekap laporan keuangan dan saat pembuatan tagihan.</p>
                 </div>
             </div>
 
@@ -427,10 +405,6 @@
                 <span id="detail-spp" class="font-bold text-emerald-600 dark:text-emerald-400 text-right">-</span>
             </div>
             <div class="flex justify-between py-1.5 border-b border-[var(--border)]">
-                <span class="text-[var(--text-muted)] font-medium">Catatan Keringanan</span>
-                <span id="detail-catatan" class="font-medium text-[var(--text-muted)] italic text-right">-</span>
-            </div>
-            <div class="flex justify-between py-1.5 border-b border-[var(--border)]">
                 <span class="text-[var(--text-muted)] font-medium">No HP / WhatsApp</span>
                 <span id="detail-phone" class="font-medium text-[var(--text-heading)] text-right">-</span>
             </div>
@@ -451,7 +425,7 @@
 
 @push('scripts')
 <script>
-function openSppModal(id, name, nim, prodi, currentNominal, catatan) {
+function openSppModal(id, name, nim, prodi, currentNominal) {
     var modal = document.getElementById('modal-spp');
     var form = document.getElementById('form-update-spp');
     
@@ -462,7 +436,6 @@ function openSppModal(id, name, nim, prodi, currentNominal, catatan) {
     document.getElementById('modal-mhs-name').innerText = name;
     document.getElementById('modal-mhs-nim-prodi').innerText = "NIM: " + nim + " • " + prodi;
     document.getElementById('nominal_spp').value = currentNominal;
-    document.getElementById('catatan_spp').value = catatan || '';
 
     // Show modal
     modal.style.display = 'flex';
@@ -480,14 +453,13 @@ function setNominalPreset(amount) {
     document.getElementById('nominal_spp').value = amount;
 }
 
-function openDetailModal(name, nim, email, phone, prodi, angkatan, semester, status, spp, catatan) {
+function openDetailModal(name, nim, email, phone, prodi, angkatan, semester, status, spp) {
     document.getElementById('detail-name').innerText = name;
     document.getElementById('detail-nim').innerText = nim;
     document.getElementById('detail-prodi').innerText = prodi;
     document.getElementById('detail-angkatan-semester').innerText = "Angkatan " + angkatan + " • Semester " + semester;
     document.getElementById('detail-status').innerText = status;
     document.getElementById('detail-spp').innerText = "Rp " + spp;
-    document.getElementById('detail-catatan').innerText = catatan || '-';
     document.getElementById('detail-phone').innerText = phone || '-';
     document.getElementById('detail-email').innerText = email || '-';
 

@@ -135,7 +135,6 @@
                         <th class="py-2.5 px-3 text-center">Angkatan</th>
                         <th class="py-2.5 px-3 text-center">Semester</th>
                         <th class="py-2.5 px-3 text-right">SPP per Bulan</th>
-                        <th class="py-2.5 px-3">Catatan / Keringanan</th>
                         <th class="py-2.5 px-3">No HP / WhatsApp</th>
                         <th class="py-2.5 px-3 text-center">Status</th>
                     </tr>
@@ -155,7 +154,6 @@
                             <td class="py-2 px-3 text-right font-bold text-emerald-700">
                                 Rp {{ number_format($u->nominal_spp ?? 300000, 0, ',', '.') }}
                             </td>
-                            <td class="py-2 px-3 text-gray-500 italic text-[11px]">{{ $u->catatan_spp ?? '-' }}</td>
                             <td class="py-2 px-3 text-gray-600">{{ $u->phone ?? '-' }}</td>
                             <td class="py-2 px-3 text-center">
                                 <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase
@@ -169,7 +167,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="py-8 text-center text-gray-400">Tidak ada data mahasiswa.</td>
+                            <td colspan="9" class="py-8 text-center text-gray-400">Tidak ada data mahasiswa.</td>
                         </tr>
                     @endforelse
                 </tbody>

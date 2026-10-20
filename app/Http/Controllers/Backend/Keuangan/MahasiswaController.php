@@ -51,19 +51,16 @@ class MahasiswaController extends Controller
     {
         $request->validate([
             'nominal_spp' => 'required|numeric|min:0',
-            'catatan_spp' => 'nullable|string|max:255',
         ], [
             'nominal_spp.required' => 'Nominal SPP per bulan wajib diisi.',
             'nominal_spp.numeric' => 'Nominal SPP harus berupa angka.',
             'nominal_spp.min' => 'Nominal SPP tidak boleh bernilai negatif.',
-            'catatan_spp.max' => 'Catatan keringanan/beasiswa maksimal 255 karakter.',
         ]);
 
         $mhs = User::where('role', 'mahasiswa')->findOrFail($id);
 
         $mhs->update([
             'nominal_spp' => $request->nominal_spp,
-            'catatan_spp' => $request->catatan_spp,
         ]);
 
         return back()->with('success', "Nominal SPP untuk mahasiswa {$mhs->name} berhasil diperbarui menjadi Rp " . number_format($request->nominal_spp, 0, ',', '.') . ".");
@@ -71,20 +68,7 @@ class MahasiswaController extends Controller
 
     public function exportExcel(Request $request)
     {
-        $filename = "rekap_mahasiswa_keuangan_" . date('Y-m-d_His') . ".csv";
-        $columns = [
-            'No',
-            'NIM',
-            'Nama Mahasiswa',
-            'Program Studi',
-            'Angkatan',
-            'Semester',
-            'SPP per Bulan (Rp)',
-            'Catatan Keringanan / SPP',
-            'No HP / WA',
-            'Email',
-            'Status Akademik'
-        ];
+        $filename = "rekap_mahasiswa_spp_" . date('Y-m-d_His') . ".xls";
 
         $users = $this->buildFilterQuery($request)
             ->orderByRaw("CASE WHEN LOWER(COALESCE(status, 'aktif')) = 'aktif' THEN 0 ELSE 1 END")
@@ -92,39 +76,62 @@ class MahasiswaController extends Controller
             ->get();
 
         $headers = [
-            "Content-type"        => "text/csv; charset=UTF-8",
-            "Content-Disposition" => "attachment; filename=$filename",
+            "Content-Type"        => "application/vnd.ms-excel; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=\"{$filename}\"",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         ];
 
-        $callback = function() use ($users, $columns) {
-            $file = fopen('php://output', 'w');
-            // Tulis UTF-8 BOM agar Excel membaca karakter & mata uang dengan benar
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        $html .= '<head>';
+        $html .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+        $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Data SPP Mahasiswa</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+        $html .= '<style>';
+        $html .= 'table { border-collapse: collapse; font-family: Arial, Helvetica, sans-serif; font-size: 11pt; }';
+        $html .= 'th { background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; height: 36px; padding: 6px 12px; }';
+        $html .= 'td { border: 1px solid #000000; vertical-align: middle; color: #000000; padding: 6px 10px; }';
+        $html .= '</style>';
+        $html .= '</head>';
+        $html .= '<body>';
+        $html .= '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; border: 1px solid #000000; font-family: Arial, sans-serif; font-size: 11pt;">';
+        $html .= '<thead>';
+        $html .= '<tr style="background-color: #00FF00; height: 36px;">';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; width: 50px;">NO</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; vertical-align: middle; border: 1px solid #000000; min-width: 220px;">Nama Mahasiswa</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; width: 90px;">Angkatan</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; min-width: 180px;">Program / Kelas</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; min-width: 160px;">SPP per Bulan (Rp)</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; min-width: 140px;">No Hp/Wa</th>';
+        $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
 
-            fputcsv($file, $columns);
-            $no = 1;
-            foreach ($users as $user) {
-                fputcsv($file, [
-                    $no++,
-                    $user->nim ? "'".$user->nim : '-', // Tanda kutip agar format NIM angka tidak terpotong leading zero
-                    $user->name,
-                    $user->education['program_studi'] ?? '-',
-                    $user->angkatan ?? '-',
-                    $user->semester ? 'Semester ' . $user->semester : '-',
-                    (float) ($user->nominal_spp ?? 300000),
-                    $user->catatan_spp ?? '-',
-                    $user->phone ? "'".$user->phone : '-',
-                    $user->email ?? '-',
-                    strtoupper($user->status ?? 'AKTIF')
-                ]);
-            }
-            fclose($file);
-        };
+        $no = 1;
+        foreach ($users as $user) {
+            $prodi = $user->education['program_studi'] ?? 'S1';
+            $semester = $user->semester ? 'Sems ' . $user->semester : 'Sems -';
+            $programKelas = "{$prodi} / {$semester}";
+            $nominal = (float) ($user->nominal_spp ?? 300000);
+            $sppFormatted = 'Rp' . number_format($nominal, 0, '', '.');
+            $phone = !empty($user->phone) ? (string) $user->phone : '-';
 
-        return response()->stream($callback, 200, $headers);
+            $html .= '<tr style="background-color: #FFFFFF; height: 30px;">';
+            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #000000; text-align: left; vertical-align: middle; background-color: #FFFFFF; font-weight: 500;">' . htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') . '</td>';
+            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF;">' . htmlspecialchars($user->angkatan ?? '-', ENT_QUOTES, 'UTF-8') . '</td>';
+            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF;">' . htmlspecialchars($programKelas, ENT_QUOTES, 'UTF-8') . '</td>';
+            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFF00; font-weight: bold; color: #000000;">' . $sppFormatted . '</td>';
+            $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; background-color: #FFFFFF; mso-number-format:\'@\';">' . htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') . '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '</tbody>';
+        $html .= '</table>';
+        $html .= '</body>';
+        $html .= '</html>';
+
+        return response($html, 200, $headers);
     }
 
     public function exportPdf(Request $request)
