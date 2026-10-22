@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Keuangan;
 use App\Http\Controllers\Controller;
 use App\Models\Tagihan;
 use App\Models\User;
+use App\Models\MasterJenisTagihan;
 use App\Exports\TagihanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -144,6 +145,11 @@ class TagihanController extends Controller
 
         $angkatans = $mahasiswas->pluck('angkatan')->filter()->unique()->sort()->values();
 
+        // Master Jenis Tagihan
+        $masterJenisTagihans = MasterJenisTagihan::orderByRaw("CASE WHEN UPPER(nama_tagihan) = 'SPP' THEN 0 ELSE 1 END")
+            ->orderBy('nama_tagihan', 'asc')
+            ->get();
+
         // Get recent bills for display
         $recentTagihans = Tagihan::with('user')->latest()->take(10)->get();
 
@@ -153,18 +159,28 @@ class TagihanController extends Controller
             ->orderByRaw('MAX(created_at) DESC')
             ->get();
 
-        return view('backend.keuangan.tagihan.index', compact('programStudis', 'angkatans', 'mahasiswas', 'recentTagihans', 'massalGroups'));
+        return view('backend.keuangan.tagihan.index', compact('programStudis', 'angkatans', 'mahasiswas', 'recentTagihans', 'massalGroups', 'masterJenisTagihans'));
     }
 
     public function storeMass(Request $request)
     {
+        $masterJenis = MasterJenisTagihan::where('nama_tagihan', $request->nama_tagihan)->first();
+        $isSpp = ($masterJenis && $masterJenis->tipe_nominal === 'otomatis_spp')
+            || strtoupper(trim($request->nama_tagihan)) === 'SPP'
+            || stripos($request->nama_tagihan, 'spp') !== false;
+
         $request->validate([
             'nama_tagihan' => 'required|string|max:255',
-            'nominal_total' => 'required|numeric|min:0',
+            'nominal_total' => $isSpp ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'jatuh_tempo' => 'nullable|date',
             'angkatan' => 'nullable|string',
             'program_studi' => 'nullable|string',
             'jenis_tagihan' => 'required|in:lunas,cicilan',
+        ], [
+            'nama_tagihan.required' => 'Nama tagihan wajib dipilih atau diisi.',
+            'nominal_total.required' => 'Nominal tagihan wajib diisi untuk jenis tagihan non-SPP.',
+            'nominal_total.numeric' => 'Nominal tagihan harus berupa angka.',
+            'nominal_total.min' => 'Nominal tagihan tidak boleh bernilai negatif.',
         ]);
 
         // HANYA mahasiswa aktif yang diikutsertakan dalam pembuatan tagihan massal
@@ -187,7 +203,6 @@ class TagihanController extends Controller
         $mahasiswas = $query->get();
         $count = 0;
         $skipped = 0;
-        $isSpp = stripos($request->nama_tagihan, 'spp') !== false;
 
         foreach ($mahasiswas as $mhs) {
             $exists = Tagihan::where('user_id', $mhs->id)
@@ -195,10 +210,14 @@ class TagihanController extends Controller
                              ->exists();
 
             if (!$exists) {
-                // Untuk tagihan SPP, gunakan nominal_spp masing-masing mahasiswa jika tersedia
-                $nominal = ($isSpp && $mhs->nominal_spp !== null && (float)$mhs->nominal_spp > 0)
-                    ? (float)$mhs->nominal_spp
-                    : (float)$request->nominal_total;
+                // Untuk tagihan SPP, otomatis gunakan nominal_spp masing-masing mahasiswa (fallback Rp 300.000)
+                if ($isSpp) {
+                    $nominal = ($mhs->nominal_spp !== null && (float)$mhs->nominal_spp > 0)
+                        ? (float)$mhs->nominal_spp
+                        : 300000;
+                } else {
+                    $nominal = (float)$request->nominal_total;
+                }
 
                 Tagihan::create([
                     'user_id' => $mhs->id,
@@ -217,6 +236,9 @@ class TagihanController extends Controller
         }
 
         $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa.";
+        if ($isSpp) {
+            $msg .= " (Nominal SPP otomatis mengikuti tarif masing-masing mahasiswa).";
+        }
         if ($skipped > 0) {
             $msg .= " ({$skipped} dilewati karena tagihan dengan nama ini sudah ada).";
         }
@@ -226,14 +248,25 @@ class TagihanController extends Controller
 
     public function storePersonal(Request $request)
     {
+        $masterJenis = MasterJenisTagihan::where('nama_tagihan', $request->nama_tagihan)->first();
+        $isSpp = ($masterJenis && $masterJenis->tipe_nominal === 'otomatis_spp')
+            || strtoupper(trim($request->nama_tagihan)) === 'SPP'
+            || stripos($request->nama_tagihan, 'spp') !== false;
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'nama_tagihan' => 'required|string|max:255',
-            'nominal_total' => 'required|numeric|min:0',
+            'nominal_total' => $isSpp ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'jatuh_tempo' => 'nullable|date',
             'keterangan' => 'nullable|string',
             'jenis_tagihan' => 'required|in:lunas,cicilan',
+        ], [
+            'user_id.required' => 'Mahasiswa wajib dipilih.',
+            'nama_tagihan.required' => 'Nama tagihan wajib dipilih atau diisi.',
+            'nominal_total.required' => 'Nominal tagihan wajib diisi untuk jenis tagihan non-SPP.',
         ]);
+
+        $user = User::findOrFail($request->user_id);
 
         $exists = Tagihan::where('user_id', $request->user_id)
                          ->where('nama_tagihan', $request->nama_tagihan)
@@ -243,11 +276,19 @@ class TagihanController extends Controller
             return back()->with('error', "Gagal: Mahasiswa ini sudah memiliki tagihan dengan nama '{$request->nama_tagihan}'.");
         }
 
+        if ($isSpp) {
+            $nominal = ($user->nominal_spp !== null && (float)$user->nominal_spp > 0)
+                ? (float)$user->nominal_spp
+                : ((float)$request->nominal_total > 0 ? (float)$request->nominal_total : 300000);
+        } else {
+            $nominal = (float)$request->nominal_total;
+        }
+
         Tagihan::create([
             'user_id' => $request->user_id,
             'nama_tagihan' => $request->nama_tagihan,
-            'nominal_total' => $request->nominal_total,
-            'sisa_tagihan' => $request->nominal_total,
+            'nominal_total' => $nominal,
+            'sisa_tagihan' => $nominal,
             'status' => 'belum lunas',
             'jatuh_tempo' => $request->jatuh_tempo,
             'keterangan' => $request->keterangan ?? 'Tagihan Personal',
@@ -339,5 +380,75 @@ class TagihanController extends Controller
         $tagihan->delete();
         
         return back()->with('success', 'Tagihan berhasil dihapus.');
+    }
+
+    // =========================================================================
+    // MASTER CRUD: JENIS TAGIHAN
+    // =========================================================================
+
+    public function storeJenis(Request $request)
+    {
+        $request->validate([
+            'nama_tagihan' => 'required|string|max:100|unique:master_jenis_tagihan,nama_tagihan',
+            'tipe_nominal' => 'nullable|in:otomatis_spp,manual',
+            'nominal_default' => 'nullable|numeric|min:0',
+        ], [
+            'nama_tagihan.required' => 'Nama tagihan wajib diisi.',
+            'nama_tagihan.unique' => 'Nama tagihan tersebut sudah terdaftar.',
+            'nominal_default.numeric' => 'Nominal default harus berupa angka.',
+            'nominal_default.min' => 'Nominal default tidak boleh negatif.',
+        ]);
+
+        $tipe = $request->input('tipe_nominal', 'manual');
+        $nominal = ($tipe === 'otomatis_spp') ? null : $request->nominal_default;
+
+        MasterJenisTagihan::create([
+            'nama_tagihan' => trim($request->nama_tagihan),
+            'tipe_nominal' => $tipe,
+            'nominal_default' => $nominal,
+        ]);
+
+        return back()->with('success', 'Jenis tagihan baru berhasil ditambahkan.');
+    }
+
+    public function updateJenis(Request $request, $id)
+    {
+        $jenis = MasterJenisTagihan::findOrFail($id);
+
+        $request->validate([
+            'nama_tagihan' => 'required|string|max:100|unique:master_jenis_tagihan,nama_tagihan,' . $id,
+            'tipe_nominal' => 'nullable|in:otomatis_spp,manual',
+            'nominal_default' => 'nullable|numeric|min:0',
+        ], [
+            'nama_tagihan.required' => 'Nama tagihan wajib diisi.',
+            'nama_tagihan.unique' => 'Nama tagihan tersebut sudah terdaftar.',
+            'nominal_default.numeric' => 'Nominal default harus berupa angka.',
+            'nominal_default.min' => 'Nominal default tidak boleh negatif.',
+        ]);
+
+        $isSpp = strtoupper(trim($jenis->nama_tagihan)) === 'SPP' || $jenis->tipe_nominal === 'otomatis_spp';
+        $tipe = $isSpp ? 'otomatis_spp' : $request->input('tipe_nominal', 'manual');
+        $nominal = ($tipe === 'otomatis_spp') ? null : $request->nominal_default;
+
+        $jenis->update([
+            'nama_tagihan' => trim($request->nama_tagihan),
+            'tipe_nominal' => $tipe,
+            'nominal_default' => $nominal,
+        ]);
+
+        return back()->with('success', 'Jenis tagihan berhasil diperbarui.');
+    }
+
+    public function destroyJenis($id)
+    {
+        $jenis = MasterJenisTagihan::findOrFail($id);
+
+        if (strtoupper(trim($jenis->nama_tagihan)) === 'SPP' || $jenis->tipe_nominal === 'otomatis_spp') {
+            return back()->with('error', 'Jenis tagihan SPP adalah komponen utama sistem dan dilindungi sehingga tidak dapat dihapus.');
+        }
+
+        $jenis->delete();
+
+        return back()->with('success', "Jenis tagihan '{$jenis->nama_tagihan}' berhasil dihapus.");
     }
 }

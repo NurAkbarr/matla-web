@@ -630,6 +630,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/tagihan/spreadsheet', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'spreadsheet'])->name('tagihan.spreadsheet');
         Route::delete('/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy'])->name('tagihan.destroy');
 
+        // Master Jenis Tagihan
+        Route::post('/tagihan/master-jenis', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'storeJenis'])->name('tagihan.jenis.store');
+        Route::put('/tagihan/master-jenis/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updateJenis'])->name('tagihan.jenis.update');
+        Route::delete('/tagihan/master-jenis/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyJenis'])->name('tagihan.jenis.destroy');
+
         // Laporan (Coming Soon)
         Route::view('/laporan', 'backend.keuangan.laporan.index')->name('laporan.index');
     });
