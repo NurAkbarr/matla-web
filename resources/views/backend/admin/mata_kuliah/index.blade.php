@@ -22,10 +22,20 @@
             </form>
         </div>
 
-        <a href="{{ route('backend.admin.mata-kuliah.create') }}" class="flex items-center justify-center space-x-2 px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 transition-all">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span>Tambah Mata Kuliah</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('backend.admin.mata-kuliah.export-excel', request()->query()) }}" class="flex items-center justify-center space-x-2 px-6 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm group" title="Export Data Mata Kuliah ke File Excel Spreadsheet">
+                <svg class="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                    <path d="M8.5 13.5l1.8 2.5-1.8 2.5h1.5l1-1.6 1 1.6h1.5l-1.8-2.5 1.8-2.5h-1.5l-1 1.6-1-1.6H8.5z"/>
+                </svg>
+                <span>Export Excel</span>
+            </a>
+
+            <a href="{{ route('backend.admin.mata-kuliah.create') }}" class="flex items-center justify-center space-x-2 px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Tambah Mata Kuliah</span>
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

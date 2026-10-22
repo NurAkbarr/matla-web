@@ -462,6 +462,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
             'names' => 'admin.jadwal',
         ]);
         Route::get('/admin/mata-kuliah', [\App\Http\Controllers\Backend\MataKuliahController::class, 'index'])->name('admin.mata-kuliah.index');
+        Route::get('/admin/mata-kuliah/export-excel', [\App\Http\Controllers\Backend\MataKuliahController::class, 'exportExcel'])->name('admin.mata-kuliah.export-excel');
         Route::get('/admin/mata-kuliah/create', [\App\Http\Controllers\Backend\MataKuliahController::class, 'create'])->name('admin.mata-kuliah.create');
         Route::post('/admin/mata-kuliah', [\App\Http\Controllers\Backend\MataKuliahController::class, 'store'])->name('admin.mata-kuliah.store');
         Route::get('/admin/mata-kuliah/{mata_kuliah}/edit', [\App\Http\Controllers\Backend\MataKuliahController::class, 'edit'])->name('admin.mata-kuliah.edit');
