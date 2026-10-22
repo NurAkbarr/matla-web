@@ -43,6 +43,13 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('phone')) {
+            $request->merge(['phone' => User::sanitizeScientificNumber($request->phone)]);
+        }
+        if ($request->has('nim')) {
+            $request->merge(['nim' => User::sanitizeScientificNumber($request->nim)]);
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [$request->role === 'dosen' ? 'nullable' : 'required', 'string', 'email', 'max:255', 'unique:users'],
@@ -115,6 +122,13 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        if ($request->has('phone')) {
+            $request->merge(['phone' => User::sanitizeScientificNumber($request->phone)]);
+        }
+        if ($request->has('nim')) {
+            $request->merge(['nim' => User::sanitizeScientificNumber($request->nim)]);
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [$request->role === 'dosen' ? 'nullable' : 'required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
