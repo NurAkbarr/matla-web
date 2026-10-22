@@ -46,8 +46,6 @@
 
     {{-- Filter Bar --}}
     <form id="filter-form" action="{{ route('backend.keuangan.mahasiswa.index') }}" method="GET" class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 flex flex-wrap items-center gap-3 shadow-card">
-        <input type="hidden" name="per_page" id="filter-per-page" value="{{ request('per_page', $perPage ?? 10) }}">
-        
         {{-- Search Input --}}
         <div class="relative flex-1 min-w-[220px]">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, NIM, email, atau no HP..." class="w-full pl-9 pr-4 py-2.5 border border-[var(--border)] bg-[var(--bg-page)] rounded-xl text-xs md:text-sm text-[var(--text-body)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary-500)] focus:ring-2 focus:ring-[var(--primary-500)]/20 transition-all">
@@ -253,23 +251,17 @@
         </div>
 
         {{-- Footer: Count + Pagination --}}
-        <div class="px-6 py-4 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-4">
-            <p class="text-xs text-[var(--text-muted)] font-medium">
-                Total <span class="font-bold text-[var(--text-heading)]">{{ $mahasiswas->total() }}</span> data mahasiswa
+        <div class="px-6 py-4 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-xs text-[var(--text-muted)] font-medium text-center sm:text-left">
                 @if($mahasiswas->total() > 0)
-                    <span class="opacity-75">(Menampilkan baris {{ $mahasiswas->firstItem() }}-{{ $mahasiswas->lastItem() }})</span>
+                    Menampilkan <span class="font-bold text-[var(--text-heading)]">{{ $mahasiswas->firstItem() }}</span> sampai <span class="font-bold text-[var(--text-heading)]">{{ $mahasiswas->lastItem() }}</span> dari total <span class="font-bold text-[var(--text-heading)]">{{ $mahasiswas->total() }}</span> mahasiswa
+                @else
+                    Menampilkan <span class="font-bold text-[var(--text-heading)]">0</span> mahasiswa
                 @endif
             </p>
             
-            <div class="flex items-center gap-2">
+            <div class="flex items-center">
                 {{ $mahasiswas->links('partials.pagination-keuangan') }}
-
-                <select id="per-page-select" onchange="document.getElementById('filter-per-page').value = this.value; document.getElementById('filter-form').submit();" class="border border-[var(--border)] bg-[var(--surface)] text-[var(--text-body)] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[var(--primary-500)] ml-2 cursor-pointer transition-colors shadow-xs">
-                    <option value="10" {{ request('per_page', $perPage ?? 10) == 10 ? 'selected' : '' }}>10 / halaman</option>
-                    <option value="25" {{ request('per_page', $perPage ?? 10) == 25 ? 'selected' : '' }}>25 / halaman</option>
-                    <option value="50" {{ request('per_page', $perPage ?? 10) == 50 ? 'selected' : '' }}>50 / halaman</option>
-                    <option value="100" {{ request('per_page', $perPage ?? 10) == 100 ? 'selected' : '' }}>100 / halaman</option>
-                </select>
             </div>
         </div>
     </div>

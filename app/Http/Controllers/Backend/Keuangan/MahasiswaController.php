@@ -10,16 +10,11 @@ class MahasiswaController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = (int) $request->input('per_page', 10);
-        if (!in_array($perPage, [10, 25, 50, 100])) {
-            $perPage = 10;
-        }
-
         $query = $this->buildFilterQuery($request);
 
         $mahasiswas = $query->orderByRaw("CASE WHEN LOWER(COALESCE(status, 'aktif')) = 'aktif' THEN 0 ELSE 1 END")
             ->orderBy('name', 'asc')
-            ->paginate($perPage)
+            ->paginate(50)
             ->withQueryString();
 
         // Extract unique options for filters from all mahasiswa
@@ -37,13 +32,15 @@ class MahasiswaController extends Controller
         $existingStatuses = $allMahasiswa->pluck('status')->filter()->map(fn($s) => strtoupper($s))->unique();
         $statuses = $statuses->merge($existingStatuses)->unique()->values();
 
+        $mahasiswa = $mahasiswas;
+
         return view('backend.keuangan.mahasiswa.index', compact(
             'mahasiswas',
+            'mahasiswa',
             'programStudis',
             'angkatans',
             'semesters',
-            'statuses',
-            'perPage'
+            'statuses'
         ));
     }
 
