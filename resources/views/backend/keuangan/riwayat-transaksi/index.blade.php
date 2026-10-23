@@ -201,7 +201,7 @@
         <form action="{{ route('backend.keuangan.riwayat-transaksi.index') }}" method="GET" class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
                 {{-- Pencarian Cepat --}}
-                <div class="lg:col-span-4">
+                <div class="sm:col-span-2 lg:col-span-3">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pencarian</label>
                     <div class="relative">
                         <input type="text" 
@@ -216,7 +216,7 @@
                 </div>
 
                 {{-- Filter Jenis Arus Kas --}}
-                <div class="lg:col-span-2">
+                <div class="sm:col-span-1 lg:col-span-2">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jenis Arus Kas</label>
                     <select name="jenis" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#00703C] focus:bg-white focus:ring-2 focus:ring-[#00703C]/10 transition">
                         <option value="">Semua Jenis Arus Kas</option>
@@ -226,7 +226,7 @@
                 </div>
 
                 {{-- Filter Kategori --}}
-                <div class="lg:col-span-3">
+                <div class="sm:col-span-1 lg:col-span-3">
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kategori Transaksi</label>
                         <button type="button" 
@@ -249,20 +249,20 @@
                     </select>
                 </div>
 
-                {{-- Dari Tanggal --}}
-                <div class="lg:col-span-3">
+                {{-- Rentang Tanggal --}}
+                <div class="sm:col-span-2 lg:col-span-4">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Rentang Tanggal</label>
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5 w-full min-w-0">
                         <input type="date" 
                                name="start_date" 
                                value="{{ request('start_date') }}" 
-                               class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#00703C] focus:bg-white transition"
+                               class="min-w-0 flex-1 w-full px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-800 focus:outline-none focus:border-[#00703C] focus:bg-white transition"
                                title="Dari Tanggal">
-                        <span class="text-slate-400 text-xs">-</span>
+                        <span class="text-slate-400 text-xs shrink-0 font-bold">-</span>
                         <input type="date" 
                                name="end_date" 
                                value="{{ request('end_date') }}" 
-                               class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#00703C] focus:bg-white transition"
+                               class="min-w-0 flex-1 w-full px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-800 focus:outline-none focus:border-[#00703C] focus:bg-white transition"
                                title="Sampai Tanggal">
                     </div>
                 </div>

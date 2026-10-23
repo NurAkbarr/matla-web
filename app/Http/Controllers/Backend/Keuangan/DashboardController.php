@@ -18,9 +18,11 @@ class DashboardController extends Controller
         $now = Carbon::now();
 
         // -----------------------------------------------------------------
-        // AUTO CLEANUP ORPHANED TRANSACTIONS
-        // Hapus otomatis transaksi kas yang tagihan/pembayarannya telah dihapus dari sistem
+        // AUTO CLEANUP ORPHANED TRANSACTIONS & PAYMENTS
+        // Hapus otomatis pembayaran & transaksi kas yang tagihannya telah dihapus dari sistem
         // -----------------------------------------------------------------
+        Pembayaran::whereNull('tagihan_id')->orWhereDoesntHave('tagihan')->delete();
+
         TransaksiKeuangan::where(function($q) {
             $q->whereNotNull('tagihan_id')->whereDoesntHave('tagihan')
               ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran')

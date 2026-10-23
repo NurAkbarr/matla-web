@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend\Keuangan;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasterKategoriTransaksi;
+use App\Models\Pembayaran;
 use App\Models\TransaksiKeuangan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -19,7 +20,9 @@ class RiwayatTransaksiController extends Controller
     {
         Carbon::setLocale('id');
 
-        // Auto cleanup orphaned transactions (transaksi yang tagihan atau pembayarannya telah dihapus)
+        // Auto cleanup orphaned payments & transactions (pembayaran atau transaksi yang tagihannya telah dihapus)
+        Pembayaran::whereNull('tagihan_id')->orWhereDoesntHave('tagihan')->delete();
+
         TransaksiKeuangan::where(function($q) {
             $q->whereNotNull('tagihan_id')->whereDoesntHave('tagihan')
               ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran')
