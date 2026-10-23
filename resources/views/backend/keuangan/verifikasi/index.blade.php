@@ -124,10 +124,24 @@
                                         </button>
                                     </form>
                                 </div>
+                            @elseif($bayar->status === 'verified')
+                                <div class="flex items-center justify-center gap-1">
+                                    <form action="{{ route('backend.keuangan.verifikasi.reject', $bayar->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan verifikasi pembayaran ini? Transaksi di Buku Kas akan otomatis dihapus dan sisa tagihan mahasiswa dikembalikan.');">
+                                        @csrf
+                                        <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition cursor-pointer" title="Batalkan Verifikasi">
+                                            Batalkan
+                                        </button>
+                                    </form>
+                                </div>
                             @else
-                                <button class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition" title="Detail">
-                                    <svg class="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
-                                </button>
+                                <div class="flex items-center justify-center gap-1">
+                                    <form action="{{ route('backend.keuangan.verifikasi.approve', $bayar->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Verifikasi ulang pembayaran ini?');">
+                                        @csrf
+                                        <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition cursor-pointer" title="Verifikasi Ulang">
+                                            Setujui
+                                        </button>
+                                    </form>
+                                </div>
                             @endif
                         </td>
                     </tr>

@@ -7,6 +7,9 @@ use App\Models\Tagihan;
 use App\Models\User;
 use App\Models\MasterJenisTagihan;
 use App\Exports\TagihanExport;
+use App\Mail\TagihanReminderMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
@@ -203,6 +206,11 @@ class TagihanController extends Controller
         $mahasiswas = $query->get();
         $count = 0;
         $skipped = 0;
+        $emailSentCount = 0;
+        $shouldSendEmail = $request->boolean('send_email');
+        $emailSentCount = 0;
+        $emailLastError = null;
+        $isLogDriver = config('mail.default') === 'log';
 
         foreach ($mahasiswas as $mhs) {
             $exists = Tagihan::where('user_id', $mhs->id)
@@ -219,7 +227,7 @@ class TagihanController extends Controller
                     $nominal = (float)$request->nominal_total;
                 }
 
-                Tagihan::create([
+                $tagihan = Tagihan::create([
                     'user_id' => $mhs->id,
                     'nama_tagihan' => $request->nama_tagihan,
                     'nominal_total' => $nominal,
@@ -230,6 +238,17 @@ class TagihanController extends Controller
                     'jenis_tagihan' => $request->jenis_tagihan,
                 ]);
                 $count++;
+
+                // Kirim notifikasi email reminder secara langsung (synchronous) jika dicentang dan email mahasiswa valid
+                if ($shouldSendEmail && !empty($mhs->email) && filter_var($mhs->email, FILTER_VALIDATE_EMAIL)) {
+                    try {
+                        Mail::to($mhs->email)->send(new TagihanReminderMail($tagihan, $mhs));
+                        $emailSentCount++;
+                    } catch (\Throwable $e) {
+                        $emailLastError = $e->getMessage();
+                        Log::warning("Gagal mengirim email reminder tagihan massal ke {$mhs->email}: " . $e->getMessage());
+                    }
+                }
             } else {
                 $skipped++;
             }
@@ -238,6 +257,18 @@ class TagihanController extends Controller
         $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa.";
         if ($isSpp) {
             $msg .= " (Nominal SPP otomatis mengikuti tarif masing-masing mahasiswa).";
+        }
+        if ($shouldSendEmail && $count > 0) {
+            if ($isLogDriver) {
+                $msg .= " [PERHATIAN]: Email hanya dicatat ke file log server (storage/logs/laravel.log) karena MAIL_MAILER di .env masih bernilai 'log'. Email belum terkirim ke Gmail mahasiswa sampai konfigurasi SMTP diaktifkan.";
+            } elseif ($emailSentCount > 0) {
+                $msg .= " Sebanyak {$emailSentCount} email notifikasi reminder berhasil dikirim.";
+                if ($emailLastError) {
+                    $msg .= " (Namun ada beberapa email gagal: {$emailLastError}).";
+                }
+            } else {
+                $msg .= " Namun email gagal terkirim" . ($emailLastError ? ": " . $emailLastError : " (periksa koneksi SMTP di file .env).");
+            }
         }
         if ($skipped > 0) {
             $msg .= " ({$skipped} dilewati karena tagihan dengan nama ini sudah ada).";
@@ -284,7 +315,7 @@ class TagihanController extends Controller
             $nominal = (float)$request->nominal_total;
         }
 
-        Tagihan::create([
+        $tagihan = Tagihan::create([
             'user_id' => $request->user_id,
             'nama_tagihan' => $request->nama_tagihan,
             'nominal_total' => $nominal,
@@ -295,7 +326,50 @@ class TagihanController extends Controller
             'jenis_tagihan' => $request->jenis_tagihan,
         ]);
 
-        return back()->with('success', 'Berhasil membuat tagihan personal.');
+        $msg = 'Berhasil membuat tagihan personal.';
+        if ($request->boolean('send_email')) {
+            if (empty($user->email) || !filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                $msg .= " (Peringatan: Mahasiswa ini belum memiliki alamat email yang valid, sehingga email reminder tidak dikirim).";
+            } else {
+                $isLogDriver = config('mail.default') === 'log';
+                try {
+                    Mail::to($user->email)->send(new TagihanReminderMail($tagihan, $user));
+                    if ($isLogDriver) {
+                        $msg .= " [PERHATIAN]: Email reminder hanya tersimpan di log server (storage/logs/laravel.log) karena MAIL_MAILER di .env masih 'log'. Atur SMTP di file .env agar terkirim ke Gmail.";
+                    } else {
+                        $msg .= " Email notifikasi reminder berhasil dikirim ke {$user->email}.";
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Gagal mengirim email reminder tagihan personal ke {$user->email}: " . $e->getMessage());
+                    $msg .= " (Namun gagal mengirim email reminder ke {$user->email}: " . $e->getMessage() . ").";
+                }
+            }
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function resendReminder($id)
+    {
+        $tagihan = Tagihan::with('user')->findOrFail($id);
+        $user = $tagihan->user;
+
+        if (!$user || empty($user->email) || !filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            return back()->with('error', "Gagal: Mahasiswa tidak memiliki alamat email yang valid.");
+        }
+
+        $isLogDriver = config('mail.default') === 'log';
+
+        try {
+            Mail::to($user->email)->send(new TagihanReminderMail($tagihan, $user));
+            if ($isLogDriver) {
+                return back()->with('warning', "Email reminder tagihan '{$tagihan->nama_tagihan}' berhasil dicatat ke log server (Catatan: Pengiriman nyata ke Gmail mahasiswa memerlukan konfigurasi SMTP di file .env. Saat ini MAIL_MAILER masih bernilai 'log').");
+            }
+            return back()->with('success', "Email reminder tagihan '{$tagihan->nama_tagihan}' berhasil dikirim ulang ke {$user->email}.");
+        } catch (\Throwable $e) {
+            Log::warning("Gagal mengirim ulang email reminder tagihan ke {$user->email}: " . $e->getMessage());
+            return back()->with('error', "Gagal mengirim email reminder: " . $e->getMessage());
+        }
     }
 
     public function updatePersonal(Request $request, $id)

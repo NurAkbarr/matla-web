@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Keuangan;
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
+use App\Models\TransaksiKeuangan;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -19,10 +20,19 @@ class DashboardController extends Controller
         // -----------------------------------------------------------------
         // 1. TOP CARDS (ROW 1 - 3 Kolom Sejajar)
         // -----------------------------------------------------------------
-        // A. Saldo Akun / Saldo Utama: Total saldo bersih keseluruhan yayasan/kampus
-        $totalPengeluaranAllTime = 0; // Default Rp 0 jika belum ada tabel pengeluaran
-        $saldoAkun = (float) Pembayaran::where('status', 'verified')->sum('nominal') - $totalPengeluaranAllTime;
-        $saldoAkun = max(0, $saldoAkun);
+        // A. Saldo Akun / Saldo Utama: Total saldo bersih keseluruhan yayasan/kampus (Uang Masuk - Uang Keluar)
+        $totalPengeluaranAllTime = (float) TransaksiKeuangan::where('jenis_transaksi', 'keluar')
+            ->where('status', 'verified')
+            ->sum('nominal');
+
+        $pemasukanMhsAllTime = (float) Pembayaran::where('status', 'verified')->sum('nominal');
+        $pemasukanInternalAllTime = (float) TransaksiKeuangan::where('jenis_transaksi', 'masuk')
+            ->whereNull('pembayaran_id')
+            ->where('status', 'verified')
+            ->sum('nominal');
+
+        $totalPemasukanAllTime = $pemasukanMhsAllTime + $pemasukanInternalAllTime;
+        $saldoAkun = max(0, $totalPemasukanAllTime - $totalPengeluaranAllTime);
 
         // B. Total Tagihan: Akumulasi tagihan mahasiswa AKTIF yang belum lunas (bulanan & semesteran)
         $tagihanBelumLunasQuery = Tagihan::where('status', '!=', 'lunas')
@@ -35,8 +45,11 @@ class DashboardController extends Controller
         $totalTagihan = (float) $tagihanBelumLunasQuery->sum('sisa_tagihan');
         $jumlahTagihan = $tagihanBelumLunasQuery->count();
 
-        // C. Riwayat Transaksi: Total seluruh transaksi tercatat di sistem
-        $totalTransaksi = Pembayaran::count();
+        // C. Riwayat Transaksi: Total seluruh transaksi tercatat di sistem (Mahasiswa + Kas Internal)
+        $totalTransaksi = TransaksiKeuangan::where('status', 'verified')->count();
+        if ($totalTransaksi === 0) {
+            $totalTransaksi = Pembayaran::count();
+        }
 
         // -----------------------------------------------------------------
         // 2. DYNAMIC MONTH FILTER (Laporan Keuangan Bulanan)
@@ -104,7 +117,7 @@ class DashboardController extends Controller
             ->whereBetween('updated_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
 
         // 1. Total Pemasukan SPP
-        $pemasukanSpp = (float) (clone $pembayaranBulanIni)
+        $pemasukanSppMhs = (float) (clone $pembayaranBulanIni)
             ->where(function($q) {
                 $q->whereHas('tagihan', function($t) {
                     $t->whereRaw('LOWER(nama_tagihan) LIKE ?', ['%spp%']);
@@ -112,9 +125,18 @@ class DashboardController extends Controller
             })
             ->sum('nominal');
 
+        $pemasukanSppInternal = (float) TransaksiKeuangan::where('jenis_transaksi', 'masuk')
+            ->whereNull('pembayaran_id')
+            ->where('status', 'verified')
+            ->whereRaw('LOWER(kategori) LIKE ?', ['%spp%'])
+            ->whereBetween('tanggal_transaksi', [$startOfSelectedMonth, $endOfSelectedMonth])
+            ->sum('nominal');
+
+        $pemasukanSpp = $pemasukanSppMhs + $pemasukanSppInternal;
+
         // 2. Total Pemasukan Saldo Lain (termasuk saldo bulan sebelumnya)
-        // A. Pemasukan non-SPP pada bulan tersebut
-        $pemasukanNonSppBulanIni = (float) (clone $pembayaranBulanIni)
+        // A. Pemasukan non-SPP pada bulan tersebut (Non-SPP mhs + Transaksi kas masuk internal non-spp)
+        $pemasukanNonSppMhsBulanIni = (float) (clone $pembayaranBulanIni)
             ->where(function($q) {
                 $q->whereDoesntHave('tagihan', function($t) {
                     $t->whereRaw('LOWER(nama_tagihan) LIKE ?', ['%spp%']);
@@ -122,17 +144,40 @@ class DashboardController extends Controller
             })
             ->sum('nominal');
 
+        $pemasukanInternalBulanIni = (float) TransaksiKeuangan::where('jenis_transaksi', 'masuk')
+            ->whereNull('pembayaran_id')
+            ->where('status', 'verified')
+            ->whereRaw('LOWER(kategori) NOT LIKE ?', ['%spp%'])
+            ->whereBetween('tanggal_transaksi', [$startOfSelectedMonth, $endOfSelectedMonth])
+            ->sum('nominal');
+
+        $pemasukanNonSppBulanIni = $pemasukanNonSppMhsBulanIni + $pemasukanInternalBulanIni;
+
         // B. Sisa saldo akumulasi sebelum bulan yang dipilih
-        $pengeluaranSebelumnya = 0;
-        $saldoSebelumnya = (float) Pembayaran::where('status', 'verified')
+        $pengeluaranSebelumnya = (float) TransaksiKeuangan::where('jenis_transaksi', 'keluar')
+            ->where('status', 'verified')
+            ->where('tanggal_transaksi', '<', $startOfSelectedMonth)
+            ->sum('nominal');
+
+        $pemasukanSebelumnyaMhs = (float) Pembayaran::where('status', 'verified')
             ->where('updated_at', '<', $startOfSelectedMonth)
-            ->sum('nominal') - $pengeluaranSebelumnya;
-        $saldoSebelumnya = max(0, $saldoSebelumnya);
+            ->sum('nominal');
+
+        $pemasukanSebelumnyaInternal = (float) TransaksiKeuangan::where('jenis_transaksi', 'masuk')
+            ->whereNull('pembayaran_id')
+            ->where('status', 'verified')
+            ->where('tanggal_transaksi', '<', $startOfSelectedMonth)
+            ->sum('nominal');
+
+        $saldoSebelumnya = max(0, ($pemasukanSebelumnyaMhs + $pemasukanSebelumnyaInternal) - $pengeluaranSebelumnya);
 
         $pemasukanLain = $pemasukanNonSppBulanIni + $saldoSebelumnya;
 
-        // 3. Total Pengeluaran pada bulan yang dipilih (default 0 jika belum ada tabelnya)
-        $totalPengeluaranBulanIni = 0;
+        // 3. Total Pengeluaran pada bulan yang dipilih
+        $totalPengeluaranBulanIni = (float) TransaksiKeuangan::where('jenis_transaksi', 'keluar')
+            ->where('status', 'verified')
+            ->whereBetween('tanggal_transaksi', [$startOfSelectedMonth, $endOfSelectedMonth])
+            ->sum('nominal');
 
         // 4. Total Tunggakan SPP (Saldo Minus) pada bulan tersebut (Hanya mahasiswa AKTIF)
         $tunggakanSpp = (float) Tagihan::where('status', '!=', 'lunas')
@@ -194,12 +239,20 @@ class DashboardController extends Controller
         // -----------------------------------------------------------------
         // 6. RIWAYAT TRANSAKSI TERKINI
         // -----------------------------------------------------------------
-        $riwayatTerkini = Pembayaran::with(['user', 'tagihan'])
-            ->has('tagihan')
-            ->where('status', 'verified')
-            ->latest('updated_at')
-            ->take(5)
-            ->get();
+        if (TransaksiKeuangan::where('status', 'verified')->exists()) {
+            $riwayatTerkini = TransaksiKeuangan::with(['user', 'tagihan'])
+                ->where('status', 'verified')
+                ->latest('tanggal_transaksi')
+                ->take(5)
+                ->get();
+        } else {
+            $riwayatTerkini = Pembayaran::with(['user', 'tagihan'])
+                ->has('tagihan')
+                ->where('status', 'verified')
+                ->latest('updated_at')
+                ->take(5)
+                ->get();
+        }
 
         return view('backend.keuangan.dashboard', compact(
             'saldoAkun',

@@ -18,7 +18,7 @@ class VerifikasiPembayaranController extends Controller
 
     public function approve($id)
     {
-        $pembayaran = \App\Models\Pembayaran::findOrFail($id);
+        $pembayaran = \App\Models\Pembayaran::with(['user', 'tagihan'])->findOrFail($id);
         
         if ($pembayaran->status !== 'verified') {
             // Generate Kwitansi Number (INV/YYYYMM/UserID+Random)
@@ -29,11 +29,11 @@ class VerifikasiPembayaranController extends Controller
                 'kwitansi' => $kwitansiNo
             ]);
 
-            // Kurangi sisa tagihan
+            // Kurangi sisa tagihan & perbarui status tagihan menjadi lunas bila lunas
             $tagihan = $pembayaran->tagihan;
             if ($tagihan) {
                 $tagihan->sisa_tagihan -= $pembayaran->nominal;
-                if ($tagihan->sisa_tagihan <= 0) {
+                if ($tagihan->sisa_tagihan <= 0 || strtolower($pembayaran->jenis_pembayaran) === 'lunas') {
                     $tagihan->sisa_tagihan = 0;
                     $tagihan->status = 'lunas';
                 }
@@ -80,20 +80,105 @@ class VerifikasiPembayaranController extends Controller
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send payment approved email: ' . $e->getMessage());
             }
+
+            // Catat ke Buku Kas / Riwayat Transaksi secara otomatis (Audit Trail)
+            try {
+                $pembayaran->loadMissing(['user', 'tagihan']);
+
+                // Cek apakah tagihan SPP
+                $isSpp = ($pembayaran->tagihan && (
+                    strtoupper(trim($pembayaran->tagihan->nama_tagihan)) === 'SPP' ||
+                    stripos($pembayaran->tagihan->nama_tagihan, 'spp') !== false ||
+                    stripos($pembayaran->jenis_pembayaran, 'spp') !== false
+                ));
+
+                // Kategori Transaksi
+                $kategori = $isSpp ? 'Pembayaran SPP' : ($pembayaran->tagihan ? 'Tagihan ' . $pembayaran->tagihan->nama_tagihan : 'Pembayaran Mahasiswa');
+
+                // Kode Transaksi Unik: Format TRX-SPP-[ID]-[TIMESTAMP] atau TRX-IN-[ID]-[TIMESTAMP]
+                $now = now();
+                $prefix = $isSpp ? 'TRX-SPP-' : 'TRX-IN-';
+                $defaultKode = $prefix . $pembayaran->id . '-' . $now->format('YmdHis');
+
+                // Jika sudah pernah ada kode transaksi sebelumnya, pertahankan
+                $existingTx = \App\Models\TransaksiKeuangan::where('pembayaran_id', $pembayaran->id)->first();
+                $kodeTransaksi = $existingTx ? $existingTx->kode_transaksi : $defaultKode;
+
+                // Subjek / Pihak Terkait: Nama Mahasiswa, NIM, dan Program Studi
+                $mhs = $pembayaran->user;
+                $prodi = $mhs ? ($mhs->education['program_studi'] ?? ($mhs->prodi ?? null)) : null;
+                $subjekParts = [];
+                if ($mhs) {
+                    $subjekParts[] = $mhs->name;
+                    if (!empty($mhs->nim)) {
+                        $subjekParts[] = "(NIM: {$mhs->nim})";
+                    }
+                } else {
+                    $subjekParts[] = 'Mahasiswa';
+                }
+                $subjek = implode(' ', $subjekParts);
+                if (!empty($prodi)) {
+                    $subjek .= " • {$prodi}";
+                }
+
+                // Deskripsi Rincian
+                $tagihanNama = $pembayaran->tagihan ? $pembayaran->tagihan->nama_tagihan : 'Tagihan Mahasiswa';
+                $deskripsi = "Pembayaran " . ($isSpp ? "SPP" : $tagihanNama) . " Terverifikasi - {$tagihanNama}" .
+                    ($pembayaran->catatan ? " ({$pembayaran->catatan})" : "");
+
+                // Admin Pencatat
+                $adminUser = auth()->user();
+
+                \App\Models\TransaksiKeuangan::updateOrCreate(
+                    ['pembayaran_id' => $pembayaran->id],
+                    [
+                        'kode_transaksi' => $kodeTransaksi,
+                        'jenis_transaksi' => 'masuk',
+                        'kategori' => $kategori,
+                        'nominal' => $pembayaran->nominal,
+                        'tanggal_transaksi' => $now,
+                        'metode_pembayaran' => 'Transfer Bank',
+                        'subjek' => $subjek,
+                        'user_id' => $pembayaran->user_id,
+                        'tagihan_id' => $pembayaran->tagihan_id,
+                        'admin_id' => $adminUser ? $adminUser->id : null,
+                        'admin_nama' => $adminUser ? $adminUser->name : 'Admin Keuangan',
+                        'deskripsi' => $deskripsi,
+                        'bukti' => $pembayaran->bukti_tf,
+                        'no_referensi' => $kwitansiNo,
+                        'status' => 'verified',
+                    ]
+                );
+            } catch (\Exception $eTx) {
+                \Illuminate\Support\Facades\Log::error('Gagal mencatat transaksi keuangan otomatis: ' . $eTx->getMessage());
+            }
         }
 
-        return back()->with('success', 'Pembayaran berhasil diverifikasi.');
+        return back()->with('success', 'Pembayaran berhasil diverifikasi dan otomatis tercatat ke Buku Kas & Riwayat Transaksi.');
     }
 
     public function reject($id)
     {
-        $pembayaran = \App\Models\Pembayaran::findOrFail($id);
+        $pembayaran = \App\Models\Pembayaran::with(['tagihan'])->findOrFail($id);
         
-        if ($pembayaran->status !== 'rejected') {
-            $pembayaran->update(['status' => 'rejected']);
+        $wasVerified = ($pembayaran->status === 'verified');
+
+        $pembayaran->update(['status' => 'rejected']);
+
+        // Jika pembayaran ini sebelumnya berstatus verified, kembalikan nominal ke sisa tagihan
+        if ($wasVerified && $pembayaran->tagihan) {
+            $tagihan = $pembayaran->tagihan;
+            $tagihan->sisa_tagihan += $pembayaran->nominal;
+            if ($tagihan->sisa_tagihan > 0) {
+                $tagihan->status = 'belum lunas';
+            }
+            $tagihan->save();
         }
+
+        // Hapus record transaksi di Buku Kas agar saldo dan riwayat tetap akurat
+        \App\Models\TransaksiKeuangan::where('pembayaran_id', $pembayaran->id)->delete();
         
-        return back()->with('success', 'Pembayaran telah ditolak.');
+        return back()->with('success', 'Pembayaran telah ditolak dan transaksi Buku Kas telah disesuaikan.');
     }
 
     public function kwitansiDrive($id)

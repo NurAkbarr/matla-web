@@ -50,77 +50,85 @@
         <div class="flex h-screen bg-[var(--bg-page)] text-[var(--text-body)] overflow-hidden w-full">
             {{-- ===== SIDEBAR (Mobile: Overlay, Desktop: Static Side) ===== --}}
             <aside id="sidebar" 
-                   class="fixed inset-y-0 left-0 z-50 w-72 bg-[var(--primary-800)] dark:bg-[#07170F] border-r border-[var(--primary-900)]/80 dark:border-[var(--border)] shadow-sidebar transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col shrink-0 overflow-hidden">
+                   class="fixed inset-y-0 left-0 z-50 w-[245px] bg-[var(--primary-800)] dark:bg-[#07170F] border-r border-[var(--primary-900)]/80 dark:border-[var(--border)] shadow-sidebar transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col shrink-0 overflow-hidden">
                 
                 {{-- Logo Area --}}
-                <div class="p-5 border-b border-white/10 flex items-center justify-between shrink-0">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-white p-1.5 rounded-xl shadow-sm flex items-center justify-center shrink-0">
-                            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-8 w-auto">
+                <div class="px-5 py-5 border-b border-white/10 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 bg-white p-1.5 rounded-xl shadow-sm flex items-center justify-center shrink-0">
+                            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-7 w-auto object-contain">
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-xl font-bold text-white tracking-tight leading-none uppercase">MATLA</span>
-                            <span class="text-[9px] font-semibold text-[var(--secondary-400)] uppercase tracking-wider mt-1">University Portal</span>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold text-base tracking-wide text-white leading-tight uppercase truncate">MATLA</span>
+                            <span class="whitespace-nowrap text-[10px] font-semibold tracking-wider text-amber-400 mt-0.5 uppercase truncate">UNIVERSITY PORTAL</span>
                         </div>
                     </div>
-                    <button onclick="closeSidebar()" class="lg:hidden p-2 text-white/70 hover:text-white rounded-lg hover:bg-[var(--primary-700)] focus:outline-none" aria-label="Tutup menu">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button onclick="closeSidebar()" class="lg:hidden p-1.5 text-white/70 hover:text-white rounded-lg hover:bg-[var(--primary-700)] focus:outline-none cursor-pointer" aria-label="Tutup menu">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
 
                 {{-- Sidebar Scrollable Menu --}}
-                <nav class="flex-1 overflow-y-auto scrollbar-hide py-5 px-3.5 space-y-1">
+                <nav class="flex-1 overflow-y-auto scrollbar-hide py-4 px-3.5 space-y-1">
                     {{-- SISTEM KEUANGAN --}}
-                    <p class="px-3 pt-3 pb-2 text-[10px] font-semibold text-[var(--primary-300)]/70 dark:text-emerald-300/50 uppercase tracking-widest">Sistem Keuangan</p>
+                    <p class="px-3.5 pt-2 pb-1.5 text-[10px] font-semibold text-[var(--primary-300)]/70 dark:text-emerald-300/50 uppercase tracking-widest whitespace-nowrap">Sistem Keuangan</p>
 
                     <a href="{{ route('backend.keuangan.dashboard') }}" 
-                       class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('backend.keuangan.dashboard') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.dashboard') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
                         <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.dashboard') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                         </svg>
-                        <span class="text-sm">Dashboard</span>
+                        <span class="text-sm font-medium leading-none whitespace-nowrap">Dashboard</span>
                     </a>
 
                     <a href="{{ route('backend.keuangan.mahasiswa.index') }}" 
-                       class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('backend.keuangan.mahasiswa.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.mahasiswa.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
                         <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.mahasiswa.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
-                        <span class="text-sm">Data Mahasiswa</span>
+                        <span class="text-sm font-medium leading-none whitespace-nowrap">Data Mahasiswa</span>
                     </a>
 
                     <a href="{{ route('backend.keuangan.verifikasi.index') }}" 
-                       class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('backend.keuangan.verifikasi.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.verifikasi.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
                         <svg class="w-5 h-5 shrink-0 self-center {{ request()->routeIs('backend.keuangan.verifikasi.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <span class="text-sm leading-snug">Verifikasi Pembayaran</span>
+                        <span class="text-sm font-medium leading-none whitespace-nowrap">Verifikasi Pembayaran</span>
                     </a>
 
                     <a href="{{ route('backend.keuangan.tagihan.index') }}" 
-                       class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('backend.keuangan.tagihan.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.tagihan.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
                         <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.tagihan.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                        <span class="text-sm">Manajemen Tagihan</span>
+                        <span class="text-sm font-medium leading-none whitespace-nowrap">Manajemen Tagihan</span>
+                    </a>
+
+                    <a href="{{ route('backend.keuangan.riwayat-transaksi.index') }}" 
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.riwayat-transaksi.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
+                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.riwayat-transaksi.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                        <span class="text-sm font-medium leading-none whitespace-nowrap">Riwayat Transaksi</span>
                     </a>
 
                     <a href="{{ route('backend.keuangan.laporan.index') }}" 
-                       class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group {{ request()->routeIs('backend.keuangan.laporan.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.laporan.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
                         <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.laporan.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <span class="text-sm">Laporan Keuangan</span>
+                        <span class="text-sm font-medium leading-none whitespace-nowrap">Laporan Keuangan</span>
                     </a>
                 </nav>
 
                 {{-- Logout Button --}}
-                <div class="p-3 border-t border-white/10 shrink-0">
+                <div class="p-3.5 border-t border-white/10 shrink-0">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-white/75 hover:text-white hover:bg-[var(--primary-700)] dark:hover:bg-rose-950/30 transition-colors text-sm font-medium">
+                        <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-white/75 hover:text-white hover:bg-[var(--primary-700)] dark:hover:bg-rose-950/30 transition-colors text-sm font-medium whitespace-nowrap cursor-pointer">
                             <svg class="w-5 h-5 shrink-0 text-white/60 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>

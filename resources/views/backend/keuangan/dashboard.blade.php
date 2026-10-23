@@ -64,26 +64,31 @@
             </div>
         </div>
 
-        {{-- Card 3: Riwayat Transaksi --}}
-        <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 md:p-6 shadow-card hover:shadow-hover transition-all duration-200 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+        {{-- Card 3: Riwayat Transaksi (Clickable to Riwayat Transaksi) --}}
+        <a href="{{ route('backend.keuangan.riwayat-transaksi.index') }}" 
+           class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 md:p-6 shadow-card hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-200 flex items-start gap-4 cursor-pointer group">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
             </div>
             <div class="min-w-0 flex-1">
                 <div class="flex items-center justify-between mb-1">
-                    <p class="text-[10px] md:text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Riwayat Transaksi</p>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300">Tercatat</span>
+                    <p class="text-[10px] md:text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Riwayat Transaksi</p>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300">
+                        <span>Tercatat</span>
+                        <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </span>
                 </div>
                 <p class="text-2xl md:text-[28px] font-bold text-[var(--text-heading)] tabular-nums tracking-tight leading-tight">
                     {{ number_format($totalTransaksi, 0, ',', '.') }}
                 </p>
-                <p class="text-xs text-[var(--text-muted)] mt-1.5">
-                    Total angka transaksi yang tercatat di sistem
+                <p class="text-xs text-[var(--text-muted)] mt-1.5 flex items-center justify-between">
+                    <span>Total transaksi masuk & keluar</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-medium text-[11px] group-hover:underline">Buka Buku Kas &rarr;</span>
                 </p>
             </div>
-        </div>
+        </a>
     </div>
 
     {{-- ================================================================= --}}
@@ -335,42 +340,55 @@
                                 <p class="text-xs text-[var(--text-muted)]">Aktivitas pembayaran mahasiswa terbaru yang telah diverifikasi</p>
                             </div>
                         </div>
-                        <a href="{{ route('backend.keuangan.verifikasi.index') }}" class="text-xs font-semibold text-[var(--primary-600)] dark:text-[var(--primary-400)] hover:underline inline-flex items-center gap-1">
-                            <span>Verifikasi</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        </a>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('backend.keuangan.riwayat-transaksi.index') }}" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1">
+                                <span>Buku Kas Lengkap</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
                     </div>
 
                     <div class="divide-y divide-[var(--border)]">
                         @forelse($riwayatTerkini as $riwayat)
                             @php
-                                $initial = substr($riwayat->user->name ?? '?', 0, 1);
-                                $isAmber = (crc32($riwayat->user->name ?? 'unknown') % 2) === 1;
+                                $isTxKeuangan = ($riwayat instanceof \App\Models\TransaksiKeuangan);
+                                $isKeluar = $isTxKeuangan ? $riwayat->isKeluar() : false;
+                                $subjek = $riwayat->user->name ?? ($riwayat->subjek ?? 'Transaksi Kas');
+                                $initial = substr($subjek, 0, 1);
+                                $isAmber = (crc32($subjek) % 2) === 1;
+                                $keterangan = $isTxKeuangan 
+                                    ? ($riwayat->kategori . ($riwayat->deskripsi ? ' • ' . \Illuminate\Support\Str::limit($riwayat->deskripsi, 35) : ''))
+                                    : ($riwayat->tagihan->nama_tagihan ?? 'Pembayaran');
+                                $timeObj = $isTxKeuangan ? $riwayat->tanggal_transaksi : $riwayat->updated_at;
                             @endphp
                             <div class="flex items-center justify-between py-4 first:pt-0 last:pb-0">
                                 <div class="flex items-center gap-3.5 min-w-0 pr-4">
-                                    <div class="w-10 h-10 rounded-full {{ $isAmber ? 'bg-[var(--secondary-100)] dark:bg-[var(--secondary-900)]/40 text-[var(--secondary-700)] dark:text-[var(--secondary-400)]' : 'bg-[var(--primary-100)] dark:bg-[var(--primary-900)]/40 text-[var(--primary-600)] dark:text-[var(--primary-300)]' }} flex items-center justify-center text-sm font-bold uppercase shrink-0 shadow-xs">
+                                    <div class="w-10 h-10 rounded-full {{ $isKeluar ? 'bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400' : ($isAmber ? 'bg-[var(--secondary-100)] dark:bg-[var(--secondary-900)]/40 text-[var(--secondary-700)] dark:text-[var(--secondary-400)]' : 'bg-[var(--primary-100)] dark:bg-[var(--primary-900)]/40 text-[var(--primary-600)] dark:text-[var(--primary-300)]') }} flex items-center justify-center text-sm font-bold uppercase shrink-0 shadow-xs">
                                         {{ $initial }}
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-sm font-semibold text-[var(--text-heading)] truncate">{{ $riwayat->user->name ?? 'Mahasiswa' }}</p>
+                                        <p class="text-sm font-semibold text-[var(--text-heading)] truncate">{{ $subjek }}</p>
                                         <p class="text-xs text-[var(--text-muted)] mt-0.5 truncate">
-                                            {{ $riwayat->tagihan->nama_tagihan ?? 'Pembayaran' }}
-                                            @if(!empty($riwayat->user->education['program_studi']))
+                                            {{ $keterangan }}
+                                            @if(!$isTxKeuangan && !empty($riwayat->user->education['program_studi']))
                                                 <span class="opacity-80">• {{ $riwayat->user->education['program_studi'] }}</span>
                                             @endif
                                         </p>
                                     </div>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <p class="text-sm font-bold text-[var(--primary-600)] dark:text-[var(--primary-400)] tabular-nums">+Rp {{ number_format($riwayat->nominal, 0, ',', '.') }}</p>
+                                    <p class="text-sm font-bold {{ $isKeluar ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--primary-600)] dark:text-[var(--primary-400)]' }} tabular-nums">
+                                        {{ ($isKeluar ? '- Rp ' : '+ Rp ') . number_format($riwayat->nominal, 0, ',', '.') }}
+                                    </p>
                                     <p class="text-[11px] text-[var(--text-muted)] mt-0.5">
-                                        @if($riwayat->updated_at->isToday())
-                                            Hari ini, {{ $riwayat->updated_at->format('H:i') }}
-                                        @elseif($riwayat->updated_at->isYesterday())
-                                            Kemarin, {{ $riwayat->updated_at->format('H:i') }}
+                                        @if($timeObj && $timeObj->isToday())
+                                            Hari ini, {{ $timeObj->format('H:i') }}
+                                        @elseif($timeObj && $timeObj->isYesterday())
+                                            Kemarin, {{ $timeObj->format('H:i') }}
+                                        @elseif($timeObj)
+                                            {{ $timeObj->format('d M, H:i') }}
                                         @else
-                                            {{ $riwayat->updated_at->format('d M, H:i') }}
+                                            -
                                         @endif
                                     </p>
                                 </div>

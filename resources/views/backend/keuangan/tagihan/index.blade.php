@@ -91,10 +91,20 @@
         }
     },
 
-    openMasterEdit(id, nama, nominal, tipe) {
+    openMasterEdit(target, nama, nominal, tipe) {
+        var id;
+        if (target instanceof HTMLElement || (typeof target === 'object' && target !== null && target.dataset)) {
+            var ds = target.dataset;
+            id = ds.id;
+            nama = ds.nama;
+            nominal = ds.nominal;
+            tipe = ds.tipe;
+        } else {
+            id = target;
+        }
         this.masterEditForm.id = id;
         this.masterEditForm.action_url = '{{ url('/backend/keuangan/tagihan/master-jenis') }}/' + id;
-        this.masterEditForm.nama_tagihan = nama;
+        this.masterEditForm.nama_tagihan = nama || '';
         this.masterEditForm.nominal_default = nominal || '';
         this.masterEditForm.tipe_nominal = tipe || 'manual';
         this.masterEditOpen = true;
@@ -122,6 +132,18 @@
             </svg>
         </div>
         <p class="text-sm text-rose-700 font-medium">{{ session('error') }}</p>
+    </div>
+    @endif
+
+    {{-- Warning Alert --}}
+    @if(session('warning'))
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+        </div>
+        <p class="text-sm text-amber-800 font-medium">{{ session('warning') }}</p>
     </div>
     @endif
 
@@ -306,9 +328,21 @@
                     </div>
                 </div>
 
-                {{-- Submit --}}
-                <div class="pt-4 flex justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-[#00703C] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#00703C]/20 hover:bg-emerald-700 hover:shadow-xl hover:shadow-[#00703C]/30 transition-all active:scale-[0.98]">
+                {{-- Submit & Opsi Kirim Email --}}
+                <div class="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-100">
+                    <div class="flex flex-col">
+                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                            <input type="checkbox" name="send_email" value="1" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 transition">
+                            <span class="text-xs font-semibold text-slate-700">Kirim notifikasi reminder tagihan ke email masing-masing mahasiswa</span>
+                        </label>
+                        @if(config('mail.default') === 'log')
+                            <p class="text-[11px] text-amber-600 mt-1 flex items-center gap-1 font-normal">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Driver email masih <strong>log</strong>. Email akan dicatat di <code>storage/logs/laravel.log</code>. Atur SMTP di <code>.env</code> untuk mengirim ke Gmail asli.</span>
+                            </p>
+                        @endif
+                    </div>
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#00703C] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#00703C]/20 hover:bg-emerald-700 hover:shadow-xl hover:shadow-[#00703C]/30 transition-all active:scale-[0.98]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         Generate Tagihan Massal
                     </button>
@@ -436,9 +470,21 @@
                     <textarea name="keterangan" rows="2" placeholder="Opsional — catatan tambahan untuk mahasiswa." class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800/10 placeholder:text-slate-300 transition resize-none"></textarea>
                 </div>
 
-                {{-- Submit --}}
-                <div class="pt-4 flex justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-800/20 hover:bg-slate-900 hover:shadow-xl hover:shadow-slate-800/30 transition-all active:scale-[0.98]">
+                {{-- Submit & Opsi Kirim Email --}}
+                <div class="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-100">
+                    <div class="flex flex-col">
+                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                            <input type="checkbox" name="send_email" value="1" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 transition">
+                            <span class="text-xs font-semibold text-slate-700">Kirim notifikasi reminder tagihan ke email mahasiswa</span>
+                        </label>
+                        @if(config('mail.default') === 'log')
+                            <p class="text-[11px] text-amber-600 mt-1 flex items-center gap-1 font-normal">
+                                <svg class="w-3.5 h-3.5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Driver email masih <strong>log</strong>. Email akan dicatat di <code>storage/logs/laravel.log</code>. Atur SMTP di <code>.env</code> untuk mengirim ke Gmail asli.</span>
+                            </p>
+                        @endif
+                    </div>
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-800/20 hover:bg-slate-900 hover:shadow-xl hover:shadow-slate-800/30 transition-all active:scale-[0.98]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                         Buat Tagihan Personal
                     </button>
@@ -452,7 +498,19 @@
         editModalOpen: false, 
         deleteModalOpen: false, 
         editForm: { old_nama_tagihan: '', nama_tagihan: '', nominal_total: '', jenis_tagihan: 'lunas', jatuh_tempo: '' },
-        deleteForm: { nama_tagihan: '' }
+        deleteForm: { nama_tagihan: '' },
+        openMassalEdit(el) {
+            this.editForm.old_nama_tagihan = el.dataset.nama;
+            this.editForm.nama_tagihan = el.dataset.nama;
+            this.editForm.nominal_total = el.dataset.nominal;
+            this.editForm.jenis_tagihan = el.dataset.jenis;
+            this.editForm.jatuh_tempo = el.dataset.tempo || '';
+            this.editModalOpen = true;
+        },
+        openMassalDelete(el) {
+            this.deleteForm.nama_tagihan = el.dataset.nama;
+            this.deleteModalOpen = true;
+        }
     }">
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -506,10 +564,21 @@
                             </td>
                             <td class="py-4 px-5 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button @click="editForm.old_nama_tagihan = '{{ addslashes($group->nama_tagihan) }}'; editForm.nama_tagihan = '{{ addslashes($group->nama_tagihan) }}'; editForm.nominal_total = '{{ $group->total_nominal / $group->total_mhs }}'; editForm.jenis_tagihan = '{{ $group->jenis_tagihan }}'; editForm.jatuh_tempo = '{{ $group->jatuh_tempo ? \Carbon\Carbon::parse($group->jatuh_tempo)->format('Y-m-d') : '' }}'; editModalOpen = true;" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-colors border border-emerald-100 hover:border-emerald-600" title="Edit Massal">
+                                    <button type="button"
+                                            @click="openMassalEdit($el)"
+                                            data-nama="{{ $group->nama_tagihan }}"
+                                            data-nominal="{{ $group->total_nominal / $group->total_mhs }}"
+                                            data-jenis="{{ $group->jenis_tagihan }}"
+                                            data-tempo="{{ $group->jatuh_tempo ? \Carbon\Carbon::parse($group->jatuh_tempo)->format('Y-m-d') : '' }}"
+                                            class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-colors border border-emerald-100 hover:border-emerald-600 cursor-pointer" 
+                                            title="Edit Massal">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                     </button>
-                                    <button @click="deleteForm.nama_tagihan = '{{ addslashes($group->nama_tagihan) }}'; deleteModalOpen = true;" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-colors border border-rose-100 hover:border-rose-600" title="Hapus Massal">
+                                    <button type="button"
+                                            @click="openMassalDelete($el)"
+                                            data-nama="{{ $group->nama_tagihan }}"
+                                            class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-colors border border-rose-100 hover:border-rose-600 cursor-pointer" 
+                                            title="Hapus Massal">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </div>
@@ -611,7 +680,17 @@
     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden" x-data="{ 
         searchQuery: '',
         editPersonalOpen: false,
-        editPersonalForm: { id: '', action_url: '', nama_tagihan: '', nominal_total: '', jenis_tagihan: 'lunas', jatuh_tempo: '', keterangan: '' }
+        editPersonalForm: { id: '', action_url: '', nama_tagihan: '', nominal_total: '', jenis_tagihan: 'lunas', jatuh_tempo: '', keterangan: '' },
+        openPersonalEdit(el) {
+            this.editPersonalForm.id = el.dataset.id;
+            this.editPersonalForm.action_url = el.dataset.action;
+            this.editPersonalForm.nama_tagihan = el.dataset.nama;
+            this.editPersonalForm.nominal_total = el.dataset.nominal;
+            this.editPersonalForm.jenis_tagihan = el.dataset.jenis;
+            this.editPersonalForm.jatuh_tempo = el.dataset.tempo || '';
+            this.editPersonalForm.keterangan = el.dataset.keterangan || '';
+            this.editPersonalOpen = true;
+        }
     }">
         <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -686,7 +765,29 @@
                         </td>
                         <td class="py-4 px-5 text-center">
                             <div class="flex items-center justify-center gap-1">
-                                <button @click="editPersonalForm.id = '{{ $tagihan->id }}'; editPersonalForm.action_url = '{{ route('backend.keuangan.tagihan.updatePersonal', $tagihan->id) }}'; editPersonalForm.nama_tagihan = '{{ addslashes($tagihan->nama_tagihan) }}'; editPersonalForm.nominal_total = '{{ $tagihan->nominal_total }}'; editPersonalForm.jenis_tagihan = '{{ $tagihan->jenis_tagihan }}'; editPersonalForm.jatuh_tempo = '{{ $tagihan->jatuh_tempo ? \Carbon\Carbon::parse($tagihan->jatuh_tempo)->format('Y-m-d') : '' }}'; editPersonalForm.keterangan = '{{ addslashes($tagihan->keterangan ?? '') }}'; editPersonalOpen = true;" class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Edit Tagihan">
+                                {{-- Tombol Kirim Ulang Email Reminder --}}
+                                @if(!empty($tagihan->user->email))
+                                <form action="{{ route('backend.keuangan.tagihan.resendReminder', $tagihan->id) }}" method="POST" onsubmit="return confirm('Kirim ulang email reminder tagihan ke {{ addslashes($tagihan->user->name ?? 'mahasiswa') }} ({{ $tagihan->user->email }})?');" class="inline-block">
+                                    @csrf
+                                    <button type="submit" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer" title="Kirim Ulang Email Reminder ke {{ $tagihan->user->email }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                @endif
+
+                                <button type="button"
+                                        @click="openPersonalEdit($el)"
+                                        data-id="{{ $tagihan->id }}"
+                                        data-action="{{ route('backend.keuangan.tagihan.updatePersonal', $tagihan->id) }}"
+                                        data-nama="{{ $tagihan->nama_tagihan }}"
+                                        data-nominal="{{ $tagihan->nominal_total }}"
+                                        data-jenis="{{ $tagihan->jenis_tagihan }}"
+                                        data-tempo="{{ $tagihan->jatuh_tempo ? \Carbon\Carbon::parse($tagihan->jatuh_tempo)->format('Y-m-d') : '' }}"
+                                        data-keterangan="{{ $tagihan->keterangan ?? '' }}"
+                                        class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer" 
+                                        title="Edit Tagihan">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                 </button>
                                 <form action="{{ route('backend.keuangan.tagihan.destroy', $tagihan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus tagihan ini?');" class="inline-block">
@@ -876,7 +977,14 @@
                                     </td>
                                     <td class="py-3 px-4 text-center">
                                         <div class="flex items-center justify-center gap-1">
-                                            <button type="button" @click="openMasterEdit('{{ $jenis->id }}', '{{ addslashes($jenis->nama_tagihan) }}', '{{ $jenis->nominal_default }}', '{{ $jenis->tipe_nominal }}')" class="p-1 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition cursor-pointer" title="Edit Jenis Tagihan">
+                                            <button type="button" 
+                                                    @click="openMasterEdit($el)"
+                                                    data-id="{{ $jenis->id }}"
+                                                    data-nama="{{ $jenis->nama_tagihan }}"
+                                                    data-nominal="{{ $jenis->nominal_default }}"
+                                                    data-tipe="{{ $jenis->tipe_nominal }}"
+                                                    class="p-1 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition cursor-pointer" 
+                                                    title="Edit Jenis Tagihan">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                             </button>
                                             @if(strtoupper(trim($jenis->nama_tagihan)) === 'SPP' || $jenis->tipe_nominal === 'otomatis_spp')

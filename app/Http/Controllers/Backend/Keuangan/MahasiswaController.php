@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend\Keuangan;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class MahasiswaController extends Controller
@@ -142,12 +143,31 @@ class MahasiswaController extends Controller
         $totalAktif = $users->filter(fn($u) => strtolower($u->status ?? 'aktif') === 'aktif')->count();
         $totalPotensiSpp = $users->where('status', 'AKTIF')->sum('nominal_spp');
 
-        return view('backend.keuangan.mahasiswa.print', compact(
+        // Dukungan pratinjau mode html jika diminta (?mode=html)
+        if ($request->query('mode') === 'html') {
+            return view('backend.keuangan.mahasiswa.print', compact(
+                'users',
+                'totalMahasiswa',
+                'totalAktif',
+                'totalPotensiSpp'
+            ));
+        }
+
+        // Render PDF menggunakan DomPDF A4 Landscape
+        $pdf = Pdf::loadView('backend.keuangan.mahasiswa.print', compact(
             'users',
             'totalMahasiswa',
             'totalAktif',
             'totalPotensiSpp'
-        ));
+        ))->setPaper('a4', 'landscape');
+
+        $filename = 'Rekap_Data_Mahasiswa_SPP_' . date('Ymd_His') . '.pdf';
+
+        if ($request->boolean('download')) {
+            return $pdf->download($filename);
+        }
+
+        return $pdf->stream($filename);
     }
 
     private function buildFilterQuery(Request $request)

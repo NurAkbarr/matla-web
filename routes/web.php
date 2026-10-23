@@ -614,6 +614,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/mahasiswa', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'index'])->name('mahasiswa.index');
         Route::get('/mahasiswa/export/excel', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportExcel'])->name('mahasiswa.export.excel');
         Route::get('/mahasiswa/export/pdf', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportPdf'])->name('mahasiswa.export.pdf');
+        Route::get('/mahasiswa/export-pdf', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportPdf']);
         Route::put('/mahasiswa/{id}/nominal-spp', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'updateNominalSpp'])->name('mahasiswa.updateNominalSpp');
         Route::get('/verifikasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'index'])->name('verifikasi.index');
         Route::post('/verifikasi/{id}/approve', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'approve'])->name('verifikasi.approve');
@@ -629,12 +630,26 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::put('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updateMassal'])->name('tagihan.updateMassal');
         Route::delete('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal'])->name('tagihan.destroyMassal');
         Route::get('/tagihan/spreadsheet', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'spreadsheet'])->name('tagihan.spreadsheet');
+        Route::post('/tagihan/{id}/resend-reminder', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'resendReminder'])->name('tagihan.resendReminder');
         Route::delete('/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy'])->name('tagihan.destroy');
 
         // Master Jenis Tagihan
         Route::post('/tagihan/master-jenis', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'storeJenis'])->name('tagihan.jenis.store');
         Route::put('/tagihan/master-jenis/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updateJenis'])->name('tagihan.jenis.update');
         Route::delete('/tagihan/master-jenis/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyJenis'])->name('tagihan.jenis.destroy');
+
+        // Riwayat Transaksi (Buku Kas Arus Kas Masuk & Keluar)
+        Route::get('/riwayat-transaksi', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'index'])->name('riwayat-transaksi.index');
+        Route::post('/riwayat-transaksi', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'store'])->name('riwayat-transaksi.store');
+        Route::get('/riwayat-transaksi/export/excel', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'exportExcel'])->name('riwayat-transaksi.export.excel');
+        Route::get('/riwayat-transaksi/export/pdf', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'exportPdf'])->name('riwayat-transaksi.export.pdf');
+        Route::get('/riwayat-transaksi/{id}/kwitansi', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'cetakKwitansi'])->name('riwayat-transaksi.kwitansi');
+        Route::delete('/riwayat-transaksi/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'destroy'])->name('riwayat-transaksi.destroy');
+
+        // Master Kategori Transaksi
+        Route::post('/riwayat-transaksi/master-kategori', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'storeKategori'])->name('riwayat-transaksi.kategori.store');
+        Route::put('/riwayat-transaksi/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'updateKategori'])->name('riwayat-transaksi.kategori.update');
+        Route::delete('/riwayat-transaksi/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'destroyKategori'])->name('riwayat-transaksi.kategori.destroy');
 
         // Laporan (Coming Soon)
         Route::view('/laporan', 'backend.keuangan.laporan.index')->name('laporan.index');

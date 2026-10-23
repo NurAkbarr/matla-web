@@ -212,10 +212,15 @@
                         {{-- Kolom Aksi (pr-6 untuk padding sisi kanan) --}}
                         <td class="py-4 pl-3 pr-6 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                {{-- Tombol Edit Nominal SPP --}}
+                                {{-- Tombol Edit Nominal SPP (Menggunakan data-* agar aman dari petik satu seperti I'DAD) --}}
                                 <button type="button" 
-                                        onclick="openSppModal('{{ $mhs->id }}', '{{ addslashes($mhs->name) }}', '{{ $mhs->nim ?? '-' }}', '{{ $mhs->education['program_studi'] ?? '-' }}', '{{ $nominalSpp }}')"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-[var(--primary-700)] dark:text-[var(--primary-300)] bg-[var(--primary-50)] dark:bg-[var(--primary-900)]/40 hover:bg-[var(--primary-100)] dark:hover:bg-[var(--primary-900)]/70 border border-[var(--primary-200)] dark:border-[var(--primary-800)] rounded-lg transition-all shadow-xs"
+                                        onclick="openSppModal(this)"
+                                        data-id="{{ $mhs->id }}"
+                                        data-name="{{ $mhs->name }}"
+                                        data-nim="{{ $mhs->nim ?? '-' }}"
+                                        data-prodi="{{ $mhs->education['program_studi'] ?? '-' }}"
+                                        data-nominal="{{ $nominalSpp }}"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-[var(--primary-700)] dark:text-[var(--primary-300)] bg-[var(--primary-50)] dark:bg-[var(--primary-900)]/40 hover:bg-[var(--primary-100)] dark:hover:bg-[var(--primary-900)]/70 border border-[var(--primary-200)] dark:border-[var(--primary-800)] rounded-lg transition-all shadow-xs cursor-pointer"
                                         title="Atur / Edit Nominal SPP Mahasiswa">
                                     <svg class="w-3.5 h-3.5 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -223,10 +228,19 @@
                                     <span>Tarif SPP</span>
                                 </button>
 
-                                {{-- Tombol Detail Mahasiswa --}}
+                                {{-- Tombol Detail Mahasiswa (Menggunakan data-* agar aman dari petik satu seperti I'DAD) --}}
                                 <button type="button" 
-                                        onclick="openDetailModal('{{ addslashes($mhs->name) }}', '{{ $mhs->nim ?? '-' }}', '{{ $mhs->email ?? '-' }}', '{{ $mhs->phone ?? '-' }}', '{{ $mhs->education['program_studi'] ?? '-' }}', '{{ $mhs->angkatan ?? '-' }}', '{{ $mhs->semester ?? '-' }}', '{{ strtoupper($mhs->status ?? 'AKTIF') }}', '{{ number_format($nominalSpp, 0, ',', '.') }}')"
-                                        class="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--bg-page)] border border-transparent hover:border-[var(--border)] rounded-lg transition" 
+                                        onclick="openDetailModal(this)"
+                                        data-name="{{ $mhs->name }}"
+                                        data-nim="{{ $mhs->nim ?? '-' }}"
+                                        data-email="{{ $mhs->email ?? '-' }}"
+                                        data-phone="{{ $mhs->phone ?? '-' }}"
+                                        data-prodi="{{ $mhs->education['program_studi'] ?? '-' }}"
+                                        data-angkatan="{{ $mhs->angkatan ?? '-' }}"
+                                        data-semester="{{ $mhs->semester ?? '-' }}"
+                                        data-status="{{ strtoupper($mhs->status ?? 'AKTIF') }}"
+                                        data-spp="{{ number_format($nominalSpp, 0, ',', '.') }}"
+                                        class="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--bg-page)] border border-transparent hover:border-[var(--border)] rounded-lg transition cursor-pointer" 
                                         title="Lihat Detail Profil">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </button>
@@ -412,7 +426,19 @@
 
 @push('scripts')
 <script>
-function openSppModal(id, name, nim, prodi, currentNominal) {
+function openSppModal(target, name, nim, prodi, currentNominal) {
+    var id;
+    if (target instanceof HTMLElement || (typeof target === 'object' && target !== null && target.dataset)) {
+        var ds = target.dataset;
+        id = ds.id;
+        name = ds.name;
+        nim = ds.nim;
+        prodi = ds.prodi;
+        currentNominal = ds.nominal;
+    } else {
+        id = target;
+    }
+
     var modal = document.getElementById('modal-spp');
     var form = document.getElementById('form-update-spp');
     
@@ -420,9 +446,9 @@ function openSppModal(id, name, nim, prodi, currentNominal) {
     form.action = "{{ url('/backend/keuangan/mahasiswa') }}/" + id + "/nominal-spp";
 
     // Set Preview Content
-    document.getElementById('modal-mhs-name').innerText = name;
-    document.getElementById('modal-mhs-nim-prodi').innerText = "NIM: " + nim + " • " + prodi;
-    document.getElementById('nominal_spp').value = currentNominal;
+    document.getElementById('modal-mhs-name').innerText = name || '-';
+    document.getElementById('modal-mhs-nim-prodi').innerText = "NIM: " + (nim || '-') + " • " + (prodi || '-');
+    document.getElementById('nominal_spp').value = currentNominal || '0';
 
     // Show modal
     modal.style.display = 'flex';
@@ -440,13 +466,29 @@ function setNominalPreset(amount) {
     document.getElementById('nominal_spp').value = amount;
 }
 
-function openDetailModal(name, nim, email, phone, prodi, angkatan, semester, status, spp) {
-    document.getElementById('detail-name').innerText = name;
-    document.getElementById('detail-nim').innerText = nim;
-    document.getElementById('detail-prodi').innerText = prodi;
-    document.getElementById('detail-angkatan-semester').innerText = "Angkatan " + angkatan + " • Semester " + semester;
-    document.getElementById('detail-status').innerText = status;
-    document.getElementById('detail-spp').innerText = "Rp " + spp;
+function openDetailModal(target, nim, email, phone, prodi, angkatan, semester, status, spp) {
+    var name;
+    if (target instanceof HTMLElement || (typeof target === 'object' && target !== null && target.dataset)) {
+        var ds = target.dataset;
+        name = ds.name;
+        nim = ds.nim;
+        email = ds.email;
+        phone = ds.phone;
+        prodi = ds.prodi;
+        angkatan = ds.angkatan;
+        semester = ds.semester;
+        status = ds.status;
+        spp = ds.spp;
+    } else {
+        name = target;
+    }
+
+    document.getElementById('detail-name').innerText = name || '-';
+    document.getElementById('detail-nim').innerText = nim || '-';
+    document.getElementById('detail-prodi').innerText = prodi || '-';
+    document.getElementById('detail-angkatan-semester').innerText = "Angkatan " + (angkatan || '-') + " • Semester " + (semester || '-');
+    document.getElementById('detail-status').innerText = status || '-';
+    document.getElementById('detail-spp').innerText = "Rp " + (spp || '0');
     document.getElementById('detail-phone').innerText = phone || '-';
     document.getElementById('detail-email').innerText = email || '-';
 
