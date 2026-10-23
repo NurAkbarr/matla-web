@@ -650,9 +650,6 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/riwayat-transaksi/master-kategori', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'storeKategori'])->name('riwayat-transaksi.kategori.store');
         Route::put('/riwayat-transaksi/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'updateKategori'])->name('riwayat-transaksi.kategori.update');
         Route::delete('/riwayat-transaksi/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'destroyKategori'])->name('riwayat-transaksi.kategori.destroy');
-
-        // Laporan (Coming Soon)
-        Route::view('/laporan', 'backend.keuangan.laporan.index')->name('laporan.index');
     });
 
 });

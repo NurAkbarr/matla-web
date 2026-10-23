@@ -114,14 +114,6 @@
                         </svg>
                         <span class="text-sm font-medium leading-none whitespace-nowrap">Riwayat Transaksi</span>
                     </a>
-
-                    <a href="{{ route('backend.keuangan.laporan.index') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.laporan.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.laporan.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Laporan Keuangan</span>
-                    </a>
                 </nav>
 
                 {{-- Logout Button --}}
