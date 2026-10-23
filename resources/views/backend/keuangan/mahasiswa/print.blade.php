@@ -187,9 +187,9 @@
                 <img src="{{ $logoBase64 }}" alt="Logo MATLA">
             </td>
             <td class="kop-text">
-                <h1>MA'HAD TIBYAN LIL QUR'AN WAL LUGHAH AL-ARABIYAH</h1>
-                <p class="sub1">MATLA ISLAMIC UNIVERSITY &bull; SISTEM KEUANGAN TERPADU</p>
-                <p class="sub2">Jl. Raya Matla University Portal, Indonesia | Website: matla-university.ac.id | Email: finance@matla-university.ac.id</p>
+                <h1>KAMPUS MAHAD TA'LIM LUGHOH AROBIYYAH (MATLA)</h1>
+                <p class="sub1">Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten</p>
+                <p class="sub2">No. Hp. 081273510994 &bull; Email: matlaislamicuniversity@gmail.com</p>
             </td>
         </tr>
     </table>

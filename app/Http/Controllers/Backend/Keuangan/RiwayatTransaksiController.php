@@ -212,7 +212,7 @@ class RiwayatTransaksiController extends Controller
         $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Riwayat Transaksi</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
         $html .= '<style>';
         $html .= 'table { border-collapse: collapse; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; }';
-        $html .= 'th { background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; height: 38px; padding: 6px 10px; font-size: 10pt; }';
+        $html .= 'th { background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; height: 38px; padding: 6px 10px; font-size: 10pt; }';
         $html .= 'td { border: 1px solid #000000; vertical-align: middle; color: #000000; padding: 6px 8px; font-size: 9.5pt; }';
         $html .= '.bg-masuk { background-color: #E8F5E9; color: #1B5E20; font-weight: bold; text-align: right; }';
         $html .= '.bg-keluar { background-color: #FFEBEE; color: #B71C1C; font-weight: bold; text-align: right; }';
@@ -220,28 +220,31 @@ class RiwayatTransaksiController extends Controller
         $html .= '</head>';
         $html .= '<body>';
 
-        // Title and summary box in Excel
+        // Title and summary box in Excel with official MATLA Kop
         $html .= '<table border="0" cellpadding="4" cellspacing="0" style="margin-bottom: 12px; font-family: Arial, sans-serif;">';
-        $html .= '<tr><td colspan="10" style="font-size: 14pt; font-weight: bold; color: #00703C; border: none;">BUKU KAS & RIWAYAT TRANSAKSI - MATLA UNIVERSITY</td></tr>';
-        $html .= '<tr><td colspan="10" style="font-size: 9.5pt; color: #555555; border: none;">Tanggal Unduh: ' . Carbon::now()->translatedFormat('d F Y, H:i') . ' WIB</td></tr>';
-        $html .= '<tr><td colspan="10" style="font-size: 9.5pt; color: #333333; font-weight: bold; border: none;">Total Masuk (Kredit): Rp ' . number_format($totalMasuk, 0, ',', '.') . '  |  Total Keluar (Debit): Rp ' . number_format($totalKeluar, 0, ',', '.') . '  |  Arus Kas Bersih: Rp ' . number_format($netCashflow, 0, ',', '.') . '</td></tr>';
-        $html .= '<tr><td colspan="10" style="border: none;"></td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 14pt; font-weight: bold; color: #00703C; border: none; text-align: center;">KAMPUS MAHAD TA\'LIM LUGHOH AROBIYYAH (MATLA)</td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 11pt; font-weight: bold; color: #1e293b; border: none; text-align: center;">BUKU KAS & RIWAYAT TRANSAKSI KEUANGAN</td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 9pt; color: #555555; border: none; text-align: center;">Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten</td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 9pt; color: #555555; border: none; text-align: center;">No. Hp. 081273510994, Email: matlaislamicuniversity@gmail.com</td></tr>';
+        $html .= '<tr><td colspan="11" style="border: none;"></td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 9.5pt; color: #333333; font-weight: bold; border: none;">Tanggal Unduh: ' . Carbon::now()->translatedFormat('d F Y, H:i') . ' WIB  |  Total Masuk: Rp ' . number_format($totalMasuk, 0, ',', '.') . '  |  Total Keluar: Rp ' . number_format($totalKeluar, 0, ',', '.') . '  |  Arus Kas Bersih: Rp ' . number_format($netCashflow, 0, ',', '.') . '</td></tr>';
+        $html .= '<tr><td colspan="11" style="border: none;"></td></tr>';
         $html .= '</table>';
 
         $html .= '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; border: 1px solid #000000; font-family: Arial, sans-serif;">';
         $html .= '<thead>';
         $html .= '<tr>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 45px;">NO</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 170px;">KODE TRANSAKSI</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 155px;">WAKTU (TGL & JAM)</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 110px;">ARUS KAS</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 160px;">KATEGORI</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 220px;">SUBJEK / PIHAK TERKAIT</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 240px;">DESKRIPSI / RINCIAN</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">METODE</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: right; border: 1px solid #000000; min-width: 140px;">NOMINAL (RP)</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">NO. REFERENSI</th>';
-        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">PETUGAS</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 45px;">NO</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 175px;">KODE TRANSAKSI</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 165px;">WAKTU (TGL & JAM)</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">JENIS ARUS KAS</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 150px;">KATEGORI</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 200px;">SUBJEK / PIHAK TERKAIT</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 240px;">KETERANGAN / RINCIAN</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">METODE</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000; min-width: 140px;">NOMINAL (RP)</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">NO. REFERENSI</th>';
+        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">PETUGAS</th>';
         $html .= '</tr>';
         $html .= '</thead>';
         $html .= '<tbody>';
@@ -252,7 +255,7 @@ class RiwayatTransaksiController extends Controller
             $nominalFormatted = ($isMasuk ? '+ Rp ' : '- Rp ') . number_format($tx->nominal, 0, ',', '.');
             $nominalClass = $isMasuk ? 'bg-masuk' : 'bg-keluar';
             $waktu = $tx->tanggal_transaksi ? $tx->tanggal_transaksi->translatedFormat('d/m/Y H:i:s') . ' WIB' : '-';
-            $jenisLabel = $isMasuk ? 'UANG MASUK' : 'UANG KELUAR';
+            $jenisLabel = $isMasuk ? 'Uang Masuk' : 'Uang Keluar';
             $ref = $tx->no_referensi ?: '-';
             $admin = $tx->admin_nama ?: 'Admin Keuangan';
 
@@ -265,7 +268,7 @@ class RiwayatTransaksiController extends Controller
             $html .= '<td style="border: 1px solid #000000; text-align: left; vertical-align: middle; font-weight: 500;">' . htmlspecialchars($tx->subjek ?: '-', ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: left; vertical-align: middle;">' . htmlspecialchars($tx->deskripsi ?: '-', ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle;">' . htmlspecialchars($tx->metode_pembayaran ?: 'Transfer Bank', ENT_QUOTES, 'UTF-8') . '</td>';
-            $html .= '<td class="' . $nominalClass . '" style="border: 1px solid #000000; vertical-align: middle;">' . $nominalFormatted . '</td>';
+            $html .= '<td class="' . $nominalClass . '" style="border: 1px solid #000000; vertical-align: middle; mso-number-format:\'@\'; text-align: right;">' . $nominalFormatted . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle; mso-number-format:\'@\';">' . htmlspecialchars($ref, ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '<td style="border: 1px solid #000000; text-align: center; vertical-align: middle;">' . htmlspecialchars($admin, ENT_QUOTES, 'UTF-8') . '</td>';
             $html .= '</tr>';
@@ -273,20 +276,20 @@ class RiwayatTransaksiController extends Controller
 
         // Summary footer row
         $html .= '<tr style="background-color: #F1F5F9; font-weight: bold; height: 32px;">';
-        $html .= '<td colspan="8" style="border: 1px solid #000000; text-align: right; padding-right: 12px; font-weight: bold;">TOTAL TRANSAKSI MASUK (KREDIT):</td>';
-        $html .= '<td class="bg-masuk" style="border: 1px solid #000000;">+ Rp ' . number_format($totalMasuk, 0, ',', '.') . '</td>';
+        $html .= '<td colspan="8" style="border: 1px solid #000000; text-align: right; padding-right: 12px; font-weight: bold;">TOTAL TRANSAKSI MASUK:</td>';
+        $html .= '<td class="bg-masuk" style="border: 1px solid #000000; mso-number-format:\'@\'; text-align: right;">+ Rp ' . number_format($totalMasuk, 0, ',', '.') . '</td>';
         $html .= '<td colspan="2" style="border: 1px solid #000000;"></td>';
         $html .= '</tr>';
 
         $html .= '<tr style="background-color: #F1F5F9; font-weight: bold; height: 32px;">';
-        $html .= '<td colspan="8" style="border: 1px solid #000000; text-align: right; padding-right: 12px; font-weight: bold;">TOTAL TRANSAKSI KELUAR (DEBIT):</td>';
-        $html .= '<td class="bg-keluar" style="border: 1px solid #000000;">- Rp ' . number_format($totalKeluar, 0, ',', '.') . '</td>';
+        $html .= '<td colspan="8" style="border: 1px solid #000000; text-align: right; padding-right: 12px; font-weight: bold;">TOTAL TRANSAKSI KELUAR:</td>';
+        $html .= '<td class="bg-keluar" style="border: 1px solid #000000; mso-number-format:\'@\'; text-align: right;">- Rp ' . number_format($totalKeluar, 0, ',', '.') . '</td>';
         $html .= '<td colspan="2" style="border: 1px solid #000000;"></td>';
         $html .= '</tr>';
 
         $html .= '<tr style="background-color: #E2E8F0; font-weight: bold; height: 34px;">';
         $html .= '<td colspan="8" style="border: 1px solid #000000; text-align: right; padding-right: 12px; font-size: 10.5pt; font-weight: bold;">ARUS KAS BERSIH (NET CASHFLOW):</td>';
-        $html .= '<td style="border: 1px solid #000000; text-align: right; font-size: 10.5pt; font-weight: bold; color: ' . ($netCashflow >= 0 ? '#1B5E20' : '#B71C1C') . ';">Rp ' . number_format($netCashflow, 0, ',', '.') . '</td>';
+        $html .= '<td style="border: 1px solid #000000; text-align: right; font-size: 10.5pt; font-weight: bold; mso-number-format:\'@\'; color: ' . ($netCashflow >= 0 ? '#1B5E20' : '#B71C1C') . ';">Rp ' . number_format($netCashflow, 0, ',', '.') . '</td>';
         $html .= '<td colspan="2" style="border: 1px solid #000000;"></td>';
         $html .= '</tr>';
 

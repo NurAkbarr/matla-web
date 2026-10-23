@@ -40,24 +40,25 @@
             padding-right: 70px;
         }
         .kop-text h1 {
-            font-size: 15pt;
+            font-size: 14.5pt;
             margin: 0 0 3px 0;
-            color: #0f172a;
+            color: #00703C;
             font-family: 'Times New Roman', serif;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: bold;
         }
         .kop-text p {
             font-size: 8.5pt;
             margin: 2px 0;
-            color: #475569;
+            color: #334155;
             font-family: 'Times New Roman', serif;
         }
 
         .divider {
-            border-top: 2px solid #00703C;
-            border-bottom: 0.8px solid #00703C;
-            height: 1.5px;
+            border-top: 2.5px solid #00703C;
+            border-bottom: 1px solid #00703C;
+            height: 2px;
             margin: 8px 0 14px 0;
         }
 
@@ -162,9 +163,9 @@
                 <img src="{{ $logoBase64 }}" alt="Logo MATLA">
             </td>
             <td class="kop-text">
-                <h1>MA'HAD TIBYAN LIL QUR'AN WAL LUGHAH AL-ARABIYAH</h1>
-                <p>Kampus Pusat: Jl. Raya Matla University Portal, Indonesia</p>
-                <p>Website: <strong>matla-university.ac.id</strong> &bull; Email: info@matla-university.ac.id</p>
+                <h1>KAMPUS MAHAD TA'LIM LUGHOH AROBIYYAH (MATLA)</h1>
+                <p>Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten</p>
+                <p>No. Hp. 081273510994, Email: matlaislamicuniversity@gmail.com</p>
             </td>
         </tr>
     </table>
@@ -184,13 +185,13 @@
         <tr>
             <td style="width: 32%; padding-right: 8px;">
                 <div class="summary-box" style="border-left: 4px solid #16a34a; background-color: #f0fdf4;">
-                    <div class="summary-title" style="color: #166534;">Total Transaksi Masuk (Kredit)</div>
+                    <div class="summary-title" style="color: #166534;">Total Uang Masuk</div>
                     <div class="summary-val" style="color: #166534;">+ Rp {{ number_format($totalMasuk, 0, ',', '.') }}</div>
                 </div>
             </td>
             <td style="width: 32%; padding: 0 4px;">
                 <div class="summary-box" style="border-left: 4px solid #dc2626; background-color: #fef2f2;">
-                    <div class="summary-title" style="color: #991b1b;">Total Transaksi Keluar (Debit)</div>
+                    <div class="summary-title" style="color: #991b1b;">Total Uang Keluar</div>
                     <div class="summary-val" style="color: #991b1b;">- Rp {{ number_format($totalKeluar, 0, ',', '.') }}</div>
                 </div>
             </td>
@@ -209,16 +210,15 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 25px;">No</th>
-                <th style="width: 110px;">Kode Transaksi</th>
-                <th style="width: 100px;">Waktu Presisi</th>
-                <th style="width: 75px;">Arus Kas</th>
-                <th style="width: 105px;">Kategori</th>
-                <th style="width: 140px;">Subjek / Pihak Terkait</th>
-                <th>Keterangan / Rincian</th>
-                <th style="width: 75px;">Metode</th>
-                <th style="width: 95px; text-align: right;">Nominal (Rp)</th>
-                <th style="width: 80px;">No. Referensi</th>
+                <th style="width: 28px;">No</th>
+                <th style="width: 125px;">Kode Transaksi</th>
+                <th style="width: 110px;">Waktu Presisi (Tanggal & Jam)</th>
+                <th style="width: 85px;">Jenis Arus Kas</th>
+                <th style="width: 100px;">Kategori</th>
+                <th>Keterangan / Subjek</th>
+                <th style="width: 80px;">Metode</th>
+                <th style="width: 115px; text-align: right;">Nominal (Rp)</th>
+                <th style="width: 85px;">No. Referensi</th>
             </tr>
         </thead>
         <tbody>
@@ -230,22 +230,26 @@
                 <tr>
                     <td style="text-align: center;">{{ $index + 1 }}</td>
                     <td style="font-weight: bold; text-align: center;">{{ $tx->kode_transaksi }}</td>
-                    <td style="text-align: center; font-size: 7.5pt;">{{ $timeStr }}</td>
-                    <td style="text-align: center; font-weight: bold; color: {{ $isMasuk ? '#166534' : '#991b1b' }};">
-                        {{ $isMasuk ? 'MASUK' : 'KELUAR' }}
+                    <td style="text-align: center; font-size: 7.5pt;">{{ $timeStr }} WIB</td>
+                    <td style="text-align: center; font-weight: bold; font-size: 7.5pt; color: {{ $isMasuk ? '#166534' : '#991b1b' }};">
+                        {{ $isMasuk ? 'Uang Masuk' : 'Uang Keluar' }}
                     </td>
                     <td>{{ $tx->kategori }}</td>
-                    <td style="font-weight: 500;">{{ $tx->subjek ?: '-' }}</td>
-                    <td style="font-size: 7.5pt;">{{ $tx->deskripsi ?: '-' }}</td>
+                    <td>
+                        <div style="font-weight: bold; color: #0f172a;">{{ $tx->subjek ?: '-' }}</div>
+                        @if($tx->deskripsi && $tx->deskripsi !== $tx->subjek)
+                            <div style="font-size: 7pt; color: #475569; margin-top: 1px;">{{ $tx->deskripsi }}</div>
+                        @endif
+                    </td>
                     <td style="text-align: center;">{{ $tx->metode_pembayaran ?: 'Transfer Bank' }}</td>
-                    <td class="{{ $isMasuk ? 'bg-masuk' : 'bg-keluar' }}" style="text-align: right;">
+                    <td class="{{ $isMasuk ? 'bg-masuk' : 'bg-keluar' }}" style="text-align: right; white-space: nowrap;">
                         {{ ($isMasuk ? '+ ' : '- ') . number_format($tx->nominal, 0, ',', '.') }}
                     </td>
                     <td style="text-align: center; font-size: 7pt;">{{ $tx->no_referensi ?: '-' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" style="text-align: center; padding: 20px; color: #64748b;">
+                    <td colspan="9" style="text-align: center; padding: 20px; color: #64748b;">
                         Tidak ada catatan transaksi pada filter ini.
                     </td>
                 </tr>
@@ -253,17 +257,17 @@
 
             {{-- Summary Rows --}}
             <tr style="background-color: #f1f5f9; font-weight: bold;">
-                <td colspan="8" style="text-align: right; padding-right: 10px;">TOTAL TRANSAKSI MASUK (KREDIT):</td>
+                <td colspan="7" style="text-align: right; padding-right: 10px;">TOTAL TRANSAKSI MASUK:</td>
                 <td class="bg-masuk" style="text-align: right;">+ Rp {{ number_format($totalMasuk, 0, ',', '.') }}</td>
                 <td></td>
             </tr>
             <tr style="background-color: #f1f5f9; font-weight: bold;">
-                <td colspan="8" style="text-align: right; padding-right: 10px;">TOTAL TRANSAKSI KELUAR (DEBIT):</td>
+                <td colspan="7" style="text-align: right; padding-right: 10px;">TOTAL TRANSAKSI KELUAR:</td>
                 <td class="bg-keluar" style="text-align: right;">- Rp {{ number_format($totalKeluar, 0, ',', '.') }}</td>
                 <td></td>
             </tr>
             <tr style="background-color: #e2e8f0; font-weight: bold;">
-                <td colspan="8" style="text-align: right; padding-right: 10px;">ARUS KAS BERSIH (NET CASHFLOW):</td>
+                <td colspan="7" style="text-align: right; padding-right: 10px;">ARUS KAS BERSIH (NET CASHFLOW):</td>
                 <td style="text-align: right; color: {{ $netCashflow >= 0 ? '#166534' : '#991b1b' }};">Rp {{ number_format($netCashflow, 0, ',', '.') }}</td>
                 <td></td>
             </tr>
@@ -273,24 +277,26 @@
     {{-- TANDA TANGAN / PENGESAHAN --}}
     <table class="signature-table">
         <tr>
-            <td style="width: 65%; font-size: 8pt; color: #64748b; line-height: 1.5;">
-                <strong>Keterangan Audit:</strong><br>
+            <td style="width: 60%; font-size: 8pt; color: #64748b; line-height: 1.6;">
+                <strong>Keterangan Audit Mutasi Kas:</strong><br>
                 &bull; Laporan ini dicetak secara otomatis dari Buku Kas Modul Sistem Keuangan MATLA University Portal.<br>
-                &bull; Data yang tercantum adalah rekaman transaksi resmi yang telah diverifikasi bagian keuangan kampus.
+                &bull; Data transaksi yang tertera telah terekonsiliasi dan diverifikasi sah oleh Bagian Keuangan Kampus.<br>
+                &bull; Dokumen cetakan ini merupakan arsip pembukuan resmi dan sah.
             </td>
-            <td style="width: 35%; text-align: center;">
-                <p style="margin: 0 0 4px 0; font-size: 8.5pt;">
-                    Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+            <td style="width: 40%; text-align: center;">
+                <p style="margin: 0 0 4px 0; font-size: 8.5pt; color: #475569;">
+                    Tangerang Selatan, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
                 </p>
                 <p style="margin: 0; font-size: 9pt; font-weight: bold; color: #0f172a;">
-                    Bagian Keuangan Kampus
+                    Mengetahui / Mengesahkan,<br>
+                    <strong>Bendahara / Bagian Keuangan MATLA</strong>
                 </p>
                 <div style="height: 55px;"></div>
-                <p style="margin: 0; font-size: 9pt; font-weight: bold; text-decoration: underline; color: #00703C;">
-                    {{ auth()->user()->name ?? 'Admin Keuangan' }}
+                <p style="margin: 0; font-size: 9.5pt; font-weight: bold; text-decoration: underline; color: #00703C;">
+                    {{ auth()->user()->name ?? 'Bendahara Kampus MATLA' }}
                 </p>
                 <p style="margin: 2px 0 0 0; font-size: 7.5pt; color: #64748b;">
-                    NIP / ID: {{ auth()->id() ? 'ADM-' . str_pad(auth()->id(), 3, '0', STR_PAD_LEFT) : 'KEUANGAN-MATLA' }}
+                    NIP / ID: {{ auth()->id() ? 'BDH-' . str_pad(auth()->id(), 3, '0', STR_PAD_LEFT) : 'BENDAHARA-MATLA' }}
                 </p>
             </td>
         </tr>

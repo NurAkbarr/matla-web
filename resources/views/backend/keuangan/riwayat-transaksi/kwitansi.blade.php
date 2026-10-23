@@ -111,7 +111,7 @@
         .header-text {
             text-align: center;
             vertical-align: middle;
-            padding-right: 40px;
+            padding-right: 80px;
         }
         .header-text h1 {
             margin: 0 0 4px 0;
@@ -324,9 +324,9 @@
                     <img src="{{ $logoBase64 }}" alt="Logo MATLA">
                 </td>
                 <td class="header-text">
-                    <h1>MA'HAD TIBYAN LIL QUR'AN WAL LUGHAH AL-ARABIYAH</h1>
-                    <p>Kampus Pusat: Jl. Raya Matla University Portal, Indonesia</p>
-                    <p>Website: <span style="color: #00703C; font-weight: bold;">matla-university.ac.id</span> | Email: info@matla-university.ac.id</p>
+                    <h1>KAMPUS MAHAD TA'LIM LUGHOH AROBIYYAH (MATLA)</h1>
+                    <p>Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten</p>
+                    <p>No. Hp. 081273510994, Email: matlaislamicuniversity@gmail.com</p>
                 </td>
             </tr>
         </table>
@@ -402,10 +402,10 @@
                 <td style="width: 45%;">
                     <div class="signature-box">
                         <p style="font-size: 12px; color: #475569; margin: 0 0 5px 0;">
-                            {{ $transaksi->tanggal_transaksi ? $transaksi->tanggal_transaksi->translatedFormat('d F Y') : date('d F Y') }}
+                            Tangerang Selatan, {{ $transaksi->tanggal_transaksi ? $transaksi->tanggal_transaksi->translatedFormat('d F Y') : date('d F Y') }}
                         </p>
                         <p style="font-size: 12px; font-weight: bold; color: #0f172a; margin: 0;">
-                            Bagian Keuangan MATLA
+                            Bendahara / Bagian Keuangan MATLA
                         </p>
 
                         @if(!empty($capBase64))
