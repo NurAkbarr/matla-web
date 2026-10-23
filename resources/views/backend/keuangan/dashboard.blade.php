@@ -290,7 +290,11 @@
                                 {{ $mahasiswaMenunggak }} <span class="text-xs font-normal text-rose-500/80">Orang</span>
                             </p>
                             <p class="text-[11px] text-rose-600/70 dark:text-rose-400/70 mt-0.5">
-                                {{ $totalMahasiswaAktif > 0 ? round(($mahasiswaMenunggak / $totalMahasiswaAktif) * 100) : 0 }}% memiliki tagihan aktif
+                                @if(($totalMahasiswaBertagihan ?? 0) > 0)
+                                    {{ round(($mahasiswaMenunggak / $totalMahasiswaBertagihan) * 100) }}% memiliki tunggakan
+                                @else
+                                    Tidak ada tagihan aktif periode ini
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -310,7 +314,11 @@
                                 {{ $mahasiswaLunas }} <span class="text-xs font-normal text-emerald-600/80">Orang</span>
                             </p>
                             <p class="text-[11px] text-emerald-600/70 dark:text-emerald-400/70 mt-0.5">
-                                {{ $totalMahasiswaAktif > 0 ? round(($mahasiswaLunas / $totalMahasiswaAktif) * 100) : 0 }}% bebas tanggungan periode ini
+                                @if(($totalMahasiswaBertagihan ?? 0) > 0)
+                                    {{ round(($mahasiswaLunas / $totalMahasiswaBertagihan) * 100) }}% telah lunas periode ini
+                                @else
+                                    Tidak ada tagihan periode ini
+                                @endif
                             </p>
                         </div>
                     </div>

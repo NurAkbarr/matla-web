@@ -18,6 +18,23 @@ class DashboardController extends Controller
         $now = Carbon::now();
 
         // -----------------------------------------------------------------
+        // AUTO CLEANUP ORPHANED TRANSACTIONS
+        // Hapus otomatis transaksi kas yang tagihan/pembayarannya telah dihapus dari sistem
+        // -----------------------------------------------------------------
+        TransaksiKeuangan::where(function($q) {
+            $q->whereNotNull('tagihan_id')->whereDoesntHave('tagihan')
+              ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran')
+              ->orWhere(function($sub) {
+                  $sub->whereNull('tagihan_id')
+                      ->whereNull('pembayaran_id')
+                      ->where(function($k) {
+                          $k->where('kode_transaksi', 'like', 'TRX-SPP-%')
+                            ->orWhere('kode_transaksi', 'like', 'TRX-IN-%');
+                      });
+              });
+        })->delete();
+
+        // -----------------------------------------------------------------
         // 1. TOP CARDS (ROW 1 - 3 Kolom Sejajar)
         // -----------------------------------------------------------------
         // A. Saldo Akun / Saldo Utama: Total saldo bersih keseluruhan yayasan/kampus (Uang Masuk - Uang Keluar)
@@ -228,13 +245,20 @@ class DashboardController extends Controller
                   });
             });
 
-        $mahasiswaMenunggak = (clone $tagihanBulanTerpilih)
+        $mahasiswaPunyaTagihanBulanIni = (clone $tagihanBulanTerpilih)
+            ->distinct('user_id')
+            ->pluck('user_id')
+            ->toArray();
+
+        $mahasiswaMenunggakIds = (clone $tagihanBulanTerpilih)
             ->where('status', '!=', 'lunas')
             ->distinct('user_id')
-            ->count('user_id');
+            ->pluck('user_id')
+            ->toArray();
 
-        // 3. Mahasiswa Lunas pada periode bulan tersebut
-        $mahasiswaLunas = max(0, $totalMahasiswaAktif - $mahasiswaMenunggak);
+        $mahasiswaMenunggak = count($mahasiswaMenunggakIds);
+        $mahasiswaLunas = count(array_diff($mahasiswaPunyaTagihanBulanIni, $mahasiswaMenunggakIds));
+        $totalMahasiswaBertagihan = count($mahasiswaPunyaTagihanBulanIni);
 
         // -----------------------------------------------------------------
         // 6. RIWAYAT TRANSAKSI TERKINI
@@ -270,6 +294,7 @@ class DashboardController extends Controller
             'tunggakanSpp',
             'totalKeseluruhan',
             'totalMahasiswaAktif',
+            'totalMahasiswaBertagihan',
             'mahasiswaMenunggak',
             'mahasiswaLunas',
             'riwayatTerkini'

@@ -26,4 +26,20 @@ class Tagihan extends Model
     {
         return $this->hasMany(Pembayaran::class);
     }
+
+    public function transaksis()
+    {
+        return $this->hasMany(TransaksiKeuangan::class);
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($tagihan) {
+            $pembayaranIds = \App\Models\Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
+            \App\Models\TransaksiKeuangan::where('tagihan_id', $tagihan->id)
+                ->orWhereIn('pembayaran_id', $pembayaranIds)
+                ->delete();
+            \App\Models\Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+        });
+    }
 }

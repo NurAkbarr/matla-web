@@ -442,18 +442,35 @@ class TagihanController extends Controller
             'nama_tagihan' => 'required|string'
         ]);
 
-        // Hapus hanya tagihan yang namanya sesuai (boleh filter belum lunas jika perlu)
-        $deleted = Tagihan::where('nama_tagihan', $request->nama_tagihan)->delete();
+        $tagihans = Tagihan::where('nama_tagihan', $request->nama_tagihan)->get();
+        $deleted = 0;
 
-        return back()->with('success', "Berhasil menghapus {$deleted} data tagihan massal.");
+        foreach ($tagihans as $tagihan) {
+            $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
+            TransaksiKeuangan::where('tagihan_id', $tagihan->id)
+                ->orWhereIn('pembayaran_id', $pembayaranIds)
+                ->delete();
+            Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+            $tagihan->delete();
+            $deleted++;
+        }
+
+        return back()->with('success', "Berhasil menghapus {$deleted} data tagihan massal beserta transaksi terkait.");
     }
 
     public function destroy($id)
     {
         $tagihan = Tagihan::findOrFail($id);
+
+        $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
+        TransaksiKeuangan::where('tagihan_id', $tagihan->id)
+            ->orWhereIn('pembayaran_id', $pembayaranIds)
+            ->delete();
+        Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+
         $tagihan->delete();
         
-        return back()->with('success', 'Tagihan berhasil dihapus.');
+        return back()->with('success', 'Tagihan dan riwayat transaksi terkait berhasil dihapus.');
     }
 
     // =========================================================================

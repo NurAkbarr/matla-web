@@ -19,6 +19,20 @@ class RiwayatTransaksiController extends Controller
     {
         Carbon::setLocale('id');
 
+        // Auto cleanup orphaned transactions (transaksi yang tagihan atau pembayarannya telah dihapus)
+        TransaksiKeuangan::where(function($q) {
+            $q->whereNotNull('tagihan_id')->whereDoesntHave('tagihan')
+              ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran')
+              ->orWhere(function($sub) {
+                  $sub->whereNull('tagihan_id')
+                      ->whereNull('pembayaran_id')
+                      ->where(function($k) {
+                          $k->where('kode_transaksi', 'like', 'TRX-SPP-%')
+                            ->orWhere('kode_transaksi', 'like', 'TRX-IN-%');
+                      });
+              });
+        })->delete();
+
         // Build base query according to active filters
         $query = $this->buildFilterQuery($request);
 
@@ -150,19 +164,29 @@ class RiwayatTransaksiController extends Controller
     }
 
     /**
-     * Delete an internal cash transaction.
+     * Delete a transaction from Buku Kas.
      */
     public function destroy($id)
     {
-        $transaksi = TransaksiKeuangan::findOrFail($id);
-
-        // If it came from student payment, require deleting from Verifikasi instead
-        if ($transaksi->pembayaran_id) {
-            return back()->with('error', 'Transaksi pembayaran mahasiswa ini terkait dengan verifikasi pembayaran. Harap kelola melalui menu Verifikasi Pembayaran.');
-        }
+        $transaksi = TransaksiKeuangan::with(['pembayaran.tagihan'])->findOrFail($id);
 
         if ($transaksi->bukti && Storage::disk('public')->exists($transaksi->bukti)) {
             Storage::disk('public')->delete($transaksi->bukti);
+        }
+
+        // Jika transaksi ini berasal dari pembayaran mahasiswa, sesuaikan status pembayaran & kembalikan tagihan
+        if ($transaksi->pembayaran_id && $transaksi->pembayaran) {
+            $pembayaran = $transaksi->pembayaran;
+            $pembayaran->status = 'rejected';
+            if ($pembayaran->tagihan) {
+                $tagihan = $pembayaran->tagihan;
+                $tagihan->sisa_tagihan += $pembayaran->nominal;
+                if ($tagihan->sisa_tagihan > 0) {
+                    $tagihan->status = 'belum lunas';
+                }
+                $tagihan->save();
+            }
+            $pembayaran->save();
         }
 
         $kode = $transaksi->kode_transaksi;
