@@ -5,6 +5,9 @@
 @section('content')
 <div class="space-y-6">
 
+    {{-- Toast Notification Container --}}
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
     {{-- Header Area: Title & Export Buttons --}}
     <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
@@ -15,12 +18,24 @@
                 </span>
             </div>
             <p class="text-xs text-[var(--text-muted)] mt-0.5">
-                Lembar kerja matriks pembayaran SPP 6 bulan, kalkulasi tunggakan, dan status kelunasan mahasiswa.
+                Lembar kerja matriks pembayaran SPP 6 bulan, pencatatan historis, kalkulasi tunggakan, dan penerbitan kuitansi.
             </p>
         </div>
 
-        {{-- Action Buttons: Kelola TA, Ekspor Excel & PDF (Tinggi 40px, Radius 4px) --}}
+        {{-- Action Buttons --}}
         <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <form action="{{ route('backend.keuangan.rekap-spp.sync-tagihan') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" 
+                        class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--primary-50)] text-[var(--primary-700)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer"
+                        title="Terbitkan / Sinkronkan tagihan tunggakan semester aktif ke portal mahasiswa">
+                    <svg class="w-4 h-4 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>Sinkron Tagihan Portal</span>
+                </button>
+            </form>
+
             <a href="{{ route('backend.keuangan.master-tahun-akademik.index') }}" 
                class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--primary-50)] text-[var(--text-body)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer"
                title="Kelola Master Tahun Akademik & Semester">
@@ -78,7 +93,7 @@
         <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-4 flex flex-col justify-between">
             <div>
                 <p class="text-xs font-medium text-[var(--primary-600)]">Sudah terkumpul</p>
-                <p class="text-xl font-bold font-display text-[var(--primary-600)] tabular-nums mt-1">
+                <p class="text-xl font-bold font-display text-[var(--primary-600)] tabular-nums mt-1" id="sumTerkumpul">
                     Rp {{ number_format($summary['total_terkumpul'], 0, ',', '.') }}
                 </p>
             </div>
@@ -89,7 +104,7 @@
         <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-4 flex flex-col justify-between">
             <div>
                 <p class="text-xs font-medium text-[var(--danger)]">Sisa tunggakan</p>
-                <p class="text-xl font-bold font-display text-[var(--danger)] tabular-nums mt-1">
+                <p class="text-xl font-bold font-display text-[var(--danger)] tabular-nums mt-1" id="sumTunggakan">
                     Rp {{ number_format($summary['total_tunggakan'], 0, ',', '.') }}
                 </p>
             </div>
@@ -100,7 +115,7 @@
         <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-4 flex flex-col justify-between">
             <div>
                 <p class="text-xs font-medium text-[var(--text-muted)]">Tingkat kelunasan</p>
-                <p class="text-xl font-bold font-display text-[var(--text-heading)] tabular-nums mt-1">
+                <p class="text-xl font-bold font-display text-[var(--text-heading)] tabular-nums mt-1" id="sumPersen">
                     {{ $summary['persentase_lunas'] }}%
                 </p>
             </div>
@@ -206,13 +221,32 @@
         </form>
     </div>
 
+    {{-- Panduan Alur Centang Historis & Tunggakan --}}
+    <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-3.5 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-start gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-200)] flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <p class="text-[var(--text-heading)] font-semibold">
+                    Panduan Pencatatan Historis (Drive/Rekening Masa Lalu) & Alur Verifikasi:
+                </p>
+                <p class="text-[11px] text-[var(--text-muted)] mt-0.5">
+                    • <b>Centang Langsung:</b> Klik kotak centang pada kolom bulan untuk menandai pelunasan historis masa lalu. Kuitansi resmi otomatis terbit tanpa menduplikasi transaksi buku kas berjalan.<br>
+                    • <b>Tunggakan Aktif:</b> Bulan yang belum dicentang otomatis terbit sebagai tagihan di portal mahasiswa.<br>
+                    • <b>Alur Mahasiswa Bayar:</b> Saat mahasiswa bayar via portal, status matriks menampilkan <i>⏳ Menunggu</i>. Centang Lunas baru aktif otomatis setelah Admin klik <b>Setuju / Approved</b> di menu Verifikasi Pembayaran.
+                </p>
+            </div>
+        </div>
+    </div>
+
     {{-- Matriks Tabel Rekap SPP --}}
     <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] overflow-hidden">
         
         <div class="px-5 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-page)]">
             <div>
                 <h2 class="text-xs font-bold font-display text-[var(--text-heading)]">Matriks pembayaran SPP 6 bulan</h2>
-                <p class="text-[11px] text-[var(--text-muted)] mt-0.5">Status verifikasi pelunasan SPP bulanan per mahasiswa</p>
+                <p class="text-[11px] text-[var(--text-muted)] mt-0.5">Klik langsung kotak centang untuk mencatat pelunasan historis</p>
             </div>
             <span class="text-xs font-semibold text-[var(--text-muted)] tabular-nums">
                 TA {{ $tahunAkademik }} • {{ ucfirst($tipeSemester) }}
@@ -222,15 +256,16 @@
         <div class="w-full overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
-                    <tr class="bg-[var(--primary-50)] dark:bg-[var(--primary-900)]/30 text-[var(--text-body)] font-semibold text-[12.5px] border-b border-[var(--border)]">
+                    <tr class="bg-[var(--primary-50)] dark:bg-[var(--primary-900)]/30 text-[var(--text-body)] font-semibold text-[12px] border-b border-[var(--border)]">
                         <th class="py-3 px-3 text-center border-r border-[var(--border)] w-10">No</th>
                         <th class="py-3 px-3 text-center border-r border-[var(--border)] w-24">NIM</th>
                         <th class="py-3 px-4 border-r border-[var(--border)] min-w-[190px]">Mahasiswa & prodi</th>
                         
                         {{-- 6 Kolom Bulan --}}
                         @foreach($daftarBulan as $b)
-                            <th class="py-3 px-2 text-center border-r border-[var(--border)] w-16">
-                                <span class="block font-bold text-xs text-[var(--text-heading)]">{{ substr($b['nama'], 0, 3) }}</span>
+                            <th class="py-3 px-2 text-center border-r border-[var(--border)] min-w-[90px]">
+                                <span class="block font-bold text-xs text-[var(--text-heading)]">{{ $b['nama'] }}</span>
+                                <span class="block text-[10px] text-[var(--text-muted)] font-normal">{{ $b['year'] }}</span>
                             </th>
                         @endforeach
 
@@ -245,7 +280,7 @@
                 </thead>
                 <tbody class="divide-y divide-[var(--border)] text-[var(--text-body)]">
                     @forelse($rekapItems as $index => $item)
-                        <tr class="hover:bg-[var(--primary-50)]/40 transition-colors">
+                        <tr class="hover:bg-[var(--primary-50)]/40 transition-colors" id="row-mhs-{{ $item['id'] }}">
                             {{-- No --}}
                             <td class="py-3 px-3 text-center border-r border-[var(--border)] text-[var(--text-muted)] tabular-nums">
                                 {{ $index + 1 }}
@@ -264,29 +299,59 @@
                                 </p>
                             </td>
 
-                            {{-- 6 Bulan Semester --}}
+                            {{-- 6 Bulan Semester Interaktif --}}
                             @foreach($item['matriks_bulan'] as $m)
-                                <td class="py-3 px-2 text-center border-r border-[var(--border)]">
+                                <td class="py-3 px-2 text-center border-r border-[var(--border)] align-middle" id="cell-{{ $item['id'] }}-{{ $m['key'] }}">
                                     @if($m['is_lunas'])
-                                        @if(!empty($m['is_alokasi_lintas']))
-                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold cursor-help" 
-                                                  title="Lunas via Alokasi Lintas Bulan (Dibayar tgl {{ $m['alokasi_tanggal'] ?? '-' }} / Kwitansi: {{ $m['alokasi_kwitansi'] ?? '-' }})">
-                                                <svg class="w-3 h-3 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                                <span>Lunas</span>
-                                                <span class="text-[9px] px-1 py-0.2 bg-[var(--primary-200)]/60 text-[var(--primary-800)] rounded-[2px] font-semibold">Alokasi</span>
+                                        {{-- 1. Status LUNAS (Checked) --}}
+                                        <div class="flex flex-col items-center justify-center gap-1">
+                                            <label class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold cursor-pointer hover:bg-[var(--primary-100)] transition"
+                                                   title="{{ $m['is_historis'] ? 'Status: Lunas Historis. Klik untuk membatalkan.' : 'Status: Lunas Terverifikasi.' }}">
+                                                <input type="checkbox" 
+                                                       checked 
+                                                       onchange="handleCheckboxToggle({{ $item['id'] }}, '{{ $m['key'] }}', {{ $m['is_historis'] ? 'true' : 'false' }}, this)" 
+                                                       class="w-3.5 h-3.5 rounded-[2px] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">
+                                                <span>✔ Lunas</span>
+                                                @if(!empty($m['is_historis']))
+                                                    <span class="text-[9px] px-1 bg-[var(--secondary-100)] text-[var(--secondary-800)] rounded-[2px] font-semibold">Hist</span>
+                                                @elseif(!empty($m['is_alokasi_lintas']))
+                                                    <span class="text-[9px] px-1 bg-[var(--primary-200)]/60 text-[var(--primary-800)] rounded-[2px] font-semibold">Alok</span>
+                                                @endif
+                                            </label>
+                                            
+                                            @if(!empty($m['payment_id']))
+                                                <a href="{{ route('backend.keuangan.verifikasi.kwitansi-drive', $m['payment_id']) }}" 
+                                                   target="_blank" 
+                                                   class="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-semibold text-[var(--primary-600)] hover:underline" 
+                                                   title="Buka / Unduh Kuitansi Resmi">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                    <span>Kuitansi</span>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @elseif(!empty($m['is_pending']))
+                                        {{-- 2. Status MENUNGGU VERIFIKASI (Unchecked, Amber) --}}
+                                        <div class="flex flex-col items-center justify-center gap-1">
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--secondary-50)] text-[var(--secondary-700)] dark:text-[var(--secondary-400)] border border-[var(--secondary-200)] text-[10px] font-semibold cursor-help"
+                                                  title="Mahasiswa telah mengunggah bukti transfer. Menunggu verifikasi Admin di menu Verifikasi Pembayaran.">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[var(--secondary-500)] animate-pulse"></span>
+                                                <span>Menunggu</span>
                                             </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)] text-[10.5px] font-bold" title="Lunas">
-                                                <svg class="w-3 h-3 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                                <span>Lunas</span>
-                                            </span>
-                                        @endif
-                                    @elseif($m['ada_tagihan'] && $m['nominal_bayar'] > 0)
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--secondary-50)] text-[var(--secondary-700)] dark:text-[var(--secondary-400)] border border-[var(--secondary-200)] text-[10px] font-semibold" title="Sebagian">
-                                            Sebagian
-                                        </span>
+                                            <a href="{{ route('backend.keuangan.verifikasi.index') }}" class="text-[9.5px] text-[var(--primary-600)] hover:underline font-semibold">
+                                                Verifikasi
+                                            </a>
+                                        </div>
                                     @else
-                                        <span class="text-[var(--text-muted)]/50 font-medium">-</span>
+                                        {{-- 3. Status BELUM LUNAS / TUNGGAKAN AKTIF (Unchecked, Interaktif) --}}
+                                        <div class="flex flex-col items-center justify-center">
+                                            <label class="inline-flex items-center gap-1.5 p-1 rounded-[var(--radius-xs)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] cursor-pointer transition text-[var(--text-muted)] hover:text-[var(--primary-700)]"
+                                                   title="Centang untuk menandai Lunas Historis (Menerbitkan Kuitansi otomatis tanpa menduplikasi kas)">
+                                                <input type="checkbox" 
+                                                       onchange="handleCheckboxToggle({{ $item['id'] }}, '{{ $m['key'] }}', false, this)" 
+                                                       class="w-4 h-4 rounded-[var(--radius-xs)] border-[var(--border)] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">
+                                                <span class="text-[10px] font-medium">-</span>
+                                            </label>
+                                        </div>
                                     @endif
                                 </td>
                             @endforeach
@@ -297,7 +362,7 @@
                             </td>
 
                             {{-- Bulan Menunggak --}}
-                            <td class="py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold {{ $item['bulan_menunggak'] > 0 ? 'text-[var(--danger)]' : 'text-[var(--primary-600)]' }}">
+                            <td class="py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold {{ $item['bulan_menunggak'] > 0 ? 'text-[var(--danger)]' : 'text-[var(--primary-600)]' }}" id="mhs-tgk-{{ $item['id'] }}">
                                 {{ $item['bulan_menunggak'] }}
                             </td>
 
@@ -307,23 +372,25 @@
                             </td>
 
                             {{-- Total Sudah Dibayar --}}
-                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums font-semibold text-[var(--primary-600)]">
+                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--primary-600)] font-semibold" id="mhs-dibayar-{{ $item['id'] }}">
                                 Rp {{ number_format($item['total_dibayar'], 0, ',', '.') }}
                             </td>
 
                             {{-- Sisa Tunggakan --}}
-                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums font-bold {{ $item['sisa_tunggakan'] > 0 ? 'text-[var(--danger)]' : 'text-[var(--text-muted)]' }}">
+                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums {{ $item['sisa_tunggakan'] > 0 ? 'text-[var(--danger)] font-semibold' : 'text-[var(--text-muted)]' }}" id="mhs-sisa-{{ $item['id'] }}">
                                 Rp {{ number_format($item['sisa_tunggakan'], 0, ',', '.') }}
                             </td>
 
-                            {{-- Status --}}
-                            <td class="py-3 px-3 text-center border-r border-[var(--border)]">
+                            {{-- Status Kelunasan --}}
+                            <td class="py-3 px-3 text-center border-r border-[var(--border)]" id="mhs-status-{{ $item['id'] }}">
                                 @if($item['status'] === 'Lunas')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[10px] font-semibold bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)]">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)]">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--primary-500)] mr-1.5"></span>
                                         Lunas
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[10px] font-semibold bg-rose-50 text-[var(--danger)] border border-rose-200">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-rose-50 text-[var(--danger)] border border-rose-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)] mr-1.5"></span>
                                         Menunggak
                                     </span>
                                 @endif
@@ -376,4 +443,102 @@
     </div>
 
 </div>
+
+<script>
+    function showToast(message, isSuccess = true) {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'pointer-events-auto p-3.5 rounded-[var(--radius-xs)] border shadow-lg text-xs font-semibold flex items-center gap-2 max-w-sm transition-all duration-300 ' +
+            (isSuccess 
+                ? 'bg-[var(--surface)] text-[var(--primary-700)] border-[var(--primary-300)]' 
+                : 'bg-rose-50 text-[var(--danger)] border-rose-200');
+
+        var icon = isSuccess
+            ? '<svg class="w-4 h-4 text-[var(--primary-600)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+            : '<svg class="w-4 h-4 text-[var(--danger)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+
+        toast.innerHTML = icon + '<span>' + message + '</span>';
+        container.appendChild(toast);
+
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 4000);
+    }
+
+    function handleCheckboxToggle(userId, monthKey, isHistorisAlready, cb) {
+        var targetAction = cb.checked ? 'check' : 'uncheck';
+
+        if (!cb.checked && !isHistorisAlready) {
+            alert('Pembayaran ini merupakan pembayaran via verifikasi transfer bank. Pembatalan harus dilakukan melalui menu Verifikasi Pembayaran.');
+            cb.checked = true;
+            return;
+        }
+
+        if (!cb.checked && isHistorisAlready) {
+            if (!confirm('Apakah Anda yakin ingin membatalkan status LUNAS historis pada bulan ini dan mengembalikannya ke TUNGGAKAN?')) {
+                cb.checked = true;
+                return;
+            }
+        }
+
+        var cell = document.getElementById('cell-' + userId + '-' + monthKey);
+        var originalContent = cell.innerHTML;
+        cell.innerHTML = '<span class="inline-block animate-spin text-[var(--primary-600)]">⟳</span>';
+
+        fetch('{{ route("backend.keuangan.rekap-spp.toggle-historis") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                month_key: monthKey,
+                action: targetAction
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                showToast(data.message, true);
+
+                if (data.is_lunas) {
+                    var kwitansiBtn = '';
+                    if (data.kwitansi_url) {
+                        kwitansiBtn = '<a href="' + data.kwitansi_url + '" target="_blank" class="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-semibold text-[var(--primary-600)] hover:underline" title="Buka / Unduh Kuitansi">' +
+                            '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
+                            '<span>Kuitansi</span></a>';
+                    }
+
+                    cell.innerHTML = '<div class="flex flex-col items-center justify-center gap-1">' +
+                        '<label class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold cursor-pointer hover:bg-[var(--primary-100)] transition" title="Status: Lunas Historis. Klik untuk membatalkan.">' +
+                            '<input type="checkbox" checked onchange="handleCheckboxToggle(' + userId + ', \'' + monthKey + '\', true, this)" class="w-3.5 h-3.5 rounded-[2px] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">' +
+                            '<span>✔ Lunas</span>' +
+                            '<span class="text-[9px] px-1 bg-[var(--secondary-100)] text-[var(--secondary-800)] rounded-[2px] font-semibold">Hist</span>' +
+                        '</label>' + kwitansiBtn +
+                    '</div>';
+                } else {
+                    cell.innerHTML = '<div class="flex flex-col items-center justify-center">' +
+                        '<label class="inline-flex items-center gap-1.5 p-1 rounded-[var(--radius-xs)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] cursor-pointer transition text-[var(--text-muted)] hover:text-[var(--primary-700)]" title="Centang untuk menandai Lunas Historis">' +
+                            '<input type="checkbox" onchange="handleCheckboxToggle(' + userId + ', \'' + monthKey + '\', false, this)" class="w-4 h-4 rounded-[var(--radius-xs)] border-[var(--border)] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">' +
+                            '<span class="text-[10px] font-medium">-</span>' +
+                        '</label>' +
+                    '</div>';
+                }
+            } else {
+                showToast(data.message || 'Terjadi kesalahan.', false);
+                cell.innerHTML = originalContent;
+            }
+        })
+        .catch(function(err) {
+            showToast('Gagal memproses permintaan: ' + err.message, false);
+            cell.innerHTML = originalContent;
+        });
+    }
+</script>
 @endsection

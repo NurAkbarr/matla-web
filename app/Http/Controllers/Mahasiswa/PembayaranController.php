@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\MasterSemester;
+use App\Models\Pembayaran;
+use App\Models\Tagihan;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class PembayaranController extends Controller
 {
@@ -20,21 +26,27 @@ class PembayaranController extends Controller
 
     public function tagihan()
     {
-        $tagihans = \App\Models\Tagihan::with(['pembayarans' => function($q) {
+        $user = auth()->user();
+
+        // Otomasi Deteksi Tunggakan: Pastikan bulan semester aktif yang belum lunas terbit sebagai tagihan aktif
+        $this->syncActiveSemesterTagihans($user);
+
+        $tagihans = Tagihan::with(['pembayarans' => function($q) {
             $q->where('status', '!=', 'rejected')->orderBy('created_at', 'asc');
-        }])->where('user_id', auth()->id())->latest()->get();
+        }])->where('user_id', $user->id)->latest()->get();
+
         return view('mahasiswa.pembayaran.tagihan', compact('tagihans'));
     }
 
     public function konfirmasiForm($id)
     {
-        $tagihan = \App\Models\Tagihan::where('user_id', auth()->id())->findOrFail($id);
+        $tagihan = Tagihan::where('user_id', auth()->id())->findOrFail($id);
         return view('mahasiswa.pembayaran.konfirmasi', compact('tagihan'));
     }
 
     public function submitKonfirmasi(Request $request, $id)
     {
-        $tagihan = \App\Models\Tagihan::where('user_id', auth()->id())->findOrFail($id);
+        $tagihan = Tagihan::where('user_id', auth()->id())->findOrFail($id);
 
         $request->validate([
             'jenis_pembayaran' => 'required|in:lunas,cicilan',
@@ -64,17 +76,17 @@ class PembayaranController extends Controller
         // 1. Coba upload ke Google Drive Keuangan
         try {
             $buktiPath = $request->file('bukti_tf')->store($folderName, 'google_keuangan');
-            $buktiTfUrl = \Illuminate\Support\Facades\Storage::disk('google_keuangan')->url($buktiPath);
+            $buktiTfUrl = Storage::disk('google_keuangan')->url($buktiPath);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::warning('Google Drive Keuangan upload failed, trying main Google Drive: ' . $e->getMessage());
+            Log::warning('Google Drive Keuangan upload failed, trying main Google Drive: ' . $e->getMessage());
             
             // 2. Fallback ke Google Drive Utama (kampus)
             try {
                 $mainDrivePath = "Keuangan/{$folderName}/Bukti_TF_" . $request->file('bukti_tf')->hashName();
-                \Illuminate\Support\Facades\Storage::disk('google')->put($mainDrivePath, file_get_contents($request->file('bukti_tf')->getRealPath()));
-                $buktiTfUrl = \Illuminate\Support\Facades\Storage::disk('google')->url($mainDrivePath);
+                Storage::disk('google')->put($mainDrivePath, file_get_contents($request->file('bukti_tf')->getRealPath()));
+                $buktiTfUrl = Storage::disk('google')->url($mainDrivePath);
             } catch (\Exception $e2) {
-                \Illuminate\Support\Facades\Log::error('Main Google Drive upload also failed, fallback to local storage: ' . $e2->getMessage());
+                Log::error('Main Google Drive upload also failed, fallback to local storage: ' . $e2->getMessage());
                 // 3. Fallback terakhir ke penyimpanan lokal
                 $buktiPath = $request->file('bukti_tf')->store('pembayaran', 'public');
                 $buktiTfUrl = $buktiPath;
@@ -85,12 +97,12 @@ class PembayaranController extends Controller
         if ($request->hasFile('berkas_pendukung')) {
             try {
                 $berkasPath = $request->file('berkas_pendukung')->store($folderName, 'google_keuangan');
-                $berkasPendukungUrl = \Illuminate\Support\Facades\Storage::disk('google_keuangan')->url($berkasPath);
+                $berkasPendukungUrl = Storage::disk('google_keuangan')->url($berkasPath);
             } catch (\Exception $e) {
                 try {
                     $mainDrivePath = "Keuangan/{$folderName}/Berkas_" . $request->file('berkas_pendukung')->hashName();
-                    \Illuminate\Support\Facades\Storage::disk('google')->put($mainDrivePath, file_get_contents($request->file('berkas_pendukung')->getRealPath()));
-                    $berkasPendukungUrl = \Illuminate\Support\Facades\Storage::disk('google')->url($mainDrivePath);
+                    Storage::disk('google')->put($mainDrivePath, file_get_contents($request->file('berkas_pendukung')->getRealPath()));
+                    $berkasPendukungUrl = Storage::disk('google')->url($mainDrivePath);
                 } catch (\Exception $e2) {
                     $berkasPath = $request->file('berkas_pendukung')->store('pembayaran/pendukung', 'public');
                     $berkasPendukungUrl = $berkasPath;
@@ -105,7 +117,37 @@ class PembayaranController extends Controller
             $berkasPendukungUrl = "https://drive.google.com/file/d/{$m[1]}/view";
         }
 
-        $pembayaran = \App\Models\Pembayaran::create([
+        // Deteksi bulan alokasi dari tagihan SPP jika ada
+        $bulanAlokasi = null;
+        if ($tagihan && stripos($tagihan->nama_tagihan, 'spp') !== false) {
+            $monthNames = [
+                'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4,
+                'mei' => 5, 'juni' => 6, 'juli' => 7, 'agustus' => 8,
+                'september' => 9, 'oktober' => 10, 'november' => 11, 'desember' => 12,
+                'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4,
+                'jun' => 6, 'jul' => 7, 'ags' => 8, 'sep' => 9,
+                'okt' => 10, 'nov' => 11, 'des' => 12,
+            ];
+            $namaLower = strtolower($tagihan->nama_tagihan);
+            $detectedM = null;
+            foreach ($monthNames as $mKey => $mVal) {
+                if (str_contains($namaLower, $mKey)) {
+                    $detectedM = $mVal;
+                    break;
+                }
+            }
+            $year = date('Y');
+            if ($tagihan->jatuh_tempo) {
+                try {
+                    $year = \Carbon\Carbon::parse($tagihan->jatuh_tempo)->year;
+                } catch (\Exception $e) {}
+            }
+            if ($detectedM) {
+                $bulanAlokasi = [sprintf('%04d-%02d', $year, $detectedM)];
+            }
+        }
+
+        $pembayaran = Pembayaran::create([
             'tagihan_id' => $tagihan->id,
             'user_id' => auth()->id(),
             'jenis_pembayaran' => $request->jenis_pembayaran,
@@ -113,7 +155,8 @@ class PembayaranController extends Controller
             'bukti_tf' => $buktiTfUrl,
             'berkas_pendukung' => $berkasPendukungUrl,
             'catatan' => $request->catatan,
-            'status' => 'pending'
+            'status' => 'pending',
+            'bulan_alokasi' => $bulanAlokasi,
         ]);
 
         try {
@@ -121,9 +164,9 @@ class PembayaranController extends Controller
             $adminKeuangan = \App\Models\User::where('role', 'keuangan')->first();
             $adminEmail = $adminKeuangan ? $adminKeuangan->email : 'finance@matla.id';
             
-            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\PaymentSubmittedMail($pembayaran, auth()->user()));
+            Mail::to($adminEmail)->send(new \App\Mail\PaymentSubmittedMail($pembayaran, auth()->user()));
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send payment submitted email: ' . $e->getMessage());
+            Log::error('Failed to send payment submitted email: ' . $e->getMessage());
         }
 
         return redirect()->route('backend.mahasiswa.pembayaran.tagihan')->with('success', 'Konfirmasi pembayaran berhasil dikirim dan menunggu verifikasi Admin.');
@@ -132,7 +175,7 @@ class PembayaranController extends Controller
     public function riwayat()
     {
         // Get tagihans that have payments, ordered by newest payments
-        $tagihans = \App\Models\Tagihan::where('user_id', auth()->id())
+        $tagihans = Tagihan::where('user_id', auth()->id())
             ->whereHas('pembayarans')
             ->with(['pembayarans' => function($query) {
                 $query->orderBy('created_at', 'desc');
@@ -145,14 +188,85 @@ class PembayaranController extends Controller
 
     public function kwitansi($id)
     {
-        $pembayaran = \App\Models\Pembayaran::where('user_id', auth()->id())
+        $pembayaran = Pembayaran::where('user_id', auth()->id())
             ->where('status', 'verified')
             ->whereNotNull('kwitansi')
-            ->with('tagihan')
+            ->with(['tagihan', 'user'])
             ->findOrFail($id);
 
         $pdf = Pdf::loadView('mahasiswa.pembayaran.kwitansi', compact('pembayaran'));
         $safeKwitansiNo = str_replace('/', '-', $pembayaran->kwitansi);
         return $pdf->download('Kwitansi_Pembayaran_' . $safeKwitansiNo . '.pdf');
+    }
+
+    /**
+     * Otomasi Deteksi Tunggakan:
+     * Memastikan bulan-bulan semester aktif yang belum lunas terbit sebagai Tagihan Aktif bagi mahasiswa.
+     */
+    protected function syncActiveSemesterTagihans($user)
+    {
+        try {
+            $activeSemester = MasterSemester::with('tahunAkademik')->where('is_active', true)->first();
+            if (!$activeSemester) {
+                return;
+            }
+
+            $daftarBulan = $activeSemester->getDaftarBulan();
+            $verifiedPayments = Pembayaran::where('user_id', $user->id)
+                ->where('status', 'verified')
+                ->get();
+
+            $nominalSpp = (float)($user->nominal_spp ?: 300000);
+
+            foreach ($daftarBulan as $b) {
+                $monthKey = $b['key']; // 'YYYY-MM'
+                $bNama = $b['nama'];   // 'Juli'
+                $bNum = $b['num'];     // 7
+                $bYear = $b['year'];   // 2026
+
+                // Cek apakah bulan ini sudah lunas via pembayaran terverifikasi
+                $isPaid = $verifiedPayments->first(function ($p) use ($monthKey, $bNum, $bNama) {
+                    $alokasi = $p->bulan_alokasi;
+                    if (!empty($alokasi) && is_array($alokasi)) {
+                        if (in_array($monthKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }) !== null;
+
+                $existingTagihan = Tagihan::where('user_id', $user->id)
+                    ->where(function ($q) use ($bNama, $bNum, $bYear) {
+                        $q->where('nama_tagihan', 'like', "%{$bNama}%")
+                          ->orWhere(function ($sub) use ($bNum, $bYear) {
+                              $sub->whereMonth('jatuh_tempo', $bNum)->whereYear('jatuh_tempo', $bYear);
+                          });
+                    })->first();
+
+                if ($isPaid) {
+                    if ($existingTagihan && $existingTagihan->status !== 'lunas') {
+                        $existingTagihan->update([
+                            'status' => 'lunas',
+                            'sisa_tagihan' => 0,
+                        ]);
+                    }
+                } else {
+                    if (!$existingTagihan) {
+                        Tagihan::create([
+                            'user_id' => $user->id,
+                            'nama_tagihan' => "SPP " . strtoupper($bNama) . " {$bYear}",
+                            'nominal_total' => $nominalSpp,
+                            'sisa_tagihan' => $nominalSpp,
+                            'status' => 'belum lunas',
+                            'jenis_tagihan' => 'lunas',
+                            'keterangan' => "Tagihan SPP Semester " . ($activeSemester->nama_semester ?? '') . " - Bulan {$bNama} {$bYear}",
+                            'jatuh_tempo' => "{$bYear}-" . sprintf('%02d', $bNum) . "-10",
+                        ]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Gagal sinkronisasi tagihan SPP: ' . $e->getMessage());
+        }
     }
 }

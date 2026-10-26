@@ -41,7 +41,12 @@ class VerifikasiPembayaranController extends Controller
         $tahunAkademikId = $request->input('tahun_akademik_id');
         $catatanAlokasi = $request->input('catatan_alokasi');
 
-        // Jika form alokasi tidak dipilih secara manual, coba deteksi dari nama/tanggal tagihan
+        // Jika form alokasi tidak dipilih secara manual, gunakan bulan_alokasi yang sudah ada pada pembayaran
+        if (empty($bulanAlokasi) && !empty($pembayaran->bulan_alokasi)) {
+            $bulanAlokasi = is_array($pembayaran->bulan_alokasi) ? $pembayaran->bulan_alokasi : json_decode($pembayaran->bulan_alokasi, true);
+        }
+
+        // Jika masih kosong, coba deteksi dari nama/tanggal tagihan
         if (empty($bulanAlokasi) && $pembayaran->tagihan) {
             $namaLower = strtolower($pembayaran->tagihan->nama_tagihan ?? '');
             $monthNames = [

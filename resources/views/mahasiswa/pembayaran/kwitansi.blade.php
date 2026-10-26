@@ -291,7 +291,22 @@
         <tr>
             <td class="col-label">Program Studi</td>
             <td class="col-colon">:</td>
-            <td class="col-value">{{ $pembayaran->user->prodi->nama_prodi ?? 'S1 PAI' }}</td>
+            <td class="col-value">
+                @php
+                    $mhsUser = $pembayaran->user;
+                    $prodiText = 'S1 Pendidikan Agama Islam';
+                    if ($mhsUser) {
+                        if (is_object($mhsUser->prodi) && isset($mhsUser->prodi->nama_prodi)) {
+                            $prodiText = $mhsUser->prodi->nama_prodi;
+                        } elseif (is_string($mhsUser->prodi) && !empty($mhsUser->prodi)) {
+                            $prodiText = $mhsUser->prodi;
+                        } elseif (isset($mhsUser->education['program_studi']) && !empty($mhsUser->education['program_studi'])) {
+                            $prodiText = $mhsUser->education['program_studi'];
+                        }
+                    }
+                @endphp
+                {{ $prodiText }}
+            </td>
         </tr>
     </table>
 

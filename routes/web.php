@@ -654,6 +654,8 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
 
         // Rekap SPP per Semester
         Route::get('/rekap-spp', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'index'])->name('rekap-spp.index');
+        Route::post('/rekap-spp/toggle-historis', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'toggleHistoris'])->name('rekap-spp.toggle-historis');
+        Route::post('/rekap-spp/sync-tagihan', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'syncTagihanTunggakan'])->name('rekap-spp.sync-tagihan');
         Route::get('/rekap-spp/export/excel', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'exportExcel'])->name('rekap-spp.export.excel');
         Route::get('/rekap-spp/export/pdf', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'exportPdf'])->name('rekap-spp.export.pdf');
 
