@@ -209,4 +209,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Khs::class, 'mahasiswa_id');
     }
+
+    public function tagihans()
+    {
+        return $this->hasMany(Tagihan::class);
+    }
+
+    public function pembayarans()
+    {
+        return $this->hasMany(Pembayaran::class);
+    }
 }
