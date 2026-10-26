@@ -8,16 +8,16 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/logo-bulat.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/logo-bulat.png') }}">
     
-    {{-- Google Fonts: Poppins (Primary) & Montserrat --}}
+    {{-- Google Fonts: Figtree (Body & UI) & Schibsted Grotesk (Display & Numbers) per design.md --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         [x-cloak] { display: none !important; }
-        .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-transition { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .dropdown-content { overflow: hidden; transition: max-height 0.2s ease-out; max-height: 0; }
         .dropdown-content.open { max-height: 300px; }
         .chevron-rotate { transform: rotate(180deg); }
@@ -42,28 +42,28 @@
 
         {{-- ===== MOBILE SIDEBAR OVERLAY ===== --}}
         <div id="sidebar-overlay"
-             class="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
+             class="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
              style="display: none;"
              onclick="closeSidebar()">
         </div>
 
         <div class="flex h-screen bg-[var(--bg-page)] text-[var(--text-body)] overflow-hidden w-full">
-            {{-- ===== SIDEBAR (Mobile: Overlay, Desktop: Static Side) ===== --}}
+            {{-- ===== SIDEBAR (Mobile: Drawer, Desktop: 240px Static Side) ===== --}}
             <aside id="sidebar" 
-                   class="fixed inset-y-0 left-0 z-50 w-[245px] bg-[var(--primary-800)] dark:bg-[#07170F] border-r border-[var(--primary-900)]/80 dark:border-[var(--border)] shadow-sidebar transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col shrink-0 overflow-hidden">
+                   class="fixed inset-y-0 left-0 z-50 w-[240px] bg-[var(--primary-900)] text-white border-r border-white/5 transform -translate-x-full transition-transform duration-250 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col shrink-0 overflow-hidden">
                 
                 {{-- Logo Area --}}
-                <div class="px-5 py-5 border-b border-white/10 flex items-center justify-between shrink-0">
+                <div class="h-16 px-5 border-b border-white/10 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 bg-white p-1.5 rounded-xl shadow-sm flex items-center justify-center shrink-0">
-                            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-7 w-auto object-contain">
+                        <div class="w-9 h-9 bg-white p-1 rounded-[var(--radius-xs)] flex items-center justify-center shrink-0">
+                            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-6 w-auto object-contain">
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span class="font-bold text-base tracking-wide text-white leading-tight uppercase truncate">MATLA</span>
-                            <span class="whitespace-nowrap text-[10px] font-semibold tracking-wider text-amber-400 mt-0.5 uppercase truncate">UNIVERSITY PORTAL</span>
+                            <span class="font-bold font-display text-sm text-white leading-tight truncate">MATLA</span>
+                            <span class="text-[10px] font-medium tracking-wide text-[var(--secondary-400)] truncate">University Portal</span>
                         </div>
                     </div>
-                    <button onclick="closeSidebar()" class="lg:hidden p-1.5 text-white/70 hover:text-white rounded-lg hover:bg-[var(--primary-700)] focus:outline-none cursor-pointer" aria-label="Tutup menu">
+                    <button onclick="closeSidebar()" class="lg:hidden p-1.5 text-white/70 hover:text-white rounded-[var(--radius-xs)] hover:bg-white/10 focus:outline-none cursor-pointer" aria-label="Tutup menu">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -71,65 +71,90 @@
                 </div>
 
                 {{-- Sidebar Scrollable Menu --}}
-                <nav class="flex-1 overflow-y-auto scrollbar-hide py-4 px-3.5 space-y-1">
-                    {{-- SISTEM KEUANGAN --}}
-                    <p class="px-3.5 pt-2 pb-1.5 text-[10px] font-semibold text-[var(--primary-300)]/70 dark:text-emerald-300/50 uppercase tracking-widest whitespace-nowrap">Sistem Keuangan</p>
+                <nav class="flex-1 overflow-y-auto scrollbar-hide py-3 space-y-0.5">
+                    {{-- Section Group Header (Sentence case, normal weight) --}}
+                    <p class="px-5 pt-3 pb-1.5 text-xs font-medium text-white/50">Sistem keuangan</p>
 
+                    @php
+                        $isDashboard = request()->routeIs('backend.keuangan.dashboard');
+                        $isMahasiswa = request()->routeIs('backend.keuangan.mahasiswa.*');
+                        $isVerifikasi = request()->routeIs('backend.keuangan.verifikasi.*');
+                        $isTagihan = request()->routeIs('backend.keuangan.tagihan.*');
+                        $isRekapSpp = request()->routeIs('backend.keuangan.rekap-spp.*');
+                        $isRiwayat = request()->routeIs('backend.keuangan.riwayat-transaksi.*');
+                        
+                        // Count pending verifications for amber badge
+                        $pendingVerifCount = \App\Models\Pembayaran::where('status', 'pending')->count();
+                    @endphp
+
+                    {{-- 1. Dashboard --}}
                     <a href="{{ route('backend.keuangan.dashboard') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.dashboard') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.dashboard') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isDashboard ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                         </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Dashboard</span>
+                        <span class="truncate">Dashboard</span>
                     </a>
 
+                    {{-- 2. Data Mahasiswa --}}
                     <a href="{{ route('backend.keuangan.mahasiswa.index') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.mahasiswa.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.mahasiswa.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isMahasiswa ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Data Mahasiswa</span>
+                        <span class="truncate">Data Mahasiswa</span>
                     </a>
 
+                    {{-- 3. Verifikasi Pembayaran --}}
                     <a href="{{ route('backend.keuangan.verifikasi.index') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.verifikasi.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 self-center {{ request()->routeIs('backend.keuangan.verifikasi.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Verifikasi Pembayaran</span>
+                       class="flex items-center justify-between px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isVerifikasi ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="truncate">Verifikasi Pembayaran</span>
+                        </div>
+                        @if($pendingVerifCount > 0)
+                            <span class="px-1.5 py-0.5 text-[11px] font-bold bg-[var(--secondary-500)] text-[var(--text-on-secondary)] rounded-full tabular-nums">
+                                {{ $pendingVerifCount }}
+                            </span>
+                        @endif
                     </a>
 
+                    {{-- 4. Manajemen Tagihan --}}
                     <a href="{{ route('backend.keuangan.tagihan.index') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.tagihan.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.tagihan.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isTagihan ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Manajemen Tagihan</span>
+                        <span class="truncate">Manajemen Tagihan</span>
                     </a>
 
+                    {{-- 5. Rekap SPP Semester --}}
                     <a href="{{ route('backend.keuangan.rekap-spp.index') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.rekap-spp.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.rekap-spp.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isRekapSpp ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Rekap SPP Semester</span>
+                        <span class="truncate">Rekap SPP Semester</span>
                     </a>
 
+                    {{-- 6. Riwayat Transaksi --}}
                     <a href="{{ route('backend.keuangan.riwayat-transaksi.index') }}" 
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 group whitespace-nowrap {{ request()->routeIs('backend.keuangan.riwayat-transaksi.*') ? 'bg-[var(--primary-500)] text-white shadow-sm border-l-4 border-[var(--secondary-500)] font-semibold' : 'text-white/75 hover:bg-[var(--primary-700)] hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('backend.keuangan.riwayat-transaksi.*') ? 'text-white' : 'text-white/70 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isRiwayat ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
-                        <span class="text-sm font-medium leading-none whitespace-nowrap">Riwayat Transaksi</span>
+                        <span class="truncate">Riwayat Transaksi</span>
                     </a>
                 </nav>
 
-                {{-- Logout Button --}}
-                <div class="p-3.5 border-t border-white/10 shrink-0">
+                {{-- Logout Button (Separated with meaningful border) --}}
+                <div class="p-3 border-t border-white/10 mt-auto shrink-0">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-white/75 hover:text-white hover:bg-[var(--primary-700)] dark:hover:bg-rose-950/30 transition-colors text-sm font-medium whitespace-nowrap cursor-pointer">
-                            <svg class="w-5 h-5 shrink-0 text-white/60 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[var(--radius-xs)] text-white/75 hover:text-white hover:bg-white/10 transition-colors text-sm font-medium cursor-pointer">
+                            <svg class="w-5 h-5 shrink-0 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                             <span>Logout</span>
@@ -141,87 +166,86 @@
             {{-- ===== MAIN CONTENT AREA ===== --}}
             <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 
-                {{-- Topbar (Fixed Height) --}}
-                <header class="bg-[var(--surface)] border-b border-[var(--border)] flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5 shrink-0 z-30 transition-colors duration-200">
+                {{-- Topbar (64px Fixed Height per design.md) --}}
+                <header class="h-16 bg-[var(--surface)] border-b border-[var(--border)] flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 z-30">
                     <div class="flex items-center space-x-3">
-                        {{-- Hamburger Button (mobile only, 44x44px target) --}}
+                        {{-- Hamburger Button (Mobile only, 40x40 target) --}}
                         <button id="hamburger-btn" 
                                 onclick="openSidebar()"
-                                class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--primary-50)] dark:hover:bg-[var(--primary-100)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)]/20 lg:hidden"
-                                aria-label="Buka menu"
+                                class="w-10 h-10 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--primary-50)] transition-colors focus:outline-none lg:hidden cursor-pointer"
+                                aria-label="Buka navigasi menu"
                                 aria-expanded="false">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
 
-                        {{-- Logo (mobile) --}}
+                        {{-- Logo (Mobile only) --}}
                         <div class="lg:hidden flex items-center space-x-2">
-                            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-7 w-auto">
-                            <span class="font-bold text-[var(--primary-500)] text-sm">MATLA</span>
+                            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-6 w-auto">
+                            <span class="font-bold font-display text-[var(--primary-500)] text-sm">MATLA</span>
                         </div>
 
-                        {{-- Breadcrumb / Title (desktop) --}}
-                        <h2 class="text-lg font-semibold text-[var(--text-heading)] hidden lg:block tracking-tight">
+                        {{-- Page Title (Desktop) --}}
+                        <h2 class="text-base font-bold font-display text-[var(--text-heading)] hidden lg:block tracking-tight">
                             @yield('title', 'Dashboard Keuangan')
                         </h2>
                     </div>
 
-                    <div class="flex items-center space-x-4 sm:space-x-5">
-                        {{-- Dark Mode Toggle & Notification --}}
-                        <div class="flex items-center space-x-1 sm:space-x-2">
-                            <button id="theme-toggle" onclick="toggleDarkMode()" 
-                                    class="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--primary-50)] dark:hover:bg-[var(--primary-100)] transition-colors focus:outline-none" 
-                                    aria-label="Ganti mode gelap atau terang"
-                                    title="Toggle Mode Gelap/Terang">
-                                <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                                </svg>
-                                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden text-[var(--secondary-400)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                </svg>
-                            </button>
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        {{-- Dark Mode Toggle --}}
+                        <button id="theme-toggle" onclick="toggleDarkMode()" 
+                                class="w-10 h-10 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--primary-50)] transition-colors focus:outline-none cursor-pointer" 
+                                aria-label="Ganti mode gelap atau terang"
+                                title="Ganti mode tema">
+                            <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                            </svg>
+                            <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden text-[var(--secondary-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </button>
 
-                            <button class="relative p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--primary-50)] dark:hover:bg-[var(--primary-100)] transition-colors" 
-                                    aria-label="Lihat notifikasi"
-                                    title="Notifikasi">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                </svg>
-                                <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--danger)] ring-2 ring-[var(--surface)]"></span>
-                            </button>
-                        </div>
+                        {{-- Notification --}}
+                        <button class="relative w-10 h-10 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--text-heading)] hover:bg-[var(--primary-50)] transition-colors cursor-pointer" 
+                                aria-label="Notifikasi sistem"
+                                title="Notifikasi">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--secondary-500)] ring-2 ring-[var(--surface)]"></span>
+                        </button>
 
                         {{-- User Profile --}}
-                        <div class="flex items-center space-x-3 pl-2 border-l border-[var(--border)]">
+                        <div class="flex items-center space-x-3 pl-3 border-l border-[var(--border)]">
                             <div class="text-right hidden sm:block">
-                                <p class="text-sm font-semibold text-[var(--text-heading)] capitalize leading-tight">{{ Auth::user()->name ?? 'Staff Keuangan' }}</p>
-                                <p class="text-[11px] text-[var(--text-muted)] font-normal mt-0.5">{{ date('l, d M Y') }}</p>
+                                <p class="text-xs font-semibold text-[var(--text-heading)] leading-tight">{{ Auth::user()->name ?? 'Staff Keuangan' }}</p>
+                                <p class="text-[11px] text-[var(--text-muted)] tabular-nums mt-0.5">{{ date('d M Y') }}</p>
                             </div>
-                            <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[var(--primary-100)] text-[var(--primary-600)] dark:text-[var(--primary-300)] flex items-center justify-center font-bold text-sm shadow-sm ring-1 ring-[var(--border)]">
-                                <span>{{ substr(Auth::user()->name ?? 'K', 0, 1) }}</span>
+                            <div class="w-9 h-9 rounded-full bg-[var(--primary-100)] text-[var(--primary-600)] flex items-center justify-center font-bold text-xs border border-[var(--primary-200)] shrink-0">
+                                <span>{{ strtoupper(substr(Auth::user()->name ?? 'K', 0, 1)) }}</span>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                {{-- Content Area (Scrollable) --}}
-                <main class="flex-1 overflow-y-auto bg-[var(--bg-page)] transition-colors duration-200">
-                    <div class="p-4 sm:p-6 lg:p-8 min-h-full flex flex-col">
+                {{-- Content Area (Scrollable, 1440px max width centered on large desktop) --}}
+                <main class="flex-1 overflow-y-auto bg-[var(--bg-page)]">
+                    <div class="max-w-[1440px] mx-auto p-4 sm:p-6 lg:p-8 min-h-full flex flex-col">
                         {{-- Success Modal --}}
                         @if(session('success'))
                         <div id="success-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                             <div class="absolute inset-0 bg-black/40 backdrop-blur-xs" onclick="document.getElementById('success-modal').style.display='none'"></div>
-                            <div class="relative bg-[var(--surface)] rounded-2xl shadow-xl max-w-sm w-full p-8 text-center border border-[var(--border)]">
-                                <div class="w-16 h-16 bg-[var(--primary-100)] rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8 text-[var(--primary-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative bg-[var(--surface)] rounded-[var(--radius-sm)] max-w-sm w-full p-6 text-center border border-[var(--border)] shadow-[var(--shadow-modal)]">
+                                <div class="w-12 h-12 bg-[var(--primary-50)] text-[var(--primary-500)] border border-[var(--primary-200)] rounded-[var(--radius-xs)] flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <h3 class="text-xl font-bold text-[var(--text-heading)] mb-2 tracking-tight">Berhasil!</h3>
-                                <p class="text-[var(--text-muted)] text-sm mb-6 leading-relaxed">{{ session('success') }}</p>
+                                <h3 class="text-base font-bold font-display text-[var(--text-heading)] mb-1">Berhasil</h3>
+                                <p class="text-[var(--text-muted)] text-xs mb-5 leading-relaxed">{{ session('success') }}</p>
                                 <button type="button" onclick="document.getElementById('success-modal').style.display='none'"
-                                        class="w-full py-3 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white rounded-xl font-semibold text-xs uppercase tracking-wider transition-colors shadow-sm active:scale-95">
+                                        class="w-full h-10 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white rounded-[var(--radius-xs)] font-semibold text-xs transition-colors cursor-pointer">
                                     Lanjutkan
                                 </button>
                             </div>
@@ -234,13 +258,13 @@
                     </div>
                 </main>
 
-                {{-- Mini Footer --}}
-                <footer class="px-4 sm:px-8 py-3.5 border-t border-[var(--border)] bg-[var(--surface)] transition-colors duration-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-[var(--text-muted)] gap-2">
-                        <p>&copy; {{ date('Y') }} Matla University. All Rights Reserved.</p>
+                {{-- Footer --}}
+                <footer class="px-4 sm:px-8 py-3 border-t border-[var(--border)] bg-[var(--surface)] shrink-0">
+                    <div class="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center text-xs text-[var(--text-muted)] gap-2">
+                        <p>&copy; {{ date('Y') }} MATLA University Portal. Hak cipta dilindungi.</p>
                         <div class="flex space-x-4">
-                            <a href="#" class="hover:text-[var(--primary-500)] transition-colors">Support</a>
-                            <a href="#" class="hover:text-[var(--primary-500)] transition-colors">Privacy</a>
+                            <a href="#" class="hover:text-[var(--primary-500)] transition-colors">Bantuan</a>
+                            <a href="#" class="hover:text-[var(--primary-500)] transition-colors">Kebijakan privasi</a>
                         </div>
                     </div>
                 </footer>
@@ -249,14 +273,14 @@
     </div>
 
     <script>
-        // ===== Sidebar Toggle (Mobile) =====
+        // ===== Sidebar Toggle (Mobile Drawer) =====
         function openSidebar() {
             var sidebar = document.getElementById('sidebar');
             var overlay = document.getElementById('sidebar-overlay');
             var btn = document.getElementById('hamburger-btn');
             if (sidebar && overlay) {
                 sidebar.classList.remove('-translate-x-full');
-                sidebar.classList.add('translate-x-0', 'shadow-2xl');
+                sidebar.classList.add('translate-x-0', 'shadow-[var(--shadow-drawer)]');
                 overlay.style.display = 'block';
                 document.body.classList.add('overflow-hidden');
                 if (btn) btn.setAttribute('aria-expanded', 'true');
@@ -269,34 +293,18 @@
             var btn = document.getElementById('hamburger-btn');
             if (sidebar && overlay) {
                 sidebar.classList.add('-translate-x-full');
-                sidebar.classList.remove('translate-x-0', 'shadow-2xl');
+                sidebar.classList.remove('translate-x-0', 'shadow-[var(--shadow-drawer)]');
                 overlay.style.display = 'none';
                 document.body.classList.remove('overflow-hidden');
                 if (btn) btn.setAttribute('aria-expanded', 'false');
             }
         }
 
-        // Close sidebar on ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeSidebar();
             }
         });
-
-        // ===== Dropdown Toggle =====
-        function toggleDropdown(name) {
-            var dropdown = document.getElementById('dropdown-' + name);
-            var chevron = document.getElementById('chevron-' + name);
-            if (dropdown && chevron) {
-                if (dropdown.classList.contains('open')) {
-                    dropdown.classList.remove('open');
-                    chevron.classList.remove('chevron-rotate');
-                } else {
-                    dropdown.classList.add('open');
-                    chevron.classList.add('chevron-rotate');
-                }
-            }
-        }
 
         // ===== Dark Mode Handler =====
         function updateThemeIcons() {
@@ -328,7 +336,7 @@
         document.addEventListener('DOMContentLoaded', updateThemeIcons);
     </script>
 
-    {{-- SweetAlert2 --}}
+    {{-- SweetAlert2 for notifications --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const Toast = Swal.mixin({
@@ -365,11 +373,11 @@
                 showCancelButton: true,
                 confirmButtonColor: '#006837',
                 cancelButtonColor: '#D93025',
-                confirmButtonText: 'Ya, Hapus!',
+                confirmButtonText: 'Ya, hapus',
                 cancelButtonText: 'Batal',
                 reverseButtons: true,
                 customClass: {
-                    popup: 'rounded-2xl'
+                    popup: 'rounded-[8px]'
                 }
             });
         }
