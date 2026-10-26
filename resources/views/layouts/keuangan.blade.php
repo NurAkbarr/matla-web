@@ -25,11 +25,11 @@
         .scrollbar-hide { -ms-overflow-style: none !important; scrollbar-width: none !important; }
     </style>
 
-    {{-- Early Dark Mode Detection to prevent flash --}}
+    {{-- Early Dark Mode Detection: Light mode default unless explicitly set to dark --}}
     <script>
         (function() {
             var theme = localStorage.getItem('theme');
-            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
