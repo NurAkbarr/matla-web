@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Tagihan;
 use App\Models\User;
 use App\Models\MasterJenisTagihan;
+use App\Models\Pembayaran;
+use App\Models\TransaksiKeuangan;
 use App\Exports\TagihanExport;
 use App\Mail\TagihanReminderMail;
 use Illuminate\Support\Facades\Mail;
