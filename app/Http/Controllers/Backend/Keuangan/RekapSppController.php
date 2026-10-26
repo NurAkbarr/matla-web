@@ -92,14 +92,11 @@ class RekapSppController extends Controller
         $tagihanNama = "SPP " . strtoupper($bNama) . " {$year}";
 
         if ($action === 'check') {
-            // 1. Temukan atau buat Tagihan untuk bulan ini
-            $tagihan = Tagihan::where('user_id', $student->id)
-                ->where(function ($q) use ($bNama, $monthNum, $year) {
-                    $q->where('nama_tagihan', 'like', "%{$bNama}%")
-                      ->orWhere(function ($sub) use ($monthNum, $year) {
-                          $sub->whereMonth('jatuh_tempo', $monthNum)->whereYear('jatuh_tempo', $year);
-                      });
-                })->first();
+            // 1. Temukan atau gunakan Tagihan yang sudah ada untuk bulan ini (anti-duplikasi: gunakan helper terpusat)
+            $studentTagihans = Tagihan::where('user_id', $student->id)->get();
+            $tagihan = $studentTagihans->first(function ($t) use ($monthNum, $year, $bNama) {
+                return Tagihan::isMatchingSppMonth($t, $monthNum, $year, $bNama);
+            });
 
             if (!$tagihan) {
                 $tagihan = Tagihan::create([
@@ -202,15 +199,36 @@ class RekapSppController extends Controller
      */
     public function syncTagihanTunggakan(Request $request)
     {
-        $activeSemester = MasterSemester::with('tahunAkademik')->where('is_active', true)->first();
+        // 1. Ambil semester target (berdasarkan parameter rekap atau master aktif)
+        $activeSemester = null;
+        if ($request->filled('tahun_akademik') && $request->filled('tipe_semester')) {
+            $ta = MasterTahunAkademik::with('semesters')->where('tahun', $request->tahun_akademik)->first();
+            if ($ta) {
+                $activeSemester = $ta->semesters->firstWhere('tipe', strtolower($request->tipe_semester));
+            }
+        }
+
         if (!$activeSemester) {
-            return back()->with('error', 'Tidak ada semester aktif yang dipilih.');
+            $activeSemester = MasterSemester::with('tahunAkademik')->where('is_active', true)->first();
+        }
+
+        if (!$activeSemester) {
+            $activeMasterTa = MasterTahunAkademik::with('semesters')->where('is_active', true)->first()
+                ?: MasterTahunAkademik::with('semesters')->orderBy('tahun', 'desc')->first();
+            if ($activeMasterTa && $activeMasterTa->semesters->isNotEmpty()) {
+                $activeSemester = $activeMasterTa->semesters->first();
+            }
+        }
+
+        if (!$activeSemester) {
+            return back()->with('error', 'Tidak ada semester yang dipilih atau semester aktif yang terdaftar.');
         }
 
         $daftarBulan = $activeSemester->getDaftarBulan();
-        $students = User::where('role', 'mahasiswa')->get();
+        $students = User::where('role', 'mahasiswa')->with('tagihans')->get();
 
         $countCreated = 0;
+        $countSkipped = 0;
 
         foreach ($students as $student) {
             $nominalSpp = (float)($student->nominal_spp ?: 300000);
@@ -228,22 +246,23 @@ class RekapSppController extends Controller
                         if (in_array($monthKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
                             return true;
                         }
+                        if (in_array(strtolower($bNama), array_map('strtolower', $alokasi))) {
+                            return true;
+                        }
                     }
                     return false;
                 }) !== null;
 
-                $existingTagihan = Tagihan::where('user_id', $student->id)
-                    ->where(function ($q) use ($bNama, $bNum, $bYear) {
-                        $q->where('nama_tagihan', 'like', "%{$bNama}%")
-                          ->orWhere(function ($sub) use ($bNum, $bYear) {
-                              $sub->whereMonth('jatuh_tempo', $bNum)->whereYear('jatuh_tempo', $bYear);
-                          });
-                    })->first();
+                // Cek apakah tagihan untuk bulan/periode ini sudah ada (anti-double billing)
+                $existingTagihan = $student->tagihans->first(function ($t) use ($bNum, $bYear, $bNama) {
+                    return Tagihan::isMatchingSppMonth($t, $bNum, $bYear, $bNama);
+                });
 
                 if ($isPaid) {
                     if ($existingTagihan && $existingTagihan->status !== 'lunas') {
                         $existingTagihan->update(['status' => 'lunas', 'sisa_tagihan' => 0]);
                     }
+                    $countSkipped++;
                 } else {
                     if (!$existingTagihan) {
                         Tagihan::create([
@@ -257,12 +276,23 @@ class RekapSppController extends Controller
                             'jatuh_tempo' => "{$bYear}-" . sprintf('%02d', $bNum) . "-10",
                         ]);
                         $countCreated++;
+                    } else {
+                        // Tagihan sudah pernah dibuat di database (dilewati agar tidak duplikat)
+                        $countSkipped++;
                     }
                 }
             }
         }
 
-        return back()->with('success', "Sinkronisasi berhasil! {$countCreated} tagihan tunggakan baru telah diterbitkan ke portal mahasiswa.");
+        if ($countCreated > 0 && $countSkipped > 0) {
+            $msg = "Sinkronisasi berhasil! {$countCreated} tagihan tunggakan baru telah diterbitkan ke portal mahasiswa. (Beberapa tagihan dilewati ({$countSkipped} tagihan) karena sudah pernah digenerate sebelumnya untuk periode yang sama).";
+        } elseif ($countCreated > 0) {
+            $msg = "Sinkronisasi berhasil! {$countCreated} tagihan tunggakan baru telah diterbitkan ke portal mahasiswa.";
+        } else {
+            $msg = "Semua tagihan untuk periode ini sudah terbit sebelumnya. Beberapa tagihan dilewati ({$countSkipped} tagihan) karena sudah pernah digenerate sebelumnya untuk periode yang sama.";
+        }
+
+        return back()->with('success', $msg);
     }
 
     /**
@@ -455,30 +485,7 @@ class RekapSppController extends Controller
 
                 // --- CEK 2: Apakah Lunas via Tagihan Spesifik Bulan Ini ---
                 $matchingTagihan = $mhs->tagihans->first(function ($t) use ($bNama, $bNum, $bYear) {
-                    $namaLower = strtolower($t->nama_tagihan ?? '');
-                    $bNamaLower = strtolower($bNama);
-                    $bShortLower = strtolower(substr($bNama, 0, 3));
-
-                    if (str_contains($namaLower, $bNamaLower) || str_contains($namaLower, $bShortLower)) {
-                        return true;
-                    }
-
-                    if ($t->jatuh_tempo) {
-                        try {
-                            $jt = Carbon::parse($t->jatuh_tempo);
-                            if ($jt->month === $bNum && $jt->year === $bYear) {
-                                return true;
-                            }
-                        } catch (\Exception $e) {}
-                    }
-
-                    if ($t->created_at && (str_contains($namaLower, 'spp') || $t->jenis_tagihan === 'lunas')) {
-                        if ($t->created_at->month === $bNum && $t->created_at->year === $bYear) {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return Tagihan::isMatchingSppMonth($t, $bNum, $bYear, $bNama);
                 });
 
                 if ($matchingTagihan) {
@@ -576,9 +583,9 @@ class RekapSppController extends Controller
                     'is_alokasi_lintas' => false,
                     'payment_id' => null,
                     'kwitansi' => null,
-                    'nominal_tagihan' => $nominalSpp,
+                    'nominal_tagihan' => $matchingTagihan ? (float)$matchingTagihan->nominal_total : $nominalSpp,
                     'nominal_bayar' => 0,
-                    'nominal_tunggakan' => $nominalSpp,
+                    'nominal_tunggakan' => $matchingTagihan ? (float)$matchingTagihan->sisa_tagihan : $nominalSpp,
                     'tagihan_id' => $matchingTagihan ? $matchingTagihan->id : null,
                 ];
             }

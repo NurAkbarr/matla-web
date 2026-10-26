@@ -215,11 +215,18 @@ class TagihanController extends Controller
         $isLogDriver = config('mail.default') === 'log';
 
         foreach ($mahasiswas as $mhs) {
-            $exists = Tagihan::where('user_id', $mhs->id)
-                             ->where('nama_tagihan', $request->nama_tagihan)
-                             ->exists();
+            // Anti-double billing validation: periksa apakah mahasiswa sudah memiliki tagihan pada jenis/periode yang sama
+            $duplicate = Tagihan::findDuplicate($mhs->id, $request->nama_tagihan, $request->jatuh_tempo);
 
-            if (!$exists) {
+            $alreadyPaid = false;
+            if (!$duplicate && $isSpp) {
+                $info = Tagihan::extractMonthAndYear($request->nama_tagihan, $request->jatuh_tempo);
+                if ($info['month']) {
+                    $alreadyPaid = Tagihan::hasVerifiedPaymentForMonth($mhs->id, $info['month'], $info['year']);
+                }
+            }
+
+            if (!$duplicate && !$alreadyPaid) {
                 // Untuk tagihan SPP, otomatis gunakan nominal_spp masing-masing mahasiswa (fallback Rp 300.000)
                 if ($isSpp) {
                     $nominal = ($mhs->nominal_spp !== null && (float)$mhs->nominal_spp > 0)
@@ -256,8 +263,15 @@ class TagihanController extends Controller
             }
         }
 
-        $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa.";
-        if ($isSpp) {
+        if ($count > 0 && $skipped > 0) {
+            $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa. (Beberapa tagihan dilewati ({$skipped} mahasiswa) karena sudah pernah digenerate sebelumnya untuk periode yang sama).";
+        } elseif ($count > 0) {
+            $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa.";
+        } else {
+            $msg = "Tidak ada tagihan baru yang dibuat. Beberapa tagihan dilewati ({$skipped} mahasiswa) karena sudah pernah digenerate sebelumnya untuk periode yang sama.";
+        }
+
+        if ($isSpp && $count > 0) {
             $msg .= " (Nominal SPP otomatis mengikuti tarif masing-masing mahasiswa).";
         }
         if ($shouldSendEmail && $count > 0) {
@@ -271,9 +285,6 @@ class TagihanController extends Controller
             } else {
                 $msg .= " Namun email gagal terkirim" . ($emailLastError ? ": " . $emailLastError : " (periksa koneksi SMTP di file .env).");
             }
-        }
-        if ($skipped > 0) {
-            $msg .= " ({$skipped} dilewati karena tagihan dengan nama ini sudah ada).";
         }
 
         return back()->with('success', $msg);
@@ -301,12 +312,19 @@ class TagihanController extends Controller
 
         $user = User::findOrFail($request->user_id);
 
-        $exists = Tagihan::where('user_id', $request->user_id)
-                         ->where('nama_tagihan', $request->nama_tagihan)
-                         ->exists();
+        // Anti-double billing validation: periksa apakah mahasiswa sudah memiliki tagihan pada jenis/periode yang sama
+        $duplicate = Tagihan::findDuplicate($request->user_id, $request->nama_tagihan, $request->jatuh_tempo);
 
-        if ($exists) {
-            return back()->with('error', "Gagal: Mahasiswa ini sudah memiliki tagihan dengan nama '{$request->nama_tagihan}'.");
+        if ($duplicate) {
+            $statusLabel = ucfirst($duplicate->status);
+            return back()->with('error', "Gagal membuat tagihan: Mahasiswa ini sudah memiliki tagihan untuk periode yang sama (Nama: '{$duplicate->nama_tagihan}', Status: {$statusLabel}). Tagihan dilewati untuk mencegah duplikasi (anti-double billing).")->withInput();
+        }
+
+        if ($isSpp) {
+            $info = Tagihan::extractMonthAndYear($request->nama_tagihan, $request->jatuh_tempo);
+            if ($info['month'] && Tagihan::hasVerifiedPaymentForMonth($request->user_id, $info['month'], $info['year'])) {
+                return back()->with('error', "Gagal membuat tagihan: Mahasiswa ini sudah memiliki pembayaran SPP terverifikasi lunas untuk periode bulan tersebut. Tagihan dilewati untuk mencegah duplikasi (anti-double billing).")->withInput();
+            }
         }
 
         if ($isSpp) {
@@ -385,6 +403,14 @@ class TagihanController extends Controller
         ]);
 
         $tagihan = Tagihan::findOrFail($id);
+
+        // Anti-double billing validation saat mengubah nama atau jatuh tempo
+        if ($request->nama_tagihan !== $tagihan->nama_tagihan || $request->jatuh_tempo !== $tagihan->jatuh_tempo) {
+            $duplicate = Tagihan::findDuplicate($tagihan->user_id, $request->nama_tagihan, $request->jatuh_tempo, $tagihan->id);
+            if ($duplicate) {
+                return back()->with('error', "Gagal mengubah tagihan: Mahasiswa ini sudah memiliki tagihan lain untuk periode yang sama ('{$duplicate->nama_tagihan}').")->withInput();
+            }
+        }
         
         // Cek jika tagihan sudah dibayar (sisa_tagihan < nominal_total)
         // Kita mungkin tidak ingin admin mengubah nominal secara drastis,

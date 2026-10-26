@@ -231,17 +231,17 @@ class PembayaranController extends Controller
                         if (in_array($monthKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
                             return true;
                         }
+                        if (in_array(strtolower($bNama), array_map('strtolower', $alokasi))) {
+                            return true;
+                        }
                     }
                     return false;
                 }) !== null;
 
-                $existingTagihan = Tagihan::where('user_id', $user->id)
-                    ->where(function ($q) use ($bNama, $bNum, $bYear) {
-                        $q->where('nama_tagihan', 'like', "%{$bNama}%")
-                          ->orWhere(function ($sub) use ($bNum, $bYear) {
-                              $sub->whereMonth('jatuh_tempo', $bNum)->whereYear('jatuh_tempo', $bYear);
-                          });
-                    })->first();
+                $userTagihans = Tagihan::where('user_id', $user->id)->get();
+                $existingTagihan = $userTagihans->first(function ($t) use ($bNum, $bYear, $bNama) {
+                    return Tagihan::isMatchingSppMonth($t, $bNum, $bYear, $bNama);
+                });
 
                 if ($isPaid) {
                     if ($existingTagihan && $existingTagihan->status !== 'lunas') {

@@ -26,6 +26,8 @@
         <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
             <form action="{{ route('backend.keuangan.rekap-spp.sync-tagihan') }}" method="POST" class="inline">
                 @csrf
+                <input type="hidden" name="tahun_akademik" value="{{ $tahunAkademik }}">
+                <input type="hidden" name="tipe_semester" value="{{ $tipeSemester }}">
                 <button type="submit" 
                         class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--primary-50)] text-[var(--primary-700)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer"
                         title="Terbitkan / Sinkronkan tagihan tunggakan semester aktif ke portal mahasiswa">
