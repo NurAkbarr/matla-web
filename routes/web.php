@@ -618,6 +618,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::put('/mahasiswa/{id}/nominal-spp', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'updateNominalSpp'])->name('mahasiswa.updateNominalSpp');
         Route::get('/verifikasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'index'])->name('verifikasi.index');
         Route::post('/verifikasi/{id}/approve', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'approve'])->name('verifikasi.approve');
+        Route::post('/verifikasi/{id}/alokasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'updateAlokasi'])->name('verifikasi.alokasi');
         Route::post('/verifikasi/{id}/reject', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'reject'])->name('verifikasi.reject');
         Route::get('/verifikasi/{id}/kwitansi-drive', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'kwitansiDrive'])->name('verifikasi.kwitansi-drive');
         Route::get('/verifikasi/{id}/bukti', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'lihatBukti'])->name('verifikasi.bukti');
@@ -655,6 +656,19 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/rekap-spp', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'index'])->name('rekap-spp.index');
         Route::get('/rekap-spp/export/excel', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'exportExcel'])->name('rekap-spp.export.excel');
         Route::get('/rekap-spp/export/pdf', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'exportPdf'])->name('rekap-spp.export.pdf');
+
+        // Master Tahun Akademik & Semester
+        Route::get('/master-tahun-akademik', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'index'])->name('master-tahun-akademik.index');
+        Route::post('/master-tahun-akademik', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'store'])->name('master-tahun-akademik.store');
+        Route::put('/master-tahun-akademik/{id}', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'update'])->name('master-tahun-akademik.update');
+        Route::delete('/master-tahun-akademik/{id}', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'destroy'])->name('master-tahun-akademik.destroy');
+        Route::post('/master-tahun-akademik/{id}/set-active', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'setActive'])->name('master-tahun-akademik.set-active');
+
+        // Master Semester Sub-routes
+        Route::post('/master-tahun-akademik/{tahunAkademikId}/semester', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'storeSemester'])->name('master-semester.store');
+        Route::put('/master-semester/{id}', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'updateSemester'])->name('master-semester.update');
+        Route::delete('/master-semester/{id}', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'destroySemester'])->name('master-semester.destroy');
+        Route::post('/master-semester/{id}/set-active', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'setActiveSemester'])->name('master-semester.set-active');
     });
 
 });

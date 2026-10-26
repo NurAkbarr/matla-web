@@ -19,8 +19,17 @@
             </p>
         </div>
 
-        {{-- Action Buttons: Ekspor Excel & PDF (Tinggi 40px, Radius 4px) --}}
-        <div class="flex items-center gap-2.5 shrink-0">
+        {{-- Action Buttons: Kelola TA, Ekspor Excel & PDF (Tinggi 40px, Radius 4px) --}}
+        <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <a href="{{ route('backend.keuangan.master-tahun-akademik.index') }}" 
+               class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--primary-50)] text-[var(--text-body)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer"
+               title="Kelola Master Tahun Akademik & Semester">
+                <svg class="w-4 h-4 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span>Kelola Tahun & Semester</span>
+            </a>
+
             <a href="{{ route('backend.keuangan.rekap-spp.export.excel', request()->all()) }}" 
                class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--primary-500)] hover:bg-[var(--primary-50)] text-[var(--primary-700)] dark:text-[var(--primary-300)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer"
                title="Unduh format Excel">
@@ -259,9 +268,19 @@
                             @foreach($item['matriks_bulan'] as $m)
                                 <td class="py-3 px-2 text-center border-r border-[var(--border)]">
                                     @if($m['is_lunas'])
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)] text-[10px] font-semibold" title="Lunas">
-                                            Lunas
-                                        </span>
+                                        @if(!empty($m['is_alokasi_lintas']))
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold cursor-help" 
+                                                  title="Lunas via Alokasi Lintas Bulan (Dibayar tgl {{ $m['alokasi_tanggal'] ?? '-' }} / Kwitansi: {{ $m['alokasi_kwitansi'] ?? '-' }})">
+                                                <svg class="w-3 h-3 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                <span>Lunas</span>
+                                                <span class="text-[9px] px-1 py-0.2 bg-[var(--primary-200)]/60 text-[var(--primary-800)] rounded-[2px] font-semibold">Alokasi</span>
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)] text-[10.5px] font-bold" title="Lunas">
+                                                <svg class="w-3 h-3 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                <span>Lunas</span>
+                                            </span>
+                                        @endif
                                     @elseif($m['ada_tagihan'] && $m['nominal_bayar'] > 0)
                                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--secondary-50)] text-[var(--secondary-700)] dark:text-[var(--secondary-400)] border border-[var(--secondary-200)] text-[10px] font-semibold" title="Sebagian">
                                             Sebagian

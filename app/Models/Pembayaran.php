@@ -19,6 +19,13 @@ class Pembayaran extends Model
         'kwitansi',
         'catatan',
         'status',
+        'bulan_alokasi',
+        'tahun_akademik_id',
+        'catatan_alokasi',
+    ];
+
+    protected $casts = [
+        'bulan_alokasi' => 'array',
     ];
 
     public function tagihan()
@@ -29,6 +36,11 @@ class Pembayaran extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tahunAkademik()
+    {
+        return $this->belongsTo(MasterTahunAkademik::class, 'tahun_akademik_id');
     }
 
     public function transaksiKeuangan()

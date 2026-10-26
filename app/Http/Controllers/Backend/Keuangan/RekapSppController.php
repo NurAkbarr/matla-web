@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Backend\Keuangan;
 
 use App\Exports\RekapSppSemesterExport;
 use App\Http\Controllers\Controller;
+use App\Models\MasterSemester;
+use App\Models\MasterTahunAkademik;
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
 use App\Models\User;
@@ -62,48 +64,64 @@ class RekapSppController extends Controller
     private function prepareRekapData(Request $request): array
     {
         $now = Carbon::now();
-
-        // 1. Tahun Akademik (misal 2026/2027)
         $currentYear = (int)$now->format('Y');
         $currentMonth = (int)$now->format('n');
 
-        $defaultTahunAkademik = ($currentMonth >= 7)
-            ? "{$currentYear}/" . ($currentYear + 1)
-            : ($currentYear - 1) . "/{$currentYear}";
+        // 1. Ambil data Master Tahun Akademik & Master Semester dari Database
+        $masterTahunList = MasterTahunAkademik::with('semesters')->orderBy('tahun', 'desc')->get();
+        $activeMasterTa = $masterTahunList->firstWhere('is_active', true) ?: $masterTahunList->first();
+        $activeMasterSemester = MasterSemester::with('tahunAkademik')->where('is_active', true)->first();
+
+        // Tentukan default Tahun Akademik berdasarkan database aktif
+        $defaultTahunAkademik = $activeMasterTa
+            ? $activeMasterTa->tahun
+            : (($currentMonth >= 7) ? "{$currentYear}/" . ($currentYear + 1) : ($currentYear - 1) . "/{$currentYear}");
 
         $tahunAkademik = $request->get('tahun_akademik', $defaultTahunAkademik);
+        $currentMasterTa = $masterTahunList->firstWhere('tahun', $tahunAkademik) ?: $activeMasterTa;
+
         $partsTahun = explode('/', $tahunAkademik);
         $startYear = isset($partsTahun[0]) && is_numeric($partsTahun[0]) ? (int)$partsTahun[0] : $currentYear;
         $endYear = isset($partsTahun[1]) && is_numeric($partsTahun[1]) ? (int)$partsTahun[1] : ($startYear + 1);
 
         // 2. Tipe Semester (Ganjil vs Genap)
-        $defaultTipeSemester = ($currentMonth >= 7) ? 'ganjil' : 'genap';
+        $defaultTipeSemester = ($activeMasterSemester && ($activeMasterSemester->tahun_akademik_id == ($currentMasterTa->id ?? 0)))
+            ? $activeMasterSemester->tipe
+            : (($currentMonth >= 7) ? 'ganjil' : 'genap');
+
         $tipeSemester = strtolower($request->get('tipe_semester', $defaultTipeSemester));
         if (!in_array($tipeSemester, ['ganjil', 'genap'])) {
             $tipeSemester = 'ganjil';
         }
 
-        // 3. Konfigurasi 6 Bulan Semester
-        if ($tipeSemester === 'ganjil') {
-            $daftarBulan = [
-                ['nama' => 'Juli', 'short' => 'Jul', 'num' => 7, 'year' => $startYear],
-                ['nama' => 'Agustus', 'short' => 'Ags', 'num' => 8, 'year' => $startYear],
-                ['nama' => 'September', 'short' => 'Sep', 'num' => 9, 'year' => $startYear],
-                ['nama' => 'Oktober', 'short' => 'Okt', 'num' => 10, 'year' => $startYear],
-                ['nama' => 'November', 'short' => 'Nov', 'num' => 11, 'year' => $startYear],
-                ['nama' => 'Desember', 'short' => 'Des', 'num' => 12, 'year' => $startYear],
-            ];
-            $periodeLabel = "Semester Ganjil TA {$tahunAkademik} (Juli - Desember {$startYear})";
+        // 3. Konfigurasi 6 Bulan Semester (Menggunakan konfigurasi MasterSemester jika tersedia)
+        $matchedSemester = $currentMasterTa ? $currentMasterTa->semesters->firstWhere('tipe', $tipeSemester) : null;
+        if ($matchedSemester) {
+            $daftarBulan = $matchedSemester->getDaftarBulan();
+            $semNama = $matchedSemester->nama_semester;
+            $periodeLabel = "Semester {$semNama} TA {$tahunAkademik}";
         } else {
-            $daftarBulan = [
-                ['nama' => 'Januari', 'short' => 'Jan', 'num' => 1, 'year' => $endYear],
-                ['nama' => 'Februari', 'short' => 'Feb', 'num' => 2, 'year' => $endYear],
-                ['nama' => 'Maret', 'short' => 'Mar', 'num' => 3, 'year' => $endYear],
-                ['nama' => 'April', 'short' => 'Apr', 'num' => 4, 'year' => $endYear],
-                ['nama' => 'Mei', 'short' => 'Mei', 'num' => 5, 'year' => $endYear],
-                ['nama' => 'Juni', 'short' => 'Jun', 'num' => 6, 'year' => $endYear],
-            ];
-            $periodeLabel = "Semester Genap TA {$tahunAkademik} (Januari - Juni {$endYear})";
+            if ($tipeSemester === 'ganjil') {
+                $daftarBulan = [
+                    ['nama' => 'Juli', 'short' => 'Jul', 'num' => 7, 'year' => $startYear, 'key' => sprintf('%04d-07', $startYear)],
+                    ['nama' => 'Agustus', 'short' => 'Ags', 'num' => 8, 'year' => $startYear, 'key' => sprintf('%04d-08', $startYear)],
+                    ['nama' => 'September', 'short' => 'Sep', 'num' => 9, 'year' => $startYear, 'key' => sprintf('%04d-09', $startYear)],
+                    ['nama' => 'Oktober', 'short' => 'Okt', 'num' => 10, 'year' => $startYear, 'key' => sprintf('%04d-10', $startYear)],
+                    ['nama' => 'November', 'short' => 'Nov', 'num' => 11, 'year' => $startYear, 'key' => sprintf('%04d-11', $startYear)],
+                    ['nama' => 'Desember', 'short' => 'Des', 'num' => 12, 'year' => $startYear, 'key' => sprintf('%04d-12', $startYear)],
+                ];
+                $periodeLabel = "Semester Ganjil TA {$tahunAkademik} (Juli - Desember {$startYear})";
+            } else {
+                $daftarBulan = [
+                    ['nama' => 'Januari', 'short' => 'Jan', 'num' => 1, 'year' => $endYear, 'key' => sprintf('%04d-01', $endYear)],
+                    ['nama' => 'Februari', 'short' => 'Feb', 'num' => 2, 'year' => $endYear, 'key' => sprintf('%04d-02', $endYear)],
+                    ['nama' => 'Maret', 'short' => 'Mar', 'num' => 3, 'year' => $endYear, 'key' => sprintf('%04d-03', $endYear)],
+                    ['nama' => 'April', 'short' => 'Apr', 'num' => 4, 'year' => $endYear, 'key' => sprintf('%04d-04', $endYear)],
+                    ['nama' => 'Mei', 'short' => 'Mei', 'num' => 5, 'year' => $endYear, 'key' => sprintf('%04d-05', $endYear)],
+                    ['nama' => 'Juni', 'short' => 'Jun', 'num' => 6, 'year' => $endYear, 'key' => sprintf('%04d-06', $endYear)],
+                ];
+                $periodeLabel = "Semester Genap TA {$tahunAkademik} (Januari - Juni {$endYear})";
+            }
         }
 
         // 4. Query Mahasiswa dengan Filter
@@ -142,6 +160,14 @@ class RekapSppController extends Controller
 
         // Ambil mahasiswa diurutkan berdasarkan NIM / Nama
         $mahasiswaList = $query->orderBy('nim')->orderBy('name')->get();
+        $mahasiswaIds = $mahasiswaList->pluck('id')->all();
+
+        // Eager-load seluruh pembayaran terverifikasi mahasiswa untuk pencocokan alokasi lintas bulan
+        $allVerifiedPembayarans = Pembayaran::whereIn('user_id', $mahasiswaIds)
+            ->where('status', 'verified')
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->groupBy('user_id');
 
         // 5. Olah Matriks Rekapitulasi per Mahasiswa
         $rekapItems = [];
@@ -157,6 +183,8 @@ class RekapSppController extends Controller
                 $nominalSpp = 300000;
             }
 
+            $mhsPayments = $allVerifiedPembayarans->get($mhs->id, collect());
+
             $bulanMatriks = [];
             $bulanLunasCount = 0;
             $totalSudahDibayarMhs = 0;
@@ -166,8 +194,55 @@ class RekapSppController extends Controller
                 $bNama = $bInfo['nama'];
                 $bNum = $bInfo['num'];
                 $bYear = $bInfo['year'];
+                $monthKey = $bInfo['key'] ?? sprintf('%04d-%02d', $bYear, $bNum);
 
-                // Cari tagihan SPP untuk mahasiswa dan bulan ini
+                // --- CEK 1: Alokasi Lintas Bulan (Cross-Month Allocation) ---
+                // Mahasiswa membayar di bulan apapun, namun mencentang bulan ini di bulan_alokasi
+                $allocatedPay = $mhsPayments->first(function ($p) use ($monthKey, $bNum, $bNama) {
+                    $alokasi = $p->bulan_alokasi;
+                    if (empty($alokasi) || !is_array($alokasi)) {
+                        return false;
+                    }
+                    if (in_array($monthKey, $alokasi)) {
+                        return true;
+                    }
+                    if (in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
+                        return true;
+                    }
+                    if (in_array(strtolower($bNama), array_map('strtolower', $alokasi))) {
+                        return true;
+                    }
+                    return false;
+                });
+
+                if ($allocatedPay) {
+                    $isLunas = true;
+                    $nominalBayar = $nominalSpp;
+                    $nominalTunggakan = 0;
+                    $bulanLunasCount++;
+                    $totalSudahDibayarMhs += $nominalBayar;
+                    $metodeTerakhir = $allocatedPay->jenis_pembayaran ?: 'Transfer Bank';
+
+                    $bulanMatriks[] = [
+                        'nama' => $bNama,
+                        'num' => $bNum,
+                        'year' => $bYear,
+                        'key' => $monthKey,
+                        'ada_tagihan' => true,
+                        'is_lunas' => true,
+                        'is_alokasi_lintas' => true,
+                        'alokasi_payment_id' => $allocatedPay->id,
+                        'alokasi_kwitansi' => $allocatedPay->kwitansi,
+                        'alokasi_tanggal' => $allocatedPay->created_at ? $allocatedPay->created_at->format('d/m/Y') : null,
+                        'nominal_tagihan' => $nominalSpp,
+                        'nominal_bayar' => $nominalBayar,
+                        'nominal_tunggakan' => 0,
+                        'tagihan_id' => $allocatedPay->tagihan_id,
+                    ];
+                    continue;
+                }
+
+                // --- CEK 2: Tagihan Spesifik Bulan Ini (Direct Tagihan Match) ---
                 $matchingTagihan = $mhs->tagihans->first(function ($t) use ($bNama, $bNum, $bYear) {
                     $namaLower = strtolower($t->nama_tagihan ?? '');
                     $bNamaLower = strtolower($bNama);
@@ -231,8 +306,10 @@ class RekapSppController extends Controller
                         'nama' => $bNama,
                         'num' => $bNum,
                         'year' => $bYear,
+                        'key' => $monthKey,
                         'ada_tagihan' => true,
                         'is_lunas' => $isLunas,
+                        'is_alokasi_lintas' => false,
                         'nominal_tagihan' => (float)$matchingTagihan->nominal_total,
                         'nominal_bayar' => $nominalBayar,
                         'nominal_tunggakan' => $nominalTunggakan,
@@ -244,8 +321,10 @@ class RekapSppController extends Controller
                         'nama' => $bNama,
                         'num' => $bNum,
                         'year' => $bYear,
+                        'key' => $monthKey,
                         'ada_tagihan' => false,
                         'is_lunas' => false,
+                        'is_alokasi_lintas' => false,
                         'nominal_tagihan' => $nominalSpp,
                         'nominal_bayar' => 0,
                         'nominal_tunggakan' => $nominalSpp,
@@ -254,8 +333,8 @@ class RekapSppController extends Controller
                 }
             }
 
-            $bulanMenunggakCount = 6 - $bulanLunasCount;
-            $totalTagihanSemesterMhs = 6 * $nominalSpp;
+            $bulanMenunggakCount = count($daftarBulan) - $bulanLunasCount;
+            $totalTagihanSemesterMhs = count($daftarBulan) * $nominalSpp;
             $sisaTunggakanMhs = max(0, $bulanMenunggakCount * $nominalSpp);
 
             if ($bulanMenunggakCount === 0) {
@@ -291,7 +370,7 @@ class RekapSppController extends Controller
             ];
         }
 
-        // 6. Daftar Opsi Filter
+        // 6. Daftar Opsi Filter Dinamis dari Database
         $allStudents = User::where('role', 'mahasiswa')->get();
         $daftarProdi = $allStudents->map(function ($u) {
             return $u->education['program_studi'] ?? ($u->prodi ?? null);
@@ -302,11 +381,15 @@ class RekapSppController extends Controller
             $daftarSemesterMhs = [1, 2, 3, 4, 5, 6, 7, 8];
         }
 
-        $daftarTahunAkademik = [
-            ($currentYear - 1) . "/{$currentYear}",
-            "{$currentYear}/" . ($currentYear + 1),
-            ($currentYear + 1) . "/" . ($currentYear + 2),
-        ];
+        // Ambil daftar tahun akademik dari master_tahun_akademik jika ada
+        $daftarTahunAkademik = $masterTahunList->pluck('tahun')->all();
+        if (empty($daftarTahunAkademik)) {
+            $daftarTahunAkademik = [
+                ($currentYear - 1) . "/{$currentYear}",
+                "{$currentYear}/" . ($currentYear + 1),
+                ($currentYear + 1) . "/" . ($currentYear + 2),
+            ];
+        }
 
         $persentaseLunas = $totalPotensiSemua > 0
             ? round(($totalTerkumpulSemua / $totalPotensiSemua) * 100, 1)
@@ -325,6 +408,10 @@ class RekapSppController extends Controller
             'daftarProdi' => $daftarProdi,
             'daftarSemesterMhs' => $daftarSemesterMhs,
             'daftarTahunAkademik' => $daftarTahunAkademik,
+            'masterTahunList' => $masterTahunList,
+            'activeMasterTa' => $activeMasterTa,
+            'activeMasterSemester' => $activeMasterSemester,
+            'currentMasterTa' => $currentMasterTa,
             'summary' => [
                 'total_mahasiswa' => count($rekapItems),
                 'total_potensi' => $totalPotensiSemua,
