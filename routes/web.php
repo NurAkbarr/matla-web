@@ -609,7 +609,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
     });
 
     // Keuangan Area
-    Route::prefix('keuangan')->name('keuangan.')->middleware(['role:keuangan'])->group(function () {
+    Route::prefix('keuangan')->name('keuangan.')->middleware(['role:keuangan,super_admin,admin'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Backend\Keuangan\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/mahasiswa', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'index'])->name('mahasiswa.index');
         Route::get('/mahasiswa/export/excel', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportExcel'])->name('mahasiswa.export.excel');
@@ -630,9 +630,12 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::put('/tagihan/personal/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updatePersonal'])->name('tagihan.updatePersonal');
         Route::put('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updateMassal'])->name('tagihan.updateMassal');
         Route::delete('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal'])->name('tagihan.destroyMassal');
+        Route::post('/tagihan/mass/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal'])->name('tagihan.destroyMassalPost');
+        Route::delete('/tagihan/massal', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal']);
         Route::get('/tagihan/spreadsheet', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'spreadsheet'])->name('tagihan.spreadsheet');
         Route::post('/tagihan/{id}/resend-reminder', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'resendReminder'])->name('tagihan.resendReminder');
         Route::delete('/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy'])->name('tagihan.destroy');
+        Route::post('/tagihan/{id}/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy'])->name('tagihan.destroyPost');
 
         // Master Jenis Tagihan
         Route::post('/tagihan/master-jenis', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'storeJenis'])->name('tagihan.jenis.store');
@@ -673,6 +676,14 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/master-semester/{id}/set-active', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'setActiveSemester'])->name('master-semester.set-active');
     });
 
+});
+
+// Fallback direct alias for keuangan tagihan routes if requested without /backend prefix
+Route::middleware(['auth', 'role:keuangan,super_admin,admin'])->group(function () {
+    Route::delete('/keuangan/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy']);
+    Route::post('/keuangan/tagihan/{id}/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy']);
+    Route::delete('/keuangan/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal']);
+    Route::post('/keuangan/tagihan/mass/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal']);
 });
 
 Route::prefix('informasi')->name('informasi.')->group(function () {

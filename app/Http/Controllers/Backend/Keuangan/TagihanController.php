@@ -155,8 +155,8 @@ class TagihanController extends Controller
             ->orderBy('nama_tagihan', 'asc')
             ->get();
 
-        // Get recent bills for display
-        $recentTagihans = Tagihan::with('user')->latest()->take(10)->get();
+        // Get recent bills for display (tampilkan hingga 50 tagihan terakhir agar tagihan tunggakan terlihat)
+        $recentTagihans = Tagihan::with('user')->latest()->take(50)->get();
 
         // Get Massal groups
         $massalGroups = Tagihan::selectRaw('nama_tagihan, sum(nominal_total) as total_nominal, count(id) as total_mhs, min(jatuh_tempo) as jatuh_tempo, max(jenis_tagihan) as jenis_tagihan')
@@ -445,6 +445,11 @@ class TagihanController extends Controller
         ]);
 
         $tagihans = Tagihan::where('nama_tagihan', $request->nama_tagihan)->get();
+        if ($tagihans->isEmpty()) {
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('warning', 'Data tagihan massal tidak ditemukan atau sudah dihapus sebelumnya.');
+        }
+
         $deleted = 0;
 
         foreach ($tagihans as $tagihan) {
@@ -462,7 +467,12 @@ class TagihanController extends Controller
 
     public function destroy($id)
     {
-        $tagihan = Tagihan::findOrFail($id);
+        $tagihan = Tagihan::find($id);
+
+        if (!$tagihan) {
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('warning', 'Data tagihan tidak ditemukan atau sudah dihapus sebelumnya.');
+        }
 
         $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
         TransaksiKeuangan::where('tagihan_id', $tagihan->id)
