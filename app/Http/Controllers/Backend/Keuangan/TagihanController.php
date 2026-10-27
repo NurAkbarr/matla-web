@@ -477,19 +477,35 @@ class TagihanController extends Controller
                 ->with('warning', 'Data tagihan massal tidak ditemukan atau sudah dihapus sebelumnya.');
         }
 
-        $deleted = 0;
+        try {
+            $deleted = 0;
+            DB::transaction(function () use ($tagihans, &$deleted) {
+                foreach ($tagihans as $tagihan) {
+                    $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->all();
 
-        foreach ($tagihans as $tagihan) {
-            $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
-            TransaksiKeuangan::where('tagihan_id', $tagihan->id)
-                ->orWhereIn('pembayaran_id', $pembayaranIds)
-                ->delete();
-            Pembayaran::where('tagihan_id', $tagihan->id)->delete();
-            $tagihan->delete();
-            $deleted++;
+                    if (!empty($pembayaranIds)) {
+                        TransaksiKeuangan::where(function ($q) use ($tagihan, $pembayaranIds) {
+                            $q->where('tagihan_id', $tagihan->id)
+                              ->orWhereIn('pembayaran_id', $pembayaranIds);
+                        })->delete();
+                    } else {
+                        TransaksiKeuangan::where('tagihan_id', $tagihan->id)->delete();
+                    }
+
+                    Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+                    $tagihan->delete();
+                    $deleted++;
+                }
+            });
+
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('success', "Berhasil menghapus {$deleted} data tagihan massal beserta riwayat transaksi terkait secara permanen.");
+        } catch (\Throwable $e) {
+            Log::error("Gagal menghapus tagihan massal: " . $e->getMessage(), ['exception' => $e]);
+
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('error', 'Gagal menghapus tagihan massal: ' . $e->getMessage());
         }
-
-        return back()->with('success', "Berhasil menghapus {$deleted} data tagihan massal beserta transaksi terkait.");
     }
 
     public function destroyBulk(Request $request)
@@ -511,21 +527,38 @@ class TagihanController extends Controller
                 ->with('warning', 'Data tagihan yang dipilih tidak ditemukan atau sudah dihapus sebelumnya.');
         }
 
-        $deleted = 0;
-        DB::transaction(function () use ($tagihans, &$deleted) {
-            foreach ($tagihans as $tagihan) {
-                $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
-                TransaksiKeuangan::where('tagihan_id', $tagihan->id)
-                    ->orWhereIn('pembayaran_id', $pembayaranIds)
-                    ->delete();
-                Pembayaran::where('tagihan_id', $tagihan->id)->delete();
-                $tagihan->delete();
-                $deleted++;
-            }
-        });
+        try {
+            $deleted = 0;
+            DB::transaction(function () use ($tagihans, &$deleted) {
+                foreach ($tagihans as $tagihan) {
+                    $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->all();
 
-        return redirect()->route('backend.keuangan.tagihan.index')
-            ->with('success', "Berhasil menghapus {$deleted} data tagihan terpilih.");
+                    if (!empty($pembayaranIds)) {
+                        TransaksiKeuangan::where(function ($q) use ($tagihan, $pembayaranIds) {
+                            $q->where('tagihan_id', $tagihan->id)
+                              ->orWhereIn('pembayaran_id', $pembayaranIds);
+                        })->delete();
+                    } else {
+                        TransaksiKeuangan::where('tagihan_id', $tagihan->id)->delete();
+                    }
+
+                    Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+                    $tagihan->delete();
+                    $deleted++;
+                }
+            });
+
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('success', "Berhasil menghapus {$deleted} data tagihan terpilih secara permanen.");
+        } catch (\Throwable $e) {
+            Log::error("Gagal menghapus tagihan terpilih (bulk): " . $e->getMessage(), [
+                'ids' => $ids,
+                'exception' => $e
+            ]);
+
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('error', 'Gagal menghapus tagihan terpilih: ' . $e->getMessage());
+        }
     }
 
     public function destroy($id)
@@ -537,15 +570,37 @@ class TagihanController extends Controller
                 ->with('warning', 'Data tagihan tidak ditemukan atau sudah dihapus sebelumnya.');
         }
 
-        $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
-        TransaksiKeuangan::where('tagihan_id', $tagihan->id)
-            ->orWhereIn('pembayaran_id', $pembayaranIds)
-            ->delete();
-        Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+        try {
+            DB::transaction(function () use ($tagihan) {
+                $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->all();
 
-        $tagihan->delete();
-        
-        return back()->with('success', 'Tagihan dan riwayat transaksi terkait berhasil dihapus.');
+                // Bersihkan transaksi keuangan yang terkait dengan tagihan ini atau pembayarannya
+                if (!empty($pembayaranIds)) {
+                    TransaksiKeuangan::where(function ($q) use ($tagihan, $pembayaranIds) {
+                        $q->where('tagihan_id', $tagihan->id)
+                          ->orWhereIn('pembayaran_id', $pembayaranIds);
+                    })->delete();
+                } else {
+                    TransaksiKeuangan::where('tagihan_id', $tagihan->id)->delete();
+                }
+
+                // Bersihkan pembayaran terkait tagihan ini
+                Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+
+                // Hapus data tagihan secara permanen
+                $tagihan->delete();
+            });
+
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('success', 'Tagihan dan riwayat transaksi terkait berhasil dihapus secara permanen.');
+        } catch (\Throwable $e) {
+            Log::error("Gagal menghapus tagihan ID {$id}: " . $e->getMessage(), [
+                'exception' => $e
+            ]);
+
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('error', 'Gagal menghapus tagihan: ' . $e->getMessage());
+        }
     }
 
     // =========================================================================

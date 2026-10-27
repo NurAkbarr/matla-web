@@ -200,8 +200,9 @@ class PembayaranController extends Controller
     }
 
     /**
-     * Otomasi Deteksi Tunggakan:
-     * Memastikan bulan-bulan semester aktif yang belum lunas terbit sebagai Tagihan Aktif bagi mahasiswa.
+     * Sinkronisasi Status Tagihan SPP:
+     * Menyesuaikan status tagihan SPP yang sudah ada jika terdapat pembayaran terverifikasi.
+     * Tidak membuat tagihan baru secara otomatis agar tagihan yang telah dihapus oleh Admin Keuangan tidak terbit kembali.
      */
     protected function syncActiveSemesterTagihans($user)
     {
@@ -216,7 +217,7 @@ class PembayaranController extends Controller
                 ->where('status', 'verified')
                 ->get();
 
-            $nominalSpp = (float)($user->nominal_spp ?: 300000);
+            $userTagihans = Tagihan::where('user_id', $user->id)->get();
 
             foreach ($daftarBulan as $b) {
                 $monthKey = $b['key']; // 'YYYY-MM'
@@ -238,35 +239,19 @@ class PembayaranController extends Controller
                     return false;
                 }) !== null;
 
-                $userTagihans = Tagihan::where('user_id', $user->id)->get();
                 $existingTagihan = $userTagihans->first(function ($t) use ($bNum, $bYear, $bNama) {
                     return Tagihan::isMatchingSppMonth($t, $bNum, $bYear, $bNama);
                 });
 
-                if ($isPaid) {
-                    if ($existingTagihan && $existingTagihan->status !== 'lunas') {
-                        $existingTagihan->update([
-                            'status' => 'lunas',
-                            'sisa_tagihan' => 0,
-                        ]);
-                    }
-                } else {
-                    if (!$existingTagihan) {
-                        Tagihan::create([
-                            'user_id' => $user->id,
-                            'nama_tagihan' => "SPP " . strtoupper($bNama) . " {$bYear}",
-                            'nominal_total' => $nominalSpp,
-                            'sisa_tagihan' => $nominalSpp,
-                            'status' => 'belum lunas',
-                            'jenis_tagihan' => 'lunas',
-                            'keterangan' => "Tagihan SPP Semester " . ($activeSemester->nama_semester ?? '') . " - Bulan {$bNama} {$bYear}",
-                            'jatuh_tempo' => "{$bYear}-" . sprintf('%02d', $bNum) . "-10",
-                        ]);
-                    }
+                if ($isPaid && $existingTagihan && $existingTagihan->status !== 'lunas') {
+                    $existingTagihan->update([
+                        'status' => 'lunas',
+                        'sisa_tagihan' => 0,
+                    ]);
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Gagal sinkronisasi tagihan SPP: ' . $e->getMessage());
+            Log::error('Gagal sinkronisasi status tagihan SPP: ' . $e->getMessage());
         }
     }
 }
