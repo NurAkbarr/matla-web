@@ -632,6 +632,8 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::delete('/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal'])->name('tagihan.destroyMassal');
         Route::post('/tagihan/mass/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal'])->name('tagihan.destroyMassalPost');
         Route::delete('/tagihan/massal', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal']);
+        Route::delete('/tagihan/bulk-delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyBulk'])->name('tagihan.destroyBulk');
+        Route::post('/tagihan/bulk-delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyBulk'])->name('tagihan.destroyBulkPost');
         Route::get('/tagihan/spreadsheet', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'spreadsheet'])->name('tagihan.spreadsheet');
         Route::post('/tagihan/{id}/resend-reminder', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'resendReminder'])->name('tagihan.resendReminder');
         Route::delete('/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy'])->name('tagihan.destroy');
@@ -682,6 +684,8 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
 Route::middleware(['auth', 'role:keuangan,super_admin,admin'])->group(function () {
     Route::delete('/keuangan/tagihan/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy']);
     Route::post('/keuangan/tagihan/{id}/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroy']);
+    Route::delete('/keuangan/tagihan/bulk-delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyBulk']);
+    Route::post('/keuangan/tagihan/bulk-delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyBulk']);
     Route::delete('/keuangan/tagihan/mass', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal']);
     Route::post('/keuangan/tagihan/mass/delete', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyMassal']);
 });

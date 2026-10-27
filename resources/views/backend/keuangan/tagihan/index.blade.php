@@ -527,6 +527,65 @@
     {{-- Histori Tagihan Terakhir --}}
     <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] overflow-hidden" x-data="{ 
         searchQuery: '',
+        selectedIds: [],
+        selectAll: false,
+        allIds: {{ json_encode($recentTagihans->pluck('id')) }},
+        
+        toggleSelectAll() {
+            if (this.selectAll) {
+                let ids = [];
+                document.querySelectorAll('.tagihan-row').forEach(tr => {
+                    if (tr.style.display !== 'none' && tr.offsetParent !== null) {
+                        const id = parseInt(tr.dataset.tagihanId);
+                        if (id) ids.push(id);
+                    }
+                });
+                this.selectedIds = ids.length > 0 ? ids : [...this.allIds];
+            } else {
+                this.selectedIds = [];
+            }
+        },
+
+        updateSelectAllState() {
+            let visibleRows = Array.from(document.querySelectorAll('.tagihan-row')).filter(tr => tr.style.display !== 'none' && tr.offsetParent !== null);
+            if (visibleRows.length === 0) {
+                this.selectAll = false;
+                return;
+            }
+            let visibleIds = visibleRows.map(tr => parseInt(tr.dataset.tagihanId));
+            this.selectAll = visibleIds.every(id => this.selectedIds.includes(id));
+        },
+
+        confirmBulkDelete() {
+            if (this.selectedIds.length === 0) return;
+            const count = this.selectedIds.length;
+            
+            Swal.fire({
+                title: 'Konfirmasi Hapus Data',
+                text: 'Apakah Anda yakin ingin menghapus ' + count + ' data tagihan yang dipilih? Tindakan ini tidak dapat dibatalkan.',
+                icon: 'warning',
+                iconColor: '#D93025',
+                showCancelButton: true,
+                confirmButtonColor: '#D93025',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Hapus Sekarang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                    title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                    htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                    confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                    cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-bulk-delete').submit();
+                }
+            });
+        },
+
         editPersonalOpen: false,
         editPersonalForm: { id: '', action_url: '', nama_tagihan: '', nominal_total: '', jenis_tagihan: 'lunas', jatuh_tempo: '', keterangan: '' },
         openPersonalEdit(el) {
@@ -542,21 +601,56 @@
     }">
         <div class="px-5 py-3.5 border-b border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-                <p class="text-xs font-bold font-display text-[var(--text-heading)]">Riwayat tagihan terakhir</p>
+                <div class="flex items-center gap-2.5">
+                    <p class="text-xs font-bold font-display text-[var(--text-heading)]">Riwayat tagihan terakhir</p>
+                    <span x-show="selectedIds.length > 0" x-cloak class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">
+                        <span x-text="selectedIds.length"></span> dipilih
+                    </span>
+                </div>
                 <p class="text-[11px] text-[var(--text-muted)]">Daftar tagihan yang baru diterbitkan ke mahasiswa.</p>
             </div>
 
-            <div class="relative w-full sm:w-64">
-                <input type="text" x-model="searchQuery" placeholder="Cari mahasiswa atau tagihan..." class="w-full h-9 pl-8 pr-3 text-xs bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] focus:outline-none focus:border-[var(--primary-700)]">
-                <svg class="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap sm:flex-nowrap">
+                {{-- Tombol Hapus Terpilih (Bulk Delete) --}}
+                <button type="button" 
+                        x-show="selectedIds.length > 0" 
+                        x-cloak
+                        @click="confirmBulkDelete()"
+                        class="h-9 px-3.5 inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-[var(--radius-xs)] shadow-sm transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    <span>Hapus Terpilih (<span x-text="selectedIds.length"></span>)</span>
+                </button>
+
+                <div class="relative w-full sm:w-64">
+                    <input type="text" x-model="searchQuery" placeholder="Cari mahasiswa atau tagihan..." class="w-full h-9 pl-8 pr-3 text-xs bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] focus:outline-none focus:border-[var(--primary-700)]">
+                    <svg class="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
             </div>
         </div>
+
+        {{-- Form Hapus Massal Terpilih --}}
+        <form id="form-bulk-delete" action="{{ route('backend.keuangan.tagihan.destroyBulk') }}" method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+            <template x-for="id in selectedIds" :key="id">
+                <input type="hidden" name="ids[]" :value="id">
+            </template>
+        </form>
 
         <div class="w-full overflow-x-auto">
             <table class="w-full text-left text-xs table-mobile-cards">
                 <thead>
                     <tr class="border-b border-[var(--border)] text-[var(--text-body)] font-semibold text-[12.5px] bg-[var(--primary-50)] dark:bg-[var(--primary-900)]/30">
-                        <th scope="col" class="py-3.5 pl-5 pr-3 w-[110px]">Waktu</th>
+                        <th scope="col" class="py-3.5 pl-4 pr-2 w-10 text-center">
+                            <input type="checkbox" 
+                                   x-model="selectAll" 
+                                   @change="toggleSelectAll()" 
+                                   class="w-4 h-4 rounded-[var(--radius-xs)] border-[var(--border)] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer"
+                                   title="Pilih Semua (Select All)">
+                        </th>
+                        <th scope="col" class="py-3.5 px-3 w-[110px]">Waktu</th>
                         <th scope="col" class="py-3.5 px-4 min-w-[170px]">Mahasiswa</th>
                         <th scope="col" class="py-3.5 px-3 min-w-[130px]">Program studi</th>
                         <th scope="col" class="py-3.5 px-3 text-center w-[80px]">Angkatan</th>
@@ -569,8 +663,20 @@
                 </thead>
                 <tbody class="divide-y divide-[var(--border)] text-[var(--text-body)]">
                     @forelse($recentTagihans as $tagihan)
-                    <tr class="hover:bg-[var(--primary-50)]/40 transition-colors" x-show="searchQuery === '' || '{{ strtolower(str_replace("'", "\'", $tagihan->user->name ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->nama_tagihan)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->user->education['program_studi'] ?? '')) }}'.includes(searchQuery.toLowerCase())">
-                        <td class="py-3.5 pl-5 pr-3 tabular-nums" data-label="Waktu">
+                    <tr class="tagihan-row hover:bg-[var(--primary-50)]/40 transition-colors" 
+                        data-tagihan-id="{{ $tagihan->id }}"
+                        :class="selectedIds.includes({{ $tagihan->id }}) ? 'bg-emerald-50/50 dark:bg-emerald-950/20' : ''"
+                        x-show="searchQuery === '' || '{{ strtolower(str_replace("'", "\'", $tagihan->user->name ?? '')) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->nama_tagihan)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(str_replace("'", "\'", $tagihan->user->education['program_studi'] ?? '')) }}'.includes(searchQuery.toLowerCase())">
+                        <td class="py-3.5 pl-4 pr-2 text-center" data-label="Pilih">
+                            <input type="checkbox" 
+                                   value="{{ $tagihan->id }}"
+                                   :value="{{ $tagihan->id }}"
+                                   name="ids[]"
+                                   x-model="selectedIds"
+                                   @change="updateSelectAllState()"
+                                   class="tagihan-checkbox w-4 h-4 rounded-[var(--radius-xs)] border-[var(--border)] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">
+                        </td>
+                        <td class="py-3.5 px-3 tabular-nums" data-label="Waktu">
                             <span class="block font-semibold text-[var(--text-heading)]">{{ \Carbon\Carbon::parse($tagihan->created_at)->format('d M Y') }}</span>
                             <span class="block text-[11px] text-[var(--text-muted)]">{{ \Carbon\Carbon::parse($tagihan->created_at)->format('H:i') }}</span>
                         </td>
@@ -607,9 +713,13 @@
                         <td class="py-3.5 pl-3 pr-5 text-center" data-label="Aksi">
                             <div class="flex items-center justify-center gap-1">
                                 @if(!empty($tagihan->user->email))
-                                <form action="{{ route('backend.keuangan.tagihan.resendReminder', $tagihan->id) }}" method="POST" onsubmit="return confirm('Kirim ulang email reminder tagihan ke {{ addslashes($tagihan->user->name ?? 'mahasiswa') }} ({{ $tagihan->user->email }})?');" class="inline-block">
+                                <form action="{{ route('backend.keuangan.tagihan.resendReminder', $tagihan->id) }}" method="POST" class="inline-block">
                                     @csrf
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--primary-600)] hover:bg-[var(--primary-50)] border border-[var(--border)] transition cursor-pointer" title="Kirim reminder" aria-label="Kirim reminder">
+                                    <button type="button" 
+                                            onclick="confirmResendReminder(this, '{{ addslashes($tagihan->user->name ?? 'Mahasiswa') }}', '{{ $tagihan->user->email }}')" 
+                                            class="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--primary-600)] hover:bg-[var(--primary-50)] border border-[var(--border)] transition cursor-pointer" 
+                                            title="Kirim reminder" 
+                                            aria-label="Kirim reminder">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                     </button>
                                 </form>
@@ -628,10 +738,15 @@
                                         title="Edit tagihan" aria-label="Edit tagihan">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 </button>
-                                <form action="{{ route('backend.keuangan.tagihan.destroy', $tagihan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus tagihan ini?');" class="inline-block">
+
+                                <form action="{{ route('backend.keuangan.tagihan.destroy', $tagihan->id) }}" method="POST" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--danger)] hover:bg-rose-50 border border-[var(--border)] transition cursor-pointer" title="Hapus tagihan" aria-label="Hapus tagihan">
+                                    <button type="button" 
+                                            onclick="confirmDeleteTagihan(this, '{{ addslashes($tagihan->nama_tagihan) }}', '{{ addslashes($tagihan->user->name ?? 'Mahasiswa') }}')" 
+                                            class="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--danger)] hover:bg-rose-50 border border-[var(--border)] transition cursor-pointer" 
+                                            title="Hapus tagihan" 
+                                            aria-label="Hapus tagihan">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </form>
@@ -640,7 +755,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="py-12 text-center text-xs text-[var(--text-muted)]">Belum ada tagihan yang dibuat.</td>
+                        <td colspan="10" class="py-12 text-center text-xs text-[var(--text-muted)]">Belum ada tagihan yang dibuat.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -784,10 +899,13 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </button>
                                         @if(strtoupper(trim($jenis->nama_tagihan)) !== 'SPP' && $jenis->tipe_nominal !== 'otomatis_spp')
-                                            <form action="{{ route('backend.keuangan.tagihan.jenis.destroy', $jenis->id) }}" method="POST" onsubmit="return confirm('Hapus jenis tagihan \'{{ $jenis->nama_tagihan }}\'?');" class="inline">
+                                            <form action="{{ route('backend.keuangan.tagihan.jenis.destroy', $jenis->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="p-1 text-[var(--danger)] rounded cursor-pointer" title="Hapus">
+                                                <button type="button" 
+                                                        onclick="confirmDeleteJenis(this, '{{ addslashes($jenis->nama_tagihan) }}')" 
+                                                        class="p-1 text-[var(--danger)] rounded cursor-pointer" 
+                                                        title="Hapus jenis">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 </button>
                                             </form>
@@ -856,5 +974,90 @@
 
 @push('scripts')
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script>
+    function confirmDeleteTagihan(button, namaTagihan, namaMhs) {
+        const form = button.closest('form');
+        Swal.fire({
+            title: 'Konfirmasi Hapus Data',
+            text: 'Apakah Anda yakin ingin menghapus data tagihan "' + namaTagihan + '" untuk ' + namaMhs + '? Tindakan ini tidak dapat dibatalkan.',
+            icon: 'warning',
+            iconColor: '#D93025',
+            showCancelButton: true,
+            confirmButtonColor: '#D93025',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Hapus Sekarang',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            focusCancel: true,
+            customClass: {
+                popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    function confirmResendReminder(button, namaMhs, email) {
+        const form = button.closest('form');
+        Swal.fire({
+            title: 'Kirim Ulang Reminder',
+            text: 'Kirim ulang email reminder tagihan ke ' + namaMhs + ' (' + email + ')?',
+            icon: 'question',
+            iconColor: '#006837',
+            showCancelButton: true,
+            confirmButtonColor: '#006837',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Kirim Sekarang',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            focusCancel: true,
+            customClass: {
+                popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    function confirmDeleteJenis(button, namaJenis) {
+        const form = button.closest('form');
+        Swal.fire({
+            title: 'Konfirmasi Hapus Data',
+            text: 'Apakah Anda yakin ingin menghapus jenis tagihan "' + namaJenis + '"? Tindakan ini tidak dapat dibatalkan.',
+            icon: 'warning',
+            iconColor: '#D93025',
+            showCancelButton: true,
+            confirmButtonColor: '#D93025',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Hapus Sekarang',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            focusCancel: true,
+            customClass: {
+                popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+</script>
 @endpush
 @endsection

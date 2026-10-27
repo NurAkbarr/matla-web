@@ -370,6 +370,13 @@
             });
         @endif
 
+        @if(session('warning'))
+            Toast.fire({
+                icon: 'warning',
+                title: '{{ session('warning') }}'
+            });
+        @endif
+
         @if(session('error'))
             Toast.fire({
                 icon: 'error',
@@ -377,19 +384,25 @@
             });
         @endif
 
-        function confirmDelete(title = 'Apakah Anda yakin?', text = 'Data yang dihapus tidak dapat dikembalikan!') {
+        function confirmDelete(title = 'Konfirmasi Hapus Data', text = 'Apakah Anda yakin ingin menghapus data yang dipilih? Tindakan ini tidak dapat dibatalkan.') {
             return Swal.fire({
                 title: title,
                 text: text,
                 icon: 'warning',
+                iconColor: '#D93025',
                 showCancelButton: true,
-                confirmButtonColor: '#006837',
-                cancelButtonColor: '#D93025',
-                confirmButtonText: 'Ya, hapus',
+                confirmButtonColor: '#D93025',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Hapus Sekarang',
                 cancelButtonText: 'Batal',
                 reverseButtons: true,
+                focusCancel: true,
                 customClass: {
-                    popup: 'rounded-[8px]'
+                    popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                    title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                    htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                    confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                    cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
                 }
             });
         }

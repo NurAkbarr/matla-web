@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TagihanController extends Controller
 {
@@ -489,6 +490,42 @@ class TagihanController extends Controller
         }
 
         return back()->with('success', "Berhasil menghapus {$deleted} data tagihan massal beserta transaksi terkait.");
+    }
+
+    public function destroyBulk(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+        $ids = array_values(array_filter(array_map('intval', (array) $ids)));
+
+        if (empty($ids)) {
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('warning', 'Pilih minimal satu data tagihan untuk dihapus.');
+        }
+
+        $tagihans = Tagihan::whereIn('id', $ids)->get();
+        if ($tagihans->isEmpty()) {
+            return redirect()->route('backend.keuangan.tagihan.index')
+                ->with('warning', 'Data tagihan yang dipilih tidak ditemukan atau sudah dihapus sebelumnya.');
+        }
+
+        $deleted = 0;
+        DB::transaction(function () use ($tagihans, &$deleted) {
+            foreach ($tagihans as $tagihan) {
+                $pembayaranIds = Pembayaran::where('tagihan_id', $tagihan->id)->pluck('id')->toArray();
+                TransaksiKeuangan::where('tagihan_id', $tagihan->id)
+                    ->orWhereIn('pembayaran_id', $pembayaranIds)
+                    ->delete();
+                Pembayaran::where('tagihan_id', $tagihan->id)->delete();
+                $tagihan->delete();
+                $deleted++;
+            }
+        });
+
+        return redirect()->route('backend.keuangan.tagihan.index')
+            ->with('success', "Berhasil menghapus {$deleted} data tagihan terpilih.");
     }
 
     public function destroy($id)
