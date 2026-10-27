@@ -25,13 +25,13 @@
             @foreach($daftarBulan as $b)
                 <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">{{ strtoupper($b['nama']) }}</th>
             @endforeach
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">NOMINAL SPP (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">BLN MENUNGGAK</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">TOTAL TAGIHAN (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">TOTAL SUDAH DIBAYAR (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">SISA TUNGGAKAN (RP)</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">TARIF SPP (RP)</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">TGK</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">TAGIHAN (RP)</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">DIBAYAR (RP)</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">SISA (RP)</th>
             <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">STATUS</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000;">METODE / KETERANGAN</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000;">KETERANGAN</th>
         </tr>
     </thead>
     <tbody>
@@ -51,7 +51,7 @@
                 <td style="text-align: center; border: 1px solid #000000; font-weight: bold; {{ $item['bulan_menunggak'] > 0 ? 'color: #DC2626;' : 'color: #047857;' }}">
                     {{ $item['bulan_menunggak'] }}
                 </td>
-                <td style="text-align: right; border: 1px solid #000000;">{{ $item['total_tagihan'] }}</td>
+                <td style="text-align: right; border: 1px solid #000000;">{{ $item['tagihan'] }}</td>
                 <td style="text-align: right; border: 1px solid #000000; color: #047857; font-weight: bold;">{{ $item['total_dibayar'] }}</td>
                 <td style="text-align: right; border: 1px solid #000000; {{ $item['sisa_tunggakan'] > 0 ? 'color: #DC2626; font-weight: bold;' : '' }}">
                     {{ $item['sisa_tunggakan'] }}
@@ -75,9 +75,11 @@
                 TOTAL KESELURUHAN ({{ count($rekapItems) }} Mahasiswa):
             </th>
             <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">-</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">-</th>
+            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">
+                {{ $rekapItems ? array_sum(array_column($rekapItems, 'bulan_menunggak')) : 0 }}
+            </th>
             <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
-                {{ $summary['total_potensi'] }}
+                {{ $rekapItems ? array_sum(array_column($rekapItems, 'tagihan')) : 0 }}
             </th>
             <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
                 {{ $summary['total_terkumpul'] }}

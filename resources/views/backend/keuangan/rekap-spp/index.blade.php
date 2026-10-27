@@ -99,7 +99,7 @@
                     Rp {{ number_format($summary['total_terkumpul'], 0, ',', '.') }}
                 </p>
             </div>
-            <p class="text-[11px] text-[var(--primary-600)] mt-1.5 tabular-nums">{{ $summary['mahasiswa_lunas'] }} mahasiswa lunas</p>
+            <p class="text-[11px] text-[var(--primary-600)] mt-1.5 tabular-nums" id="sumLunasSub">{{ $summary['mahasiswa_lunas'] }} mahasiswa lunas</p>
         </div>
 
         {{-- Card 4: Sisa Tunggakan --}}
@@ -110,7 +110,7 @@
                     Rp {{ number_format($summary['total_tunggakan'], 0, ',', '.') }}
                 </p>
             </div>
-            <p class="text-[11px] text-[var(--danger)] mt-1.5 tabular-nums">{{ $summary['mahasiswa_menunggak'] }} belum lunas</p>
+            <p class="text-[11px] text-[var(--danger)] mt-1.5 tabular-nums" id="sumMenunggakSub">{{ $summary['mahasiswa_menunggak'] }} belum lunas</p>
         </div>
 
         {{-- Card 5: Persentase Kelunasan --}}
@@ -122,7 +122,7 @@
                 </p>
             </div>
             <div class="w-full bg-[var(--bg-page)] rounded-full h-1.5 mt-2 overflow-hidden border border-[var(--border)]">
-                <div class="bg-[var(--primary-500)] h-1.5 rounded-full" style="width: {{ min(100, $summary['persentase_lunas']) }}%"></div>
+                <div id="sumPersenBar" class="bg-[var(--primary-500)] h-1.5 rounded-full" style="width: {{ min(100, $summary['persentase_lunas']) }}%"></div>
             </div>
         </div>
     </div>
@@ -277,12 +277,22 @@
                         <th class="py-3 px-3 text-right border-r border-[var(--border)] w-24">Dibayar</th>
                         <th class="py-3 px-3 text-right border-r border-[var(--border)] w-24">Sisa</th>
                         <th class="py-3 px-3 text-center border-r border-[var(--border)] w-20">Status</th>
-                        <th class="py-3 px-3 min-w-[110px]">Keterangan</th>
+                        <th class="py-3 px-3 min-w-[140px]">Keterangan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[var(--border)] text-[var(--text-body)]">
                     @forelse($rekapItems as $index => $item)
-                        <tr class="hover:bg-[var(--primary-50)]/40 transition-colors" id="row-mhs-{{ $item['id'] }}">
+                        <tr class="hover:bg-[var(--primary-50)]/40 transition-colors mhs-row" 
+                            id="row-mhs-{{ $item['id'] }}"
+                            data-mhs-id="{{ $item['id'] }}"
+                            data-nominal-spp="{{ $item['nominal_spp'] }}"
+                            data-bulan-menunggak="{{ $item['bulan_menunggak'] }}"
+                            data-tagihan="{{ $item['tagihan'] }}"
+                            data-dibayar="{{ $item['total_dibayar'] }}"
+                            data-sisa="{{ $item['sisa_tunggakan'] }}"
+                            data-status="{{ $item['status'] }}"
+                            data-catatan="{{ htmlspecialchars($item['catatan'] ?? '', ENT_QUOTES) }}"
+                            data-metode-asli="{{ htmlspecialchars($item['metode_asli'] ?? 'Belum Ada Pembayaran', ENT_QUOTES) }}">
                             {{-- No --}}
                             <td class="py-3 px-3 text-center border-r border-[var(--border)] text-[var(--text-muted)] tabular-nums">
                                 {{ $index + 1 }}
@@ -368,9 +378,9 @@
                                 {{ $item['bulan_menunggak'] }}
                             </td>
 
-                            {{-- Total Tagihan --}}
-                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--text-heading)]">
-                                Rp {{ number_format($item['total_tagihan'], 0, ',', '.') }}
+                            {{-- Tagihan (Rp) --}}
+                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--text-heading)] font-semibold" id="mhs-tagihan-{{ $item['id'] }}">
+                                Rp {{ number_format($item['tagihan'], 0, ',', '.') }}
                             </td>
 
                             {{-- Total Sudah Dibayar --}}
@@ -398,9 +408,31 @@
                                 @endif
                             </td>
 
-                            {{-- Keterangan --}}
-                            <td class="py-3 px-3 text-[11px] text-[var(--text-muted)]">
-                                {{ $item['metode'] }}
+                            {{-- Keterangan / Catatan Admin --}}
+                            <td class="py-3 px-3 text-[11px] align-middle" id="cell-catatan-{{ $item['id'] }}">
+                                <div class="flex items-start justify-between gap-1.5 group">
+                                    <div class="flex-1 min-w-0">
+                                        @if(!empty($item['catatan']))
+                                            <span id="text-catatan-{{ $item['id'] }}" class="text-[var(--text-heading)] font-medium break-words leading-tight block">
+                                                {{ $item['catatan'] }}
+                                            </span>
+                                            <span id="sub-catatan-{{ $item['id'] }}" class="text-[9.5px] text-[var(--primary-600)] font-semibold block mt-0.5">Catatan Khusus</span>
+                                        @else
+                                            <span id="text-catatan-{{ $item['id'] }}" class="text-[var(--text-muted)] italic break-words leading-tight block">
+                                                {{ $item['metode_asli'] ?? 'Belum Ada Pembayaran' }}
+                                            </span>
+                                            <span id="sub-catatan-{{ $item['id'] }}" class="text-[9.5px] text-[var(--primary-600)] font-semibold hidden mt-0.5">Catatan Khusus</span>
+                                        @endif
+                                    </div>
+                                    <button type="button" 
+                                            onclick="openCatatanModal({{ $item['id'] }}, '{{ addslashes($item['nama']) }}', '{{ $item['nim'] }}')" 
+                                            class="shrink-0 p-1.5 rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--primary-700)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] transition cursor-pointer"
+                                            title="Kelola Catatan Admin">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -422,19 +454,19 @@
                                 <td class="py-3 px-2 text-center border-r border-[var(--border)] text-[var(--text-muted)]">-</td>
                             @endforeach
                             <td class="py-3 px-3 text-right border-r border-[var(--border)] text-[var(--text-muted)]">-</td>
-                            <td class="py-3 px-2 text-center border-r border-[var(--border)] text-[var(--danger)] tabular-nums">
+                            <td class="py-3 px-2 text-center border-r border-[var(--border)] text-[var(--danger)] tabular-nums" id="foot-tgk">
                                 {{ $rekapItems ? array_sum(array_column($rekapItems, 'bulan_menunggak')) : 0 }}
                             </td>
-                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums">
-                                Rp {{ number_format($summary['total_potensi'], 0, ',', '.') }}
+                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums" id="foot-tagihan">
+                                Rp {{ number_format($rekapItems ? array_sum(array_column($rekapItems, 'tagihan')) : 0, 0, ',', '.') }}
                             </td>
-                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--primary-600)]">
+                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--primary-600)]" id="foot-dibayar">
                                 Rp {{ number_format($summary['total_terkumpul'], 0, ',', '.') }}
                             </td>
-                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--danger)]">
+                            <td class="py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--danger)]" id="foot-sisa">
                                 Rp {{ number_format($summary['total_tunggakan'], 0, ',', '.') }}
                             </td>
-                            <td colspan="2" class="py-3 px-3 text-center text-[var(--primary-600)] tabular-nums">
+                            <td colspan="2" class="py-3 px-3 text-center text-[var(--primary-600)] tabular-nums" id="foot-persen">
                                 {{ $summary['persentase_lunas'] }}% lunas
                             </td>
                         </tr>
@@ -444,6 +476,87 @@
         </div>
     </div>
 
+</div>
+
+{{-- Modal Catatan Khusus Rekap SPP --}}
+<div id="modalCatatan" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" onclick="closeCatatanModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-[var(--radius-sm)] bg-[var(--surface)] border border-[var(--border)] text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <form id="formCatatan" onsubmit="submitCatatan(event)">
+                <input type="hidden" id="catatan_user_id" name="user_id">
+                
+                {{-- Header --}}
+                <div class="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-page)]">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-[var(--primary-50)] text-[var(--primary-600)] flex items-center justify-center border border-[var(--primary-200)]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold font-display text-[var(--text-heading)]">Catatan Khusus Mahasiswa</h3>
+                            <p class="text-[11px] text-[var(--text-muted)]" id="catatan_mhs_info">Mahasiswa</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeCatatanModal()" class="text-[var(--text-muted)] hover:text-[var(--text-heading)] p-1 rounded transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <div class="p-5 space-y-4">
+                    <div class="p-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-muted)] space-y-1">
+                        <p><span class="font-semibold text-[var(--text-heading)]">Periode:</span> TA {{ $tahunAkademik }} • Semester {{ ucfirst($tipeSemester) }}</p>
+                        <p class="text-[11px]">Catatan ini akan tampil di tabel matriks rekapitulasi serta ikut tercetak saat ekspor PDF & Excel.</p>
+                    </div>
+
+                    <div>
+                        <label for="catatan_text" class="block text-xs font-semibold text-[var(--text-heading)] mb-1">
+                            Tuliskan Catatan / Keterangan Khusus
+                        </label>
+                        <textarea id="catatan_text" 
+                                  name="catatan" 
+                                  rows="4" 
+                                  maxlength="500"
+                                  placeholder="Contoh: Lunas sampai Februari untuk pembuatan yayasan, atau Kurang 150rb transfer menyusul..." 
+                                  class="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)] placeholder:text-[var(--text-muted)] leading-relaxed"></textarea>
+                        <p class="text-[10px] text-[var(--text-muted)] mt-1 flex justify-between">
+                            <span>Kosongkan catatan lalu simpan (atau klik tombol Hapus) untuk mengembalikan ke keterangan default.</span>
+                            <span id="charCount">0/500</span>
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div class="px-5 py-3 border-t border-[var(--border)] bg-[var(--bg-page)] flex items-center justify-between">
+                    <button type="button" 
+                            id="btnHapusCatatan"
+                            onclick="hapusCatatan()" 
+                            class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-[var(--danger)] border border-rose-200 rounded-[var(--radius-xs)] text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span>Hapus Catatan</span>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeCatatanModal()" class="px-3.5 py-2 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--bg-page)] text-[var(--text-body)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" id="btnSimpanCatatan" class="px-4 py-2 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Simpan Catatan</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -467,6 +580,81 @@
             toast.style.transform = 'translateY(-10px)';
             setTimeout(function() { toast.remove(); }, 300);
         }, 4000);
+    }
+
+    function formatRupiah(num) {
+        return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+    }
+
+    function recalculateSummaryTotals() {
+        var rows = document.querySelectorAll('.mhs-row');
+        if (!rows.length) return;
+
+        var totalTgk = 0;
+        var totalTagihan = 0;
+        var totalDibayar = 0;
+        var totalSisa = 0;
+        var totalPotensi = 0;
+        var countLunas = 0;
+        var countMenunggak = 0;
+
+        rows.forEach(function(row) {
+            var nominalSpp = parseInt(row.dataset.nominalSpp) || 0;
+            var tgk = parseInt(row.dataset.bulanMenunggak) || 0;
+            var tagihan = parseInt(row.dataset.tagihan) || 0;
+            var dibayar = parseInt(row.dataset.dibayar) || 0;
+            var sisa = parseInt(row.dataset.sisa) || 0;
+            var status = row.dataset.status;
+
+            totalTgk += tgk;
+            totalTagihan += tagihan;
+            totalDibayar += dibayar;
+            totalSisa += sisa;
+            totalPotensi += (6 * nominalSpp);
+
+            if (status === 'Lunas') {
+                countLunas++;
+            } else {
+                countMenunggak++;
+            }
+        });
+
+        var persen = totalPotensi > 0 ? (Math.round((totalDibayar / totalPotensi) * 1000) / 10) : 0;
+
+        // Update Top Summary Cards
+        var sumTerkumpul = document.getElementById('sumTerkumpul');
+        if (sumTerkumpul) sumTerkumpul.textContent = formatRupiah(totalDibayar);
+
+        var sumLunasSub = document.getElementById('sumLunasSub');
+        if (sumLunasSub) sumLunasSub.textContent = countLunas + ' mahasiswa lunas';
+
+        var sumTunggakan = document.getElementById('sumTunggakan');
+        if (sumTunggakan) sumTunggakan.textContent = formatRupiah(totalSisa);
+
+        var sumMenunggakSub = document.getElementById('sumMenunggakSub');
+        if (sumMenunggakSub) sumMenunggakSub.textContent = countMenunggak + ' belum lunas';
+
+        var sumPersen = document.getElementById('sumPersen');
+        if (sumPersen) sumPersen.textContent = persen + '%';
+
+        var sumPersenBar = document.getElementById('sumPersenBar');
+        if (sumPersenBar) sumPersenBar.style.width = Math.min(100, persen) + '%';
+
+        // Update Footer Table
+        var footTgk = document.getElementById('foot-tgk');
+        if (footTgk) footTgk.textContent = totalTgk;
+
+        var footTagihan = document.getElementById('foot-tagihan');
+        if (footTagihan) footTagihan.textContent = formatRupiah(totalTagihan);
+
+        var footDibayar = document.getElementById('foot-dibayar');
+        if (footDibayar) footDibayar.textContent = formatRupiah(totalDibayar);
+
+        var footSisa = document.getElementById('foot-sisa');
+        if (footSisa) footSisa.textContent = formatRupiah(totalSisa);
+
+        var footPersen = document.getElementById('foot-persen');
+        if (footPersen) footPersen.textContent = persen + '% lunas';
     }
 
     function handleCheckboxToggle(userId, monthKey, isHistorisAlready, cb) {
@@ -499,7 +687,9 @@
             body: JSON.stringify({
                 user_id: userId,
                 month_key: monthKey,
-                action: targetAction
+                action: targetAction,
+                tahun_akademik: '{{ $tahunAkademik }}',
+                tipe_semester: '{{ $tipeSemester }}'
             })
         })
         .then(function(res) {
@@ -532,6 +722,69 @@
                         '</label>' +
                     '</div>';
                 }
+
+                // Update Row Statistics in DOM
+                if (data.row) {
+                    var rowEl = document.getElementById('row-mhs-' + userId);
+                    if (rowEl) {
+                        rowEl.dataset.bulanMenunggak = data.row.bulan_menunggak;
+                        rowEl.dataset.tagihan = data.row.tagihan;
+                        rowEl.dataset.dibayar = data.row.total_dibayar;
+                        rowEl.dataset.sisa = data.row.sisa_tunggakan;
+                        rowEl.dataset.status = data.row.status;
+                    }
+
+                    // 1. Tgk
+                    var tgkEl = document.getElementById('mhs-tgk-' + userId);
+                    if (tgkEl) {
+                        tgkEl.textContent = data.row.bulan_menunggak;
+                        if (data.row.bulan_menunggak > 0) {
+                            tgkEl.className = 'py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold text-[var(--danger)]';
+                        } else {
+                            tgkEl.className = 'py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold text-[var(--primary-600)]';
+                        }
+                    }
+
+                    // 2. Tagihan
+                    var tagihanEl = document.getElementById('mhs-tagihan-' + userId);
+                    if (tagihanEl) {
+                        tagihanEl.textContent = data.row.tagihan_formatted;
+                    }
+
+                    // 3. Dibayar
+                    var dibayarEl = document.getElementById('mhs-dibayar-' + userId);
+                    if (dibayarEl) {
+                        dibayarEl.textContent = data.row.dibayar_formatted;
+                    }
+
+                    // 4. Sisa
+                    var sisaEl = document.getElementById('mhs-sisa-' + userId);
+                    if (sisaEl) {
+                        sisaEl.textContent = data.row.sisa_formatted;
+                        if (data.row.sisa_tunggakan > 0) {
+                            sisaEl.className = 'py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--danger)] font-semibold';
+                        } else {
+                            sisaEl.className = 'py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--text-muted)]';
+                        }
+                    }
+
+                    // 5. Status
+                    var statusEl = document.getElementById('mhs-status-' + userId);
+                    if (statusEl) {
+                        if (data.row.status === 'Lunas') {
+                            statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)]">' +
+                                '<span class="w-1.5 h-1.5 rounded-full bg-[var(--primary-500)] mr-1.5"></span>' +
+                                'Lunas</span>';
+                        } else {
+                            statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-rose-50 text-[var(--danger)] border border-rose-200">' +
+                                '<span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)] mr-1.5"></span>' +
+                                'Menunggak</span>';
+                        }
+                    }
+
+                    // Recalculate Totals
+                    recalculateSummaryTotals();
+                }
             } else {
                 showToast(data.message || 'Terjadi kesalahan.', false);
                 cell.innerHTML = originalContent;
@@ -542,5 +795,158 @@
             cell.innerHTML = originalContent;
         });
     }
+
+    // --- Catatan Khusus Modal & AJAX ---
+    function openCatatanModal(userId, nama, nim) {
+        var row = document.getElementById('row-mhs-' + userId);
+        var catatan = row ? (row.dataset.catatan || '') : '';
+        
+        document.getElementById('catatan_user_id').value = userId;
+        document.getElementById('catatan_mhs_info').textContent = nama + ' (' + nim + ')';
+        var textarea = document.getElementById('catatan_text');
+        textarea.value = catatan;
+        document.getElementById('charCount').textContent = catatan.length + '/500';
+        
+        var btnHapus = document.getElementById('btnHapusCatatan');
+        if (catatan.trim() === '') {
+            btnHapus.style.display = 'none';
+        } else {
+            btnHapus.style.display = 'inline-flex';
+        }
+        
+        document.getElementById('modalCatatan').classList.remove('hidden');
+        setTimeout(function() {
+            textarea.focus();
+        }, 100);
+    }
+
+    function closeCatatanModal() {
+        document.getElementById('modalCatatan').classList.add('hidden');
+    }
+
+    function submitCatatan(event) {
+        event.preventDefault();
+        var userId = document.getElementById('catatan_user_id').value;
+        var catatanText = document.getElementById('catatan_text').value;
+        var btnSimpan = document.getElementById('btnSimpanCatatan');
+        var originalBtnText = btnSimpan.innerHTML;
+        btnSimpan.disabled = true;
+        btnSimpan.innerHTML = '<span class="inline-block animate-spin mr-1">⟳</span> Menyimpan...';
+        
+        fetch('{{ route("backend.keuangan.rekap-spp.catatan.save") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                catatan: catatanText,
+                tahun_akademik: '{{ $tahunAkademik }}',
+                tipe_semester: '{{ $tipeSemester }}'
+            })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            btnSimpan.disabled = false;
+            btnSimpan.innerHTML = originalBtnText;
+            if (data.success) {
+                showToast(data.message, true);
+                closeCatatanModal();
+                updateCatatanCell(userId, data.catatan);
+            } else {
+                showToast(data.message || 'Gagal menyimpan catatan.', false);
+            }
+        })
+        .catch(function(err) {
+            btnSimpan.disabled = false;
+            btnSimpan.innerHTML = originalBtnText;
+            showToast('Terjadi kesalahan: ' + err.message, false);
+        });
+    }
+
+    function hapusCatatan() {
+        if (!confirm('Apakah Anda yakin ingin menghapus catatan khusus untuk mahasiswa ini?')) {
+            return;
+        }
+        var userId = document.getElementById('catatan_user_id').value;
+        var btnHapus = document.getElementById('btnHapusCatatan');
+        btnHapus.disabled = true;
+        
+        fetch('{{ route("backend.keuangan.rekap-spp.catatan.save") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                catatan: '',
+                tahun_akademik: '{{ $tahunAkademik }}',
+                tipe_semester: '{{ $tipeSemester }}'
+            })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            btnHapus.disabled = false;
+            if (data.success) {
+                showToast('Catatan berhasil dihapus.', true);
+                closeCatatanModal();
+                updateCatatanCell(userId, '');
+            } else {
+                showToast(data.message || 'Gagal menghapus catatan.', false);
+            }
+        })
+        .catch(function(err) {
+            btnHapus.disabled = false;
+            showToast('Terjadi kesalahan: ' + err.message, false);
+        });
+    }
+
+    function updateCatatanCell(userId, newCatatan) {
+        var row = document.getElementById('row-mhs-' + userId);
+        if (!row) return;
+        row.dataset.catatan = newCatatan || '';
+        var textEl = document.getElementById('text-catatan-' + userId);
+        var subEl = document.getElementById('sub-catatan-' + userId);
+        var metodeAsli = row.dataset.metodeAsli || 'Belum Ada Pembayaran';
+        
+        if (newCatatan && newCatatan.trim() !== '') {
+            textEl.textContent = newCatatan;
+            textEl.className = 'text-[var(--text-heading)] font-medium break-words leading-tight block';
+            if (subEl) {
+                subEl.textContent = 'Catatan Khusus';
+                subEl.className = 'text-[9.5px] text-[var(--primary-600)] font-semibold block mt-0.5';
+                subEl.classList.remove('hidden');
+            }
+        } else {
+            textEl.textContent = metodeAsli;
+            textEl.className = 'text-[var(--text-muted)] italic break-words leading-tight block';
+            if (subEl) {
+                subEl.classList.add('hidden');
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var catatanInput = document.getElementById('catatan_text');
+        if (catatanInput) {
+            catatanInput.addEventListener('input', function() {
+                var charCount = document.getElementById('charCount');
+                if (charCount) charCount.textContent = this.value.length + '/500';
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var modal = document.getElementById('modalCatatan');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeCatatanModal();
+                }
+            }
+        });
+    });
 </script>
 @endsection

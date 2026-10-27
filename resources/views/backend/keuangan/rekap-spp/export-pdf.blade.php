@@ -248,11 +248,11 @@
                 @endforeach
                 <th style="width: 62px; text-align: right;">Tarif SPP</th>
                 <th style="width: 32px;">Tgk</th>
-                <th style="width: 68px; text-align: right;">Total Tagihan</th>
-                <th style="width: 68px; text-align: right;">Telah Bayar</th>
-                <th style="width: 68px; text-align: right;">Sisa Tunggakan</th>
+                <th style="width: 68px; text-align: right;">Tagihan</th>
+                <th style="width: 68px; text-align: right;">Dibayar</th>
+                <th style="width: 68px; text-align: right;">Sisa</th>
                 <th style="width: 55px;">Status</th>
-                <th style="width: 75px; text-align: left;">Metode</th>
+                <th style="width: 75px; text-align: left;">Keterangan</th>
             </tr>
         </thead>
         <tbody>
@@ -277,7 +277,7 @@
                     <td style="text-align: center; font-weight: bold; {{ $item['bulan_menunggak'] > 0 ? 'color: #dc2626;' : 'color: #047857;' }}">
                         {{ $item['bulan_menunggak'] }}
                     </td>
-                    <td style="text-align: right;">{{ number_format($item['total_tagihan'], 0, ',', '.') }}</td>
+                    <td style="text-align: right;">{{ number_format($item['tagihan'], 0, ',', '.') }}</td>
                     <td style="text-align: right; color: #047857; font-weight: bold;">{{ number_format($item['total_dibayar'], 0, ',', '.') }}</td>
                     <td style="text-align: right; {{ $item['sisa_tunggakan'] > 0 ? 'color: #dc2626; font-weight: bold;' : '' }}">
                         {{ number_format($item['sisa_tunggakan'], 0, ',', '.') }}
@@ -303,8 +303,8 @@
             <tr style="background-color: #f1f5f9; font-weight: bold;">
                 <td colspan="9" style="text-align: right;">TOTAL KESELURUHAN ({{ count($rekapItems) }} Mahasiswa):</td>
                 <td style="text-align: right;">-</td>
-                <td style="text-align: center;">-</td>
-                <td style="text-align: right;">{{ number_format($summary['total_potensi'], 0, ',', '.') }}</td>
+                <td style="text-align: center;">{{ $rekapItems ? array_sum(array_column($rekapItems, 'bulan_menunggak')) : 0 }}</td>
+                <td style="text-align: right;">{{ number_format($rekapItems ? array_sum(array_column($rekapItems, 'tagihan')) : 0, 0, ',', '.') }}</td>
                 <td style="text-align: right; color: #047857;">{{ number_format($summary['total_terkumpul'], 0, ',', '.') }}</td>
                 <td style="text-align: right; color: #dc2626;">{{ number_format($summary['total_tunggakan'], 0, ',', '.') }}</td>
                 <td colspan="2" style="text-align: center;">{{ $summary['persentase_lunas'] }}% Terkumpul</td>

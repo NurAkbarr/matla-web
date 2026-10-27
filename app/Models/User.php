@@ -219,4 +219,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pembayaran::class);
     }
+
+    public function catatanRekapSpps()
+    {
+        return $this->hasMany(CatatanRekapSpp::class);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend\Keuangan;
 
 use App\Exports\RekapSppSemesterExport;
 use App\Http\Controllers\Controller;
+use App\Models\CatatanRekapSpp;
 use App\Models\MasterSemester;
 use App\Models\MasterTahunAkademik;
 use App\Models\Pembayaran;
@@ -69,11 +70,15 @@ class RekapSppController extends Controller
             'user_id' => 'required|exists:users,id',
             'month_key' => 'required|regex:/^\d{4}-\d{2}$/',
             'action' => 'required|in:check,uncheck',
+            'tahun_akademik' => 'nullable|string',
+            'tipe_semester' => 'nullable|string',
         ]);
 
         $userId = (int)$request->input('user_id');
         $monthKey = $request->input('month_key'); // format: 'YYYY-MM'
         $action = $request->input('action');
+        $tahunAkademik = $request->input('tahun_akademik');
+        $tipeSemester = strtolower($request->input('tipe_semester', ''));
 
         $student = User::where('role', 'mahasiswa')->findOrFail($userId);
         $nominalSpp = (float)($student->nominal_spp ?: 300000);
@@ -90,6 +95,10 @@ class RekapSppController extends Controller
         ];
         $bNama = $monthNames[$monthNum] ?? "Bulan {$monthNum}";
         $tagihanNama = "SPP " . strtoupper($bNama) . " {$year}";
+
+        $kwitansiNo = null;
+        $kwitansiUrl = null;
+        $pembayaranId = null;
 
         if ($action === 'check') {
             // 1. Temukan atau gunakan Tagihan yang sudah ada untuk bulan ini (anti-duplikasi: gunakan helper terpusat)
@@ -117,7 +126,6 @@ class RekapSppController extends Controller
             }
 
             // 2. Terbitkan Kuitansi Pembayaran Historis
-            // Format Kwitansi: INV/YYYYMM/HIST-[UserID][Random3]
             $kwitansiNo = 'INV/' . date('Ym') . '/HIST-' . str_pad($student->id, 3, '0', STR_PAD_LEFT) . strtoupper(Str::random(3));
 
             // Cek apakah sudah ada pembayaran verified untuk bulan ini
@@ -146,20 +154,8 @@ class RekapSppController extends Controller
                 $kwitansiNo = $pembayaran->kwitansi;
             }
 
-            // CATATAN ARUS KAS:
-            // TransaksiKeuangan sengaja TIDAK DIBUAT untuk pembayaran historis ini
-            // agar tidak terjadi duplikasi pencatatan kas ganda pada buku kas aktif kampus!
-
+            $pembayaranId = $pembayaran->id;
             $kwitansiUrl = route('backend.keuangan.verifikasi.kwitansi-drive', $pembayaran->id);
-
-            return response()->json([
-                'success' => true,
-                'is_lunas' => true,
-                'message' => "SPP {$bNama} {$year} untuk {$student->name} berhasil ditandai LUNAS (Historis).",
-                'kwitansi_no' => $kwitansiNo,
-                'kwitansi_url' => $kwitansiUrl,
-                'payment_id' => $pembayaran->id,
-            ]);
         } else {
             // UNCHECK: Membatalkan pencatatan historis
             $historicalPay = Pembayaran::where('user_id', $student->id)
@@ -184,13 +180,168 @@ class RekapSppController extends Controller
                     ]);
                 }
             }
+        }
+
+        // Ambil konfigurasi daftar 6 bulan semester berjalan untuk menghitung ulang baris mahasiswa
+        $daftarBulan = [];
+        if ($tahunAkademik && in_array($tipeSemester, ['ganjil', 'genap'])) {
+            $ta = MasterTahunAkademik::with('semesters')->where('tahun', $tahunAkademik)->first();
+            $sem = $ta ? $ta->semesters->firstWhere('tipe', $tipeSemester) : null;
+            if ($sem) {
+                $daftarBulan = $sem->getDaftarBulan();
+            }
+        }
+        if (empty($daftarBulan)) {
+            $activeSem = MasterSemester::with('tahunAkademik')->where('is_active', true)->first();
+            if ($activeSem) {
+                $daftarBulan = $activeSem->getDaftarBulan();
+            }
+        }
+        if (empty($daftarBulan)) {
+            $nowYear = (int)date('Y');
+            if ($tipeSemester === 'ganjil') {
+                $daftarBulan = [
+                    ['nama' => 'Juli', 'short' => 'Jul', 'num' => 7, 'year' => $nowYear, 'key' => sprintf('%04d-07', $nowYear)],
+                    ['nama' => 'Agustus', 'short' => 'Ags', 'num' => 8, 'year' => $nowYear, 'key' => sprintf('%04d-08', $nowYear)],
+                    ['nama' => 'September', 'short' => 'Sep', 'num' => 9, 'year' => $nowYear, 'key' => sprintf('%04d-09', $nowYear)],
+                    ['nama' => 'Oktober', 'short' => 'Okt', 'num' => 10, 'year' => $nowYear, 'key' => sprintf('%04d-10', $nowYear)],
+                    ['nama' => 'November', 'short' => 'Nov', 'num' => 11, 'year' => $nowYear, 'key' => sprintf('%04d-11', $nowYear)],
+                    ['nama' => 'Desember', 'short' => 'Des', 'num' => 12, 'year' => $nowYear, 'key' => sprintf('%04d-12', $nowYear)],
+                ];
+            } else {
+                $daftarBulan = [
+                    ['nama' => 'Januari', 'short' => 'Jan', 'num' => 1, 'year' => $nowYear, 'key' => sprintf('%04d-01', $nowYear)],
+                    ['nama' => 'Februari', 'short' => 'Feb', 'num' => 2, 'year' => $nowYear, 'key' => sprintf('%04d-02', $nowYear)],
+                    ['nama' => 'Maret', 'short' => 'Mar', 'num' => 3, 'year' => $nowYear, 'key' => sprintf('%04d-03', $nowYear)],
+                    ['nama' => 'April', 'short' => 'Apr', 'num' => 4, 'year' => $nowYear, 'key' => sprintf('%04d-04', $nowYear)],
+                    ['nama' => 'Mei', 'short' => 'Mei', 'num' => 5, 'year' => $nowYear, 'key' => sprintf('%04d-05', $nowYear)],
+                    ['nama' => 'Juni', 'short' => 'Jun', 'num' => 6, 'year' => $nowYear, 'key' => sprintf('%04d-06', $nowYear)],
+                ];
+            }
+        }
+
+        // Kalkulasi real-time status kelunasan dan tunggakan mahasiswa ini
+        $verifiedPayments = Pembayaran::where('user_id', $student->id)
+            ->where('status', 'verified')
+            ->get();
+        $studentTagihans = Tagihan::where('user_id', $student->id)->get();
+
+        $bulanLunasCount = 0;
+        foreach ($daftarBulan as $bInfo) {
+            $mKey = $bInfo['key'] ?? sprintf('%04d-%02d', $bInfo['year'], $bInfo['num']);
+            $bN = $bInfo['nama'];
+            $bNum = $bInfo['num'];
+            $bY = $bInfo['year'];
+
+            $isLunas = $verifiedPayments->first(function ($p) use ($mKey, $bNum, $bN) {
+                $alokasi = $p->bulan_alokasi;
+                if (!empty($alokasi) && is_array($alokasi)) {
+                    if (in_array($mKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
+                        return true;
+                    }
+                    if (in_array(strtolower($bN), array_map('strtolower', $alokasi))) {
+                        return true;
+                    }
+                }
+                return false;
+            }) !== null;
+
+            if (!$isLunas) {
+                $matchingTagihan = $studentTagihans->first(function ($t) use ($bN, $bNum, $bY) {
+                    return Tagihan::isMatchingSppMonth($t, $bNum, $bY, $bN);
+                });
+                if ($matchingTagihan && (strtolower($matchingTagihan->status) === 'lunas' || (float)$matchingTagihan->sisa_tagihan <= 0)) {
+                    $isLunas = true;
+                }
+            }
+
+            if ($isLunas) {
+                $bulanLunasCount++;
+            }
+        }
+
+        $totalBulan = count($daftarBulan);
+        $bulanMenunggakCount = max(0, $totalBulan - $bulanLunasCount);
+        $tagihanMenunggak = $bulanMenunggakCount * $nominalSpp;
+        $totalSudahDibayar = $bulanLunasCount * $nominalSpp;
+        $sisaTunggakan = $bulanMenunggakCount * $nominalSpp;
+        $statusKelunasan = ($bulanMenunggakCount === 0) ? 'Lunas' : 'Menunggak';
+
+        return response()->json([
+            'success' => true,
+            'is_lunas' => ($action === 'check'),
+            'message' => $action === 'check'
+                ? "SPP {$bNama} {$year} untuk {$student->name} berhasil ditandai LUNAS (Historis)."
+                : "Status SPP {$bNama} {$year} untuk {$student->name} dikembalikan ke status TUNGGAKAN.",
+            'kwitansi_no' => $kwitansiNo,
+            'kwitansi_url' => $kwitansiUrl,
+            'payment_id' => $pembayaranId,
+            'row' => [
+                'user_id' => $student->id,
+                'nominal_spp' => $nominalSpp,
+                'total_bulan' => $totalBulan,
+                'bulan_lunas' => $bulanLunasCount,
+                'bulan_menunggak' => $bulanMenunggakCount,
+                'tagihan' => $tagihanMenunggak,
+                'total_dibayar' => $totalSudahDibayar,
+                'sisa_tunggakan' => $sisaTunggakan,
+                'status' => $statusKelunasan,
+                'tagihan_formatted' => 'Rp ' . number_format($tagihanMenunggak, 0, ',', '.'),
+                'dibayar_formatted' => 'Rp ' . number_format($totalSudahDibayar, 0, ',', '.'),
+                'sisa_formatted' => 'Rp ' . number_format($sisaTunggakan, 0, ',', '.'),
+            ],
+        ]);
+    }
+
+    /**
+     * Simpan / Perbarui / Hapus Catatan Khusus Rekap SPP Mahasiswa
+     */
+    public function saveCatatan(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'tahun_akademik' => 'required|string',
+            'tipe_semester' => 'required|in:ganjil,genap',
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        $userId = (int)$request->input('user_id');
+        $tahunAkademik = trim($request->input('tahun_akademik'));
+        $tipeSemester = strtolower(trim($request->input('tipe_semester')));
+        $catatan = trim($request->input('catatan', ''));
+
+        if ($catatan === '') {
+            CatatanRekapSpp::where('user_id', $userId)
+                ->where('tahun_akademik', $tahunAkademik)
+                ->where('tipe_semester', $tipeSemester)
+                ->delete();
 
             return response()->json([
                 'success' => true,
-                'is_lunas' => false,
-                'message' => "Status SPP {$bNama} {$year} untuk {$student->name} dikembalikan ke status TUNGGAKAN.",
+                'message' => 'Catatan khusus mahasiswa berhasil dihapus.',
+                'catatan' => '',
+                'has_catatan' => false,
             ]);
         }
+
+        $record = CatatanRekapSpp::updateOrCreate(
+            [
+                'user_id' => $userId,
+                'tahun_akademik' => $tahunAkademik,
+                'tipe_semester' => $tipeSemester,
+            ],
+            [
+                'catatan' => $catatan,
+                'admin_id' => auth()->id(),
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Catatan khusus mahasiswa berhasil disimpan.',
+            'catatan' => $record->catatan,
+            'has_catatan' => true,
+        ]);
     }
 
     /**
@@ -406,6 +557,12 @@ class RekapSppController extends Controller
             ->get()
             ->groupBy('user_id');
 
+        // Eager-load catatan khusus mahasiswa untuk tahun akademik & tipe semester ini
+        $allCatatan = CatatanRekapSpp::whereIn('user_id', $mahasiswaIds)
+            ->where('tahun_akademik', $tahunAkademik)
+            ->where('tipe_semester', $tipeSemester)
+            ->pluck('catatan', 'user_id');
+
         // 5. Olah Matriks Rekapitulasi per Mahasiswa
         $rekapItems = [];
         $totalPotensiSemua = 0;
@@ -592,6 +749,8 @@ class RekapSppController extends Controller
 
             $bulanMenunggakCount = count($daftarBulan) - $bulanLunasCount;
             $totalTagihanSemesterMhs = count($daftarBulan) * $nominalSpp;
+            $tagihanMenunggak = $bulanMenunggakCount * $nominalSpp;
+            $totalSudahDibayarMhs = $bulanLunasCount * $nominalSpp;
             $sisaTunggakanMhs = max(0, $bulanMenunggakCount * $nominalSpp);
 
             if ($bulanMenunggakCount === 0) {
@@ -607,6 +766,8 @@ class RekapSppController extends Controller
             $totalTunggakanSemua += $sisaTunggakanMhs;
 
             $prodiNama = $mhs->education['program_studi'] ?? ($mhs->prodi ?? '-');
+            $customCatatan = $allCatatan[$mhs->id] ?? null;
+            $keteranganTampil = !empty($customCatatan) ? $customCatatan : $metodeTerakhir;
 
             $rekapItems[] = [
                 'id' => $mhs->id,
@@ -619,11 +780,14 @@ class RekapSppController extends Controller
                 'matriks_bulan' => $bulanMatriks,
                 'bulan_lunas' => $bulanLunasCount,
                 'bulan_menunggak' => $bulanMenunggakCount,
-                'total_tagihan' => $totalTagihanSemesterMhs,
+                'tagihan' => $tagihanMenunggak, // Jumlah Bulan Menunggak x Tarif SPP
+                'total_tagihan' => $totalTagihanSemesterMhs, // Total Potensi Semester
                 'total_dibayar' => $totalSudahDibayarMhs,
                 'sisa_tunggakan' => $sisaTunggakanMhs,
                 'status' => $statusKelunasan,
-                'metode' => $metodeTerakhir,
+                'catatan' => $customCatatan,
+                'metode' => $keteranganTampil,
+                'metode_asli' => $metodeTerakhir,
             ];
         }
 
