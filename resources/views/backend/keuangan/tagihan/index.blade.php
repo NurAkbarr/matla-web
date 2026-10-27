@@ -559,31 +559,38 @@
         confirmBulkDelete() {
             if (this.selectedIds.length === 0) return;
             const count = this.selectedIds.length;
+            const msg = 'Apakah Anda yakin ingin menghapus ' + count + ' data tagihan yang dipilih? Tindakan ini tidak dapat dibatalkan.';
             
-            Swal.fire({
-                title: 'Konfirmasi Hapus Data',
-                text: 'Apakah Anda yakin ingin menghapus ' + count + ' data tagihan yang dipilih? Tindakan ini tidak dapat dibatalkan.',
-                icon: 'warning',
-                iconColor: '#D93025',
-                showCancelButton: true,
-                confirmButtonColor: '#D93025',
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Ya, Hapus Sekarang',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-                focusCancel: true,
-                customClass: {
-                    popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
-                    title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
-                    htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
-                    confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
-                    cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Konfirmasi Hapus Data',
+                    text: msg,
+                    icon: 'warning',
+                    iconColor: '#D93025',
+                    showCancelButton: true,
+                    confirmButtonColor: '#D93025',
+                    cancelButtonColor: '#6B7280',
+                    confirmButtonText: 'Ya, Hapus Sekarang',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    customClass: {
+                        popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                        title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                        htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                        confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                        cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('form-bulk-delete').submit();
+                    }
+                });
+            } else {
+                if (confirm(msg)) {
                     document.getElementById('form-bulk-delete').submit();
                 }
-            });
+            }
         },
 
         editPersonalOpen: false,
@@ -973,90 +980,110 @@
 </div>
 
 @push('scripts')
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
     function confirmDeleteTagihan(button, namaTagihan, namaMhs) {
         const form = button.closest('form');
-        Swal.fire({
-            title: 'Konfirmasi Hapus Data',
-            text: 'Apakah Anda yakin ingin menghapus data tagihan "' + namaTagihan + '" untuk ' + namaMhs + '? Tindakan ini tidak dapat dibatalkan.',
-            icon: 'warning',
-            iconColor: '#D93025',
-            showCancelButton: true,
-            confirmButtonColor: '#D93025',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Ya, Hapus Sekarang',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            focusCancel: true,
-            customClass: {
-                popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
-                title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
-                htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
-                confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
-                cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
+        const text = 'Apakah Anda yakin ingin menghapus data tagihan "' + namaTagihan + '" untuk ' + namaMhs + '? Tindakan ini tidak dapat dibatalkan.';
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Konfirmasi Hapus Data',
+                text: text,
+                icon: 'warning',
+                iconColor: '#D93025',
+                showCancelButton: true,
+                confirmButtonColor: '#D93025',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Hapus Sekarang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                    title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                    htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                    confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                    cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        } else {
+            if (confirm(text)) {
                 form.submit();
             }
-        });
+        }
     }
 
     function confirmResendReminder(button, namaMhs, email) {
         const form = button.closest('form');
-        Swal.fire({
-            title: 'Kirim Ulang Reminder',
-            text: 'Kirim ulang email reminder tagihan ke ' + namaMhs + ' (' + email + ')?',
-            icon: 'question',
-            iconColor: '#006837',
-            showCancelButton: true,
-            confirmButtonColor: '#006837',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Ya, Kirim Sekarang',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            focusCancel: true,
-            customClass: {
-                popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
-                title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
-                htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
-                confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
-                cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
+        const text = 'Kirim ulang email reminder tagihan ke ' + namaMhs + ' (' + email + ')?';
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Kirim Ulang Reminder',
+                text: text,
+                icon: 'question',
+                iconColor: '#006837',
+                showCancelButton: true,
+                confirmButtonColor: '#006837',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Kirim Sekarang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                    title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                    htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                    confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                    cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        } else {
+            if (confirm(text)) {
                 form.submit();
             }
-        });
+        }
     }
 
     function confirmDeleteJenis(button, namaJenis) {
         const form = button.closest('form');
-        Swal.fire({
-            title: 'Konfirmasi Hapus Data',
-            text: 'Apakah Anda yakin ingin menghapus jenis tagihan "' + namaJenis + '"? Tindakan ini tidak dapat dibatalkan.',
-            icon: 'warning',
-            iconColor: '#D93025',
-            showCancelButton: true,
-            confirmButtonColor: '#D93025',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Ya, Hapus Sekarang',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            focusCancel: true,
-            customClass: {
-                popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
-                title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
-                htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
-                confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
-                cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
+        const text = 'Apakah Anda yakin ingin menghapus jenis tagihan "' + namaJenis + '"? Tindakan ini tidak dapat dibatalkan.';
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Konfirmasi Hapus Data',
+                text: text,
+                icon: 'warning',
+                iconColor: '#D93025',
+                showCancelButton: true,
+                confirmButtonColor: '#D93025',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Hapus Sekarang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900',
+                    title: 'text-base font-bold text-slate-900 dark:text-slate-100 font-display',
+                    htmlContainer: 'text-xs text-slate-600 dark:text-slate-400',
+                    confirmButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-sm cursor-pointer',
+                    cancelButton: 'h-9 px-4 text-xs font-semibold rounded-lg shadow-2xs cursor-pointer'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        } else {
+            if (confirm(text)) {
                 form.submit();
             }
-        });
+        }
     }
 </script>
 @endpush
