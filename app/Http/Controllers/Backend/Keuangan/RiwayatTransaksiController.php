@@ -85,6 +85,16 @@ class RiwayatTransaksiController extends Controller
 
         $kategoris = collect(array_merge($masterCategoryNames, $defaultCategories, $existingCategories))->unique()->values();
 
+        $periodeLabel = $this->getPeriodeLabel($request);
+
+        $currentYear = (int) date('Y');
+        $tahunList = range($currentYear + 1, $currentYear - 3);
+        $bulanList = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
         return view('backend.keuangan.riwayat-transaksi.index', compact(
             'transaksis',
             'totalMasuk',
@@ -93,7 +103,10 @@ class RiwayatTransaksiController extends Controller
             'countKeluar',
             'netCashflow',
             'kategoris',
-            'masterKategoris'
+            'masterKategoris',
+            'periodeLabel',
+            'tahunList',
+            'bulanList'
         ));
     }
 
@@ -215,7 +228,7 @@ class RiwayatTransaksiController extends Controller
     public function exportExcel(Request $request)
     {
         Carbon::setLocale('id');
-        $filename = "Riwayat_Transaksi_MATLA_" . date('Ymd_His') . ".xls";
+        $filename = "Laporan_Mutasi_Kas_MATLA_" . date('Ymd_His') . ".xls";
 
         $transaksis = $this->buildFilterQuery($request)
             ->orderBy('tanggal_transaksi', 'desc')
@@ -232,14 +245,15 @@ class RiwayatTransaksiController extends Controller
         $totalMasuk = (float) $transaksis->where('jenis_transaksi', 'masuk')->sum('nominal');
         $totalKeluar = (float) $transaksis->where('jenis_transaksi', 'keluar')->sum('nominal');
         $netCashflow = $totalMasuk - $totalKeluar;
+        $periodeLabel = $this->getPeriodeLabel($request);
 
         $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
         $html .= '<head>';
         $html .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
-        $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Riwayat Transaksi</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+        $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Mutasi Kas</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
         $html .= '<style>';
         $html .= 'table { border-collapse: collapse; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; }';
-        $html .= 'th { background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; height: 38px; padding: 6px 10px; font-size: 10pt; }';
+        $html .= 'th { background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; vertical-align: middle; border: 1px solid #000000; height: 38px; padding: 6px 10px; font-size: 10pt; }';
         $html .= 'td { border: 1px solid #000000; vertical-align: middle; color: #000000; padding: 6px 8px; font-size: 9.5pt; }';
         $html .= '.bg-masuk { background-color: #E8F5E9; color: #1B5E20; font-weight: bold; text-align: right; }';
         $html .= '.bg-keluar { background-color: #FFEBEE; color: #B71C1C; font-weight: bold; text-align: right; }';
@@ -250,28 +264,29 @@ class RiwayatTransaksiController extends Controller
         // Title and summary box in Excel with official MATLA Kop
         $html .= '<table border="0" cellpadding="4" cellspacing="0" style="margin-bottom: 12px; font-family: Arial, sans-serif;">';
         $html .= '<tr><td colspan="11" style="font-size: 14pt; font-weight: bold; color: #00703C; border: none; text-align: center;">KAMPUS MAHAD TA\'LIM LUGHOH AROBIYYAH (MATLA)</td></tr>';
-        $html .= '<tr><td colspan="11" style="font-size: 11pt; font-weight: bold; color: #1e293b; border: none; text-align: center;">BUKU KAS & RIWAYAT TRANSAKSI KEUANGAN</td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 11pt; font-weight: bold; color: #1e293b; border: none; text-align: center;">LAPORAN BUKU KAS & MUTASI TRANSAKSI KEUANGAN</td></tr>';
         $html .= '<tr><td colspan="11" style="font-size: 9pt; color: #555555; border: none; text-align: center;">Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten</td></tr>';
         $html .= '<tr><td colspan="11" style="font-size: 9pt; color: #555555; border: none; text-align: center;">No. Hp. 081273510994, Email: matlaislamicuniversity@gmail.com</td></tr>';
         $html .= '<tr><td colspan="11" style="border: none;"></td></tr>';
-        $html .= '<tr><td colspan="11" style="font-size: 9.5pt; color: #333333; font-weight: bold; border: none;">Tanggal Unduh: ' . Carbon::now()->translatedFormat('d F Y, H:i') . ' WIB  |  Total Masuk: Rp ' . number_format($totalMasuk, 0, ',', '.') . '  |  Total Keluar: Rp ' . number_format($totalKeluar, 0, ',', '.') . '  |  Arus Kas Bersih: Rp ' . number_format($netCashflow, 0, ',', '.') . '</td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 9.5pt; color: #333333; font-weight: bold; border: none;">Periode: ' . htmlspecialchars($periodeLabel, ENT_QUOTES, 'UTF-8') . '  |  Tanggal Unduh: ' . Carbon::now()->translatedFormat('d F Y, H:i') . ' WIB</td></tr>';
+        $html .= '<tr><td colspan="11" style="font-size: 9.5pt; color: #333333; font-weight: bold; border: none;">Total Masuk: Rp ' . number_format($totalMasuk, 0, ',', '.') . '  |  Total Keluar: Rp ' . number_format($totalKeluar, 0, ',', '.') . '  |  Arus Kas Bersih: Rp ' . number_format($netCashflow, 0, ',', '.') . '</td></tr>';
         $html .= '<tr><td colspan="11" style="border: none;"></td></tr>';
         $html .= '</table>';
 
         $html .= '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; border: 1px solid #000000; font-family: Arial, sans-serif;">';
         $html .= '<thead>';
         $html .= '<tr>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 45px;">NO</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 175px;">KODE TRANSAKSI</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 165px;">WAKTU (TGL & JAM)</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">JENIS ARUS KAS</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 150px;">KATEGORI</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 200px;">SUBJEK / PIHAK TERKAIT</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 240px;">KETERANGAN / RINCIAN</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">METODE</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000; min-width: 140px;">NOMINAL (RP)</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">NO. REFERENSI</th>';
-        $html .= '<th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">PETUGAS</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 45px;">NO</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 175px;">KODE TRANSAKSI</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 165px;">WAKTU (TGL & JAM)</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">JENIS ARUS KAS</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 150px;">KATEGORI</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 200px;">SUBJEK / PIHAK TERKAIT</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000; min-width: 240px;">KETERANGAN / RINCIAN</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 120px;">METODE</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: right; border: 1px solid #000000; min-width: 140px;">NOMINAL (RP)</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">NO. REFERENSI</th>';
+        $html .= '<th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000; width: 130px;">PETUGAS</th>';
         $html .= '</tr>';
         $html .= '</thead>';
         $html .= '<tbody>';
@@ -342,15 +357,17 @@ class RiwayatTransaksiController extends Controller
         $totalMasuk = (float) $transaksis->where('jenis_transaksi', 'masuk')->sum('nominal');
         $totalKeluar = (float) $transaksis->where('jenis_transaksi', 'keluar')->sum('nominal');
         $netCashflow = $totalMasuk - $totalKeluar;
+        $periodeLabel = $this->getPeriodeLabel($request);
 
         $pdf = Pdf::loadView('backend.keuangan.riwayat-transaksi.export-pdf', compact(
             'transaksis',
             'totalMasuk',
             'totalKeluar',
-            'netCashflow'
+            'netCashflow',
+            'periodeLabel'
         ))->setPaper('a4', 'landscape');
 
-        return $pdf->stream('Laporan_Riwayat_Transaksi_MATLA_' . date('Ymd_His') . '.pdf');
+        return $pdf->stream('Laporan_Mutasi_Kas_MATLA_' . date('Ymd_His') . '.pdf');
     }
 
     /**
@@ -394,7 +411,19 @@ class RiwayatTransaksiController extends Controller
             }
         }
 
-        // Filter Date Range (start_date & end_date)
+        // Filter Preset (hari_ini, bulan_ini, tahun_ini)
+        if ($request->filled('preset')) {
+            $preset = $request->input('preset');
+            if ($preset === 'hari_ini') {
+                $query->whereDate('tanggal_transaksi', Carbon::today());
+            } elseif ($preset === 'bulan_ini') {
+                $query->whereBetween('tanggal_transaksi', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+            } elseif ($preset === 'tahun_ini') {
+                $query->whereBetween('tanggal_transaksi', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()]);
+            }
+        }
+
+        // Filter Date Range (start_date & end_date) - overrides preset if provided
         if ($request->filled('start_date')) {
             $start = Carbon::parse($request->input('start_date'))->startOfDay();
             $query->where('tanggal_transaksi', '>=', $start);
@@ -404,8 +433,8 @@ class RiwayatTransaksiController extends Controller
             $query->where('tanggal_transaksi', '<=', $end);
         }
 
-        // Filter Month & Year (alternative to date range)
-        if (!$request->filled('start_date') && !$request->filled('end_date')) {
+        // Filter Month & Year (if start_date / end_date not explicitly filled and preset not filled)
+        if (!$request->filled('start_date') && !$request->filled('end_date') && !$request->filled('preset')) {
             if ($request->filled('bulan') && $request->filled('tahun')) {
                 $bulan = (int) $request->input('bulan');
                 $tahun = (int) $request->input('tahun');
@@ -421,6 +450,42 @@ class RiwayatTransaksiController extends Controller
         }
 
         return $query;
+    }
+
+    /**
+     * Get human-readable period label for exports & UI.
+     */
+    private function getPeriodeLabel(Request $request): string
+    {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = Carbon::parse($request->input('start_date'))->translatedFormat('d M Y');
+            $end = Carbon::parse($request->input('end_date'))->translatedFormat('d M Y');
+            return "{$start} s/d {$end}";
+        } elseif ($request->filled('start_date')) {
+            return 'Mulai ' . Carbon::parse($request->input('start_date'))->translatedFormat('d M Y');
+        } elseif ($request->filled('end_date')) {
+            return 'Sampai ' . Carbon::parse($request->input('end_date'))->translatedFormat('d M Y');
+        }
+
+        if ($request->filled('preset')) {
+            switch ($request->input('preset')) {
+                case 'hari_ini':
+                    return 'Hari Ini (' . Carbon::today()->translatedFormat('d F Y') . ')';
+                case 'bulan_ini':
+                    return 'Bulan Ini (' . Carbon::now()->translatedFormat('F Y') . ')';
+                case 'tahun_ini':
+                    return 'Tahun Ini (' . Carbon::now()->format('Y') . ')';
+            }
+        }
+
+        if ($request->filled('bulan') && $request->filled('tahun')) {
+            $bulanName = Carbon::createFromDate((int)$request->input('tahun'), (int)$request->input('bulan'), 1)->translatedFormat('F');
+            return "Bulan {$bulanName} " . $request->input('tahun');
+        } elseif ($request->filled('tahun')) {
+            return 'Tahun ' . $request->input('tahun');
+        }
+
+        return 'Semua Periode Mutasi Kas';
     }
 
     /**

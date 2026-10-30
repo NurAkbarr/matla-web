@@ -174,7 +174,10 @@
 
     {{-- JUDUL LAPORAN --}}
     <div class="title-block">
-        <h2>Laporan Buku Kas & Riwayat Transaksi Keuangan</h2>
+        <h2>Laporan Mutasi Kas & Riwayat Transaksi Keuangan</h2>
+        <div class="meta" style="font-weight: bold; color: #1e293b; margin-bottom: 2px;">
+            Periode: {{ $periodeLabel ?? 'Semua Periode' }}
+        </div>
         <div class="meta">
             Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i:s') }} WIB &bull; Total Baris: {{ $transaksis->count() }} Transaksi
         </div>

@@ -644,7 +644,7 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::put('/tagihan/master-jenis/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'updateJenis'])->name('tagihan.jenis.update');
         Route::delete('/tagihan/master-jenis/{id}', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'destroyJenis'])->name('tagihan.jenis.destroy');
 
-        // Riwayat Transaksi (Buku Kas Arus Kas Masuk & Keluar)
+        // Riwayat Transaksi (Buku Kas & Laporan Mutasi Kas)
         Route::get('/riwayat-transaksi', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'index'])->name('riwayat-transaksi.index');
         Route::post('/riwayat-transaksi', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'store'])->name('riwayat-transaksi.store');
         Route::get('/riwayat-transaksi/export/excel', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'exportExcel'])->name('riwayat-transaksi.export.excel');
@@ -656,6 +656,16 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::post('/riwayat-transaksi/master-kategori', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'storeKategori'])->name('riwayat-transaksi.kategori.store');
         Route::put('/riwayat-transaksi/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'updateKategori'])->name('riwayat-transaksi.kategori.update');
         Route::delete('/riwayat-transaksi/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\RiwayatTransaksiController::class, 'destroyKategori'])->name('riwayat-transaksi.kategori.destroy');
+
+        // Pemasukan & Pengeluaran (Form Pencatatan Kas Masuk & Keluar)
+        Route::get('/pemasukan-pengeluaran', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'index'])->name('pemasukan-pengeluaran.index');
+        Route::post('/pemasukan-pengeluaran', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'store'])->name('pemasukan-pengeluaran.store');
+        Route::put('/pemasukan-pengeluaran/{id}', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'update'])->name('pemasukan-pengeluaran.update');
+        Route::delete('/pemasukan-pengeluaran/{id}', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'destroy'])->name('pemasukan-pengeluaran.destroy');
+        Route::get('/pemasukan-pengeluaran/{id}/kwitansi', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'cetakKwitansi'])->name('pemasukan-pengeluaran.kwitansi');
+        Route::post('/pemasukan-pengeluaran/master-kategori', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'storeKategori'])->name('pemasukan-pengeluaran.kategori.store');
+        Route::put('/pemasukan-pengeluaran/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'updateKategori'])->name('pemasukan-pengeluaran.kategori.update');
+        Route::delete('/pemasukan-pengeluaran/master-kategori/{id}', [\App\Http\Controllers\Backend\Keuangan\PemasukanPengeluaranController::class, 'destroyKategori'])->name('pemasukan-pengeluaran.kategori.destroy');
 
         // Rekap SPP per Semester
         Route::get('/rekap-spp', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'index'])->name('rekap-spp.index');

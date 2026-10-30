@@ -1,21 +1,16 @@
 @extends('layouts.keuangan')
 
-@section('title', 'Buku Kas & Riwayat Transaksi')
+@section('title', 'Laporan Mutasi Kas & Riwayat Transaksi')
 
 @section('content')
 <div class="space-y-6" x-data="{
-    showCreateModal: false,
     showDetailModal: false,
     showKategoriModal: false,
     selectedTx: null,
-    jenisPilihan: 'masuk',
     masterKategoris: {{ Js::from($masterKategoris) }},
     editKategoriId: null,
     editNama: '',
     editTipe: 'umum',
-    get filteredKategori() {
-        return this.masterKategoris.filter(k => k.tipe === this.jenisPilihan || k.tipe === 'umum');
-    },
     openDetail(tx) {
         this.selectedTx = tx;
         this.showDetailModal = true;
@@ -64,25 +59,29 @@
     {{-- Header Area: Title & Action Buttons --}}
     <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-            <h1 class="text-xl font-bold font-display text-[var(--text-heading)]">Buku kas & riwayat transaksi</h1>
-            <p class="text-xs text-[var(--text-muted)] mt-0.5">Audit trail seluruh arus kas masuk (kredit) dan kas keluar (debit) kampus MATLA University.</p>
+            <div class="flex items-center gap-2">
+                <h1 class="text-xl font-bold font-display text-[var(--text-heading)]">Laporan Mutasi Kas & Riwayat Transaksi</h1>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-200)]">
+                    Audit Trail
+                </span>
+            </div>
+            <p class="text-xs text-[var(--text-muted)] mt-1">Laporan mutasi kas komprehensif seluruh arus kas masuk (kredit) dan kas keluar (debit) kampus MATLA University.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
-            {{-- Tombol Catat Transaksi Kas --}}
-            <button type="button" 
-                    @click="showCreateModal = true"
-                    class="h-10 inline-flex items-center gap-2 px-4 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
+            {{-- Tombol Link ke Modul Form Pencatatan Kas Baru --}}
+            <a href="{{ route('backend.keuangan.pemasukan-pengeluaran.index') }}" 
+               class="h-10 inline-flex items-center gap-2 px-4 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
-                <span>Catat transaksi kas</span>
-            </button>
+                <span>Catat Kas Baru</span>
+            </a>
 
             {{-- Ekspor Excel --}}
             <a href="{{ route('backend.keuangan.riwayat-transaksi.export.excel', request()->query()) }}" 
-               class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--primary-500)] hover:bg-[var(--primary-50)] text-[var(--primary-700)] dark:text-[var(--primary-300)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
-                <svg class="w-4 h-4 text-[var(--primary-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--primary-50)] text-[var(--primary-700)] dark:text-[var(--primary-300)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
+                <svg class="w-4 h-4 text-[#00703C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
                 <span>Ekspor Excel</span>
@@ -92,7 +91,7 @@
             <a href="{{ route('backend.keuangan.riwayat-transaksi.export.pdf', request()->query()) }}" 
                target="_blank"
                class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--primary-50)] text-[var(--text-body)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-[var(--text-body)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                 </svg>
                 <span>Ekspor PDF</span>
@@ -142,12 +141,51 @@
         </div>
     </div>
 
-    {{-- Filter Pencarian (Tinggi 40px, Radius 4px, Border Line) --}}
-    <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-4">
+    {{-- Filter Komprehensif Laporan Mutasi Kas (Harian, Bulanan, Tahunan) --}}
+    <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] p-4 space-y-4">
+        {{-- Preset Cepat & Status Periode Laporan --}}
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
+            <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-xs font-semibold text-[var(--text-heading)] mr-1">Preset Cepat:</span>
+                @php
+                    $activePreset = request('preset');
+                    $hasCustomDates = request()->filled('start_date') || request()->filled('end_date') || request()->filled('bulan') || request()->filled('tahun');
+                    $isSemua = empty($activePreset) && !$hasCustomDates;
+                @endphp
+                <a href="{{ route('backend.keuangan.riwayat-transaksi.index', request()->except(['preset', 'start_date', 'end_date', 'bulan', 'tahun', 'page'])) }}" 
+                   class="h-8 px-3 rounded-[var(--radius-xs)] text-xs font-semibold inline-flex items-center transition border {{ $isSemua ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]' : 'bg-[var(--bg-page)] text-[var(--text-body)] border-[var(--border)] hover:bg-[var(--surface)]' }}">
+                    Semua Mutasi
+                </a>
+                <a href="{{ route('backend.keuangan.riwayat-transaksi.index', array_merge(request()->except(['page', 'start_date', 'end_date', 'bulan', 'tahun']), ['preset' => 'hari_ini'])) }}" 
+                   class="h-8 px-3 rounded-[var(--radius-xs)] text-xs font-semibold inline-flex items-center transition border {{ $activePreset === 'hari_ini' ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]' : 'bg-[var(--bg-page)] text-[var(--text-body)] border-[var(--border)] hover:bg-[var(--surface)]' }}">
+                    Hari Ini
+                </a>
+                <a href="{{ route('backend.keuangan.riwayat-transaksi.index', array_merge(request()->except(['page', 'start_date', 'end_date', 'bulan', 'tahun']), ['preset' => 'bulan_ini'])) }}" 
+                   class="h-8 px-3 rounded-[var(--radius-xs)] text-xs font-semibold inline-flex items-center transition border {{ $activePreset === 'bulan_ini' ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]' : 'bg-[var(--bg-page)] text-[var(--text-body)] border-[var(--border)] hover:bg-[var(--surface)]' }}">
+                    Bulan Ini
+                </a>
+                <a href="{{ route('backend.keuangan.riwayat-transaksi.index', array_merge(request()->except(['page', 'start_date', 'end_date', 'bulan', 'tahun']), ['preset' => 'tahun_ini'])) }}" 
+                   class="h-8 px-3 rounded-[var(--radius-xs)] text-xs font-semibold inline-flex items-center transition border {{ $activePreset === 'tahun_ini' ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]' : 'bg-[var(--bg-page)] text-[var(--text-body)] border-[var(--border)] hover:bg-[var(--surface)]' }}">
+                    Tahun Ini
+                </a>
+            </div>
+
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] dark:text-[var(--primary-300)] border border-[var(--primary-200)] text-xs font-semibold">
+                <svg class="w-4 h-4 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>Periode: <strong>{{ $periodeLabel }}</strong></span>
+            </div>
+        </div>
+
+        {{-- Form Filter Detail --}}
         <form action="{{ route('backend.keuangan.riwayat-transaksi.index') }}" method="GET" class="space-y-3.5">
+            {{-- Keep active preset if not selecting manual date --}}
+            @if(request('preset') && !request()->hasAny(['start_date', 'end_date', 'bulan', 'tahun']))
+                <input type="hidden" name="preset" value="{{ request('preset') }}">
+            @endif
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
                 {{-- Pencarian Cepat --}}
-                <div class="sm:col-span-2 lg:col-span-4">
+                <div class="sm:col-span-2 lg:col-span-3">
                     <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Pencarian</label>
                     <div class="relative">
                         <input type="text" 
@@ -165,16 +203,16 @@
                 <div class="sm:col-span-1 lg:col-span-2">
                     <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Arus kas</label>
                     <select name="jenis" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                        <option value="">Semua jenis</option>
-                        <option value="masuk" {{ request('jenis') === 'masuk' ? 'selected' : '' }}>Uang masuk</option>
-                        <option value="keluar" {{ request('jenis') === 'keluar' ? 'selected' : '' }}>Uang keluar</option>
+                        <option value="">Semua arus kas</option>
+                        <option value="masuk" {{ request('jenis') === 'masuk' ? 'selected' : '' }}>Uang masuk (kredit)</option>
+                        <option value="keluar" {{ request('jenis') === 'keluar' ? 'selected' : '' }}>Uang keluar (debit)</option>
                     </select>
                 </div>
 
                 {{-- Filter Kategori --}}
                 <div class="sm:col-span-1 lg:col-span-3">
                     <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-semibold text-[var(--text-heading)]">Kategori</label>
+                        <label class="block text-xs font-semibold text-[var(--text-heading)]">Kategori transaksi</label>
                         <button type="button" 
                                 @click="showKategoriModal = true" 
                                 class="text-[11px] font-semibold text-[var(--primary-600)] hover:underline cursor-pointer">
@@ -183,37 +221,58 @@
                     </div>
                     <select name="kategori" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
                         <option value="">Semua kategori</option>
-                        <option value="spp" {{ request('kategori') === 'spp' ? 'selected' : '' }}>Tagihan SPP</option>
-                        <option value="non-spp" {{ request('kategori') === 'non-spp' ? 'selected' : '' }}>Non-SPP</option>
+                        <option value="spp" {{ request('kategori') === 'spp' ? 'selected' : '' }}>Tagihan SPP Mahasiswa</option>
+                        <option value="non-spp" {{ request('kategori') === 'non-spp' ? 'selected' : '' }}>Non-SPP (Kas internal)</option>
                         @foreach($kategoris as $kat)
                             <option value="{{ $kat }}" {{ request('kategori') === $kat ? 'selected' : '' }}>{{ $kat }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                {{-- Rentang Tanggal --}}
-                <div class="sm:col-span-2 lg:col-span-3">
+                {{-- Rentang Tanggal Spesifik --}}
+                <div class="sm:col-span-2 lg:col-span-2">
                     <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Rentang tanggal</label>
                     <div class="flex items-center gap-1.5">
                         <input type="date" 
                                name="start_date" 
                                value="{{ request('start_date') }}" 
-                               class="flex-1 h-10 px-2.5 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                               class="w-1/2 h-10 px-2 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]"
+                               title="Tanggal mulai">
                         <span class="text-[var(--text-muted)] text-xs">-</span>
                         <input type="date" 
                                name="end_date" 
                                value="{{ request('end_date') }}" 
-                               class="flex-1 h-10 px-2.5 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                               class="w-1/2 h-10 px-2 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]"
+                               title="Tanggal selesai">
+                    </div>
+                </div>
+
+                {{-- Filter Bulan & Tahun --}}
+                <div class="sm:col-span-2 lg:col-span-2">
+                    <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Periode kalender</label>
+                    <div class="flex items-center gap-1.5">
+                        <select name="bulan" class="w-1/2 h-10 px-2 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                            <option value="">Bulan</option>
+                            @foreach($bulanList as $blnNum => $blnName)
+                                <option value="{{ $blnNum }}" {{ request('bulan') == $blnNum ? 'selected' : '' }}>{{ $blnName }}</option>
+                            @endforeach
+                        </select>
+                        <select name="tahun" class="w-1/2 h-10 px-2 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                            <option value="">Tahun</option>
+                            @foreach($tahunList as $thn)
+                                <option value="{{ $thn }}" {{ request('tahun') == $thn ? 'selected' : '' }}>{{ $thn }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center justify-between pt-3 border-t border-[var(--border)] text-xs">
                 <span class="text-[var(--text-muted)] tabular-nums">
-                    Menampilkan {{ $transaksis->total() }} baris data transaksi
+                    Menampilkan <strong>{{ $transaksis->total() }}</strong> mutasi transaksi
                 </span>
                 <div class="flex items-center gap-2">
-                    @if(request()->hasAny(['search', 'jenis', 'kategori', 'start_date', 'end_date', 'bulan', 'tahun']))
+                    @if(request()->hasAny(['search', 'jenis', 'kategori', 'start_date', 'end_date', 'bulan', 'tahun', 'preset']))
                     <a href="{{ route('backend.keuangan.riwayat-transaksi.index') }}" 
                        class="h-9 px-3 bg-[var(--surface)] hover:bg-[var(--bg-page)] text-[var(--text-body)] border border-[var(--border)] rounded-[var(--radius-xs)] font-semibold transition flex items-center">
                         Reset filter
@@ -389,8 +448,18 @@
                     @empty
                         <tr>
                             <td colspan="9" class="py-12 text-center text-xs text-[var(--text-muted)]">
-                                <p class="font-semibold text-[var(--text-heading)]">Belum ada riwayat transaksi.</p>
-                                <p class="mt-1">Gunakan tombol "Catat transaksi kas" untuk mencatat pemasukan atau pengeluaran baru.</p>
+                                <div class="w-12 h-12 mx-auto rounded-full bg-[var(--primary-50)] text-[var(--primary-600)] flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                                <p class="font-bold text-[var(--text-heading)] text-sm">Tidak Ada Mutasi Transaksi</p>
+                                <p class="mt-1 text-xs max-w-md mx-auto">Tidak ditemukan mutasi transaksi kas untuk kriteria filter periode yang dipilih. Silakan sesuaikan filter tanggal atau lakukan input transaksi baru.</p>
+                                <div class="mt-3.5 flex items-center justify-center gap-2">
+                                    <a href="{{ route('backend.keuangan.pemasukan-pengeluaran.index') }}" 
+                                       class="h-8 px-3.5 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white font-semibold text-xs rounded-[var(--radius-xs)] inline-flex items-center gap-1.5 transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                        <span>Catat Kas Baru</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -409,166 +478,6 @@
             </div>
         </div>
         @endif
-    </div>
-
-    {{-- MODAL "+ CATAT TRANSAKSI KAS" --}}
-    <div x-show="showCreateModal" 
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
-         style="display: none;">
-        
-        <div @click.away="showCreateModal = false" 
-             class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] max-w-lg w-full max-h-[90vh] flex flex-col shadow-[var(--shadow-modal)] overflow-hidden">
-            
-            <div class="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between shrink-0">
-                <div>
-                    <h3 class="text-sm font-bold font-display text-[var(--text-heading)]">Catat transaksi kas</h3>
-                    <p class="text-[11px] text-[var(--text-muted)] mt-0.5">Pemasukan lain yayasan atau beban operasional kampus</p>
-                </div>
-                <button type="button" @click="showCreateModal = false" class="text-[var(--text-muted)] hover:text-[var(--text-heading)] p-1 rounded">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <form action="{{ route('backend.keuangan.riwayat-transaksi.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden min-h-0 m-0">
-                @csrf
-
-                <div class="p-5 overflow-y-auto flex-1 space-y-4">
-                    {{-- Arus Kas --}}
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Jenis arus kas</label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="flex items-center gap-2 p-2.5 rounded-[var(--radius-xs)] border cursor-pointer select-none"
-                                   :class="jenisPilihan === 'masuk' ? 'border-[var(--primary-500)] bg-[var(--primary-50)] text-[var(--primary-700)]' : 'border-[var(--border)] text-[var(--text-body)]'">
-                                <input type="radio" name="jenis_transaksi" value="masuk" x-model="jenisPilihan" class="text-[var(--primary-500)] focus:ring-[var(--primary-500)]">
-                                <div>
-                                    <span class="font-bold text-xs block">Uang masuk</span>
-                                    <span class="text-[10px] text-[var(--text-muted)]">Penerimaan / kredit</span>
-                                </div>
-                            </label>
-
-                            <label class="flex items-center gap-2 p-2.5 rounded-[var(--radius-xs)] border cursor-pointer select-none"
-                                   :class="jenisPilihan === 'keluar' ? 'border-[var(--danger)] bg-rose-50 text-[var(--danger)]' : 'border-[var(--border)] text-[var(--text-body)]'">
-                                <input type="radio" name="jenis_transaksi" value="keluar" x-model="jenisPilihan" class="text-[var(--danger)] focus:ring-[var(--danger)]">
-                                <div>
-                                    <span class="font-bold text-xs block">Uang keluar</span>
-                                    <span class="text-[10px] text-[var(--text-muted)]">Pengeluaran / debit</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- Tanggal & Jam --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Tanggal transaksi *</label>
-                            <input type="date" 
-                                   name="tanggal" 
-                                   value="{{ date('Y-m-d') }}" 
-                                   required 
-                                   class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Waktu</label>
-                            <input type="time" 
-                                   name="jam" 
-                                   value="{{ date('H:i') }}" 
-                                   class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                        </div>
-                    </div>
-
-                    {{-- Kategori & Metode --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Kategori transaksi *</label>
-                            <select name="kategori" required class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                                <option value="">-- Pilih kategori --</option>
-                                <template x-for="item in filteredKategori" :key="item.id">
-                                    <option :value="item.nama_kategori" x-text="item.nama_kategori"></option>
-                                </template>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Metode pembayaran *</label>
-                            <select name="metode_pembayaran" required class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                                <option value="Transfer Bank">Transfer Bank</option>
-                                <option value="Kas / Tunai">Kas / Tunai</option>
-                                <option value="Virtual Account / QRIS">Virtual Account / QRIS</option>
-                                <option value="Cek / Giro">Cek / Giro</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {{-- Subjek --}}
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">
-                            <span x-text="jenisPilihan === 'masuk' ? 'Pihak pembayar / sumber dana' : 'Penerima dana / vendor / keperluan'"></span>
-                            <span class="text-[var(--danger)]">*</span>
-                        </label>
-                        <input type="text" 
-                               name="subjek" 
-                               placeholder="Contoh: PT PLN Persero, Donatur Yayasan..." 
-                               required 
-                               class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                    </div>
-
-                    {{-- Nominal & Referensi --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Nominal (Rp) *</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-xs text-[var(--text-muted)] pointer-events-none">Rp</span>
-                                <input type="number" 
-                                       name="nominal" 
-                                       min="1" 
-                                       step="any" 
-                                       placeholder="0" 
-                                       required 
-                                       class="w-full h-10 pl-9 pr-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] font-bold tabular-nums focus:outline-none focus:border-[var(--primary-700)]">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">No. referensi</label>
-                            <input type="text" 
-                                   name="no_referensi" 
-                                   placeholder="Nomor struk/nota" 
-                                   class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
-                        </div>
-                    </div>
-
-                    {{-- Keterangan --}}
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Rincian keterangan</label>
-                        <textarea name="deskripsi" 
-                                  rows="2" 
-                                  placeholder="Catatan rincian keperluan transaksi..." 
-                                  class="w-full p-2.5 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)] resize-none"></textarea>
-                    </div>
-
-                    {{-- Upload Bukti --}}
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Upload bukti nota/struk</label>
-                        <input type="file" 
-                               name="bukti" 
-                               accept="image/*,application/pdf" 
-                               class="w-full text-xs text-[var(--text-muted)] file:mr-3 file:h-8 file:px-3 file:rounded-[var(--radius-xs)] file:border-0 file:text-xs file:font-semibold file:bg-[var(--primary-50)] file:text-[var(--primary-700)] hover:file:bg-[var(--primary-100)] cursor-pointer">
-                    </div>
-                </div>
-
-                {{-- Footer --}}
-                <div class="px-5 py-3 bg-[var(--bg-page)] border-t border-[var(--border)] flex items-center justify-end gap-2 shrink-0">
-                    <button type="button" 
-                            @click="showCreateModal = false" 
-                            class="h-9 px-3.5 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-body)] font-semibold text-xs rounded-[var(--radius-xs)]">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="h-9 px-4 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white font-semibold text-xs rounded-[var(--radius-xs)] transition cursor-pointer">
-                        Simpan ke buku kas
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 
     {{-- MODAL DETAIL TRANSAKSI --}}
