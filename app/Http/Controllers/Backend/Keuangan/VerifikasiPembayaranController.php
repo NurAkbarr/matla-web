@@ -32,6 +32,18 @@ class VerifikasiPembayaranController extends Controller
     {
         $pembayaran = Pembayaran::with(['user', 'tagihan'])->findOrFail($id);
 
+        $request->validate([
+            'nominal' => 'nullable|numeric|min:0',
+            'bulan_alokasi' => 'nullable',
+            'catatan_alokasi' => 'nullable|string',
+            'tahun_akademik_id' => 'nullable',
+        ]);
+
+        $verifiedNominal = $request->filled('nominal') ? (float)$request->input('nominal') : (float)$pembayaran->nominal;
+        if ($verifiedNominal <= 0) {
+            $verifiedNominal = (float)$pembayaran->nominal;
+        }
+
         $bulanAlokasi = $request->input('bulan_alokasi');
         if (is_string($bulanAlokasi)) {
             $bulanAlokasi = json_decode($bulanAlokasi, true);
@@ -74,24 +86,39 @@ class VerifikasiPembayaranController extends Controller
             // Generate Kwitansi Number (INV/YYYYMM/UserID+Random)
             $kwitansiNo = 'INV/' . date('Ym') . '/' . str_pad($pembayaran->user_id, 3, '0', STR_PAD_LEFT) . strtoupper(Str::random(3));
 
+            // Kurangi sisa tagihan & perbarui status tagihan menjadi lunas atau sebagian (partial)
+            $tagihan = $pembayaran->tagihan;
+            $isPartial = false;
+            if ($tagihan) {
+                $totalTerbayarLain = (float) Pembayaran::where('tagihan_id', $tagihan->id)
+                    ->where('status', 'verified')
+                    ->where('id', '!=', $pembayaran->id)
+                    ->sum('nominal');
+
+                $totalTerbayar = $totalTerbayarLain + $verifiedNominal;
+                $sisaTagihan = max(0, (float)$tagihan->nominal_total - $totalTerbayar);
+
+                $tagihan->sisa_tagihan = $sisaTagihan;
+                if ($sisaTagihan <= 0) {
+                    $tagihan->status = 'lunas';
+                    $tagihan->jenis_tagihan = 'lunas';
+                } else {
+                    $tagihan->status = 'sebagian';
+                    $tagihan->jenis_tagihan = 'cicilan';
+                    $isPartial = true;
+                }
+                $tagihan->save();
+            }
+
             $pembayaran->update([
                 'status' => 'verified',
+                'nominal' => $verifiedNominal,
+                'jenis_pembayaran' => $isPartial ? 'cicilan' : 'lunas',
                 'kwitansi' => $kwitansiNo,
                 'bulan_alokasi' => $bulanAlokasi,
                 'tahun_akademik_id' => $tahunAkademikId,
                 'catatan_alokasi' => $catatanAlokasi,
             ]);
-
-            // Kurangi sisa tagihan & perbarui status tagihan menjadi lunas bila lunas
-            $tagihan = $pembayaran->tagihan;
-            if ($tagihan) {
-                $tagihan->sisa_tagihan -= $pembayaran->nominal;
-                if ($tagihan->sisa_tagihan <= 0 || strtolower($pembayaran->jenis_pembayaran) === 'lunas') {
-                    $tagihan->sisa_tagihan = 0;
-                    $tagihan->status = 'lunas';
-                }
-                $tagihan->save();
-            }
 
             // Generate PDF and Upload to Google Drive (Background)
             try {
@@ -185,7 +212,8 @@ class VerifikasiPembayaranController extends Controller
                     $alokasiLabelStr = " (Alokasi: " . implode(', ', $labels) . ")";
                 }
 
-                $deskripsi = "Pembayaran " . ($isSpp ? "SPP" : $tagihanNama) . " Terverifikasi{$alokasiLabelStr} - {$tagihanNama}" .
+                $statusKet = $isPartial ? " (Sebagian / Cicilan)" : " (Lunas)";
+                $deskripsi = "Pembayaran " . ($isSpp ? "SPP" : $tagihanNama) . " Terverifikasi{$statusKet}{$alokasiLabelStr} - {$tagihanNama}" .
                     ($pembayaran->catatan ? " ({$pembayaran->catatan})" : "");
 
                 // Admin Pencatat
@@ -279,8 +307,19 @@ class VerifikasiPembayaranController extends Controller
         // Jika pembayaran ini sebelumnya berstatus verified, kembalikan nominal ke sisa tagihan
         if ($wasVerified && $pembayaran->tagihan) {
             $tagihan = $pembayaran->tagihan;
-            $tagihan->sisa_tagihan += $pembayaran->nominal;
-            if ($tagihan->sisa_tagihan > 0) {
+            $totalTerbayarLain = (float) Pembayaran::where('tagihan_id', $tagihan->id)
+                ->where('status', 'verified')
+                ->where('id', '!=', $pembayaran->id)
+                ->sum('nominal');
+            $sisa = max(0, (float)$tagihan->nominal_total - $totalTerbayarLain);
+            $tagihan->sisa_tagihan = $sisa;
+            if ($sisa <= 0 && $totalTerbayarLain > 0) {
+                $tagihan->status = 'lunas';
+                $tagihan->jenis_tagihan = 'lunas';
+            } elseif ($totalTerbayarLain > 0) {
+                $tagihan->status = 'sebagian';
+                $tagihan->jenis_tagihan = 'cicilan';
+            } else {
                 $tagihan->status = 'belum lunas';
             }
             $tagihan->save();

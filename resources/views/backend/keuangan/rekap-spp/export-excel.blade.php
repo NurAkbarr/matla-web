@@ -43,8 +43,14 @@
                     <b>{{ $item['nama'] }}</b> ({{ $item['prodi'] }} - Smst {{ $item['semester_mhs'] }})
                 </td>
                 @foreach($item['matriks_bulan'] as $m)
-                    <td style="text-align: center; border: 1px solid #000000; {{ $m['is_lunas'] ? 'background-color: #D1FAE5; color: #047857; font-weight: bold;' : 'color: #9CA3AF;' }}">
-                        {{ $m['is_lunas'] ? '✔ LUNAS' : '-' }}
+                    <td style="text-align: center; border: 1px solid #000000; {{ $m['is_lunas'] ? 'background-color: #D1FAE5; color: #047857; font-weight: bold;' : (!empty($m['is_sebagian']) ? 'background-color: #FEF3C7; color: #B45309; font-weight: bold;' : 'color: #9CA3AF;') }}">
+                        @if($m['is_lunas'])
+                            ✔ LUNAS
+                        @elseif(!empty($m['is_sebagian']))
+                            ◐ SEBAGIAN ({{ number_format($m['nominal_bayar'], 0, ',', '.') }})
+                        @else
+                            -
+                        @endif
                     </td>
                 @endforeach
                 <td style="text-align: right; border: 1px solid #000000;">{{ $item['nominal_spp'] }}</td>
@@ -56,7 +62,7 @@
                 <td style="text-align: right; border: 1px solid #000000; {{ $item['sisa_tunggakan'] > 0 ? 'color: #DC2626; font-weight: bold;' : '' }}">
                     {{ $item['sisa_tunggakan'] }}
                 </td>
-                <td style="text-align: center; border: 1px solid #000000; font-weight: bold; {{ $item['status'] === 'Lunas' ? 'background-color: #D1FAE5; color: #047857;' : 'background-color: #FEE2E2; color: #B91C1C;' }}">
+                <td style="text-align: center; border: 1px solid #000000; font-weight: bold; {{ $item['status'] === 'Lunas' ? 'background-color: #D1FAE5; color: #047857;' : ($item['status'] === 'Sebagian' ? 'background-color: #FEF3C7; color: #B45309;' : 'background-color: #FEE2E2; color: #B91C1C;') }}">
                     {{ strtoupper($item['status']) }}
                 </td>
                 <td style="border: 1px solid #000000;">{{ $item['metode'] }}</td>

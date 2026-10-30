@@ -188,6 +188,8 @@
                                     'prodi' => $bayar->user->education['program_studi'] ?? ($bayar->user->prodi ?? '-'),
                                     'tagihan' => $bayar->tagihan->nama_tagihan ?? 'Tagihan Mahasiswa',
                                     'nominal' => $bayar->nominal,
+                                    'nominal_total_tagihan' => (float)($bayar->tagihan->nominal_total ?? $bayar->nominal),
+                                    'sisa_tagihan' => (float)($bayar->tagihan->sisa_tagihan ?? 0),
                                     'tarif_spp' => $mhsTarif,
                                     'created_at' => \Carbon\Carbon::parse($bayar->created_at)->format('d M Y H:i'),
                                     'bulan_alokasi' => $bayar->bulan_alokasi ?: [],
@@ -305,7 +307,35 @@
             <div class="p-3 bg-[var(--primary-50)] border border-[var(--primary-200)] rounded-[var(--radius-xs)] text-[11px] text-[var(--primary-800)] flex items-start gap-2">
                 <svg class="w-4 h-4 text-[var(--primary-600)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <div>
-                    <b>Pencatatan Arus Kas Utuh:</b> Uang masuk dicatat utuh sebesar nominal transfer pada tanggal aktual transfer di atas. Mutasi buku kas bank tidak diubah bulannya agar audit trail valid.
+                    <b>Pencatatan Arus Kas Riil:</b> Uang masuk dicatat utuh ke Buku Kas sebesar nominal yang diverifikasi/disetujui Admin pada tanggal transaksi.
+                </div>
+            </div>
+
+            {{-- Verifikasi Nominal Pembayaran (Mendukung Pembayaran Sebagian / Cicilan) --}}
+            <div class="bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] p-3.5 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-[var(--text-heading)]">
+                        Nominal Pembayaran yang Disetujui (Rp) <span class="text-red-500">*</span>
+                    </label>
+                    <span id="verif_badge_status" class="px-2 py-0.5 rounded-[var(--radius-xs)] text-[10.5px] font-bold bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-200)]">
+                        Lunas
+                    </span>
+                </div>
+                <div class="relative">
+                    <span class="absolute left-3 top-2 text-xs font-bold text-[var(--text-muted)] pointer-events-none">Rp</span>
+                    <input type="number" 
+                           id="verif_input_nominal" 
+                           name="nominal" 
+                           step="1000" 
+                           min="1000" 
+                           required 
+                           oninput="updateVerifCalculation()" 
+                           class="w-full h-9 pl-9 pr-3 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs font-bold text-[var(--text-heading)] focus:outline-none focus:border-[var(--primary-700)] tabular-nums"
+                           title="Masukkan nominal yang disetujui untuk pembayaran ini">
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-[var(--text-muted)] pt-1.5 border-t border-[var(--border)]">
+                    <span>Total Tagihan: <strong id="verif_total_tagihan" class="text-[var(--text-heading)] tabular-nums">Rp 0</strong></span>
+                    <span>Sisa Tagihan Setelah Ini: <strong id="verif_estimasi_sisa" class="tabular-nums font-bold text-[var(--primary-600)]">Rp 0</strong></span>
                 </div>
             </div>
 
@@ -465,7 +495,31 @@
         }
     }
 
+    var currentVerifData = null;
+
+    function updateVerifCalculation() {
+        if (!currentVerifData) return;
+        var totalTagihan = parseFloat(currentVerifData.nominal_total_tagihan) || parseFloat(currentVerifData.nominal) || 0;
+        var inputNominal = parseFloat(document.getElementById('verif_input_nominal').value) || 0;
+        var sisa = Math.max(0, totalTagihan - inputNominal);
+        
+        var sisaEl = document.getElementById('verif_estimasi_sisa');
+        var badgeEl = document.getElementById('verif_badge_status');
+        
+        sisaEl.innerText = formatRupiah(sisa);
+        if (sisa <= 0) {
+            sisaEl.className = 'tabular-nums font-bold text-[var(--primary-600)]';
+            badgeEl.innerText = '✔ Lunas Penuh';
+            badgeEl.className = 'px-2 py-0.5 rounded-[var(--radius-xs)] text-[10.5px] font-bold bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-200)]';
+        } else {
+            sisaEl.className = 'tabular-nums font-bold text-[var(--danger)]';
+            badgeEl.innerText = '◐ Pembayaran Sebagian';
+            badgeEl.className = 'px-2 py-0.5 rounded-[var(--radius-xs)] text-[10.5px] font-bold bg-amber-50 text-amber-700 border border-amber-300';
+        }
+    }
+
     function openModalVerifikasi(data) {
+        currentVerifData = data;
         document.getElementById('form-verifikasi').action = '/backend/keuangan/verifikasi/' + data.id + '/approve';
         document.getElementById('verif_nama').innerText = data.nama;
         document.getElementById('verif_nim').innerText = '(NIM: ' + data.nim + ')';
@@ -473,6 +527,12 @@
         document.getElementById('verif_nominal').innerText = formatRupiah(data.nominal);
         document.getElementById('verif_tarif').innerText = formatRupiah(data.tarif_spp) + ' / bln';
         document.getElementById('verif_tanggal').innerText = data.created_at;
+
+        // Set input nominal default ke nominal yang diunggah mahasiswa
+        var nom = parseFloat(data.nominal) || 0;
+        document.getElementById('verif_input_nominal').value = nom;
+        document.getElementById('verif_total_tagihan').innerText = formatRupiah(data.nominal_total_tagihan || nom);
+        updateVerifCalculation();
 
         // Auto pre-check jika ada bulan alokasi, atau default ke bulan tagihan jika ada nama bulan di tagihan
         var preSelected = data.bulan_alokasi || [];

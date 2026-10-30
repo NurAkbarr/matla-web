@@ -71,6 +71,7 @@ class RekapSppController extends Controller
             'user_id' => 'required|exists:users,id',
             'month_key' => 'required|regex:/^\d{4}-\d{2}$/',
             'action' => 'required|in:check,uncheck',
+            'nominal' => 'nullable|numeric|min:0',
             'tahun_akademik' => 'nullable|string',
             'tipe_semester' => 'nullable|string',
         ]);
@@ -96,14 +97,28 @@ class RekapSppController extends Controller
         ];
         $bNama = $monthNames[$monthNum] ?? "Bulan {$monthNum}";
         $tagihanNama = "SPP " . strtoupper($bNama) . " {$year}";
-        $deskripsiTransaksi = "Pelunasan SPP Bulan {$bNama} {$year} (Catatan Historis)";
         $tanggalKas = Carbon::createFromDate($year, $monthNum, 1)->setTime(10, 0, 0);
 
         $kwitansiNo = null;
         $kwitansiUrl = null;
         $pembayaranId = null;
+        $isPartial = false;
+        $inputNominal = $nominalSpp;
+        $sisaTagihan = 0;
 
         if ($action === 'check') {
+            // Hitung nominal yang dibayarkan (mendukung pembayaran sebagian / cicilan)
+            $inputNominal = $request->filled('nominal') ? (float)$request->input('nominal') : $nominalSpp;
+            if ($inputNominal <= 0) {
+                $inputNominal = $nominalSpp;
+            }
+            $sisaTagihan = max(0, $nominalSpp - $inputNominal);
+            $isPartial = ($sisaTagihan > 0);
+
+            $deskripsiTransaksi = $isPartial
+                ? "Pembayaran SPP Sebagian Bulan {$bNama} {$year} (Catatan Historis: Rp " . number_format($inputNominal, 0, ',', '.') . " dari Rp " . number_format($nominalSpp, 0, ',', '.') . ")"
+                : "Pelunasan SPP Bulan {$bNama} {$year} (Catatan Historis)";
+
             // 1. Temukan atau buat Tagihan untuk bulan historis ini
             $studentTagihans = Tagihan::where('user_id', $student->id)->get();
             $tagihan = $studentTagihans->first(function ($t) use ($monthNum, $year, $bNama) {
@@ -115,17 +130,18 @@ class RekapSppController extends Controller
                 $tagihan->user_id = $student->id;
                 $tagihan->nama_tagihan = $tagihanNama;
                 $tagihan->nominal_total = $nominalSpp;
-                $tagihan->sisa_tagihan = 0;
-                $tagihan->status = 'lunas';
-                $tagihan->jenis_tagihan = 'lunas';
+                $tagihan->sisa_tagihan = $sisaTagihan;
+                $tagihan->status = $isPartial ? 'sebagian' : 'lunas';
+                $tagihan->jenis_tagihan = $isPartial ? 'cicilan' : 'lunas';
                 $tagihan->keterangan = "Pencatatan Tagihan SPP Historis Bulan {$bNama} {$year}";
                 $tagihan->jatuh_tempo = "{$year}-" . sprintf('%02d', $monthNum) . "-10";
                 $tagihan->created_at = $tanggalKas;
                 $tagihan->updated_at = $tanggalKas;
                 $tagihan->save();
             } else {
-                $tagihan->status = 'lunas';
-                $tagihan->sisa_tagihan = 0;
+                $tagihan->sisa_tagihan = $sisaTagihan;
+                $tagihan->status = $isPartial ? 'sebagian' : 'lunas';
+                $tagihan->jenis_tagihan = $isPartial ? 'cicilan' : 'lunas';
                 $tagihan->save();
             }
 
@@ -143,8 +159,8 @@ class RekapSppController extends Controller
                 $pembayaran = new Pembayaran();
                 $pembayaran->tagihan_id = $tagihan->id;
                 $pembayaran->user_id = $student->id;
-                $pembayaran->jenis_pembayaran = 'lunas';
-                $pembayaran->nominal = $nominalSpp;
+                $pembayaran->jenis_pembayaran = $isPartial ? 'cicilan' : 'lunas';
+                $pembayaran->nominal = $inputNominal;
                 $pembayaran->bukti_tf = 'historis';
                 $pembayaran->kwitansi = $kwitansiNo;
                 $pembayaran->status = 'verified';
@@ -161,6 +177,8 @@ class RekapSppController extends Controller
                 } else {
                     $pembayaran->kwitansi = $kwitansiNo;
                 }
+                $pembayaran->nominal = $inputNominal;
+                $pembayaran->jenis_pembayaran = $isPartial ? 'cicilan' : 'lunas';
                 $pembayaran->status = 'verified';
                 $pembayaran->bulan_alokasi = [$monthKey];
                 $pembayaran->catatan = $deskripsiTransaksi;
@@ -202,7 +220,7 @@ class RekapSppController extends Controller
 
             $transaksi->jenis_transaksi = 'masuk';
             $transaksi->kategori = 'Pembayaran SPP';
-            $transaksi->nominal = $nominalSpp;
+            $transaksi->nominal = $inputNominal;
             $transaksi->tanggal_transaksi = $tanggalKas;
             $transaksi->metode_pembayaran = 'Kas / Tunai';
             $transaksi->subjek = $subjek;
@@ -242,6 +260,7 @@ class RekapSppController extends Controller
                 if ($tagihan) {
                     $tagihan->update([
                         'status' => 'belum lunas',
+                        'jenis_tagihan' => 'lunas',
                         'sisa_tagihan' => $tagihan->nominal_total ?: $nominalSpp,
                     ]);
                 }
@@ -260,6 +279,7 @@ class RekapSppController extends Controller
                     }
                     $tagihan->update([
                         'status' => 'belum lunas',
+                        'jenis_tagihan' => 'lunas',
                         'sisa_tagihan' => $tagihan->nominal_total ?: $nominalSpp,
                     ]);
                 }
@@ -304,20 +324,31 @@ class RekapSppController extends Controller
             }
         }
 
-        // Kalkulasi real-time status kelunasan dan tunggakan mahasiswa ini
+        // Kalkulasi real-time status kelunasan dan tunggakan mahasiswa ini secara presisi
         $verifiedPayments = Pembayaran::where('user_id', $student->id)
             ->where('status', 'verified')
             ->get();
         $studentTagihans = Tagihan::where('user_id', $student->id)->get();
 
         $bulanLunasCount = 0;
+        $totalSudahDibayar = 0;
+        $totalTagihanMhs = 0;
+        $totalSisaTunggakan = 0;
+
         foreach ($daftarBulan as $bInfo) {
             $mKey = $bInfo['key'] ?? sprintf('%04d-%02d', $bInfo['year'], $bInfo['num']);
             $bN = $bInfo['nama'];
             $bNum = $bInfo['num'];
             $bY = $bInfo['year'];
 
-            $isLunas = $verifiedPayments->first(function ($p) use ($mKey, $bNum, $bN) {
+            $matchingTagihan = $studentTagihans->first(function ($t) use ($bN, $bNum, $bY) {
+                return Tagihan::isMatchingSppMonth($t, $bNum, $bY, $bN);
+            });
+
+            $mPayments = $verifiedPayments->filter(function ($p) use ($mKey, $bNum, $bN, $matchingTagihan) {
+                if ($matchingTagihan && $p->tagihan_id == $matchingTagihan->id) {
+                    return true;
+                }
                 $alokasi = $p->bulan_alokasi;
                 if (!empty($alokasi) && is_array($alokasi)) {
                     if (in_array($mKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
@@ -328,34 +359,46 @@ class RekapSppController extends Controller
                     }
                 }
                 return false;
-            }) !== null;
+            });
 
-            if (!$isLunas) {
-                $matchingTagihan = $studentTagihans->first(function ($t) use ($bN, $bNum, $bY) {
-                    return Tagihan::isMatchingSppMonth($t, $bNum, $bY, $bN);
-                });
-                if ($matchingTagihan && (strtolower($matchingTagihan->status) === 'lunas' || (float)$matchingTagihan->sisa_tagihan <= 0)) {
-                    $isLunas = true;
-                }
+            $bNominalTagihan = $matchingTagihan ? (float)$matchingTagihan->nominal_total : $nominalSpp;
+            $bTerbayar = (float)$mPayments->sum('nominal');
+
+            $bLunas = false;
+            if ($matchingTagihan && (strtolower($matchingTagihan->status) === 'lunas' || (float)$matchingTagihan->sisa_tagihan <= 0)) {
+                $bLunas = true;
+                $bTerbayar = max($bTerbayar, $bNominalTagihan);
+            } elseif ($bTerbayar >= $bNominalTagihan && $bNominalTagihan > 0) {
+                $bLunas = true;
             }
 
-            if ($isLunas) {
+            $bSisa = $bLunas ? 0 : max(0, $bNominalTagihan - $bTerbayar);
+
+            if ($bLunas) {
                 $bulanLunasCount++;
             }
+
+            $totalSudahDibayar += $bTerbayar;
+            $totalTagihanMhs += $bNominalTagihan;
+            $totalSisaTunggakan += $bSisa;
         }
 
         $totalBulan = count($daftarBulan);
         $bulanMenunggakCount = max(0, $totalBulan - $bulanLunasCount);
-        $tagihanMenunggak = $bulanMenunggakCount * $nominalSpp;
-        $totalSudahDibayar = $bulanLunasCount * $nominalSpp;
-        $sisaTunggakan = $bulanMenunggakCount * $nominalSpp;
-        $statusKelunasan = ($bulanMenunggakCount === 0) ? 'Lunas' : 'Menunggak';
+        $statusKelunasan = ($bulanMenunggakCount === 0 && $totalSisaTunggakan <= 0)
+            ? 'Lunas'
+            : ($totalSudahDibayar > 0 ? 'Sebagian' : 'Menunggak');
 
         return response()->json([
             'success' => true,
-            'is_lunas' => ($action === 'check'),
+            'is_lunas' => ($action === 'check' && !$isPartial),
+            'is_sebagian' => ($action === 'check' && $isPartial),
+            'nominal_bayar' => ($action === 'check' ? $inputNominal : 0),
+            'sisa_bulan' => ($action === 'check' ? $sisaTagihan : $nominalSpp),
             'message' => $action === 'check'
-                ? "SPP {$bNama} {$year} untuk {$student->name} berhasil ditandai LUNAS (Historis)."
+                ? ($isPartial 
+                    ? "Pembayaran SPP {$bNama} {$year} untuk {$student->name} sebesar Rp " . number_format($inputNominal, 0, ',', '.') . " berhasil dicatat (Sebagian, Sisa: Rp " . number_format($sisaTagihan, 0, ',', '.') . ")."
+                    : "SPP {$bNama} {$year} untuk {$student->name} berhasil ditandai LUNAS (Historis).")
                 : "Status SPP {$bNama} {$year} untuk {$student->name} dikembalikan ke status TUNGGAKAN.",
             'kwitansi_no' => $kwitansiNo,
             'kwitansi_url' => $kwitansiUrl,
@@ -366,14 +409,25 @@ class RekapSppController extends Controller
                 'total_bulan' => $totalBulan,
                 'bulan_lunas' => $bulanLunasCount,
                 'bulan_menunggak' => $bulanMenunggakCount,
-                'tagihan' => $tagihanMenunggak,
+                'tagihan' => $totalSisaTunggakan,
                 'total_dibayar' => $totalSudahDibayar,
-                'sisa_tunggakan' => $sisaTunggakan,
+                'sisa_tunggakan' => $totalSisaTunggakan,
                 'status' => $statusKelunasan,
-                'tagihan_formatted' => 'Rp ' . number_format($tagihanMenunggak, 0, ',', '.'),
+                'tagihan_formatted' => 'Rp ' . number_format($totalSisaTunggakan, 0, ',', '.'),
                 'dibayar_formatted' => 'Rp ' . number_format($totalSudahDibayar, 0, ',', '.'),
-                'sisa_formatted' => 'Rp ' . number_format($sisaTunggakan, 0, ',', '.'),
+                'sisa_formatted' => 'Rp ' . number_format($totalSisaTunggakan, 0, ',', '.'),
             ],
+            'cell' => [
+                'month_key' => $monthKey,
+                'is_lunas' => ($action === 'check' && !$isPartial),
+                'is_sebagian' => ($action === 'check' && $isPartial),
+                'nominal_bayar' => ($action === 'check' ? $inputNominal : 0),
+                'nominal_bayar_formatted' => 'Rp ' . number_format($action === 'check' ? $inputNominal : 0, 0, ',', '.'),
+                'sisa_bulan' => ($action === 'check' ? $sisaTagihan : $nominalSpp),
+                'sisa_bulan_formatted' => 'Rp ' . number_format($action === 'check' ? $sisaTagihan : $nominalSpp, 0, ',', '.'),
+                'kwitansi_url' => $kwitansiUrl,
+                'payment_id' => $pembayaranId,
+            ]
         ]);
     }
 
@@ -676,32 +730,60 @@ class RekapSppController extends Controller
                 $bYear = $bInfo['year'];
                 $monthKey = $bInfo['key'] ?? sprintf('%04d-%02d', $bYear, $bNum);
 
-                // --- CEK 1: Apakah sudah Lunas via Alokasi Pembayaran Terverifikasi ---
-                $allocatedPay = $mhsVerified->first(function ($p) use ($monthKey, $bNum, $bNama) {
-                    $alokasi = $p->bulan_alokasi;
-                    if (empty($alokasi) || !is_array($alokasi)) {
-                        return false;
-                    }
-                    if (in_array($monthKey, $alokasi)) {
-                        return true;
-                    }
-                    if (in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
-                        return true;
-                    }
-                    if (in_array(strtolower($bNama), array_map('strtolower', $alokasi))) {
-                        return true;
-                    }
-                    return false;
+                // --- 1. Temukan Tagihan Spesifik Bulan Ini jika ada ---
+                $matchingTagihan = $mhs->tagihans->first(function ($t) use ($bNama, $bNum, $bYear) {
+                    return Tagihan::isMatchingSppMonth($t, $bNum, $bYear, $bNama);
                 });
 
-                if ($allocatedPay) {
+                // Target nominal SPP bulan ini
+                $nominalBulanTarget = $matchingTagihan && (float)$matchingTagihan->nominal_total > 0
+                    ? (float)$matchingTagihan->nominal_total
+                    : $nominalSpp;
+
+                // --- 2. Kumpulkan Semua Pembayaran Terverifikasi untuk Bulan Ini ---
+                $monthVerifiedPayments = collect();
+                if ($matchingTagihan) {
+                    foreach ($matchingTagihan->pembayarans->where('status', 'verified') as $p) {
+                        $monthVerifiedPayments->put($p->id, $p);
+                    }
+                }
+                foreach ($mhsVerified as $p) {
+                    $alokasi = $p->bulan_alokasi;
+                    if (!empty($alokasi) && is_array($alokasi)) {
+                        if (in_array($monthKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi) || in_array(strtolower($bNama), array_map('strtolower', $alokasi))) {
+                            $monthVerifiedPayments->put($p->id, $p);
+                        }
+                    }
+                }
+
+                $totalTerbayarBulan = (float)$monthVerifiedPayments->sum('nominal');
+                $lastVerifiedPay = $monthVerifiedPayments->last();
+                if ($lastVerifiedPay) {
+                    $metodeTerakhir = $lastVerifiedPay->jenis_pembayaran ?: 'Transfer Bank';
+                }
+
+                $isHistoris = false;
+                if ($lastVerifiedPay) {
+                    $isHistoris = ($lastVerifiedPay->bukti_tf === 'historis' || str_contains($lastVerifiedPay->catatan ?? '', 'Historis'));
+                }
+
+                // Cek status Lunas vs Sebagian
+                $isLunas = false;
+                $isSebagian = false;
+
+                if ($matchingTagihan && (strtolower($matchingTagihan->status) === 'lunas' || (float)$matchingTagihan->sisa_tagihan <= 0)) {
                     $isLunas = true;
-                    $nominalBayar = $nominalSpp;
-                    $nominalTunggakan = 0;
+                    $totalTerbayarBulan = max($totalTerbayarBulan, $nominalBulanTarget);
+                } elseif ($totalTerbayarBulan >= $nominalBulanTarget && $nominalBulanTarget > 0) {
+                    $isLunas = true;
+                } elseif ($totalTerbayarBulan > 0 || ($matchingTagihan && strtolower($matchingTagihan->status) === 'sebagian')) {
+                    $isSebagian = true;
+                }
+
+                if ($isLunas) {
                     $bulanLunasCount++;
-                    $totalSudahDibayarMhs += $nominalBayar;
-                    $metodeTerakhir = $allocatedPay->jenis_pembayaran ?: 'Transfer Bank';
-                    $isHistoris = ($allocatedPay->bukti_tf === 'historis' || str_contains($allocatedPay->catatan ?? '', 'Historis'));
+                    $nominalBayar = max($totalTerbayarBulan, $nominalBulanTarget);
+                    $nominalTunggakan = 0;
 
                     $bulanMatriks[] = [
                         'nama' => $bNama,
@@ -710,86 +792,25 @@ class RekapSppController extends Controller
                         'key' => $monthKey,
                         'ada_tagihan' => true,
                         'is_lunas' => true,
+                        'is_sebagian' => false,
                         'is_pending' => false,
                         'is_historis' => $isHistoris,
-                        'is_alokasi_lintas' => true,
-                        'payment_id' => $allocatedPay->id,
-                        'kwitansi' => $allocatedPay->kwitansi,
-                        'alokasi_tanggal' => $allocatedPay->created_at ? $allocatedPay->created_at->format('d/m/Y') : null,
-                        'nominal_tagihan' => $nominalSpp,
+                        'is_alokasi_lintas' => ($lastVerifiedPay && empty($matchingTagihan)),
+                        'payment_id' => $lastVerifiedPay ? $lastVerifiedPay->id : null,
+                        'kwitansi' => $lastVerifiedPay ? $lastVerifiedPay->kwitansi : null,
+                        'alokasi_tanggal' => $lastVerifiedPay && $lastVerifiedPay->created_at ? $lastVerifiedPay->created_at->format('d/m/Y') : null,
+                        'nominal_tagihan' => $nominalBulanTarget,
                         'nominal_bayar' => $nominalBayar,
                         'nominal_tunggakan' => 0,
-                        'tagihan_id' => $allocatedPay->tagihan_id,
+                        'tagihan_id' => $matchingTagihan ? $matchingTagihan->id : ($lastVerifiedPay ? $lastVerifiedPay->tagihan_id : null),
                     ];
                     continue;
                 }
 
-                // --- CEK 2: Apakah Lunas via Tagihan Spesifik Bulan Ini ---
-                $matchingTagihan = $mhs->tagihans->first(function ($t) use ($bNama, $bNum, $bYear) {
-                    return Tagihan::isMatchingSppMonth($t, $bNum, $bYear, $bNama);
-                });
+                if ($isSebagian) {
+                    $nominalBayar = $totalTerbayarBulan;
+                    $nominalTunggakan = max(0, $nominalBulanTarget - $totalTerbayarBulan);
 
-                if ($matchingTagihan) {
-                    $isLunas = (
-                        strtolower($matchingTagihan->status) === 'lunas' ||
-                        (float)$matchingTagihan->sisa_tagihan <= 0
-                    );
-
-                    $verifiedSum = $matchingTagihan->pembayarans
-                        ->where('status', 'verified')
-                        ->sum('nominal');
-
-                    if ($verifiedSum >= (float)$matchingTagihan->nominal_total && (float)$matchingTagihan->nominal_total > 0) {
-                        $isLunas = true;
-                    }
-
-                    $lastVerifiedPay = $matchingTagihan->pembayarans->where('status', 'verified')->last();
-                    if ($lastVerifiedPay) {
-                        $metodeTerakhir = $lastVerifiedPay->jenis_pembayaran ?: 'Transfer Bank';
-                    }
-
-                    if ($isLunas) {
-                        $bulanLunasCount++;
-                        $nominalBayar = (float)$matchingTagihan->nominal_total;
-                        $totalSudahDibayarMhs += $nominalBayar;
-                        $isHistoris = $lastVerifiedPay && ($lastVerifiedPay->bukti_tf === 'historis' || str_contains($lastVerifiedPay->catatan ?? '', 'Historis'));
-
-                        $bulanMatriks[] = [
-                            'nama' => $bNama,
-                            'num' => $bNum,
-                            'year' => $bYear,
-                            'key' => $monthKey,
-                            'ada_tagihan' => true,
-                            'is_lunas' => true,
-                            'is_pending' => false,
-                            'is_historis' => $isHistoris,
-                            'is_alokasi_lintas' => false,
-                            'payment_id' => $lastVerifiedPay ? $lastVerifiedPay->id : null,
-                            'kwitansi' => $lastVerifiedPay ? $lastVerifiedPay->kwitansi : null,
-                            'nominal_tagihan' => (float)$matchingTagihan->nominal_total,
-                            'nominal_bayar' => $nominalBayar,
-                            'nominal_tunggakan' => 0,
-                            'tagihan_id' => $matchingTagihan->id,
-                        ];
-                        continue;
-                    }
-                }
-
-                // --- CEK 3: Apakah ada pembayaran Menunggu Verifikasi (Pending) ---
-                $pendingPay = $mhsPending->first(function ($p) use ($monthKey, $bNum, $bNama, $matchingTagihan) {
-                    if ($matchingTagihan && $p->tagihan_id == $matchingTagihan->id) {
-                        return true;
-                    }
-                    $alokasi = $p->bulan_alokasi;
-                    if (!empty($alokasi) && is_array($alokasi)) {
-                        if (in_array($monthKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-
-                if ($pendingPay) {
                     $bulanMatriks[] = [
                         'nama' => $bNama,
                         'num' => $bNum,
@@ -797,21 +818,62 @@ class RekapSppController extends Controller
                         'key' => $monthKey,
                         'ada_tagihan' => true,
                         'is_lunas' => false,
+                        'is_sebagian' => true,
+                        'is_pending' => false,
+                        'is_historis' => $isHistoris,
+                        'is_alokasi_lintas' => ($lastVerifiedPay && empty($matchingTagihan)),
+                        'payment_id' => $lastVerifiedPay ? $lastVerifiedPay->id : null,
+                        'kwitansi' => $lastVerifiedPay ? $lastVerifiedPay->kwitansi : null,
+                        'alokasi_tanggal' => $lastVerifiedPay && $lastVerifiedPay->created_at ? $lastVerifiedPay->created_at->format('d/m/Y') : null,
+                        'nominal_tagihan' => $nominalBulanTarget,
+                        'nominal_bayar' => $nominalBayar,
+                        'nominal_tunggakan' => $nominalTunggakan,
+                        'tagihan_id' => $matchingTagihan ? $matchingTagihan->id : ($lastVerifiedPay ? $lastVerifiedPay->tagihan_id : null),
+                    ];
+                    continue;
+                }
+
+                // --- 3. Cek apakah ada pembayaran Menunggu Verifikasi (Pending) ---
+                $monthPendingPayments = collect();
+                if ($matchingTagihan) {
+                    foreach ($matchingTagihan->pembayarans->where('status', 'pending') as $p) {
+                        $monthPendingPayments->put($p->id, $p);
+                    }
+                }
+                foreach ($mhsPending as $p) {
+                    $alokasi = $p->bulan_alokasi;
+                    if (!empty($alokasi) && is_array($alokasi)) {
+                        if (in_array($monthKey, $alokasi) || in_array($bNum, $alokasi) || in_array((string)$bNum, $alokasi) || in_array(strtolower($bNama), array_map('strtolower', $alokasi))) {
+                            $monthPendingPayments->put($p->id, $p);
+                        }
+                    }
+                }
+
+                if ($monthPendingPayments->isNotEmpty()) {
+                    $pendingPay = $monthPendingPayments->first();
+                    $bulanMatriks[] = [
+                        'nama' => $bNama,
+                        'num' => $bNum,
+                        'year' => $bYear,
+                        'key' => $monthKey,
+                        'ada_tagihan' => (bool)$matchingTagihan,
+                        'is_lunas' => false,
+                        'is_sebagian' => false,
                         'is_pending' => true,
                         'is_historis' => false,
                         'is_alokasi_lintas' => false,
                         'pending_payment_id' => $pendingPay->id,
                         'payment_id' => null,
                         'kwitansi' => null,
-                        'nominal_tagihan' => $nominalSpp,
+                        'nominal_tagihan' => $nominalBulanTarget,
                         'nominal_bayar' => 0,
-                        'nominal_tunggakan' => $nominalSpp,
+                        'nominal_tunggakan' => $nominalBulanTarget,
                         'tagihan_id' => $matchingTagihan ? $matchingTagihan->id : null,
                     ];
                     continue;
                 }
 
-                // --- DEFAULT: Belum Lunas (Tunggakan Aktif) ---
+                // --- 4. DEFAULT: Belum Lunas (Tunggakan Aktif) ---
                 $bulanMatriks[] = [
                     'nama' => $bNama,
                     'num' => $bNum,
@@ -819,27 +881,31 @@ class RekapSppController extends Controller
                     'key' => $monthKey,
                     'ada_tagihan' => (bool)$matchingTagihan,
                     'is_lunas' => false,
+                    'is_sebagian' => false,
                     'is_pending' => false,
                     'is_historis' => false,
                     'is_alokasi_lintas' => false,
                     'payment_id' => null,
                     'kwitansi' => null,
-                    'nominal_tagihan' => $matchingTagihan ? (float)$matchingTagihan->nominal_total : $nominalSpp,
+                    'nominal_tagihan' => $nominalBulanTarget,
                     'nominal_bayar' => 0,
-                    'nominal_tunggakan' => $matchingTagihan ? (float)$matchingTagihan->sisa_tagihan : $nominalSpp,
+                    'nominal_tunggakan' => $nominalBulanTarget,
                     'tagihan_id' => $matchingTagihan ? $matchingTagihan->id : null,
                 ];
             }
 
-            $bulanMenunggakCount = count($daftarBulan) - $bulanLunasCount;
-            $totalTagihanSemesterMhs = count($daftarBulan) * $nominalSpp;
-            $tagihanMenunggak = $bulanMenunggakCount * $nominalSpp;
-            $totalSudahDibayarMhs = $bulanLunasCount * $nominalSpp;
-            $sisaTunggakanMhs = max(0, $bulanMenunggakCount * $nominalSpp);
+            $bulanMenunggakCount = count(array_filter($bulanMatriks, fn($b) => !$b['is_lunas']));
+            $totalSudahDibayarMhs = array_sum(array_column($bulanMatriks, 'nominal_bayar'));
+            $sisaTunggakanMhs = array_sum(array_column($bulanMatriks, 'nominal_tunggakan'));
+            $totalTagihanSemesterMhs = array_sum(array_column($bulanMatriks, 'nominal_tagihan'));
+            $tagihanMenunggak = $sisaTunggakanMhs;
 
-            if ($bulanMenunggakCount === 0) {
+            if ($sisaTunggakanMhs <= 0 && $bulanLunasCount === count($daftarBulan)) {
                 $statusKelunasan = 'Lunas';
                 $totalMahasiswaLunas++;
+            } elseif ($totalSudahDibayarMhs > 0) {
+                $statusKelunasan = 'Sebagian';
+                $totalMahasiswaMenunggak++;
             } else {
                 $statusKelunasan = 'Menunggak';
                 $totalMahasiswaMenunggak++;
@@ -864,7 +930,7 @@ class RekapSppController extends Controller
                 'matriks_bulan' => $bulanMatriks,
                 'bulan_lunas' => $bulanLunasCount,
                 'bulan_menunggak' => $bulanMenunggakCount,
-                'tagihan' => $tagihanMenunggak, // Jumlah Bulan Menunggak x Tarif SPP
+                'tagihan' => $tagihanMenunggak, // Sisa Tunggakan Riil
                 'total_tagihan' => $totalTagihanSemesterMhs, // Total Potensi Semester
                 'total_dibayar' => $totalSudahDibayarMhs,
                 'sisa_tunggakan' => $sisaTunggakanMhs,

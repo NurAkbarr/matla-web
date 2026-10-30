@@ -151,6 +151,19 @@
             border-radius: 3px;
             font-size: 7pt;
         }
+        .badge-sebagian {
+            color: #b45309;
+            font-weight: bold;
+            text-align: center;
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 6.5pt;
+        }
+        .check-sebagian {
+            color: #d97706;
+            font-weight: bold;
+        }
         .check-lunas {
             color: #047857;
             font-weight: bold;
@@ -268,6 +281,8 @@
                         <td style="text-align: center;">
                             @if($m['is_lunas'])
                                 <span class="check-lunas">✔</span>
+                            @elseif(!empty($m['is_sebagian']))
+                                <span class="check-sebagian" title="Sebagian: Rp {{ number_format($m['nominal_bayar'], 0, ',', '.') }}">◐</span>
                             @else
                                 <span class="check-empty">-</span>
                             @endif
@@ -285,6 +300,8 @@
                     <td style="text-align: center;">
                         @if($item['status'] === 'Lunas')
                             <span class="badge-lunas">Lunas</span>
+                        @elseif($item['status'] === 'Sebagian')
+                            <span class="badge-sebagian">Sebagian</span>
                         @else
                             <span class="badge-tunggak">Menunggak</span>
                         @endif

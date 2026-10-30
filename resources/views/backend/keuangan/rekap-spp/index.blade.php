@@ -315,21 +315,19 @@
                             @foreach($item['matriks_bulan'] as $m)
                                 <td class="py-3 px-2 text-center border-r border-[var(--border)] align-middle" id="cell-{{ $item['id'] }}-{{ $m['key'] }}">
                                     @if($m['is_lunas'])
-                                        {{-- 1. Status LUNAS (Checked) --}}
+                                        {{-- 1. Status LUNAS --}}
                                         <div class="flex flex-col items-center justify-center gap-1">
-                                            <label class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold cursor-pointer hover:bg-[var(--primary-100)] transition"
-                                                   title="{{ $m['is_historis'] ? 'Status: Lunas Historis. Klik untuk membatalkan.' : 'Status: Lunas Terverifikasi.' }}">
-                                                <input type="checkbox" 
-                                                       checked 
-                                                       onchange="handleCheckboxToggle({{ $item['id'] }}, '{{ $m['key'] }}', {{ $m['is_historis'] ? 'true' : 'false' }}, this)" 
-                                                       class="w-3.5 h-3.5 rounded-[2px] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">
+                                            <button type="button" 
+                                                    onclick="openModalHistoris({{ $item['id'] }}, '{{ addslashes($item['nama']) }}', '{{ $item['nim'] }}', '{{ $m['key'] }}', '{{ $m['nama'] }} {{ $m['year'] }}', {{ $item['nominal_spp'] }}, {{ (float)$m['nominal_bayar'] }}, {{ (float)$m['nominal_tunggakan'] }}, true, false, {{ !empty($m['is_historis']) ? 'true' : 'false' }})"
+                                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold hover:bg-[var(--primary-100)] transition cursor-pointer shadow-xs"
+                                                    title="{{ !empty($m['is_historis']) ? 'Lunas Historis (Rp ' . number_format($m['nominal_bayar'], 0, ',', '.') . '). Klik untuk kelola / batalkan.' : 'Lunas Terverifikasi Bank (Rp ' . number_format($m['nominal_bayar'], 0, ',', '.') . ').' }}">
                                                 <span>✔ Lunas</span>
                                                 @if(!empty($m['is_historis']))
                                                     <span class="text-[9px] px-1 bg-[var(--secondary-100)] text-[var(--secondary-800)] rounded-[2px] font-semibold">Hist</span>
                                                 @elseif(!empty($m['is_alokasi_lintas']))
                                                     <span class="text-[9px] px-1 bg-[var(--primary-200)]/60 text-[var(--primary-800)] rounded-[2px] font-semibold">Alok</span>
                                                 @endif
-                                            </label>
+                                            </button>
                                             
                                             @if(!empty($m['payment_id']))
                                                 <a href="{{ route('backend.keuangan.verifikasi.kwitansi-drive', $m['payment_id']) }}" 
@@ -341,8 +339,29 @@
                                                 </a>
                                             @endif
                                         </div>
+                                    @elseif(!empty($m['is_sebagian']))
+                                        {{-- 2. Status PEMBAYARAN SEBAGIAN (Cicilan) --}}
+                                        <div class="flex flex-col items-center justify-center gap-1">
+                                            <button type="button" 
+                                                    onclick="openModalHistoris({{ $item['id'] }}, '{{ addslashes($item['nama']) }}', '{{ $item['nim'] }}', '{{ $m['key'] }}', '{{ $m['nama'] }} {{ $m['year'] }}', {{ $item['nominal_spp'] }}, {{ (float)$m['nominal_bayar'] }}, {{ (float)$m['nominal_tunggakan'] }}, false, true, {{ !empty($m['is_historis']) ? 'true' : 'false' }})"
+                                                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-amber-50 text-amber-800 dark:text-amber-300 border border-amber-300 text-[10px] font-bold hover:bg-amber-100 transition cursor-pointer shadow-xs"
+                                                    title="Sebagian: Terbayar Rp {{ number_format($m['nominal_bayar'], 0, ',', '.') }} dari Rp {{ number_format($m['nominal_tagihan'], 0, ',', '.') }} (Kurang: Rp {{ number_format($m['nominal_tunggakan'], 0, ',', '.') }}). Klik untuk edit / bayar sisa.">
+                                                <span>◐ {{ number_format($m['nominal_bayar'] / 1000, 0) }}k</span>
+                                                <span class="text-[9px] px-1 bg-amber-200/70 text-amber-900 rounded-[2px] font-semibold">Cicil</span>
+                                            </button>
+                                            
+                                            @if(!empty($m['payment_id']))
+                                                <a href="{{ route('backend.keuangan.verifikasi.kwitansi-drive', $m['payment_id']) }}" 
+                                                   target="_blank" 
+                                                   class="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-semibold text-amber-700 hover:underline" 
+                                                   title="Buka / Unduh Kuitansi Cicilan">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                    <span>Kuitansi</span>
+                                                </a>
+                                            @endif
+                                        </div>
                                     @elseif(!empty($m['is_pending']))
-                                        {{-- 2. Status MENUNGGU VERIFIKASI (Unchecked, Amber) --}}
+                                        {{-- 3. Status MENUNGGU VERIFIKASI (Pending) --}}
                                         <div class="flex flex-col items-center justify-center gap-1">
                                             <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--secondary-50)] text-[var(--secondary-700)] dark:text-[var(--secondary-400)] border border-[var(--secondary-200)] text-[10px] font-semibold cursor-help"
                                                   title="Mahasiswa telah mengunggah bukti transfer. Menunggu verifikasi Admin di menu Verifikasi Pembayaran.">
@@ -354,15 +373,15 @@
                                             </a>
                                         </div>
                                     @else
-                                        {{-- 3. Status BELUM LUNAS / TUNGGAKAN AKTIF (Unchecked, Interaktif) --}}
+                                        {{-- 4. Status BELUM LUNAS / TUNGGAKAN AKTIF (Interaktif) --}}
                                         <div class="flex flex-col items-center justify-center">
-                                            <label class="inline-flex items-center gap-1.5 p-1 rounded-[var(--radius-xs)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] cursor-pointer transition text-[var(--text-muted)] hover:text-[var(--primary-700)]"
-                                                   title="Centang untuk menandai Lunas Historis (Menerbitkan Kuitansi otomatis tanpa menduplikasi kas)">
-                                                <input type="checkbox" 
-                                                       onchange="handleCheckboxToggle({{ $item['id'] }}, '{{ $m['key'] }}', false, this)" 
-                                                       class="w-4 h-4 rounded-[var(--radius-xs)] border-[var(--border)] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">
-                                                <span class="text-[10px] font-medium">-</span>
-                                            </label>
+                                            <button type="button" 
+                                                    onclick="openModalHistoris({{ $item['id'] }}, '{{ addslashes($item['nama']) }}', '{{ $item['nim'] }}', '{{ $m['key'] }}', '{{ $m['nama'] }} {{ $m['year'] }}', {{ $item['nominal_spp'] }}, 0, {{ $item['nominal_spp'] }}, false, false, false)"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--primary-700)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] cursor-pointer transition text-xs font-semibold group"
+                                                    title="Klik untuk memasukkan nominal pembayaran historis (lunas atau cicilan/sebagian)">
+                                                <span class="text-xs group-hover:scale-125 transition-transform font-bold text-slate-300 dark:text-zinc-600 group-hover:text-[var(--primary-600)]">+</span>
+                                                <span class="text-[10.5px]">-</span>
+                                            </button>
                                         </div>
                                     @endif
                                 </td>
@@ -399,6 +418,11 @@
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)]">
                                         <span class="w-1.5 h-1.5 rounded-full bg-[var(--primary-500)] mr-1.5"></span>
                                         Lunas
+                                    </span>
+                                @elseif($item['status'] === 'Sebagian')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-amber-50 text-amber-700 dark:text-amber-400 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                                        Sebagian
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-rose-50 text-[var(--danger)] border border-rose-200">
@@ -476,6 +500,139 @@
         </div>
     </div>
 
+</div>
+
+{{-- Modal Input / Edit Pembayaran Historis SPP --}}
+<div id="modalHistoris" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-historis-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeHistorisModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-[var(--radius-sm)] bg-[var(--surface)] border border-[var(--border)] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <form id="formHistoris" onsubmit="submitHistoris(event)">
+                <input type="hidden" id="hist_user_id" name="user_id">
+                <input type="hidden" id="hist_month_key" name="month_key">
+                <input type="hidden" id="hist_nominal_spp" name="nominal_spp">
+
+                {{-- Header --}}
+                <div class="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-page)]">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-[var(--primary-50)] text-[var(--primary-600)] flex items-center justify-center border border-[var(--primary-200)]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold font-display text-[var(--text-heading)]" id="hist_modal_title">Input Pembayaran SPP Historis</h3>
+                            <p class="text-[11px] text-[var(--text-muted)]" id="hist_mhs_info">Mahasiswa • Bulan</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeHistorisModal()" class="text-[var(--text-muted)] hover:text-[var(--text-heading)] p-1 rounded transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <div class="p-5 space-y-4">
+                    {{-- Warning jika pembayaran bank non-historis --}}
+                    <div id="hist_bank_warning" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-[var(--radius-xs)] text-xs text-blue-800 space-y-1">
+                        <p class="font-bold flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Pembayaran Terverifikasi Bank
+                        </p>
+                        <p class="text-[11px] leading-relaxed">
+                            Data pembayaran ini diverifikasi melalui bukti transfer mahasiswa. Anda dapat melihat kuitansi resmi atau mengelola verifikasi langsung melalui menu Verifikasi Pembayaran.
+                        </p>
+                    </div>
+
+                    {{-- Ringkasan Tagihan SPP Bulan Ini --}}
+                    <div class="grid grid-cols-2 gap-3 p-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs">
+                        <div>
+                            <span class="text-[11px] text-[var(--text-muted)] block">Tarif SPP Bulan Ini:</span>
+                            <span class="font-bold text-[var(--text-heading)] text-sm" id="hist_display_spp">Rp 300.000</span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-[var(--text-muted)] block">Tercatat Terbayar:</span>
+                            <span class="font-bold text-[var(--primary-600)] text-sm" id="hist_display_terbayar">Rp 0</span>
+                        </div>
+                    </div>
+
+                    {{-- Input Nominal Terbayar --}}
+                    <div id="hist_input_group">
+                        <label for="hist_nominal" class="block text-xs font-semibold text-[var(--text-heading)] mb-1">
+                            Nominal yang Dibayarkan (Rp) <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-bold text-[var(--text-muted)]">Rp</span>
+                            <input type="number" 
+                                   id="hist_nominal" 
+                                   name="nominal" 
+                                   min="1000" 
+                                   step="1000"
+                                   placeholder="0"
+                                   oninput="updateHistCalculation()"
+                                   required 
+                                   class="w-full pl-9 pr-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xs)] text-sm font-semibold text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                        </div>
+
+                        {{-- Preset Buttons --}}
+                        <div class="flex items-center gap-2 mt-2" id="hist_preset_buttons">
+                            <button type="button" onclick="setHistNominalPercent(1.0)" class="px-2.5 py-1 text-[11px] font-semibold rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-200)] hover:bg-[var(--primary-100)] transition cursor-pointer">
+                                100% (Lunas Penuh)
+                            </button>
+                            <button type="button" onclick="setHistNominalPercent(0.5)" class="px-2.5 py-1 text-[11px] font-semibold rounded-[var(--radius-xs)] bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">
+                                50% (Cicilan)
+                            </button>
+                            <button type="button" onclick="setHistNominalPercent(0.25)" class="px-2.5 py-1 text-[11px] font-semibold rounded-[var(--radius-xs)] bg-slate-100 dark:bg-zinc-800 text-[var(--text-body)] border border-[var(--border)] hover:bg-slate-200 transition cursor-pointer">
+                                25% (Cicilan)
+                            </button>
+                        </div>
+
+                        {{-- Realtime Calculation Preview --}}
+                        <div class="mt-3 p-2.5 rounded-[var(--radius-xs)] border border-[var(--border)] bg-[var(--surface)] text-xs" id="hist_calc_box">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[var(--text-muted)]">Status Setelah Input:</span>
+                                <span id="hist_calc_badge" class="font-bold"></span>
+                            </div>
+                            <div class="flex items-center justify-between mt-1 text-[11px]">
+                                <span class="text-[var(--text-muted)]">Sisa Tunggakan Bulan Ini:</span>
+                                <span id="hist_calc_sisa" class="font-bold text-[var(--text-heading)]">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <p class="text-[10px] text-[var(--text-muted)] mt-2 leading-relaxed">
+                            Pencatatan ini akan otomatis masuk ke <strong>Buku Kas (Riwayat Transaksi)</strong> bertanggal awal bulan terkait dan menerbitkan kuitansi pembayaran.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div class="px-5 py-3 border-t border-[var(--border)] bg-[var(--bg-page)] flex items-center justify-between">
+                    <button type="button" 
+                            id="btnHapusHistoris"
+                            onclick="deleteHistoris()" 
+                            class="hidden px-3 py-2 bg-rose-50 hover:bg-rose-100 text-[var(--danger)] border border-rose-200 rounded-[var(--radius-xs)] text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span>Batalkan Pembayaran</span>
+                    </button>
+                    <div class="flex items-center gap-2 ml-auto">
+                        <button type="button" onclick="closeHistorisModal()" class="px-3.5 py-2 bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--bg-page)] text-[var(--text-body)] text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
+                            Tutup
+                        </button>
+                        <button type="submit" id="btnSimpanHistoris" class="px-4 py-2 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Simpan Pembayaran</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 {{-- Modal Catatan Khusus Rekap SPP --}}
@@ -657,25 +814,120 @@
         if (footPersen) footPersen.textContent = persen + '% lunas';
     }
 
-    function handleCheckboxToggle(userId, monthKey, isHistorisAlready, cb) {
-        var targetAction = cb.checked ? 'check' : 'uncheck';
+    // --- State Global untuk Modal Historis ---
+    var currentHistMhs = {};
 
-        if (!cb.checked && !isHistorisAlready) {
-            alert('Pembayaran ini merupakan pembayaran via verifikasi transfer bank. Pembatalan harus dilakukan melalui menu Verifikasi Pembayaran.');
-            cb.checked = true;
+    function openModalHistoris(userId, nama, nim, monthKey, monthLabel, nominalSpp, nominalBayar, nominalTunggakan, isLunas, isSebagian, isHistoris) {
+        currentHistMhs = {
+            userId: userId,
+            nama: nama,
+            nim: nim,
+            monthKey: monthKey,
+            monthLabel: monthLabel,
+            nominalSpp: Number(nominalSpp) || 300000,
+            nominalBayar: Number(nominalBayar) || 0,
+            nominalTunggakan: Number(nominalTunggakan) || 0,
+            isLunas: Boolean(isLunas),
+            isSebagian: Boolean(isSebagian),
+            isHistoris: Boolean(isHistoris)
+        };
+
+        document.getElementById('hist_user_id').value = userId;
+        document.getElementById('hist_month_key').value = monthKey;
+        document.getElementById('hist_nominal_spp').value = currentHistMhs.nominalSpp;
+        document.getElementById('hist_mhs_info').textContent = nama + ' (NIM: ' + nim + ') • SPP ' + monthLabel;
+        document.getElementById('hist_display_spp').textContent = formatRupiah(currentHistMhs.nominalSpp);
+        document.getElementById('hist_display_terbayar').textContent = formatRupiah(currentHistMhs.nominalBayar);
+
+        var modalTitle = document.getElementById('hist_modal_title');
+        var inputGroup = document.getElementById('hist_input_group');
+        var bankWarning = document.getElementById('hist_bank_warning');
+        var btnSimpan = document.getElementById('btnSimpanHistoris');
+        var btnHapus = document.getElementById('btnHapusHistoris');
+        var nominalInput = document.getElementById('hist_nominal');
+
+        if (!isLunas && !isSebagian) {
+            // Kasus 1: Belum Lunas
+            modalTitle.textContent = 'Input Pembayaran SPP Historis';
+            inputGroup.classList.remove('hidden');
+            bankWarning.classList.add('hidden');
+            btnSimpan.classList.remove('hidden');
+            btnHapus.classList.add('hidden');
+            nominalInput.value = currentHistMhs.nominalSpp;
+        } else if (isHistoris) {
+            // Kasus 2: Sudah Ada Pembayaran Historis (Lunas atau Sebagian)
+            modalTitle.textContent = isLunas ? 'Kelola Pelunasan SPP Historis' : 'Kelola Cicilan SPP Historis';
+            inputGroup.classList.remove('hidden');
+            bankWarning.classList.add('hidden');
+            btnSimpan.classList.remove('hidden');
+            btnHapus.classList.remove('hidden');
+            nominalInput.value = currentHistMhs.nominalBayar > 0 ? currentHistMhs.nominalBayar : currentHistMhs.nominalSpp;
+        } else {
+            // Kasus 3: Pembayaran via Bank Terverifikasi
+            modalTitle.textContent = 'Detail Pembayaran SPP (Verifikasi Bank)';
+            inputGroup.classList.add('hidden');
+            bankWarning.classList.remove('hidden');
+            btnSimpan.classList.add('hidden');
+            btnHapus.classList.add('hidden');
+        }
+
+        updateHistCalculation();
+        document.getElementById('modalHistoris').classList.remove('hidden');
+    }
+
+    function closeHistorisModal() {
+        document.getElementById('modalHistoris').classList.add('hidden');
+    }
+
+    function setHistNominalPercent(ratio) {
+        var nominalSpp = Number(document.getElementById('hist_nominal_spp').value) || 300000;
+        var val = Math.round(nominalSpp * ratio);
+        document.getElementById('hist_nominal').value = val;
+        updateHistCalculation();
+    }
+
+    function updateHistCalculation() {
+        var nominalSpp = Number(document.getElementById('hist_nominal_spp').value) || 300000;
+        var inputNominal = Number(document.getElementById('hist_nominal').value) || 0;
+        var sisa = Math.max(0, nominalSpp - inputNominal);
+
+        var badgeEl = document.getElementById('hist_calc_badge');
+        var sisaEl = document.getElementById('hist_calc_sisa');
+
+        if (inputNominal >= nominalSpp && nominalSpp > 0) {
+            badgeEl.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-xs)] bg-emerald-100 text-emerald-800 text-[11px] font-bold';
+            badgeEl.innerHTML = '✔ Lunas Penuh';
+            sisaEl.textContent = 'Rp 0 (Lunas)';
+            sisaEl.className = 'font-bold text-emerald-600';
+        } else if (inputNominal > 0) {
+            var pct = Math.round((inputNominal / nominalSpp) * 100);
+            badgeEl.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-xs)] bg-amber-100 text-amber-800 text-[11px] font-bold';
+            badgeEl.innerHTML = '◐ Pembayaran Sebagian (' + pct + '%)';
+            sisaEl.textContent = formatRupiah(sisa);
+            sisaEl.className = 'font-bold text-amber-600';
+        } else {
+            badgeEl.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-xs)] bg-rose-100 text-rose-800 text-[11px] font-bold';
+            badgeEl.innerHTML = 'Belum Ada Pembayaran';
+            sisaEl.textContent = formatRupiah(nominalSpp);
+            sisaEl.className = 'font-bold text-[var(--danger)]';
+        }
+    }
+
+    function submitHistoris(event) {
+        event.preventDefault();
+        var userId = document.getElementById('hist_user_id').value;
+        var monthKey = document.getElementById('hist_month_key').value;
+        var inputNominal = Number(document.getElementById('hist_nominal').value) || 0;
+
+        if (inputNominal <= 0) {
+            alert('Silakan masukkan nominal pembayaran yang valid (minimal Rp 1.000).');
             return;
         }
 
-        if (!cb.checked && isHistorisAlready) {
-            if (!confirm('Apakah Anda yakin ingin membatalkan status LUNAS historis pada bulan ini dan mengembalikannya ke TUNGGAKAN?')) {
-                cb.checked = true;
-                return;
-            }
-        }
-
-        var cell = document.getElementById('cell-' + userId + '-' + monthKey);
-        var originalContent = cell.innerHTML;
-        cell.innerHTML = '<span class="inline-block animate-spin text-[var(--primary-600)]">⟳</span>';
+        var btnSimpan = document.getElementById('btnSimpanHistoris');
+        var originalBtnHtml = btnSimpan.innerHTML;
+        btnSimpan.disabled = true;
+        btnSimpan.innerHTML = '<span class="inline-block animate-spin">⟳</span> Menyimpan...';
 
         fetch('{{ route("backend.keuangan.rekap-spp.toggle-historis") }}', {
             method: 'POST',
@@ -687,7 +939,8 @@
             body: JSON.stringify({
                 user_id: userId,
                 month_key: monthKey,
-                action: targetAction,
+                action: 'check',
+                nominal: inputNominal,
                 tahun_akademik: '{{ $tahunAkademik }}',
                 tipe_semester: '{{ $tipeSemester }}'
             })
@@ -696,104 +949,194 @@
             return res.json();
         })
         .then(function(data) {
+            btnSimpan.disabled = false;
+            btnSimpan.innerHTML = originalBtnHtml;
+
             if (data.success) {
+                closeHistorisModal();
                 showToast(data.message, true);
 
-                if (data.is_lunas) {
-                    var kwitansiBtn = '';
-                    if (data.kwitansi_url) {
-                        kwitansiBtn = '<a href="' + data.kwitansi_url + '" target="_blank" class="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-semibold text-[var(--primary-600)] hover:underline" title="Buka / Unduh Kuitansi">' +
-                            '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
-                            '<span>Kuitansi</span></a>';
-                    }
-
-                    cell.innerHTML = '<div class="flex flex-col items-center justify-center gap-1">' +
-                        '<label class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold cursor-pointer hover:bg-[var(--primary-100)] transition" title="Status: Lunas Historis. Klik untuk membatalkan.">' +
-                            '<input type="checkbox" checked onchange="handleCheckboxToggle(' + userId + ', \'' + monthKey + '\', true, this)" class="w-3.5 h-3.5 rounded-[2px] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">' +
-                            '<span>✔ Lunas</span>' +
-                            '<span class="text-[9px] px-1 bg-[var(--secondary-100)] text-[var(--secondary-800)] rounded-[2px] font-semibold">Hist</span>' +
-                        '</label>' + kwitansiBtn +
-                    '</div>';
-                } else {
-                    cell.innerHTML = '<div class="flex flex-col items-center justify-center">' +
-                        '<label class="inline-flex items-center gap-1.5 p-1 rounded-[var(--radius-xs)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] cursor-pointer transition text-[var(--text-muted)] hover:text-[var(--primary-700)]" title="Centang untuk menandai Lunas Historis">' +
-                            '<input type="checkbox" onchange="handleCheckboxToggle(' + userId + ', \'' + monthKey + '\', false, this)" class="w-4 h-4 rounded-[var(--radius-xs)] border-[var(--border)] text-[var(--primary-600)] focus:ring-[var(--primary-500)] cursor-pointer">' +
-                            '<span class="text-[10px] font-medium">-</span>' +
-                        '</label>' +
-                    '</div>';
+                if (data.cell) {
+                    renderCellContent(userId, monthKey, data.cell, currentHistMhs.nominalSpp);
                 }
-
-                // Update Row Statistics in DOM
                 if (data.row) {
-                    var rowEl = document.getElementById('row-mhs-' + userId);
-                    if (rowEl) {
-                        rowEl.dataset.bulanMenunggak = data.row.bulan_menunggak;
-                        rowEl.dataset.tagihan = data.row.tagihan;
-                        rowEl.dataset.dibayar = data.row.total_dibayar;
-                        rowEl.dataset.sisa = data.row.sisa_tunggakan;
-                        rowEl.dataset.status = data.row.status;
-                    }
-
-                    // 1. Tgk
-                    var tgkEl = document.getElementById('mhs-tgk-' + userId);
-                    if (tgkEl) {
-                        tgkEl.textContent = data.row.bulan_menunggak;
-                        if (data.row.bulan_menunggak > 0) {
-                            tgkEl.className = 'py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold text-[var(--danger)]';
-                        } else {
-                            tgkEl.className = 'py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold text-[var(--primary-600)]';
-                        }
-                    }
-
-                    // 2. Tagihan
-                    var tagihanEl = document.getElementById('mhs-tagihan-' + userId);
-                    if (tagihanEl) {
-                        tagihanEl.textContent = data.row.tagihan_formatted;
-                    }
-
-                    // 3. Dibayar
-                    var dibayarEl = document.getElementById('mhs-dibayar-' + userId);
-                    if (dibayarEl) {
-                        dibayarEl.textContent = data.row.dibayar_formatted;
-                    }
-
-                    // 4. Sisa
-                    var sisaEl = document.getElementById('mhs-sisa-' + userId);
-                    if (sisaEl) {
-                        sisaEl.textContent = data.row.sisa_formatted;
-                        if (data.row.sisa_tunggakan > 0) {
-                            sisaEl.className = 'py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--danger)] font-semibold';
-                        } else {
-                            sisaEl.className = 'py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--text-muted)]';
-                        }
-                    }
-
-                    // 5. Status
-                    var statusEl = document.getElementById('mhs-status-' + userId);
-                    if (statusEl) {
-                        if (data.row.status === 'Lunas') {
-                            statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)]">' +
-                                '<span class="w-1.5 h-1.5 rounded-full bg-[var(--primary-500)] mr-1.5"></span>' +
-                                'Lunas</span>';
-                        } else {
-                            statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-rose-50 text-[var(--danger)] border border-rose-200">' +
-                                '<span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)] mr-1.5"></span>' +
-                                'Menunggak</span>';
-                        }
-                    }
-
-                    // Recalculate Totals
-                    recalculateSummaryTotals();
+                    updateRowStats(userId, data.row);
                 }
             } else {
                 showToast(data.message || 'Terjadi kesalahan.', false);
-                cell.innerHTML = originalContent;
             }
         })
         .catch(function(err) {
-            showToast('Gagal memproses permintaan: ' + err.message, false);
-            cell.innerHTML = originalContent;
+            btnSimpan.disabled = false;
+            btnSimpan.innerHTML = originalBtnHtml;
+            showToast('Gagal memproses pembayaran: ' + err.message, false);
         });
+    }
+
+    function deleteHistoris() {
+        if (!confirm('Apakah Anda yakin ingin membatalkan pencatatan pembayaran historis ini dan mengembalikannya ke status tunggakan?')) {
+            return;
+        }
+
+        var userId = document.getElementById('hist_user_id').value;
+        var monthKey = document.getElementById('hist_month_key').value;
+        var btnHapus = document.getElementById('btnHapusHistoris');
+        var originalBtnHtml = btnHapus.innerHTML;
+        btnHapus.disabled = true;
+        btnHapus.innerHTML = '<span class="inline-block animate-spin">⟳</span> Membatalkan...';
+
+        fetch('{{ route("backend.keuangan.rekap-spp.toggle-historis") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                month_key: monthKey,
+                action: 'uncheck',
+                tahun_akademik: '{{ $tahunAkademik }}',
+                tipe_semester: '{{ $tipeSemester }}'
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(data) {
+            btnHapus.disabled = false;
+            btnHapus.innerHTML = originalBtnHtml;
+
+            if (data.success) {
+                closeHistorisModal();
+                showToast(data.message, true);
+
+                if (data.cell) {
+                    renderCellContent(userId, monthKey, data.cell, currentHistMhs.nominalSpp);
+                }
+                if (data.row) {
+                    updateRowStats(userId, data.row);
+                }
+            } else {
+                showToast(data.message || 'Terjadi kesalahan.', false);
+            }
+        })
+        .catch(function(err) {
+            btnHapus.disabled = false;
+            btnHapus.innerHTML = originalBtnHtml;
+            showToast('Gagal membatalkan pembayaran: ' + err.message, false);
+        });
+    }
+
+    function renderCellContent(userId, monthKey, cellData, nominalSpp) {
+        var cell = document.getElementById('cell-' + userId + '-' + monthKey);
+        if (!cell) return;
+
+        var mhsNama = currentHistMhs.nama || '';
+        var mhsNim = currentHistMhs.nim || '';
+        var monthLabel = currentHistMhs.monthLabel || '';
+
+        if (cellData.is_lunas) {
+            var kwitansiBtn = '';
+            if (cellData.kwitansi_url) {
+                kwitansiBtn = '<a href="' + cellData.kwitansi_url + '" target="_blank" class="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-semibold text-[var(--primary-600)] hover:underline" title="Buka / Unduh Kuitansi">' +
+                    '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
+                    '<span>Kuitansi</span></a>';
+            }
+
+            cell.innerHTML = '<div class="flex flex-col items-center justify-center gap-1">' +
+                '<button type="button" onclick="openModalHistoris(' + userId + ', \'' + addslashes(mhsNama) + '\', \'' + mhsNim + '\', \'' + monthKey + '\', \'' + monthLabel + '\', ' + nominalSpp + ', ' + cellData.nominal_bayar + ', ' + cellData.sisa_bulan + ', true, false, true)" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-300)] text-[10.5px] font-bold hover:bg-[var(--primary-100)] transition cursor-pointer shadow-xs" title="Lunas Historis. Klik untuk kelola / batalkan.">' +
+                    '<span>✔ Lunas</span>' +
+                    '<span class="text-[9px] px-1 bg-[var(--secondary-100)] text-[var(--secondary-800)] rounded-[2px] font-semibold">Hist</span>' +
+                '</button>' + kwitansiBtn +
+            '</div>';
+        } else if (cellData.is_sebagian) {
+            var kwitansiBtn = '';
+            if (cellData.kwitansi_url) {
+                kwitansiBtn = '<a href="' + cellData.kwitansi_url + '" target="_blank" class="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-semibold text-amber-700 hover:underline" title="Buka / Unduh Kuitansi">' +
+                    '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
+                    '<span>Kuitansi</span></a>';
+            }
+            var ribuan = Math.round(cellData.nominal_bayar / 1000);
+
+            cell.innerHTML = '<div class="flex flex-col items-center justify-center gap-1">' +
+                '<button type="button" onclick="openModalHistoris(' + userId + ', \'' + addslashes(mhsNama) + '\', \'' + mhsNim + '\', \'' + monthKey + '\', \'' + monthLabel + '\', ' + nominalSpp + ', ' + cellData.nominal_bayar + ', ' + cellData.sisa_bulan + ', false, true, true)" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-amber-50 text-amber-800 dark:text-amber-300 border border-amber-300 text-[10px] font-bold hover:bg-amber-100 transition cursor-pointer shadow-xs" title="Sebagian: Terbayar ' + formatRupiah(cellData.nominal_bayar) + '. Klik untuk kelola / bayar sisa.">' +
+                    '<span>◐ ' + ribuan + 'k</span>' +
+                    '<span class="text-[9px] px-1 bg-amber-200/70 text-amber-900 rounded-[2px] font-semibold">Cicil</span>' +
+                '</button>' + kwitansiBtn +
+            '</div>';
+        } else {
+            cell.innerHTML = '<div class="flex flex-col items-center justify-center">' +
+                '<button type="button" onclick="openModalHistoris(' + userId + ', \'' + addslashes(mhsNama) + '\', \'' + mhsNim + '\', \'' + monthKey + '\', \'' + monthLabel + '\', ' + nominalSpp + ', 0, ' + nominalSpp + ', false, false, false)" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--primary-700)] hover:bg-[var(--primary-50)] border border-transparent hover:border-[var(--primary-200)] cursor-pointer transition text-xs font-semibold group" title="Klik untuk mencatat pembayaran historis">' +
+                    '<span class="text-xs group-hover:scale-125 transition-transform font-bold text-slate-300 dark:text-zinc-600 group-hover:text-[var(--primary-600)]">+</span>' +
+                    '<span class="text-[10.5px]">-</span>' +
+                '</button>' +
+            '</div>';
+        }
+    }
+
+    function addslashes(str) {
+        return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+    }
+
+    function updateRowStats(userId, rowData) {
+        var rowEl = document.getElementById('row-mhs-' + userId);
+        if (rowEl) {
+            rowEl.dataset.bulanMenunggak = rowData.bulan_menunggak;
+            rowEl.dataset.tagihan = rowData.tagihan;
+            rowEl.dataset.dibayar = rowData.total_dibayar;
+            rowEl.dataset.sisa = rowData.sisa_tunggakan;
+            rowEl.dataset.status = rowData.status;
+        }
+
+        var tgkEl = document.getElementById('mhs-tgk-' + userId);
+        if (tgkEl) {
+            tgkEl.textContent = rowData.bulan_menunggak;
+            if (rowData.bulan_menunggak > 0) {
+                tgkEl.className = 'py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold text-[var(--danger)]';
+            } else {
+                tgkEl.className = 'py-3 px-2 text-center border-r border-[var(--border)] tabular-nums font-semibold text-[var(--primary-600)]';
+            }
+        }
+
+        var tagihanEl = document.getElementById('mhs-tagihan-' + userId);
+        if (tagihanEl) {
+            tagihanEl.textContent = rowData.tagihan_formatted;
+        }
+
+        var dibayarEl = document.getElementById('mhs-dibayar-' + userId);
+        if (dibayarEl) {
+            dibayarEl.textContent = rowData.dibayar_formatted;
+        }
+
+        var sisaEl = document.getElementById('mhs-sisa-' + userId);
+        if (sisaEl) {
+            sisaEl.textContent = rowData.sisa_formatted;
+            if (rowData.sisa_tunggakan > 0) {
+                sisaEl.className = 'py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--danger)] font-semibold';
+            } else {
+                sisaEl.className = 'py-3 px-3 text-right border-r border-[var(--border)] tabular-nums text-[var(--text-muted)]';
+            }
+        }
+
+        var statusEl = document.getElementById('mhs-status-' + userId);
+        if (statusEl) {
+            if (rowData.status === 'Lunas') {
+                statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-[var(--primary-50)] text-[var(--primary-600)] border border-[var(--primary-200)]">' +
+                    '<span class="w-1.5 h-1.5 rounded-full bg-[var(--primary-500)] mr-1.5"></span>' +
+                    'Lunas</span>';
+            } else if (rowData.status === 'Sebagian') {
+                statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-amber-50 text-amber-700 dark:text-amber-400 border border-amber-200">' +
+                    '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>' +
+                    'Sebagian</span>';
+            } else {
+                statusEl.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-semibold bg-rose-50 text-[var(--danger)] border border-rose-200">' +
+                    '<span class="w-1.5 h-1.5 rounded-full bg-[var(--danger)] mr-1.5"></span>' +
+                    'Menunggak</span>';
+            }
+        }
+
+        recalculateSummaryTotals();
     }
 
     // --- Catatan Khusus Modal & AJAX ---
