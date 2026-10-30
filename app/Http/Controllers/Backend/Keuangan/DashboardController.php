@@ -74,7 +74,9 @@ class DashboardController extends Controller
         // 2. DYNAMIC MONTH FILTER (Laporan Keuangan Bulanan)
         // -----------------------------------------------------------------
         // Generate list of months dynamically from earliest transaction (or at least past 12 months) up to now()
-        $earliestCreated = Pembayaran::min('created_at') ?? Tagihan::min('created_at');
+        $earliestCreated = TransaksiKeuangan::min('tanggal_transaksi') 
+            ?? Pembayaran::min('created_at') 
+            ?? Tagihan::min('created_at');
         $startRange = $earliestCreated ? Carbon::parse($earliestCreated)->startOfMonth() : $now->copy()->subMonths(11)->startOfMonth();
 
         // Pastikan minimal 12 bulan terakhir tersedia di dropdown
@@ -132,8 +134,21 @@ class DashboardController extends Controller
         // 3. LAPORAN KEUANGAN BULANAN - BARIS 1 (4 KOLOM)
         // -----------------------------------------------------------------
         // Transaksi pembayaran terverifikasi pada bulan yang dipilih
+        // Mencakup alokasi bulan SPP yang sesuai (bulan_alokasi / catatan_alokasi)
+        // dan/atau tanggal transaksi kas yang jatuh di bulan terpilih
         $pembayaranBulanIni = Pembayaran::where('status', 'verified')
-            ->whereBetween('updated_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
+            ->where(function ($q) use ($selectedPeriode, $startOfSelectedMonth, $endOfSelectedMonth) {
+                $q->whereJsonContains('bulan_alokasi', $selectedPeriode)
+                  ->orWhere('catatan_alokasi', 'like', "%{$selectedPeriode}%")
+                  ->orWhereHas('transaksiKeuangan', function ($tx) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                      $tx->whereBetween('tanggal_transaksi', [$startOfSelectedMonth, $endOfSelectedMonth]);
+                  })
+                  ->orWhere(function ($fallback) use ($startOfSelectedMonth, $endOfSelectedMonth) {
+                      $fallback->whereNull('bulan_alokasi')
+                               ->whereDoesntHave('transaksiKeuangan')
+                               ->whereBetween('created_at', [$startOfSelectedMonth, $endOfSelectedMonth]);
+                  });
+            });
 
         // 1. Total Pemasukan SPP
         $pemasukanSppMhs = (float) (clone $pembayaranBulanIni)
@@ -179,7 +194,17 @@ class DashboardController extends Controller
             ->sum('nominal');
 
         $pemasukanSebelumnyaMhs = (float) Pembayaran::where('status', 'verified')
-            ->where('updated_at', '<', $startOfSelectedMonth)
+            ->where(function ($q) use ($startOfSelectedMonth, $selectedPeriode) {
+                $q->whereHas('transaksiKeuangan', function ($tx) use ($startOfSelectedMonth) {
+                    $tx->where('tanggal_transaksi', '<', $startOfSelectedMonth);
+                })->orWhere(function ($sub) use ($startOfSelectedMonth, $selectedPeriode) {
+                    $sub->whereDoesntHave('transaksiKeuangan')
+                        ->where(function ($sub2) use ($startOfSelectedMonth, $selectedPeriode) {
+                            $sub2->where('created_at', '<', $startOfSelectedMonth)
+                                 ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(bulan_alokasi, '$[0]')) < ?", [$selectedPeriode]);
+                        });
+                });
+            })
             ->sum('nominal');
 
         $pemasukanSebelumnyaInternal = (float) TransaksiKeuangan::where('jenis_transaksi', 'masuk')

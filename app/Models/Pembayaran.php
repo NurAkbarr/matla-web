@@ -22,6 +22,8 @@ class Pembayaran extends Model
         'bulan_alokasi',
         'tahun_akademik_id',
         'catatan_alokasi',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [

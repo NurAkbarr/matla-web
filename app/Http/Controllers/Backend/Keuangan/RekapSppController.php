@@ -9,6 +9,7 @@ use App\Models\MasterSemester;
 use App\Models\MasterTahunAkademik;
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
+use App\Models\TransaksiKeuangan;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -62,7 +63,7 @@ class RekapSppController extends Controller
 
     /**
      * Toggle Checkbox Pembayaran Historis (Masa Lalu)
-     * Menerbitkan kuitansi historis tanpa menduplikasi transaksi buku kas berjalan.
+     * Otomatis sinkronisasi ke tabel transaksi_keuangans (Buku Kas) dengan tanggal historis akurat.
      */
     public function toggleHistoris(Request $request)
     {
@@ -95,85 +96,168 @@ class RekapSppController extends Controller
         ];
         $bNama = $monthNames[$monthNum] ?? "Bulan {$monthNum}";
         $tagihanNama = "SPP " . strtoupper($bNama) . " {$year}";
+        $deskripsiTransaksi = "Pelunasan SPP Bulan {$bNama} {$year} (Catatan Historis)";
+        $tanggalKas = Carbon::createFromDate($year, $monthNum, 1)->setTime(10, 0, 0);
 
         $kwitansiNo = null;
         $kwitansiUrl = null;
         $pembayaranId = null;
 
         if ($action === 'check') {
-            // 1. Temukan atau gunakan Tagihan yang sudah ada untuk bulan ini (anti-duplikasi: gunakan helper terpusat)
+            // 1. Temukan atau buat Tagihan untuk bulan historis ini
             $studentTagihans = Tagihan::where('user_id', $student->id)->get();
             $tagihan = $studentTagihans->first(function ($t) use ($monthNum, $year, $bNama) {
                 return Tagihan::isMatchingSppMonth($t, $monthNum, $year, $bNama);
             });
 
             if (!$tagihan) {
-                $tagihan = Tagihan::create([
-                    'user_id' => $student->id,
-                    'nama_tagihan' => $tagihanNama,
-                    'nominal_total' => $nominalSpp,
-                    'sisa_tagihan' => 0,
-                    'status' => 'lunas',
-                    'jenis_tagihan' => 'lunas',
-                    'keterangan' => "Pencatatan Tagihan SPP Historis Bulan {$bNama} {$year}",
-                    'jatuh_tempo' => "{$year}-" . sprintf('%02d', $monthNum) . "-10",
-                ]);
+                $tagihan = new Tagihan();
+                $tagihan->user_id = $student->id;
+                $tagihan->nama_tagihan = $tagihanNama;
+                $tagihan->nominal_total = $nominalSpp;
+                $tagihan->sisa_tagihan = 0;
+                $tagihan->status = 'lunas';
+                $tagihan->jenis_tagihan = 'lunas';
+                $tagihan->keterangan = "Pencatatan Tagihan SPP Historis Bulan {$bNama} {$year}";
+                $tagihan->jatuh_tempo = "{$year}-" . sprintf('%02d', $monthNum) . "-10";
+                $tagihan->created_at = $tanggalKas;
+                $tagihan->updated_at = $tanggalKas;
+                $tagihan->save();
             } else {
-                $tagihan->update([
-                    'status' => 'lunas',
-                    'sisa_tagihan' => 0,
-                ]);
+                $tagihan->status = 'lunas';
+                $tagihan->sisa_tagihan = 0;
+                $tagihan->save();
             }
 
-            // 2. Terbitkan Kuitansi Pembayaran Historis
-            $kwitansiNo = 'INV/' . date('Ym') . '/HIST-' . str_pad($student->id, 3, '0', STR_PAD_LEFT) . strtoupper(Str::random(3));
+            // 2. Terbitkan / Sinkron Kuitansi Pembayaran Historis
+            $kwitansiNo = 'INV/' . sprintf('%04d%02d', $year, $monthNum) . '/HIST-' . str_pad($student->id, 3, '0', STR_PAD_LEFT) . strtoupper(Str::random(3));
 
-            // Cek apakah sudah ada pembayaran verified untuk bulan ini
             $existingPay = Pembayaran::where('user_id', $student->id)
                 ->where('status', 'verified')
-                ->where(function ($q) use ($monthKey) {
-                    $q->whereJsonContains('bulan_alokasi', $monthKey);
+                ->where(function ($q) use ($monthKey, $tagihan) {
+                    $q->whereJsonContains('bulan_alokasi', $monthKey)
+                      ->orWhere('tagihan_id', $tagihan->id);
                 })->first();
 
             if (!$existingPay) {
-                $pembayaran = Pembayaran::create([
-                    'tagihan_id' => $tagihan->id,
-                    'user_id' => $student->id,
-                    'jenis_pembayaran' => 'lunas',
-                    'nominal' => $nominalSpp,
-                    'bukti_tf' => 'historis',
-                    'kwitansi' => $kwitansiNo,
-                    'status' => 'verified',
-                    'bulan_alokasi' => [$monthKey],
-                    'catatan' => 'Pencatatan Pembayaran Historis (Catatan Drive / Rekening Masa Lalu)',
-                    'catatan_alokasi' => "Pelunasan historis bulan {$bNama} {$year}",
-                    'created_at' => Carbon::createFromDate($year, $monthNum, 1),
-                ]);
+                $pembayaran = new Pembayaran();
+                $pembayaran->tagihan_id = $tagihan->id;
+                $pembayaran->user_id = $student->id;
+                $pembayaran->jenis_pembayaran = 'lunas';
+                $pembayaran->nominal = $nominalSpp;
+                $pembayaran->bukti_tf = 'historis';
+                $pembayaran->kwitansi = $kwitansiNo;
+                $pembayaran->status = 'verified';
+                $pembayaran->bulan_alokasi = [$monthKey];
+                $pembayaran->catatan = $deskripsiTransaksi;
+                $pembayaran->catatan_alokasi = $deskripsiTransaksi;
+                $pembayaran->created_at = $tanggalKas;
+                $pembayaran->updated_at = $tanggalKas;
+                $pembayaran->save();
             } else {
                 $pembayaran = $existingPay;
-                $kwitansiNo = $pembayaran->kwitansi;
+                if (!empty($pembayaran->kwitansi)) {
+                    $kwitansiNo = $pembayaran->kwitansi;
+                } else {
+                    $pembayaran->kwitansi = $kwitansiNo;
+                }
+                $pembayaran->status = 'verified';
+                $pembayaran->bulan_alokasi = [$monthKey];
+                $pembayaran->catatan = $deskripsiTransaksi;
+                $pembayaran->catatan_alokasi = $deskripsiTransaksi;
+                $pembayaran->created_at = $tanggalKas;
+                $pembayaran->updated_at = $tanggalKas;
+                $pembayaran->save();
             }
 
             $pembayaranId = $pembayaran->id;
             $kwitansiUrl = route('backend.keuangan.verifikasi.kwitansi-drive', $pembayaran->id);
+
+            // 3. Otomatis Catat Transaksi Kas ke Buku Kas (transaksi_keuangans)
+            $prodi = $student->education['program_studi'] ?? ($student->prodi ?? null);
+            $subjekParts = [$student->name];
+            if (!empty($student->nim)) {
+                $subjekParts[] = "(NIM: {$student->nim})";
+            }
+            $subjek = implode(' ', $subjekParts);
+            if (!empty($prodi)) {
+                $subjek .= " • {$prodi}";
+            }
+
+            $adminUser = auth()->user();
+            $kodeTransaksi = 'TRX-SPP-' . $pembayaran->id . '-' . $tanggalKas->format('Ymd') . '-' . strtoupper(Str::random(4));
+
+            $transaksi = TransaksiKeuangan::where('pembayaran_id', $pembayaran->id)->first();
+            if (!$transaksi) {
+                $transaksi = TransaksiKeuangan::where('tagihan_id', $tagihan->id)
+                    ->where('user_id', $student->id)
+                    ->first();
+            }
+
+            if (!$transaksi) {
+                $transaksi = new TransaksiKeuangan();
+                $transaksi->kode_transaksi = $kodeTransaksi;
+                $transaksi->pembayaran_id = $pembayaran->id;
+            }
+
+            $transaksi->jenis_transaksi = 'masuk';
+            $transaksi->kategori = 'Pembayaran SPP';
+            $transaksi->nominal = $nominalSpp;
+            $transaksi->tanggal_transaksi = $tanggalKas;
+            $transaksi->metode_pembayaran = 'Kas / Tunai';
+            $transaksi->subjek = $subjek;
+            $transaksi->user_id = $student->id;
+            $transaksi->tagihan_id = $tagihan->id;
+            $transaksi->pembayaran_id = $pembayaran->id;
+            $transaksi->admin_id = $adminUser ? $adminUser->id : null;
+            $transaksi->admin_nama = $adminUser ? $adminUser->name : 'Admin Keuangan';
+            $transaksi->deskripsi = $deskripsiTransaksi;
+            $transaksi->bukti = 'historis';
+            $transaksi->no_referensi = $kwitansiNo;
+            $transaksi->status = 'verified';
+            $transaksi->created_at = $tanggalKas;
+            $transaksi->updated_at = $tanggalKas;
+            $transaksi->save();
+
         } else {
-            // UNCHECK: Membatalkan pencatatan historis
+            // UNCHECK: Membatalkan pencatatan historis dan menghapus mutasi kas terkait
             $historicalPay = Pembayaran::where('user_id', $student->id)
                 ->where(function ($q) use ($monthKey) {
                     $q->whereJsonContains('bulan_alokasi', $monthKey)
-                      ->orWhere('catatan_alokasi', 'like', "%{$monthKey}%");
-                })
-                ->where(function ($q) {
-                    $q->where('bukti_tf', 'historis')
-                      ->orWhere('catatan', 'like', '%Historis%');
+                      ->orWhere('catatan_alokasi', 'like', "%{$monthKey}%")
+                      ->orWhere('catatan', 'like', "%{$monthKey}%");
                 })
                 ->first();
 
             if ($historicalPay) {
                 $tagihan = $historicalPay->tagihan;
+                // Hapus Transaksi Keuangan (Buku Kas)
+                TransaksiKeuangan::where('pembayaran_id', $historicalPay->id)->delete();
+                if ($tagihan) {
+                    TransaksiKeuangan::where('tagihan_id', $tagihan->id)->delete();
+                }
+                // Hapus record pembayaran
                 $historicalPay->delete();
 
                 if ($tagihan) {
+                    $tagihan->update([
+                        'status' => 'belum lunas',
+                        'sisa_tagihan' => $tagihan->nominal_total ?: $nominalSpp,
+                    ]);
+                }
+            } else {
+                // Fallback jika pembayaran tidak ditemukan via query di atas tapi tagihannya ada
+                $studentTagihans = Tagihan::where('user_id', $student->id)->get();
+                $tagihan = $studentTagihans->first(function ($t) use ($monthNum, $year, $bNama) {
+                    return Tagihan::isMatchingSppMonth($t, $monthNum, $year, $bNama);
+                });
+                if ($tagihan) {
+                    TransaksiKeuangan::where('tagihan_id', $tagihan->id)->delete();
+                    $pembayarans = Pembayaran::where('tagihan_id', $tagihan->id)->get();
+                    foreach ($pembayarans as $p) {
+                        TransaksiKeuangan::where('pembayaran_id', $p->id)->delete();
+                        $p->delete();
+                    }
                     $tagihan->update([
                         'status' => 'belum lunas',
                         'sisa_tagihan' => $tagihan->nominal_total ?: $nominalSpp,

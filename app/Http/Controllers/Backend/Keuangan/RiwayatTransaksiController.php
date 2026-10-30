@@ -433,11 +433,24 @@ class RiwayatTransaksiController extends Controller
             $query->where('tanggal_transaksi', '<=', $end);
         }
 
-        // Filter Month & Year (if start_date / end_date not explicitly filled and preset not filled)
+        // Filter Month & Year / Periode (if start_date / end_date not explicitly filled and preset not filled)
         if (!$request->filled('start_date') && !$request->filled('end_date') && !$request->filled('preset')) {
-            if ($request->filled('bulan') && $request->filled('tahun')) {
+            if ($request->filled('periode') && preg_match('/^\d{4}-\d{2}$/', $request->input('periode'))) {
+                $parts = explode('-', $request->input('periode'));
+                $tahun = (int) $parts[0];
+                $bulan = (int) $parts[1];
+                $startMonth = Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth();
+                $endMonth = $startMonth->copy()->endOfMonth();
+                $query->whereBetween('tanggal_transaksi', [$startMonth, $endMonth]);
+            } elseif ($request->filled('bulan') && $request->filled('tahun')) {
                 $bulan = (int) $request->input('bulan');
                 $tahun = (int) $request->input('tahun');
+                $startMonth = Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth();
+                $endMonth = $startMonth->copy()->endOfMonth();
+                $query->whereBetween('tanggal_transaksi', [$startMonth, $endMonth]);
+            } elseif ($request->filled('bulan')) {
+                $bulan = (int) $request->input('bulan');
+                $tahun = (int) date('Y');
                 $startMonth = Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth();
                 $endMonth = $startMonth->copy()->endOfMonth();
                 $query->whereBetween('tanggal_transaksi', [$startMonth, $endMonth]);
@@ -478,9 +491,18 @@ class RiwayatTransaksiController extends Controller
             }
         }
 
+        if ($request->filled('periode') && preg_match('/^\d{4}-\d{2}$/', $request->input('periode'))) {
+            $parts = explode('-', $request->input('periode'));
+            $bulanName = Carbon::createFromDate((int)$parts[0], (int)$parts[1], 1)->translatedFormat('F');
+            return "Bulan {$bulanName} " . $parts[0];
+        }
+
         if ($request->filled('bulan') && $request->filled('tahun')) {
             $bulanName = Carbon::createFromDate((int)$request->input('tahun'), (int)$request->input('bulan'), 1)->translatedFormat('F');
             return "Bulan {$bulanName} " . $request->input('tahun');
+        } elseif ($request->filled('bulan')) {
+            $bulanName = Carbon::createFromDate((int)date('Y'), (int)$request->input('bulan'), 1)->translatedFormat('F');
+            return "Bulan {$bulanName} " . date('Y');
         } elseif ($request->filled('tahun')) {
             return 'Tahun ' . $request->input('tahun');
         }
