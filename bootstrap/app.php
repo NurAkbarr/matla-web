@@ -19,5 +19,18 @@ return Application::configure(basePath: dirname(__DIR__))
     })
 
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            $maxPost = ini_get('post_max_size');
+            $message = "Ukuran file atau data yang diunggah terlalu besar (maksimal server: {$maxPost}). Silakan kompres atau pilih file yang lebih kecil.";
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                ], 413);
+            }
+
+            return back()->with('error', $message)->withInput();
+        });
     })->create();
+

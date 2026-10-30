@@ -106,16 +106,7 @@
                         <span class="truncate">Data Mahasiswa</span>
                     </a>
 
-                    {{-- 3. Tahun & Semester --}}
-                    <a href="{{ route('backend.keuangan.master-tahun-akademik.index') }}" 
-                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isMasterTA ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
-                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span class="truncate">Tahun & Semester</span>
-                    </a>
-
-                    {{-- 4. Verifikasi Pembayaran --}}
+                    {{-- 3. Verifikasi Pembayaran --}}
                     <a href="{{ route('backend.keuangan.verifikasi.index') }}" 
                        class="flex items-center justify-between px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isVerifikasi ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
                         <div class="flex items-center gap-3 min-w-0">
@@ -129,6 +120,15 @@
                                 {{ $pendingVerifCount }}
                             </span>
                         @endif
+                    </a>
+
+                    {{-- 4. Tahun & Semester --}}
+                    <a href="{{ route('backend.keuangan.master-tahun-akademik.index') }}" 
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isMasterTA ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="truncate">Tahun & Semester</span>
                     </a>
 
                     {{-- 5. Manajemen Tagihan --}}

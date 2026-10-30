@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Tagihan;
 use App\Models\User;
 use App\Models\MasterJenisTagihan;
+use App\Models\MasterSemester;
+use App\Models\MasterTahunAkademik;
 use App\Models\Pembayaran;
 use App\Models\TransaksiKeuangan;
 use App\Exports\TagihanExport;
@@ -156,6 +158,50 @@ class TagihanController extends Controller
             ->orderBy('nama_tagihan', 'asc')
             ->get();
 
+        // Ambil periode Master Tahun Akademik & Semester yang Aktif di menu Tahun & Semester
+        $activeSemesters = MasterSemester::with('tahunAkademik')
+            ->where('is_active', true)
+            ->whereHas('tahunAkademik', function ($q) {
+                $q->where('is_active', true);
+            })
+            ->get();
+
+        if ($activeSemesters->isEmpty()) {
+            $activeSemesters = MasterSemester::with('tahunAkademik')->where('is_active', true)->get();
+        }
+
+        if ($activeSemesters->isEmpty()) {
+            $activeTa = MasterTahunAkademik::with('semesters')->where('is_active', true)->first();
+            if ($activeTa && $activeTa->semesters->isNotEmpty()) {
+                $activeSemesters = $activeTa->semesters;
+            }
+        }
+
+        $activePeriods = $activeSemesters->map(function ($sem) {
+            $tahun = $sem->tahunAkademik->tahun ?? date('Y');
+            $tipeLabel = ucfirst($sem->tipe);
+            $namaSem = $sem->nama_semester;
+            $daftarBulan = $sem->getDaftarBulan();
+
+            return [
+                'id' => $sem->id,
+                'tahun' => $tahun,
+                'tipe' => $sem->tipe,
+                'nama_semester' => $namaSem,
+                'label' => "{$tahun} ({$tipeLabel})",
+                'months' => $daftarBulan,
+            ];
+        })->values();
+
+        // Data ringkasan mahasiswa untuk estimasi real-time di UI
+        $mhsSummaryList = $mahasiswas->map(function ($mhs) {
+            return [
+                'id' => $mhs->id,
+                'prodi' => $mhs->education['program_studi'] ?? '',
+                'angkatan' => (string)($mhs->angkatan ?? ''),
+            ];
+        })->values();
+
         // Get recent bills for display (tampilkan hingga 50 tagihan terakhir agar tagihan tunggakan terlihat)
         $recentTagihans = Tagihan::with('user')->latest()->take(50)->get();
 
@@ -165,29 +211,74 @@ class TagihanController extends Controller
             ->orderByRaw('MAX(created_at) DESC')
             ->get();
 
-        return view('backend.keuangan.tagihan.index', compact('programStudis', 'angkatans', 'mahasiswas', 'recentTagihans', 'massalGroups', 'masterJenisTagihans'));
+        return view('backend.keuangan.tagihan.index', compact(
+            'programStudis', 
+            'angkatans', 
+            'mahasiswas', 
+            'recentTagihans', 
+            'massalGroups', 
+            'masterJenisTagihans',
+            'activePeriods',
+            'mhsSummaryList'
+        ));
     }
 
     public function storeMass(Request $request)
     {
-        $masterJenis = MasterJenisTagihan::where('nama_tagihan', $request->nama_tagihan)->first();
-        $isSpp = ($masterJenis && $masterJenis->tipe_nominal === 'otomatis_spp')
-            || strtoupper(trim($request->nama_tagihan)) === 'SPP'
-            || stripos($request->nama_tagihan, 'spp') !== false;
+        $isSpp = stripos($request->nama_tagihan, 'spp') !== false;
+        if (!$isSpp) {
+            $masterJenis = MasterJenisTagihan::where('nama_tagihan', $request->nama_tagihan)->first();
+            if ($masterJenis && $masterJenis->tipe_nominal === 'otomatis_spp') {
+                $isSpp = true;
+            }
+        }
 
         $request->validate([
+            'program_studi' => 'nullable|string',
+            'angkatan' => 'nullable|string',
+            'periode_id' => 'required|exists:master_semester,id',
             'nama_tagihan' => 'required|string|max:255',
             'nominal_total' => $isSpp ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'jatuh_tempo' => 'nullable|date',
-            'angkatan' => 'nullable|string',
-            'program_studi' => 'nullable|string',
             'jenis_tagihan' => 'required|in:lunas,cicilan',
+            'keterangan' => 'nullable|string|max:500',
         ], [
-            'nama_tagihan.required' => 'Nama tagihan wajib dipilih atau diisi.',
+            'periode_id.required' => 'Periode semester aktif wajib dipilih di Kolom 3.',
+            'nama_tagihan.required' => 'Jenis tagihan / bulan SPP wajib dipilih di Kolom 4.',
             'nominal_total.required' => 'Nominal tagihan wajib diisi untuk jenis tagihan non-SPP.',
             'nominal_total.numeric' => 'Nominal tagihan harus berupa angka.',
             'nominal_total.min' => 'Nominal tagihan tidak boleh bernilai negatif.',
         ]);
+
+        $semester = MasterSemester::with('tahunAkademik')->find($request->periode_id);
+        $daftarBulan = $semester ? $semester->getDaftarBulan() : [];
+        $targetMonthNum = null;
+        $targetYearNum = null;
+
+        // Cari nomor bulan & tahun kalender dari periode terpilih
+        foreach ($daftarBulan as $b) {
+            if (strcasecmp('SPP ' . $b['nama'], $request->nama_tagihan) === 0 || strcasecmp($b['nama'], $request->nama_tagihan) === 0) {
+                $targetMonthNum = (int)$b['num'];
+                $targetYearNum = (int)$b['year'];
+                break;
+            }
+        }
+
+        if (!$targetMonthNum) {
+            $info = Tagihan::extractMonthAndYear($request->nama_tagihan, $request->jatuh_tempo);
+            $targetMonthNum = $info['month'];
+            $targetYearNum = $info['year'];
+        }
+
+        // Tentukan jatuh tempo: jika tidak diisi dan merupakan SPP bulanan, otomatis tanggal 10 bulan tersebut
+        $jatuhTempo = $request->jatuh_tempo;
+        if (empty($jatuhTempo) && $targetMonthNum && $targetYearNum) {
+            $jatuhTempo = sprintf('%04d-%02d-10', $targetYearNum, $targetMonthNum);
+        }
+
+        // Keterangan khusus (Kolom 5)
+        $keteranganInput = trim($request->input('keterangan', ''));
+        $keteranganTagihan = $keteranganInput !== '' ? $keteranganInput : 'Tagihan Massal';
 
         // HANYA mahasiswa aktif yang diikutsertakan dalam pembuatan tagihan massal
         $query = User::where('role', 'mahasiswa')
@@ -209,7 +300,6 @@ class TagihanController extends Controller
         $mahasiswas = $query->get();
         $count = 0;
         $skipped = 0;
-        $emailSentCount = 0;
         $shouldSendEmail = $request->boolean('send_email');
         $emailSentCount = 0;
         $emailLastError = null;
@@ -217,14 +307,11 @@ class TagihanController extends Controller
 
         foreach ($mahasiswas as $mhs) {
             // Anti-double billing validation: periksa apakah mahasiswa sudah memiliki tagihan pada jenis/periode yang sama
-            $duplicate = Tagihan::findDuplicate($mhs->id, $request->nama_tagihan, $request->jatuh_tempo);
+            $duplicate = Tagihan::findDuplicate($mhs->id, $request->nama_tagihan, $jatuhTempo);
 
             $alreadyPaid = false;
-            if (!$duplicate && $isSpp) {
-                $info = Tagihan::extractMonthAndYear($request->nama_tagihan, $request->jatuh_tempo);
-                if ($info['month']) {
-                    $alreadyPaid = Tagihan::hasVerifiedPaymentForMonth($mhs->id, $info['month'], $info['year']);
-                }
+            if (!$duplicate && $isSpp && $targetMonthNum) {
+                $alreadyPaid = Tagihan::hasVerifiedPaymentForMonth($mhs->id, $targetMonthNum, $targetYearNum);
             }
 
             if (!$duplicate && !$alreadyPaid) {
@@ -243,13 +330,13 @@ class TagihanController extends Controller
                     'nominal_total' => $nominal,
                     'sisa_tagihan' => $nominal,
                     'status' => 'belum lunas',
-                    'jatuh_tempo' => $request->jatuh_tempo,
-                    'keterangan' => 'Tagihan Massal',
-                    'jenis_tagihan' => $request->jenis_tagihan,
+                    'jatuh_tempo' => $jatuhTempo,
+                    'keterangan' => $keteranganTagihan,
+                    'jenis_tagihan' => $request->jenis_tagihan ?? 'lunas',
                 ]);
                 $count++;
 
-                // Kirim notifikasi email reminder secara langsung (synchronous) jika dicentang dan email mahasiswa valid
+                // Kirim notifikasi email reminder secara langsung jika dicentang dan email mahasiswa valid
                 if ($shouldSendEmail && !empty($mhs->email) && filter_var($mhs->email, FILTER_VALIDATE_EMAIL)) {
                     try {
                         Mail::to($mhs->email)->send(new TagihanReminderMail($tagihan, $mhs));
@@ -265,15 +352,15 @@ class TagihanController extends Controller
         }
 
         if ($count > 0 && $skipped > 0) {
-            $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa. (Beberapa tagihan dilewati ({$skipped} mahasiswa) karena sudah pernah digenerate sebelumnya untuk periode yang sama).";
+            $msg = "Berhasil membuat tagihan massal '{$request->nama_tagihan}' untuk {$count} mahasiswa. ({$skipped} mahasiswa dilewati karena sudah memiliki tagihan pada periode/bulan tersebut).";
         } elseif ($count > 0) {
-            $msg = "Berhasil membuat tagihan massal untuk {$count} mahasiswa.";
+            $msg = "Berhasil membuat tagihan massal '{$request->nama_tagihan}' untuk {$count} mahasiswa.";
         } else {
-            $msg = "Tidak ada tagihan baru yang dibuat. Beberapa tagihan dilewati ({$skipped} mahasiswa) karena sudah pernah digenerate sebelumnya untuk periode yang sama.";
+            $msg = "Tidak ada tagihan baru yang dibuat. Sebanyak {$skipped} mahasiswa dilewati karena tagihan untuk periode/bulan '{$request->nama_tagihan}' sudah pernah dibuat sebelumnya.";
         }
 
         if ($isSpp && $count > 0) {
-            $msg .= " (Nominal SPP otomatis mengikuti tarif masing-masing mahasiswa).";
+            $msg .= " (Nominal SPP otomatis ditarik dari tarif masing-masing mahasiswa).";
         }
         if ($shouldSendEmail && $count > 0) {
             if ($isLogDriver) {

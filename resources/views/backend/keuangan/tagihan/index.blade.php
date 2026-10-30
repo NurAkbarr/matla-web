@@ -9,11 +9,22 @@
     masterEditOpen: false,
     masterEditForm: { id: '', action_url: '', nama_tagihan: '', nominal_default: '', tipe_nominal: 'manual' },
 
-    // Massal Form State
-    massalJenis: '{{ $masterJenisTagihans->first()->nama_tagihan ?? 'SPP' }}',
-    massalPeriode: '',
-    massalNominal: '',
+    // Data dari Controller
+    activePeriods: @json($activePeriods),
+    mhsSummaryList: @json($mhsSummaryList),
+
+    // Massal Form State (5 Kolom Berurutan)
+    selectedProdi: '',
+    selectedAngkatan: '',
+    selectedPeriodeId: '',
+    selectedTagihan: '',
+    keterangan: '',
+    
+    // Dependent state
+    sppMonthList: [],
     massalIsSpp: true,
+    massalNominal: '',
+    jatuhTempo: '',
 
     // Personal Form State
     personalUserId: '',
@@ -25,38 +36,85 @@
 
     init() {
         this.$nextTick(() => {
-            this.checkMassalSpp();
+            // Jika ada periode aktif, pilih yang pertama secara default agar siap dipakai
+            if (this.activePeriods && this.activePeriods.length > 0) {
+                this.selectedPeriodeId = String(this.activePeriods[0].id);
+                this.onPeriodeChange();
+            }
             this.checkPersonalSpp();
         });
     },
 
-    checkMassalSpp() {
-        const select = document.getElementById('select-massal-jenis');
-        if (!select) return;
-        const opt = select.options[select.selectedIndex];
-        if (!opt) return;
-        const tipe = opt.getAttribute('data-tipe');
-        const defNominal = opt.getAttribute('data-nominal') || '';
-        this.massalIsSpp = (tipe === 'otomatis_spp' || this.massalJenis.toUpperCase() === 'SPP');
-        if (this.massalIsSpp) {
-            this.massalNominal = '';
-        } else if (defNominal && !this.massalNominal) {
-            this.massalNominal = defNominal;
+    onPeriodeChange() {
+        this.selectedTagihan = '';
+        this.massalNominal = '';
+        this.jatuhTempo = '';
+        
+        if (!this.selectedPeriodeId) {
+            this.sppMonthList = [];
+            return;
+        }
+
+        const period = this.activePeriods.find(p => String(p.id) === String(this.selectedPeriodeId));
+        if (period && period.months) {
+            this.sppMonthList = period.months.map(m => ({
+                label: 'SPP ' + (m.nama || '').toUpperCase(),
+                bulan: m.nama,
+                num: m.num,
+                year: m.year
+            }));
+            // Auto-pilih bulan pertama jika tersedia
+            if (this.sppMonthList.length > 0) {
+                this.selectedTagihan = this.sppMonthList[0].label;
+                this.onTagihanChange();
+            }
+        } else {
+            this.sppMonthList = [];
         }
     },
 
-    onMassalJenisChange() {
-        const select = document.getElementById('select-massal-jenis');
-        if (!select) return;
-        const opt = select.options[select.selectedIndex];
-        const tipe = opt ? opt.getAttribute('data-tipe') : '';
-        const defNominal = opt ? opt.getAttribute('data-nominal') : '';
-        this.massalIsSpp = (tipe === 'otomatis_spp' || this.massalJenis.toUpperCase() === 'SPP');
-        if (this.massalIsSpp) {
-            this.massalNominal = '';
-        } else {
-            this.massalNominal = defNominal || '';
+    onTagihanChange() {
+        if (!this.selectedTagihan) {
+            this.massalIsSpp = true;
+            this.jatuhTempo = '';
+            return;
         }
+
+        const isSpp = this.selectedTagihan.toUpperCase().indexOf('SPP') !== -1;
+        this.massalIsSpp = isSpp;
+
+        if (isSpp) {
+            this.massalNominal = '';
+            // Cari bulan dari sppMonthList untuk auto set tanggal 10
+            const foundMonth = this.sppMonthList.find(m => m.label.toUpperCase() === this.selectedTagihan.toUpperCase());
+            if (foundMonth) {
+                const mm = String(foundMonth.num).padStart(2, '0');
+                this.jatuhTempo = `${foundMonth.year}-${mm}-10`;
+            }
+        } else {
+            // Non-SPP, cari default nominal jika ada di master data
+            const selectEl = document.getElementById('select-massal-tagihan');
+            if (selectEl) {
+                const opt = selectEl.options[selectEl.selectedIndex];
+                const defNominal = opt ? opt.getAttribute('data-nominal') : '';
+                this.massalNominal = defNominal || '';
+            }
+        }
+    },
+
+    get filteredMhsCount() {
+        if (!this.mhsSummaryList) return 0;
+        return this.mhsSummaryList.filter(m => {
+            const matchProdi = !this.selectedProdi || m.prodi === this.selectedProdi;
+            const matchAngkatan = !this.selectedAngkatan || String(m.angkatan) === String(this.selectedAngkatan);
+            return matchProdi && matchAngkatan;
+        }).length;
+    },
+
+    get selectedPeriodeLabel() {
+        if (!this.selectedPeriodeId) return '';
+        const period = this.activePeriods.find(p => String(p.id) === String(this.selectedPeriodeId));
+        return period ? period.label : '';
     },
 
     onPersonalUserChange() {
@@ -173,81 +231,177 @@
         </button>
     </div>
 
-    {{-- Form Tagihan Massal --}}
+    {{-- Form Tagihan Massal (5 Kolom Berurutan) --}}
     <div x-show="tab === 'massal'" style="display: none;">
-        <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-[var(--border)] bg-[var(--bg-page)]">
-                <p class="text-xs font-bold font-display text-[var(--text-heading)]">Buat tagihan massal</p>
-                <p class="text-[11px] text-[var(--text-muted)] mt-0.5">Kirim tagihan ke seluruh mahasiswa sekaligus berdasarkan program studi dan angkatan.</p>
+        <div class="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] overflow-hidden shadow-xs">
+            <div class="px-5 py-3.5 border-b border-[var(--border)] bg-[var(--bg-page)] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <p class="text-xs font-bold font-display text-[var(--text-heading)]">Buat Tagihan Massal (Alur 5 Kolom Berurutan)</p>
+                    <p class="text-[11px] text-[var(--text-muted)] mt-0.5">Pilih sasaran prodi, angkatan, periode aktif, dan bulan SPP secara berurutan.</p>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-xs)] bg-[var(--primary-50)] text-[var(--primary-700)] text-[11px] font-semibold border border-[var(--primary-200)] shrink-0">
+                    <svg class="w-3.5 h-3.5 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span>Anti-double billing aktif</span>
+                </div>
             </div>
 
             <form action="{{ route('backend.keuangan.tagihan.storeMass') }}" method="POST" class="p-5 space-y-4">
                 @csrf
                 
-                {{-- Row 1: Target Filter --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Program studi</label>
-                        <select name="program_studi" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                {{-- 5-Kolom Berurutan (Step-by-step Dependency) --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                    {{-- Kolom 1: Program Studi --}}
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--primary-100)] text-[var(--primary-700)] text-[11px] font-bold">1</span>
+                            <label class="block text-xs font-semibold text-[var(--text-heading)] truncate">Program Studi</label>
+                        </div>
+                        <select name="program_studi" 
+                                x-model="selectedProdi" 
+                                class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
                             <option value="">Semua program studi</option>
                             @foreach($programStudis as $prodi)
                                 <option value="{{ $prodi }}">{{ $prodi }}</option>
                             @endforeach
                         </select>
+                        <p class="text-[10.5px] text-[var(--text-muted)] mt-1 truncate">Filter target program studi</p>
                     </div>
                     
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Angkatan</label>
-                        <select name="angkatan" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                    {{-- Kolom 2: Angkatan --}}
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--primary-100)] text-[var(--primary-700)] text-[11px] font-bold">2</span>
+                            <label class="block text-xs font-semibold text-[var(--text-heading)] truncate">Angkatan</label>
+                        </div>
+                        <select name="angkatan" 
+                                x-model="selectedAngkatan" 
+                                class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
                             <option value="">Semua angkatan</option>
                             @foreach($angkatans as $angkatan)
                                 <option value="{{ $angkatan }}">{{ $angkatan }}</option>
                             @endforeach
                         </select>
+                        <p class="text-[10.5px] text-[var(--text-muted)] mt-1 truncate">Filter tahun angkatan</p>
                     </div>
-                </div>
 
-                {{-- Row 2: Jenis Tagihan & Periode --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-semibold text-[var(--text-heading)]">Jenis tagihan <span class="text-[var(--danger)]">*</span></label>
-                            <button type="button" @click="masterModalOpen = true" class="text-[11px] font-semibold text-[var(--primary-600)] hover:underline cursor-pointer">
-                                Kelola jenis
-                            </button>
+                    {{-- Kolom 3: Periode (Tahun Akademik & Semester Aktif) --}}
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-bold">3</span>
+                            <label class="block text-xs font-semibold text-[var(--text-heading)] truncate">Periode Aktif <span class="text-rose-500">*</span></label>
                         </div>
-                        <select id="select-massal-jenis" x-model="massalJenis" @change="onMassalJenisChange()" required class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs font-semibold text-[var(--text-heading)] focus:outline-none focus:border-[var(--primary-700)]">
-                            @foreach($masterJenisTagihans as $mjt)
-                                <option value="{{ $mjt->nama_tagihan }}" data-tipe="{{ $mjt->tipe_nominal }}" data-nominal="{{ $mjt->nominal_default ?? '' }}">
-                                    {{ $mjt->nama_tagihan }} {{ $mjt->tipe_nominal === 'otomatis_spp' ? '(Otomatis tarif SPP mahasiswa)' : ($mjt->nominal_default ? '(Default: Rp ' . number_format($mjt->nominal_default, 0, ',', '.') . ')' : '') }}
+                        <select name="periode_id" 
+                                x-model="selectedPeriodeId" 
+                                @change="onPeriodeChange()" 
+                                required 
+                                class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs font-semibold text-[var(--text-heading)] focus:outline-none focus:border-[var(--primary-700)]">
+                            <option value="">-- Pilih Periode Aktif --</option>
+                            @forelse($activePeriods as $p)
+                                <option value="{{ $p['id'] }}">
+                                    {{ $p['label'] }} ({{ $p['nama_semester'] }})
                                 </option>
-                            @endforeach
+                            @empty
+                                <option value="" disabled>Tidak ada periode aktif</option>
+                            @endforelse
                         </select>
+                        <p class="text-[10.5px] text-[var(--text-muted)] mt-1 truncate">Wajib sebelum memilih Kolom 4</p>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Periode / keterangan tambahan</label>
-                        <input type="text" x-model="massalPeriode" placeholder="Contoh: Oktober 2026 atau Semester Ganjil" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary-700)]">
-                    </div>
-                </div>
-
-                {{-- Preview Nama Tagihan --}}
-                <div class="px-3 py-2 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] flex flex-wrap items-center gap-2 text-xs">
-                    <span class="text-[var(--text-muted)]">Nama tagihan:</span>
-                    <span class="font-bold text-[var(--primary-700)] dark:text-[var(--primary-300)]" x-text="massalPeriode.trim() ? (massalJenis + ' - ' + massalPeriode.trim()) : massalJenis"></span>
-                </div>
-                <input type="hidden" name="nama_tagihan" :value="massalPeriode.trim() ? (massalJenis + ' - ' + massalPeriode.trim()) : massalJenis">
-
-                {{-- Row 3: Nominal + Jenis + Jatuh Tempo --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Nominal (Rp) <span x-show="!massalIsSpp" class="text-[var(--danger)]">*</span></label>
-
-                        <div x-show="massalIsSpp" class="p-2.5 bg-[var(--primary-50)] border border-[var(--primary-200)] rounded-[var(--radius-xs)]">
-                            <p class="text-xs font-semibold text-[var(--primary-700)]">Tarif otomatis per mahasiswa</p>
-                            <p class="text-[11px] text-[var(--primary-600)] mt-0.5">Sesuai tarif master mahasiswa</p>
+                    {{-- Kolom 4: Jenis Tagihan (Otomatis Khusus SPP Berdasarkan Bulan Periode) --}}
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold" 
+                                  :class="selectedPeriodeId ? 'bg-[var(--primary-600)] text-white' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">4</span>
+                            <label class="block text-xs font-semibold text-[var(--text-heading)] truncate">Jenis Tagihan (SPP) <span class="text-rose-500">*</span></label>
                         </div>
+                        <div class="relative">
+                            <select id="select-massal-tagihan"
+                                    name="nama_tagihan" 
+                                    x-model="selectedTagihan" 
+                                    @change="onTagihanChange()" 
+                                    :disabled="!selectedPeriodeId"
+                                    required 
+                                    :class="!selectedPeriodeId ? 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-800' : 'bg-[var(--bg-page)] border-[var(--border)]'"
+                                    class="w-full h-10 px-3 border rounded-[var(--radius-xs)] text-xs font-semibold text-[var(--text-heading)] focus:outline-none focus:border-[var(--primary-700)]">
+                                <option value="" x-show="!selectedPeriodeId">-- Terkunci (Pilih Kolom 3 Dulu) --</option>
+                                <option value="" x-show="selectedPeriodeId">-- Pilih Bulan SPP / Tagihan --</option>
+                                <optgroup label="Bulan SPP Periode Terpilih">
+                                    <template x-for="item in sppMonthList" :key="item.label">
+                                        <option :value="item.label" x-text="item.label"></option>
+                                    </template>
+                                </optgroup>
+                                @if($masterJenisTagihans->where('tipe_nominal', '!=', 'otomatis_spp')->isNotEmpty())
+                                <optgroup label="Tagihan Non-SPP Lainnya">
+                                    @foreach($masterJenisTagihans->where('tipe_nominal', '!=', 'otomatis_spp') as $nonSpp)
+                                        <option value="{{ $nonSpp->nama_tagihan }}" data-tipe="{{ $nonSpp->tipe_nominal }}" data-nominal="{{ $nonSpp->nominal_default ?? '' }}">
+                                            {{ $nonSpp->nama_tagihan }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                                @endif
+                            </select>
+                        </div>
+                        <p class="text-[10.5px] mt-1 truncate" :class="!selectedPeriodeId ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-[var(--primary-600)] dark:text-[var(--primary-400)]'">
+                            <span x-show="!selectedPeriodeId">⚠️ Kunci: Pilih Kolom 3 dahulu</span>
+                            <span x-show="selectedPeriodeId">✓ Bulan otomatis dari periode aktif</span>
+                        </p>
+                    </div>
 
+                    {{-- Kolom 5: Keterangan Tambahan / Catatan (Opsional) --}}
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold">5</span>
+                            <label class="block text-xs font-semibold text-[var(--text-heading)] truncate">Keterangan / Catatan</label>
+                        </div>
+                        <input type="text" 
+                               name="keterangan" 
+                               x-model="keterangan" 
+                               placeholder="Opsional: Catatan tagihan..." 
+                               class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary-700)]">
+                        <p class="text-[10.5px] text-[var(--text-muted)] mt-1 truncate">Catatan bebas pada tagihan</p>
+                    </div>
+                </div>
+
+                {{-- Status & Summary Bar --}}
+                <div class="p-3.5 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <div>
+                            <span class="text-[var(--text-muted)]">Sasaran Target:</span>
+                            <span class="font-bold text-[var(--text-heading)] ml-1" x-text="filteredMhsCount + ' mahasiswa aktif'"></span>
+                        </div>
+                        <div class="h-3 w-px bg-[var(--border)] hidden sm:block"></div>
+                        <div>
+                            <span class="text-[var(--text-muted)]">Tagihan Terpilih:</span>
+                            <span class="font-bold text-[var(--primary-700)] dark:text-[var(--primary-300)] ml-1" x-text="selectedTagihan || 'Belum dipilih'"></span>
+                        </div>
+                        <div class="h-3 w-px bg-[var(--border)] hidden sm:block"></div>
+                        <div>
+                            <span class="text-[var(--text-muted)]">Periode Aktif:</span>
+                            <span class="font-medium text-[var(--text-body)] ml-1" x-text="selectedPeriodeLabel || '-'"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <div x-show="massalIsSpp" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--primary-50)] text-[var(--primary-700)] font-semibold border border-[var(--primary-200)] text-[11px]">
+                            <svg class="w-3.5 h-3.5 text-[var(--primary-600)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Tarif SPP otomatis per mahasiswa (Anti-duplikasi aktif)</span>
+                        </div>
+                        <div x-show="!massalIsSpp" style="display: none;" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-50 text-amber-700 font-semibold border border-amber-200 text-[11px]">
+                            <span>Tagihan non-SPP (Nominal manual)</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Additional Config Row (Nominal jika non-SPP, Jenis Pembayaran, Jatuh Tempo) --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                    {{-- Input Nominal (Hanya jika Non-SPP) --}}
+                    <div>
+                        <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">
+                            Nominal (Rp) <span x-show="!massalIsSpp" class="text-[var(--danger)]">*</span>
+                        </label>
+                        <div x-show="massalIsSpp" class="h-10 px-3 bg-[var(--primary-50)]/60 border border-[var(--primary-200)] rounded-[var(--radius-xs)] flex items-center justify-between">
+                            <span class="text-xs text-[var(--primary-700)] font-semibold">Tarif SPP masing-masing</span>
+                            <span class="text-[11px] text-[var(--primary-600)]">Tarik dari data master</span>
+                        </div>
                         <div x-show="!massalIsSpp" style="display: none;">
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-xs text-[var(--text-muted)]">Rp</span>
@@ -255,6 +409,8 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Jenis Pembayaran --}}
                     <div>
                         <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Jenis pembayaran <span class="text-[var(--danger)]">*</span></label>
                         <select name="jenis_tagihan" required class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
@@ -262,9 +418,11 @@
                             <option value="cicilan">Bisa dicicil</option>
                         </select>
                     </div>
+
+                    {{-- Jatuh Tempo --}}
                     <div>
                         <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1.5">Jatuh tempo</label>
-                        <input type="date" name="jatuh_tempo" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
+                        <input type="date" name="jatuh_tempo" x-model="jatuhTempo" class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
                     </div>
                 </div>
 
@@ -274,8 +432,13 @@
                         <input type="checkbox" name="send_email" value="1" checked class="w-4 h-4 rounded text-[var(--primary-500)] focus:ring-[var(--primary-500)] border-[var(--border)]">
                         <span class="text-xs font-medium text-[var(--text-body)]">Kirim notifikasi pengingat ke email mahasiswa</span>
                     </label>
-                    <button type="submit" class="h-10 px-5 bg-[var(--primary-500)] hover:bg-[var(--primary-600)] text-white text-xs font-semibold rounded-[var(--radius-xs)] transition cursor-pointer">
-                        Terbitkan tagihan massal
+                    <button type="submit" 
+                            :disabled="!selectedPeriodeId || !selectedTagihan || filteredMhsCount === 0"
+                            :class="(!selectedPeriodeId || !selectedTagihan || filteredMhsCount === 0) ? 'opacity-60 cursor-not-allowed bg-slate-400' : 'bg-[var(--primary-500)] hover:bg-[var(--primary-600)] cursor-pointer'"
+                            class="h-10 px-5 text-white text-xs font-semibold rounded-[var(--radius-xs)] transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Terbitkan Tagihan Massal</span>
+                        <span x-show="filteredMhsCount > 0" class="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px]" x-text="filteredMhsCount"></span>
                     </button>
                 </div>
             </form>
