@@ -3,171 +3,177 @@
 @section('title', 'Manajemen Tagihan')
 
 @section('content')
-<div class="space-y-6" x-data="{ 
-    tab: 'massal',
-    masterModalOpen: false,
-    masterEditOpen: false,
-    masterEditForm: { id: '', action_url: '', nama_tagihan: '', nominal_default: '', tipe_nominal: 'manual' },
+<script>
+function tagihanPageData() {
+    return {
+        tab: 'massal',
+        masterModalOpen: false,
+        masterEditOpen: false,
+        masterEditForm: { id: '', action_url: '', nama_tagihan: '', nominal_default: '', tipe_nominal: 'manual' },
 
-    // Data dari Controller
-    activePeriods: @json($activePeriods),
-    mhsSummaryList: @json($mhsSummaryList),
+        // Data dari Controller
+        activePeriods: @json($activePeriods),
+        mhsSummaryList: @json($mhsSummaryList),
 
-    // Massal Form State (5 Kolom Berurutan)
-    selectedProdi: '',
-    selectedAngkatan: '',
-    selectedPeriodeId: '',
-    selectedTagihan: '',
-    keterangan: '',
-    
-    // Dependent state
-    sppMonthList: [],
-    massalIsSpp: true,
-    massalNominal: '',
-    jatuhTempo: '',
-
-    // Personal Form State
-    personalUserId: '',
-    personalUserSpp: 0,
-    personalJenis: '{{ $masterJenisTagihans->first()->nama_tagihan ?? 'SPP' }}',
-    personalPeriode: '',
-    personalNominal: '',
-    personalIsSpp: true,
-
-    init() {
-        this.$nextTick(() => {
-            // Jika ada periode aktif, pilih yang pertama secara default agar siap dipakai
-            if (this.activePeriods && this.activePeriods.length > 0) {
-                this.selectedPeriodeId = String(this.activePeriods[0].id);
-                this.onPeriodeChange();
-            }
-            this.checkPersonalSpp();
-        });
-    },
-
-    onPeriodeChange() {
-        this.selectedTagihan = '';
-        this.massalNominal = '';
-        this.jatuhTempo = '';
+        // Massal Form State (5 Kolom Berurutan)
+        selectedProdi: '',
+        selectedAngkatan: '',
+        selectedPeriodeId: '',
+        selectedTagihan: '',
+        keterangan: '',
         
-        if (!this.selectedPeriodeId) {
-            this.sppMonthList = [];
-            return;
-        }
+        // Dependent state
+        sppMonthList: [],
+        massalIsSpp: true,
+        massalNominal: '',
+        jatuhTempo: '',
 
-        const period = this.activePeriods.find(p => String(p.id) === String(this.selectedPeriodeId));
-        if (period && period.months) {
-            this.sppMonthList = period.months.map(m => ({
-                label: 'SPP ' + (m.nama || '').toUpperCase(),
-                bulan: m.nama,
-                num: m.num,
-                year: m.year
-            }));
-            // Auto-pilih bulan pertama jika tersedia
-            if (this.sppMonthList.length > 0) {
-                this.selectedTagihan = this.sppMonthList[0].label;
-                this.onTagihanChange();
-            }
-        } else {
-            this.sppMonthList = [];
-        }
-    },
+        // Personal Form State
+        personalUserId: '',
+        personalUserSpp: 0,
+        personalJenis: @json($masterJenisTagihans->first()->nama_tagihan ?? 'SPP'),
+        personalPeriode: '',
+        personalNominal: '',
+        personalIsSpp: true,
 
-    onTagihanChange() {
-        if (!this.selectedTagihan) {
-            this.massalIsSpp = true;
-            this.jatuhTempo = '';
-            return;
-        }
+        init() {
+            this.$nextTick(() => {
+                // Jika ada periode aktif, pilih yang pertama secara default agar siap dipakai
+                if (this.activePeriods && this.activePeriods.length > 0) {
+                    this.selectedPeriodeId = String(this.activePeriods[0].id);
+                    this.onPeriodeChange();
+                }
+                this.checkPersonalSpp();
+            });
+        },
 
-        const isSpp = this.selectedTagihan.toUpperCase().indexOf('SPP') !== -1;
-        this.massalIsSpp = isSpp;
-
-        if (isSpp) {
+        onPeriodeChange() {
+            this.selectedTagihan = '';
             this.massalNominal = '';
-            // Cari bulan dari sppMonthList untuk auto set tanggal 10
-            const foundMonth = this.sppMonthList.find(m => m.label.toUpperCase() === this.selectedTagihan.toUpperCase());
-            if (foundMonth) {
-                const mm = String(foundMonth.num).padStart(2, '0');
-                this.jatuhTempo = `${foundMonth.year}-${mm}-10`;
+            this.jatuhTempo = '';
+            
+            if (!this.selectedPeriodeId) {
+                this.sppMonthList = [];
+                return;
             }
-        } else {
-            // Non-SPP, cari default nominal jika ada di master data
-            const selectEl = document.getElementById('select-massal-tagihan');
-            if (selectEl) {
-                const opt = selectEl.options[selectEl.selectedIndex];
-                const defNominal = opt ? opt.getAttribute('data-nominal') : '';
-                this.massalNominal = defNominal || '';
+
+            const period = this.activePeriods.find(p => String(p.id) === String(this.selectedPeriodeId));
+            if (period && period.months) {
+                this.sppMonthList = period.months.map(m => ({
+                    label: 'SPP ' + (m.nama || '').toUpperCase(),
+                    bulan: m.nama,
+                    num: m.num,
+                    year: m.year
+                }));
+                // Auto-pilih bulan pertama jika tersedia
+                if (this.sppMonthList.length > 0) {
+                    this.selectedTagihan = this.sppMonthList[0].label;
+                    this.onTagihanChange();
+                }
+            } else {
+                this.sppMonthList = [];
             }
-        }
-    },
+        },
 
-    get filteredMhsCount() {
-        if (!this.mhsSummaryList) return 0;
-        return this.mhsSummaryList.filter(m => {
-            const matchProdi = !this.selectedProdi || m.prodi === this.selectedProdi;
-            const matchAngkatan = !this.selectedAngkatan || String(m.angkatan) === String(this.selectedAngkatan);
-            return matchProdi && matchAngkatan;
-        }).length;
-    },
-
-    get selectedPeriodeLabel() {
-        if (!this.selectedPeriodeId) return '';
-        const period = this.activePeriods.find(p => String(p.id) === String(this.selectedPeriodeId));
-        return period ? period.label : '';
-    },
-
-    onPersonalUserChange() {
-        const select = document.getElementById('select-personal-user');
-        if (!select) return;
-        const opt = select.options[select.selectedIndex];
-        this.personalUserSpp = opt ? parseFloat(opt.getAttribute('data-spp') || 0) : 0;
-        this.updatePersonalNominal();
-    },
-
-    onPersonalJenisChange() {
-        const select = document.getElementById('select-personal-jenis');
-        if (!select) return;
-        const opt = select.options[select.selectedIndex];
-        const tipe = opt ? opt.getAttribute('data-tipe') : '';
-        const defNominal = opt ? opt.getAttribute('data-nominal') : '';
-        this.personalIsSpp = (tipe === 'otomatis_spp' || this.personalJenis.toUpperCase() === 'SPP');
-        this.updatePersonalNominal(defNominal);
-    },
-
-    checkPersonalSpp() {
-        this.onPersonalJenisChange();
-    },
-
-    updatePersonalNominal(defNominal = null) {
-        if (this.personalIsSpp) {
-            this.personalNominal = this.personalUserSpp > 0 ? this.personalUserSpp : 300000;
-        } else {
-            if (defNominal !== null) {
-                this.personalNominal = defNominal || '';
+        onTagihanChange() {
+            if (!this.selectedTagihan) {
+                this.massalIsSpp = true;
+                this.jatuhTempo = '';
+                return;
             }
-        }
-    },
 
-    openMasterEdit(target, nama, nominal, tipe) {
-        var id;
-        if (target instanceof HTMLElement || (typeof target === 'object' && target !== null && target.dataset)) {
-            var ds = target.dataset;
-            id = ds.id;
-            nama = ds.nama;
-            nominal = ds.nominal;
-            tipe = ds.tipe;
-        } else {
-            id = target;
+            const isSpp = this.selectedTagihan.toUpperCase().indexOf('SPP') !== -1;
+            this.massalIsSpp = isSpp;
+
+            if (isSpp) {
+                this.massalNominal = '';
+                // Cari bulan dari sppMonthList untuk auto set tanggal 10
+                const foundMonth = this.sppMonthList.find(m => m.label.toUpperCase() === this.selectedTagihan.toUpperCase());
+                if (foundMonth) {
+                    const mm = String(foundMonth.num).padStart(2, '0');
+                    this.jatuhTempo = String(foundMonth.year) + '-' + mm + '-10';
+                }
+            } else {
+                // Non-SPP, cari default nominal jika ada di master data
+                const selectEl = document.getElementById('select-massal-tagihan');
+                if (selectEl) {
+                    const opt = selectEl.options[selectEl.selectedIndex];
+                    const defNominal = opt ? opt.getAttribute('data-nominal') : '';
+                    this.massalNominal = defNominal || '';
+                }
+            }
+        },
+
+        get filteredMhsCount() {
+            if (!this.mhsSummaryList) return 0;
+            return this.mhsSummaryList.filter(m => {
+                const matchProdi = !this.selectedProdi || m.prodi === this.selectedProdi;
+                const matchAngkatan = !this.selectedAngkatan || String(m.angkatan) === String(this.selectedAngkatan);
+                return matchProdi && matchAngkatan;
+            }).length;
+        },
+
+        get selectedPeriodeLabel() {
+            if (!this.selectedPeriodeId) return '';
+            const period = this.activePeriods.find(p => String(p.id) === String(this.selectedPeriodeId));
+            return period ? period.label : '';
+        },
+
+        onPersonalUserChange() {
+            const select = document.getElementById('select-personal-user');
+            if (!select) return;
+            const opt = select.options[select.selectedIndex];
+            this.personalUserSpp = opt ? parseFloat(opt.getAttribute('data-spp') || 0) : 0;
+            this.updatePersonalNominal();
+        },
+
+        onPersonalJenisChange() {
+            const select = document.getElementById('select-personal-jenis');
+            if (!select) return;
+            const opt = select.options[select.selectedIndex];
+            const tipe = opt ? opt.getAttribute('data-tipe') : '';
+            const defNominal = opt ? opt.getAttribute('data-nominal') : '';
+            this.personalIsSpp = (tipe === 'otomatis_spp' || this.personalJenis.toUpperCase() === 'SPP');
+            this.updatePersonalNominal(defNominal);
+        },
+
+        checkPersonalSpp() {
+            this.onPersonalJenisChange();
+        },
+
+        updatePersonalNominal(defNominal = null) {
+            if (this.personalIsSpp) {
+                this.personalNominal = this.personalUserSpp > 0 ? this.personalUserSpp : 300000;
+            } else {
+                if (defNominal !== null) {
+                    this.personalNominal = defNominal || '';
+                }
+            }
+        },
+
+        openMasterEdit(target, nama, nominal, tipe) {
+            var id;
+            if (target instanceof HTMLElement || (typeof target === 'object' && target !== null && target.dataset)) {
+                var ds = target.dataset;
+                id = ds.id;
+                nama = ds.nama;
+                nominal = ds.nominal;
+                tipe = ds.tipe;
+            } else {
+                id = target;
+            }
+            this.masterEditForm.id = id;
+            this.masterEditForm.action_url = '{{ url('/backend/keuangan/tagihan/master-jenis') }}/' + id;
+            this.masterEditForm.nama_tagihan = nama || '';
+            this.masterEditForm.nominal_default = nominal || '';
+            this.masterEditForm.tipe_nominal = tipe || 'manual';
+            this.masterEditOpen = true;
         }
-        this.masterEditForm.id = id;
-        this.masterEditForm.action_url = '{{ url('/backend/keuangan/tagihan/master-jenis') }}/' + id;
-        this.masterEditForm.nama_tagihan = nama || '';
-        this.masterEditForm.nominal_default = nominal || '';
-        this.masterEditForm.tipe_nominal = tipe || 'manual';
-        this.masterEditOpen = true;
-    }
-}">
+    };
+}
+</script>
+
+<div class="space-y-6" x-data="tagihanPageData()">
 
     {{-- Flash Notifications --}}
     @if(session('success'))
