@@ -160,6 +160,13 @@ class PembayaranController extends Controller
         ]);
 
         try {
+            // Trigger notifikasi real-time untuk Admin Keuangan
+            \App\Models\KeuanganNotification::sendSppPendingNotification($pembayaran, auth()->user());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to create KeuanganNotification: ' . $e->getMessage());
+        }
+
+        try {
             // Get first finance admin email, fallback to a default email if none exists
             $adminKeuangan = \App\Models\User::where('role', 'keuangan')->first();
             $adminEmail = $adminKeuangan ? $adminKeuangan->email : 'finance@matla.id';

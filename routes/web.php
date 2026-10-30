@@ -617,11 +617,19 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/mahasiswa/export-pdf', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'exportPdf']);
         Route::put('/mahasiswa/{id}/nominal-spp', [\App\Http\Controllers\Backend\Keuangan\MahasiswaController::class, 'updateNominalSpp'])->name('mahasiswa.updateNominalSpp');
         Route::get('/verifikasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'index'])->name('verifikasi.index');
+        Route::redirect('/verifikasi-pembayaran', '/backend/keuangan/verifikasi');
         Route::post('/verifikasi/{id}/approve', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'approve'])->name('verifikasi.approve');
         Route::post('/verifikasi/{id}/alokasi', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'updateAlokasi'])->name('verifikasi.alokasi');
         Route::post('/verifikasi/{id}/reject', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'reject'])->name('verifikasi.reject');
         Route::get('/verifikasi/{id}/kwitansi-drive', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'kwitansiDrive'])->name('verifikasi.kwitansi-drive');
         Route::get('/verifikasi/{id}/bukti', [\App\Http\Controllers\Backend\Keuangan\VerifikasiPembayaranController::class, 'lihatBukti'])->name('verifikasi.bukti');
+        
+        // Notifikasi Keuangan
+        Route::get('/notifikasi', [\App\Http\Controllers\Backend\Keuangan\NotificationController::class, 'index'])->name('notifikasi.index');
+        Route::get('/notifikasi/unread-count', [\App\Http\Controllers\Backend\Keuangan\NotificationController::class, 'unreadCount'])->name('notifikasi.unreadCount');
+        Route::post('/notifikasi/{id}/read', [\App\Http\Controllers\Backend\Keuangan\NotificationController::class, 'markAsRead'])->name('notifikasi.markAsRead');
+        Route::get('/notifikasi/{id}/read', [\App\Http\Controllers\Backend\Keuangan\NotificationController::class, 'markAsRead'])->name('notifikasi.readAndRedirect');
+        Route::post('/notifikasi/read-all', [\App\Http\Controllers\Backend\Keuangan\NotificationController::class, 'markAllAsRead'])->name('notifikasi.markAllAsRead');
         
         // Tagihan
         Route::get('/tagihan', [\App\Http\Controllers\Backend\Keuangan\TagihanController::class, 'index'])->name('tagihan.index');

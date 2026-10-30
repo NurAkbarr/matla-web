@@ -30,6 +30,21 @@ class Pembayaran extends Model
         'bulan_alokasi' => 'array',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($pembayaran) {
+            if ($pembayaran->status === 'pending') {
+                try {
+                    KeuanganNotification::sendSppPendingNotification($pembayaran);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to auto create KeuanganNotification: ' . $e->getMessage());
+                }
+            }
+        });
+    }
+
     public function tagihan()
     {
         return $this->belongsTo(Tagihan::class);
