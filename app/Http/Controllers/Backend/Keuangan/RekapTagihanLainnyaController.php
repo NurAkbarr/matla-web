@@ -85,7 +85,8 @@ class RekapTagihanLainnyaController extends Controller
         $html .= '</head>';
         $html .= '<body>';
 
-        $html .= '<h3 style="margin-bottom: 4px;">UNIVERSITAS MATLAUL ANWAR BANTEN (MATLA UNIVERSITY)</h3>';
+        $html .= '<h3 style="margin-bottom: 2px; color: #00703C;">KAMPUS MAHAD TA\'LIM LUGHOH AROBIYYAH (MATLA)</h3>';
+        $html .= '<p style="margin: 0 0 4px 0; font-size: 8.5pt; color: #334155;">Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten | No. Hp. 081273510994, Email: matlaislamicuniversity@gmail.com</p>';
         $html .= '<h2 style="margin-top: 0; margin-bottom: 6px;">REKAPITULASI TAGIHAN LAINNYA (NON-SPP)</h2>';
         $html .= '<p style="font-size: 9pt; color: #555; margin-top: 0; margin-bottom: 14px;">Tanggal Unduh: ' . Carbon::now()->translatedFormat('d F Y, H:i') . ' WIB</p>';
 

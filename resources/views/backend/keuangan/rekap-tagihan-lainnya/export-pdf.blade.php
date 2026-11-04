@@ -184,16 +184,16 @@
 </head>
 <body>
 
-    {{-- KOP SURAT RESMI --}}
+    {{-- KOP SURAT RESMI MATLA --}}
     <table class="kop-table">
         <tr>
             <td class="kop-logo">
                 <img src="{{ $logoBase64 }}" alt="Logo MATLA">
             </td>
             <td class="kop-text">
-                <h1>UNIVERSITAS MATHLA'UL ANWAR BANTEN</h1>
-                <p><strong>KAMPUS PUSAT:</strong> Jl. Raya Cikaliung Km. 07 Sindanghayu, Saketi, Pandeglang, Banten 42273</p>
-                <p>Website: matla.ac.id | Email: info@matla.ac.id | Telp: (0253) 555-1234</p>
+                <h1>KAMPUS MAHAD TA'LIM LUGHOH AROBIYYAH (MATLA)</h1>
+                <p>Jl. H. Basir Pondok Kacang Barat, Gg. Mushola, Pondok Kacang Barat, Kec. Pondok Aren, Kota Tangerang Selatan, Banten</p>
+                <p>No. Hp. 081273510994, Email: matlaislamicuniversity@gmail.com</p>
             </td>
         </tr>
     </table>
@@ -307,20 +307,28 @@
         </tfoot>
     </table>
 
-    {{-- TANDA TANGAN --}}
+    {{-- TANDA TANGAN / PENGESAHAN --}}
     <table class="signature-table">
         <tr>
-            <td>
-                <p>Mengetahui,</p>
-                <p><strong>Wakil Rektor II Bidang Keuangan</strong></p>
-                <br><br><br>
-                <p><u>Dr. H. Ahmad Sudrajat, M.M.</u><br>NIP. 19750812 200212 1 002</p>
+            <td style="width: 65%; vertical-align: bottom; font-size: 7.5pt; color: #64748b; line-height: 1.5;">
+                <p style="margin: 0;">
+                    <i>* Dokumen laporan ini dicetak secara otomatis dari Sistem Keuangan MATLA.</i><br>
+                    <i>* Seluruh data tagihan dan riwayat pembayaran non-SPP yang tercatat merupakan data sah dan terverifikasi.</i>
+                </p>
             </td>
-            <td style="text-align: right;">
-                <p>Pandeglang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
-                <p><strong>Bagian Administrasi Keuangan</strong></p>
-                <br><br><br>
-                <p><u>{{ Auth::user()->name ?? 'Staff Keuangan' }}</u><br>Petugas Keuangan Kampus</p>
+            <td style="width: 35%; text-align: center; vertical-align: top;">
+                <p style="margin: 0 0 4px 0; font-size: 8pt; color: #334155;">
+                    Tangerang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+                </p>
+                <p style="margin: 0 0 50px 0; font-size: 8.5pt; font-weight: bold; color: #0f172a;">
+                    Bagian Administrasi Keuangan
+                </p>
+                <p style="margin: 0; font-size: 8.5pt; font-weight: bold; text-decoration: underline; color: #00703C;">
+                    {{ Auth::user()->name ?? 'Admin Keuangan' }}
+                </p>
+                <p style="margin: 2px 0 0 0; font-size: 7.5pt; color: #64748b;">
+                    Petugas Keuangan Kampus
+                </p>
             </td>
         </tr>
     </table>
