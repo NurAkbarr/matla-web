@@ -266,7 +266,7 @@ class RekapSppController extends Controller
                 }
             } else {
                 // Fallback jika pembayaran tidak ditemukan via query di atas tapi tagihannya ada
-                $studentTagihans = Tagihan::where('user_id', $student->id)->get();
+                $studentTagihans = Tagihan::where('user_id', $student->id)->spp()->get();
                 $tagihan = $studentTagihans->first(function ($t) use ($monthNum, $year, $bNama) {
                     return Tagihan::isMatchingSppMonth($t, $monthNum, $year, $bNama);
                 });
@@ -324,11 +324,17 @@ class RekapSppController extends Controller
             }
         }
 
-        // Kalkulasi real-time status kelunasan dan tunggakan mahasiswa ini secara presisi
+        // Kalkulasi real-time status kelunasan dan tunggakan mahasiswa ini secara presisi (khusus SPP)
         $verifiedPayments = Pembayaran::where('user_id', $student->id)
             ->where('status', 'verified')
+            ->where(function ($pq) {
+                $pq->whereNotNull('bulan_alokasi')
+                   ->orWhereHas('tagihan', function ($tq) {
+                       $tq->spp();
+                   });
+            })
             ->get();
-        $studentTagihans = Tagihan::where('user_id', $student->id)->get();
+        $studentTagihans = Tagihan::where('user_id', $student->id)->spp()->get();
 
         $bulanLunasCount = 0;
         $totalSudahDibayar = 0;
@@ -514,14 +520,26 @@ class RekapSppController extends Controller
         }
 
         $daftarBulan = $activeSemester->getDaftarBulan();
-        $students = User::where('role', 'mahasiswa')->with('tagihans')->get();
+        $students = User::where('role', 'mahasiswa')
+            ->with(['tagihans' => function ($tq) {
+                $tq->spp();
+            }])
+            ->get();
 
         $countCreated = 0;
         $countSkipped = 0;
 
         foreach ($students as $student) {
             $nominalSpp = (float)($student->nominal_spp ?: 300000);
-            $verifiedPayments = Pembayaran::where('user_id', $student->id)->where('status', 'verified')->get();
+            $verifiedPayments = Pembayaran::where('user_id', $student->id)
+                ->where('status', 'verified')
+                ->where(function ($pq) {
+                    $pq->whereNotNull('bulan_alokasi')
+                       ->orWhereHas('tagihan', function ($tq) {
+                           $tq->spp();
+                       });
+                })
+                ->get();
 
             foreach ($daftarBulan as $b) {
                 $monthKey = $b['key'];
@@ -650,9 +668,11 @@ class RekapSppController extends Controller
             }
         }
 
-        // 4. Query Mahasiswa dengan Filter
+        // 4. Query Mahasiswa dengan Filter (Khusus Tagihan SPP)
         $query = User::where('role', 'mahasiswa')
-            ->with(['tagihans.pembayarans']);
+            ->with(['tagihans' => function ($tq) {
+                $tq->spp()->with('pembayarans');
+            }]);
 
         // Filter Status Akademik (Default: AKTIF)
         $statusAkademik = $request->get('status_akademik', 'AKTIF');
@@ -688,9 +708,15 @@ class RekapSppController extends Controller
         $mahasiswaList = $query->orderBy('nim')->orderBy('name')->get();
         $mahasiswaIds = $mahasiswaList->pluck('id')->all();
 
-        // Eager-load pembayaran mahasiswa (baik verified maupun pending)
+        // Eager-load pembayaran mahasiswa khusus SPP (baik verified maupun pending)
         $allPembayarans = Pembayaran::whereIn('user_id', $mahasiswaIds)
             ->whereIn('status', ['verified', 'pending'])
+            ->where(function ($pq) {
+                $pq->whereNotNull('bulan_alokasi')
+                   ->orWhereHas('tagihan', function ($tq) {
+                       $tq->spp();
+                   });
+            })
             ->orderBy('created_at', 'asc')
             ->get()
             ->groupBy('user_id');

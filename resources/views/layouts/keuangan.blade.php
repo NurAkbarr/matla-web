@@ -82,6 +82,7 @@
                         $isMasterTA = request()->routeIs('backend.keuangan.master-tahun-akademik.*');
                         $isTagihan = request()->routeIs('backend.keuangan.tagihan.*');
                         $isRekapSpp = request()->routeIs('backend.keuangan.rekap-spp.*');
+                        $isRekapLainnya = request()->routeIs('backend.keuangan.rekap-tagihan-lainnya.*');
                         $isRiwayat = request()->routeIs('backend.keuangan.riwayat-transaksi.*');
                         $isPemasukanPengeluaran = request()->routeIs('backend.keuangan.pemasukan-pengeluaran.*');
                         
@@ -150,7 +151,16 @@
                         <span class="truncate">Rekap SPP Semester</span>
                     </a>
 
-                    {{-- 7. Riwayat Transaksi --}}
+                    {{-- 7. Rekap Tagihan Lainnya (Non-SPP) --}}
+                    <a href="{{ route('backend.keuangan.rekap-tagihan-lainnya.index') }}" 
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isRekapLainnya ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
+                        <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        <span class="truncate">Rekap Tagihan Lainnya</span>
+                    </a>
+
+                    {{-- 8. Riwayat Transaksi --}}
                     <a href="{{ route('backend.keuangan.riwayat-transaksi.index') }}" 
                        class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isRiwayat ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
                         <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +169,7 @@
                         <span class="truncate">Riwayat Transaksi</span>
                     </a>
 
-                    {{-- 8. Pemasukan & Pengeluaran (Menu Baru) --}}
+                    {{-- 9. Pemasukan & Pengeluaran (Menu Baru) --}}
                     <a href="{{ route('backend.keuangan.pemasukan-pengeluaran.index') }}" 
                        class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors border-l-[3px] {{ $isPemasukanPengeluaran ? 'bg-[var(--primary-800)] text-white border-[var(--secondary-500)] font-semibold' : 'text-white/80 hover:bg-[var(--primary-800)]/60 hover:text-white border-transparent' }}">
                         <svg class="w-5 h-5 shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">

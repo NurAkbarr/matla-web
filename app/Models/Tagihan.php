@@ -34,6 +34,42 @@ class Tagihan extends Model
     }
 
     /**
+     * Cek apakah tagihan ini merupakan kategori SPP
+     */
+    public function isSpp(): bool
+    {
+        $namaLower = strtolower(trim($this->nama_tagihan ?? ''));
+        $ketLower = strtolower(trim($this->keterangan ?? ''));
+
+        return str_contains($namaLower, 'spp') || str_contains($ketLower, 'spp');
+    }
+
+    /**
+     * Scope untuk tagihan kategori SPP saja
+     */
+    public function scopeSpp($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('nama_tagihan', 'like', '%spp%')
+              ->orWhere('keterangan', 'like', '%spp%');
+        });
+    }
+
+    /**
+     * Scope untuk tagihan Non-SPP (insidentil: wisuda, skripsi, pengindukan, dll.)
+     */
+    public function scopeNonSpp($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('nama_tagihan', 'not like', '%spp%')
+              ->where(function ($k) {
+                  $k->whereNull('keterangan')
+                    ->orWhere('keterangan', 'not like', '%spp%');
+              });
+        });
+    }
+
+    /**
      * Peta nomor bulan dan alias nama (Indonesia & Inggris)
      */
     public static function getMonthMap(): array
@@ -110,13 +146,17 @@ class Tagihan extends Model
             return false;
         }
 
+        // Tagihan non-SPP (wisuda, skripsi, pengindukan, dll.) wajib dikecualikan secara mutlak dari matriks SPP bulanan
+        $isSpp = is_object($tagihan) && method_exists($tagihan, 'isSpp')
+            ? $tagihan->isSpp()
+            : (str_contains(strtolower(trim($tagihan->nama_tagihan ?? '')), 'spp') || str_contains(strtolower(trim($tagihan->keterangan ?? '')), 'spp'));
+
+        if (!$isSpp) {
+            return false;
+        }
+
         $namaLower = strtolower(trim($tagihan->nama_tagihan ?? ''));
         $ketLower = strtolower(trim($tagihan->keterangan ?? ''));
-
-        // Tagihan harus relevan dengan SPP
-        $isSpp = str_contains($namaLower, 'spp') 
-              || str_contains($ketLower, 'spp')
-              || ($tagihan->jenis_tagihan === 'lunas' && empty($tagihan->jenis_tagihan_id));
 
         $extracted = self::extractMonthAndYear($tagihan->nama_tagihan, $tagihan->jatuh_tempo);
 

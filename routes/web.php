@@ -683,6 +683,11 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
         Route::get('/rekap-spp/export/excel', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'exportExcel'])->name('rekap-spp.export.excel');
         Route::get('/rekap-spp/export/pdf', [\App\Http\Controllers\Backend\Keuangan\RekapSppController::class, 'exportPdf'])->name('rekap-spp.export.pdf');
 
+        // Rekap Tagihan Lainnya (Non-SPP: Wisuda, Skripsi, Pengindukan, dll.)
+        Route::get('/rekap-tagihan-lainnya', [\App\Http\Controllers\Backend\Keuangan\RekapTagihanLainnyaController::class, 'index'])->name('rekap-tagihan-lainnya.index');
+        Route::get('/rekap-tagihan-lainnya/export/excel', [\App\Http\Controllers\Backend\Keuangan\RekapTagihanLainnyaController::class, 'exportExcel'])->name('rekap-tagihan-lainnya.export.excel');
+        Route::get('/rekap-tagihan-lainnya/export/pdf', [\App\Http\Controllers\Backend\Keuangan\RekapTagihanLainnyaController::class, 'exportPdf'])->name('rekap-tagihan-lainnya.export.pdf');
+
         // Master Tahun Akademik & Semester
         Route::get('/master-tahun-akademik', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'index'])->name('master-tahun-akademik.index');
         Route::post('/master-tahun-akademik', [\App\Http\Controllers\Backend\Keuangan\MasterTahunAkademikController::class, 'store'])->name('master-tahun-akademik.store');
