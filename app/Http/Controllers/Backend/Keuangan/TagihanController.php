@@ -20,22 +20,24 @@ use Illuminate\Support\Facades\DB;
 
 class TagihanController extends Controller
 {
-    public function spreadsheet()
+    public function spreadsheet(Request $request)
     {
-        $sheetId = env('GOOGLE_SHEET_ID');
-        $credentialsPath = storage_path('app/google-credentials.json');
+        // 1. Ekspor langsung ke format Excel (.xlsx) jika diminta via parameter
+        if ($request->get('format') === 'excel') {
+            return Excel::download(new TagihanExport, 'tagihan_matla_' . date('Y-m-d_His') . '.xlsx');
+        }
 
-        if (!$sheetId || !file_exists($credentialsPath)) {
-            return back()->with('error', 'Konfigurasi Google Sheets (GOOGLE_SHEET_ID) atau file kredensial belum tersedia.');
+        $sheetId = $this->resolveGoogleSheetId();
+        $client = $this->resolveGoogleClient();
+
+        // 2. Fallback aman jika Google Sheets belum dikonfigurasi:
+        // Unduh Excel alih-alih melempar error banner yang mengganggu antarmuka
+        if (!$sheetId || !$client) {
+            Log::info('Konfigurasi Google Sheets (GOOGLE_SHEET_ID atau kredensial) belum tersedia. Dialihkan ke download Excel.');
+            return Excel::download(new TagihanExport, 'tagihan_matla_' . date('Y-m-d_His') . '.xlsx');
         }
 
         try {
-            $client = new \Google_Client();
-            $client->setApplicationName('Matla University Tagihan');
-            $client->setScopes([\Google_Service_Sheets::SPREADSHEETS]);
-            $client->setAuthConfig($credentialsPath);
-            $client->setAccessType('offline');
-
             $service = new \Google_Service_Sheets($client);
 
             // Get Data
@@ -132,8 +134,89 @@ class TagihanController extends Controller
             // Redirect to the actual Google Sheet
             return redirect("https://docs.google.com/spreadsheets/d/{$sheetId}/edit");
 
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menyinkronkan data ke Google Sheets: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::warning('Sinkronisasi Google Sheets gagal: ' . $e->getMessage() . '. Fallback ke unduhan file Excel.');
+            return Excel::download(new TagihanExport, 'tagihan_matla_' . date('Y-m-d_His') . '.xlsx');
+        }
+    }
+
+    /**
+     * Cek apakah integrasi Google Sheets telah siap & terkonfigurasi
+     */
+    public function isGoogleSheetsConfigured(): bool
+    {
+        return $this->resolveGoogleSheetId() !== null && $this->resolveGoogleClient() !== null;
+    }
+
+    /**
+     * Dapatkan Sheet ID dari konfigurasi atau .env
+     */
+    private function resolveGoogleSheetId(): ?string
+    {
+        $sheetId = config('services.google_sheets.sheet_id') ?: env('GOOGLE_SHEET_ID');
+
+        if (!$sheetId) {
+            return null;
+        }
+
+        if (preg_match('/\/d\/([a-zA-Z0-9-_]+)/', $sheetId, $matches)) {
+            return $matches[1];
+        }
+
+        return trim($sheetId);
+    }
+
+    /**
+     * Inisialisasi Google Client dengan Service Account atau fallback OAuth
+     */
+    private function resolveGoogleClient(): ?\Google_Client
+    {
+        try {
+            $client = new \Google_Client();
+            $client->setApplicationName('Matla University Tagihan');
+            $client->setScopes([\Google_Service_Sheets::SPREADSHEETS]);
+            $client->setAccessType('offline');
+
+            // 1. Cek file kredensial JSON (Service Account)
+            $possiblePaths = [
+                config('services.google_sheets.credentials_path'),
+                env('GOOGLE_SHEETS_CREDENTIALS_PATH'),
+                env('GOOGLE_APPLICATION_CREDENTIALS'),
+                storage_path('app/google-credentials.json'),
+                storage_path('app/private/google-credentials.json'),
+                storage_path('google-credentials.json'),
+                base_path('google-credentials.json'),
+            ];
+
+            foreach ($possiblePaths as $path) {
+                if ($path && file_exists($path) && is_readable($path)) {
+                    $client->setAuthConfig($path);
+                    return $client;
+                }
+            }
+
+            // 2. Fallback OAuth Refresh Token jika kredensial file tidak ditemukan
+            $clientId = config('services.google_sheets.client_id')
+                ?: env('GOOGLE_DRIVE_KEUANGAN_CLIENT_ID')
+                ?: env('GOOGLE_DRIVE_CLIENT_ID');
+            $clientSecret = config('services.google_sheets.client_secret')
+                ?: env('GOOGLE_DRIVE_KEUANGAN_CLIENT_SECRET')
+                ?: env('GOOGLE_DRIVE_CLIENT_SECRET');
+            $refreshToken = config('services.google_sheets.refresh_token')
+                ?: env('GOOGLE_DRIVE_KEUANGAN_REFRESH_TOKEN')
+                ?: env('GOOGLE_DRIVE_REFRESH_TOKEN');
+
+            if ($clientId && $clientSecret && $refreshToken) {
+                $client->setClientId($clientId);
+                $client->setClientSecret($clientSecret);
+                $client->refreshToken($refreshToken);
+                return $client;
+            }
+
+            return null;
+        } catch (\Throwable $e) {
+            Log::warning('Inisialisasi Google Client gagal: ' . $e->getMessage());
+            return null;
         }
     }
 
@@ -202,8 +285,26 @@ class TagihanController extends Controller
             ];
         })->values();
 
-        // Get recent bills for display (tampilkan hingga 50 tagihan terakhir agar tagihan tunggakan terlihat)
-        $recentTagihans = Tagihan::with('user')->latest()->take(50)->get();
+        // Riwayat tagihan terakhir dengan Laravel Pagination (default 25 per halaman)
+        $perPage = (int) request('per_page', 25);
+        if (!in_array($perPage, [10, 15, 25, 50, 100])) {
+            $perPage = 25;
+        }
+
+        $query = Tagihan::with('user')->latest();
+
+        if ($search = trim((string)(request('search') ?: request('q')))) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_tagihan', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                         ->orWhere('nim', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $recentTagihans = $query->paginate($perPage)->withQueryString();
+        $riwayatTagihans = $recentTagihans;
 
         // Get Massal groups
         $massalGroups = Tagihan::selectRaw('nama_tagihan, sum(nominal_total) as total_nominal, count(id) as total_mhs, min(jatuh_tempo) as jatuh_tempo, max(jenis_tagihan) as jenis_tagihan')
@@ -211,15 +312,19 @@ class TagihanController extends Controller
             ->orderByRaw('MAX(created_at) DESC')
             ->get();
 
+        $isGoogleSheetsConfigured = $this->isGoogleSheetsConfigured();
+
         return view('backend.keuangan.tagihan.index', compact(
             'programStudis', 
             'angkatans', 
             'mahasiswas', 
             'recentTagihans', 
+            'riwayatTagihans',
             'massalGroups', 
             'masterJenisTagihans',
             'activePeriods',
-            'mhsSummaryList'
+            'mhsSummaryList',
+            'isGoogleSheetsConfigured'
         ));
     }
 

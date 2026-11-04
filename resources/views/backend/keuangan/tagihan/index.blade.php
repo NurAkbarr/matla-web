@@ -3,6 +3,25 @@
 @section('title', 'Manajemen Tagihan')
 
 @section('content')
+<style>
+.tagihan-pagination nav > div:last-child > div:first-child {
+    display: none;
+}
+.tagihan-pagination nav {
+    box-shadow: none !important;
+}
+.tagihan-pagination nav span[aria-current="page"] span {
+    background-color: var(--primary-500) !important;
+    border-color: var(--primary-500) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+.tagihan-pagination nav a, 
+.tagihan-pagination nav span {
+    border-radius: var(--radius-xs);
+    font-size: 11px;
+}
+</style>
 <script>
 function tagihanPageData() {
     return {
@@ -208,10 +227,19 @@ function tagihanPageData() {
                 <svg class="w-4 h-4 text-[var(--primary-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                 <span>Kelola jenis tagihan</span>
             </button>
-            <a href="{{ route('backend.keuangan.tagihan.spreadsheet') }}" class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--primary-500)] text-white text-xs font-semibold rounded-[var(--radius-xs)] hover:bg-[var(--primary-600)] transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                <span>Google Sheets</span>
-            </a>
+            <div class="inline-flex rounded-[var(--radius-xs)] shadow-2xs" role="group">
+                <a href="{{ route('backend.keuangan.tagihan.spreadsheet') }}" 
+                   class="h-10 inline-flex items-center gap-2 px-3.5 bg-[var(--primary-500)] text-white text-xs font-semibold rounded-l-[var(--radius-xs)] hover:bg-[var(--primary-600)] transition cursor-pointer"
+                   title="{{ ($isGoogleSheetsConfigured ?? false) ? 'Sinkronkan data dan buka Google Sheets' : 'Unduh spreadsheet tagihan (.xlsx)' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>Google Sheets</span>
+                </a>
+                <a href="{{ route('backend.keuangan.tagihan.spreadsheet', ['format' => 'excel']) }}" 
+                   class="h-10 inline-flex items-center px-2.5 bg-[var(--primary-600)] text-white hover:bg-[var(--primary-700)] rounded-r-[var(--radius-xs)] border-l border-white/20 transition cursor-pointer" 
+                   title="Unduh langsung sebagai file Excel (.xlsx)">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -799,10 +827,20 @@ function tagihanPageData() {
                     <span>Hapus Terpilih (<span x-text="selectedIds.length"></span>)</span>
                 </button>
 
-                <div class="relative w-full sm:w-64">
-                    <input type="text" x-model="searchQuery" placeholder="Cari mahasiswa atau tagihan..." class="w-full h-9 pl-8 pr-3 text-xs bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] focus:outline-none focus:border-[var(--primary-700)]">
+                <form method="GET" action="{{ route('backend.keuangan.tagihan.index') }}" class="relative w-full sm:w-64">
+                    <input type="text" 
+                           name="search" 
+                           x-model="searchQuery" 
+                           value="{{ request('search') }}"
+                           placeholder="Cari mahasiswa atau tagihan..." 
+                           class="w-full h-9 pl-8 pr-8 text-xs bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] focus:outline-none focus:border-[var(--primary-700)]">
                     <svg class="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </div>
+                    @if(request('search'))
+                        <a href="{{ route('backend.keuangan.tagihan.index') }}" class="absolute right-2.5 top-2.5 text-[var(--text-muted)] hover:text-[var(--danger)]" title="Hapus pencarian">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </a>
+                    @endif
+                </form>
             </div>
         </div>
 
@@ -989,9 +1027,20 @@ function tagihanPageData() {
             </div>
         </div>
 
-        {{-- Footer --}}
-        <div class="px-5 py-3.5 border-t border-[var(--border)] flex items-center justify-between">
-            <p class="text-xs text-[var(--text-muted)] tabular-nums">Menampilkan {{ count($recentTagihans) }} tagihan terakhir</p>
+        {{-- Footer & Navigasi Halaman (Pagination) --}}
+        <div class="px-5 py-3.5 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-3 bg-[var(--surface)]">
+            <p class="text-xs text-[var(--text-muted)] tabular-nums">
+                @if(isset($riwayatTagihans) && $riwayatTagihans->total() > 0)
+                    Menampilkan <span class="font-semibold text-[var(--text-heading)]">{{ $riwayatTagihans->firstItem() }}</span> sampai <span class="font-semibold text-[var(--text-heading)]">{{ $riwayatTagihans->lastItem() }}</span> dari <span class="font-semibold text-[var(--text-heading)]">{{ $riwayatTagihans->total() }}</span> tagihan
+                @else
+                    Menampilkan {{ count($recentTagihans) }} tagihan
+                @endif
+            </p>
+            @if(isset($riwayatTagihans) && $riwayatTagihans->hasPages())
+                <div class="tagihan-pagination">
+                    {{ $riwayatTagihans->links() }}
+                </div>
+            @endif
         </div>
     </div>
 

@@ -34,6 +34,14 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    'google_sheets' => [
+        'sheet_id' => env('GOOGLE_SHEET_ID'),
+        'credentials_path' => env('GOOGLE_SHEETS_CREDENTIALS_PATH'),
+        'client_id' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_ID') ?: env('GOOGLE_DRIVE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_DRIVE_KEUANGAN_CLIENT_SECRET') ?: env('GOOGLE_DRIVE_CLIENT_SECRET'),
+        'refresh_token' => env('GOOGLE_DRIVE_KEUANGAN_REFRESH_TOKEN') ?: env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
