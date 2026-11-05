@@ -33,22 +33,73 @@
         </div>
 
         {{-- Kartu 2: Total Tagihan (MENONJOL - Paling butuh tindakan) --}}
-        <div class="bg-[var(--surface)] border-2 border-[var(--secondary-500)] rounded-[var(--radius-sm)] p-5 flex flex-col justify-between relative">
+        <div class="bg-[var(--surface)] border-2 border-[var(--secondary-500)] rounded-[var(--radius-sm)] p-5 flex flex-col justify-between relative shadow-xs">
             <div>
                 <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold text-[var(--secondary-700)] dark:text-[var(--secondary-400)]">Tagihan belum lunas</p>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-bold bg-[var(--secondary-50)] dark:bg-[var(--secondary-100)] text-[var(--secondary-700)] dark:text-[var(--secondary-400)] border border-[var(--secondary-200)] tabular-nums">
+                    <div class="flex items-center gap-1.5">
+                        <p class="text-xs font-bold text-[var(--secondary-700)] dark:text-[var(--secondary-400)]">Tagihan belum lunas</p>
+                        
+                        {{-- Tooltip Info Akumulasi Murni --}}
+                        <div class="relative group inline-flex items-center" tabindex="0">
+                            <svg class="w-3.5 h-3.5 text-[var(--text-muted)] hover:text-[var(--text-heading)] transition cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block group-focus:block z-30 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-[11px] rounded-[var(--radius-xs)] shadow-lg leading-relaxed pointer-events-none">
+                                <p class="font-bold text-amber-300 border-b border-slate-700 pb-1 mb-1.5">Akumulasi Tunggakan Murni</p>
+                                <p class="text-slate-200">
+                                    Hanya pembayaran berstatus <b>Terverifikasi (Verified)</b> yang mengurangi sisa tagihan. Pembayaran <b>Pending</b> atau <b>Ditolak</b> tidak mengurangi kewajiban mahasiswa.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-xs)] text-[11px] font-bold bg-[var(--secondary-50)] dark:bg-[var(--secondary-100)] text-[var(--secondary-700)] dark:text-[var(--secondary-400)] border border-[var(--secondary-200)] tabular-nums" title="Total tagihan aktif yang belum lunas atau masih mencicil">
                         {{ $jumlahTagihan }} tertunda
                     </span>
                 </div>
+
+                {{-- Nominal Utama --}}
                 <p class="text-[32px] font-bold font-display text-[var(--text-heading)] tabular-nums leading-tight mt-2">
                     Rp {{ number_format($totalTagihan, 0, ',', '.') }}
                 </p>
+
+                {{-- Pemisahan Sisa Tunggakan SPP vs Non-SPP (Transparan) --}}
+                <div class="mt-3 pt-2.5 border-t border-[var(--border)]/70 grid grid-cols-2 gap-2 text-[11px]">
+                    <div class="flex flex-col">
+                        <span class="text-[var(--text-muted)] flex items-center gap-1 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--primary-500)]"></span>
+                            Sisa SPP ({{ $jumlahTagihanSpp }})
+                        </span>
+                        <span class="font-bold text-[var(--text-heading)] tabular-nums mt-0.5 text-xs">
+                            Rp {{ number_format($totalTagihanSpp, 0, ',', '.') }}
+                        </span>
+                    </div>
+                    <div class="flex flex-col pl-2 border-l border-[var(--border)]/70">
+                        <span class="text-[var(--text-muted)] flex items-center gap-1 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[var(--secondary-500)]"></span>
+                            Non-SPP ({{ $jumlahTagihanNonSpp }})
+                        </span>
+                        <span class="font-bold text-[var(--text-heading)] tabular-nums mt-0.5 text-xs">
+                            Rp {{ number_format($totalTagihanNonSpp, 0, ',', '.') }}
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center justify-between mt-3 pt-3 border-t border-[var(--border)]">
-                <span class="text-xs text-[var(--text-muted)]">Memerlukan penagihan aktif</span>
+
+            {{-- Footer Tautan Rincian & Navigasi --}}
+            <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-[var(--border)] text-xs">
+                <div class="flex items-center gap-1.5 text-[var(--text-muted)] text-[11px]">
+                    <span>Rincian:</span>
+                    <a href="{{ route('backend.keuangan.rekap-spp.index') }}" class="font-semibold text-[var(--primary-600)] hover:underline" title="Lihat Rekap SPP Semester">
+                        SPP
+                    </a>
+                    <span>&bull;</span>
+                    <a href="{{ route('backend.keuangan.rekap-tagihan-lainnya.index') }}" class="font-semibold text-[var(--primary-600)] hover:underline" title="Lihat Rekap Tagihan Non-SPP">
+                        Lainnya
+                    </a>
+                </div>
                 <a href="{{ route('backend.keuangan.tagihan.index') }}" class="text-xs font-bold text-[var(--secondary-700)] dark:text-[var(--secondary-400)] hover:underline focus:outline-none">
-                    Kelola tagihan
+                    Kelola tagihan &rarr;
                 </a>
             </div>
         </div>

@@ -46,16 +46,60 @@ class DashboardController extends Controller
         $totalPemasukanAllTime = $pemasukanMhsAllTime + $pemasukanInternalAllTime;
         $saldoAkun = max(0, $totalPemasukanAllTime - $totalPengeluaranAllTime);
 
-        // B. Total Tagihan: Akumulasi tagihan mahasiswa AKTIF yang belum lunas (bulanan & semesteran)
-        $tagihanBelumLunasQuery = Tagihan::where('status', '!=', 'lunas')
+        // B. Total Tagihan: Akumulasi tagihan mahasiswa AKTIF yang belum lunas (SPP & Non-SPP)
+        // Audit dan hitung sisa tagihan murni (pembayaran pending atau rejected tidak mengurangi tagihan)
+        $tagihanBelumLunasList = Tagihan::with(['pembayarans'])
             ->whereHas('user', function($u) {
                 $u->where('role', 'mahasiswa')
                   ->where(function($q) {
                       $q->whereNull('status')->orWhereRaw("LOWER(status) = 'aktif'");
                   });
-            });
-        $totalTagihan = (float) $tagihanBelumLunasQuery->sum('sisa_tagihan');
-        $jumlahTagihan = $tagihanBelumLunasQuery->count();
+            })
+            ->where(function($q) {
+                $q->whereNotIn('status', ['lunas'])
+                  ->where(function($sq) {
+                      $sq->where('sisa_tagihan', '>', 0)
+                         ->orWhereNull('sisa_tagihan');
+                  });
+            })
+            ->get();
+
+        $totalTagihan = 0;
+        $jumlahTagihan = 0;
+        $totalTagihanSpp = 0;
+        $jumlahTagihanSpp = 0;
+        $totalTagihanNonSpp = 0;
+        $jumlahTagihanNonSpp = 0;
+
+        foreach ($tagihanBelumLunasList as $t) {
+            // Murni hitung pembayaran terverifikasi saja (pending & rejected tidak mengurangi sisa tagihan)
+            $verifiedPaid = (float) $t->pembayarans->where('status', 'verified')->sum('nominal');
+            $sisaMurni = max(0, (float)$t->nominal_total - $verifiedPaid);
+
+            // Jika secara faktual sudah lunas melalui pembayaran verified, tandai lunas dan lewati
+            if ($sisaMurni <= 0) {
+                if ($t->status !== 'lunas' || (float)$t->sisa_tagihan !== 0.0) {
+                    $t->update(['status' => 'lunas', 'sisa_tagihan' => 0]);
+                }
+                continue;
+            }
+
+            // Sinkronkan sisa_tagihan di DB jika terdapat selisih
+            if ($t->sisa_tagihan === null || abs((float)$t->sisa_tagihan - $sisaMurni) > 0.01) {
+                $t->update(['sisa_tagihan' => $sisaMurni]);
+            }
+
+            $totalTagihan += $sisaMurni;
+            $jumlahTagihan++;
+
+            if ($t->isSpp()) {
+                $totalTagihanSpp += $sisaMurni;
+                $jumlahTagihanSpp++;
+            } else {
+                $totalTagihanNonSpp += $sisaMurni;
+                $jumlahTagihanNonSpp++;
+            }
+        }
 
         // C. Riwayat Transaksi: Total seluruh transaksi tercatat di sistem (Mahasiswa + Kas Internal)
         $totalTransaksi = TransaksiKeuangan::where('status', 'verified')->count();
@@ -302,6 +346,10 @@ class DashboardController extends Controller
             'saldoAkun',
             'totalTagihan',
             'jumlahTagihan',
+            'totalTagihanSpp',
+            'jumlahTagihanSpp',
+            'totalTagihanNonSpp',
+            'jumlahTagihanNonSpp',
             'totalTransaksi',
             'daftarBulan',
             'selectedPeriode',

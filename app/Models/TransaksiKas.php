@@ -10,3 +10,4 @@ class TransaksiKas extends TransaksiKeuangan
 {
     protected $table = 'transaksi_keuangans';
 }
+
