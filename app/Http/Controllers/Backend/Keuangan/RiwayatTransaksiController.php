@@ -20,20 +20,12 @@ class RiwayatTransaksiController extends Controller
     {
         Carbon::setLocale('id');
 
-        // Auto cleanup orphaned payments & transactions (pembayaran atau transaksi yang tagihannya telah dihapus)
+        // Auto cleanup orphaned payments & transactions (pembayaran atau transaksi tagihan mahasiswa yang tagihannya telah dihapus)
         Pembayaran::whereNull('tagihan_id')->orWhereDoesntHave('tagihan')->delete();
 
         TransaksiKeuangan::where(function($q) {
             $q->whereNotNull('tagihan_id')->whereDoesntHave('tagihan')
-              ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran')
-              ->orWhere(function($sub) {
-                  $sub->whereNull('tagihan_id')
-                      ->whereNull('pembayaran_id')
-                      ->where(function($k) {
-                          $k->where('kode_transaksi', 'like', 'TRX-SPP-%')
-                            ->orWhere('kode_transaksi', 'like', 'TRX-IN-%');
-                      });
-              });
+              ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran');
         })->delete();
 
         // Build base query according to active filters

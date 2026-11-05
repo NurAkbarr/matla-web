@@ -19,21 +19,14 @@ class DashboardController extends Controller
 
         // -----------------------------------------------------------------
         // AUTO CLEANUP ORPHANED TRANSACTIONS & PAYMENTS
-        // Hapus otomatis pembayaran & transaksi kas yang tagihannya telah dihapus dari sistem
+        // Hapus otomatis pembayaran & transaksi kas tagihan mahasiswa yang induk tagihannya telah dihapus dari sistem
+        // Catatan: Transaksi kas umum (pemasukan/pengeluaran kas) tidak boleh dihapus.
         // -----------------------------------------------------------------
         Pembayaran::whereNull('tagihan_id')->orWhereDoesntHave('tagihan')->delete();
 
         TransaksiKeuangan::where(function($q) {
             $q->whereNotNull('tagihan_id')->whereDoesntHave('tagihan')
-              ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran')
-              ->orWhere(function($sub) {
-                  $sub->whereNull('tagihan_id')
-                      ->whereNull('pembayaran_id')
-                      ->where(function($k) {
-                          $k->where('kode_transaksi', 'like', 'TRX-SPP-%')
-                            ->orWhere('kode_transaksi', 'like', 'TRX-IN-%');
-                      });
-              });
+              ->orWhereNotNull('pembayaran_id')->whereDoesntHave('pembayaran');
         })->delete();
 
         // -----------------------------------------------------------------

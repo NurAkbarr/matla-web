@@ -16,26 +16,85 @@ class TransaksiKeuangan extends Model
     protected $fillable = [
         'kode_transaksi',
         'jenis_transaksi',
+        'jenis_arus_kas',
         'kategori',
+        'kategori_id',
         'nominal',
         'tanggal_transaksi',
+        'waktu_presisi',
         'metode_pembayaran',
         'subjek',
+        'pemberi_dana',
         'user_id',
         'pembayaran_id',
         'tagihan_id',
         'admin_id',
         'admin_nama',
         'deskripsi',
+        'keterangan',
         'bukti',
         'no_referensi',
         'status',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            // Sinkronisasi jenis_transaksi & jenis_arus_kas
+            if (!empty($model->jenis_arus_kas) && empty($model->jenis_transaksi)) {
+                $model->jenis_transaksi = strtolower($model->jenis_arus_kas);
+            } elseif (!empty($model->jenis_transaksi) && empty($model->jenis_arus_kas)) {
+                $model->jenis_arus_kas = strtolower($model->jenis_transaksi);
+            }
+
+            // Sinkronisasi subjek & pemberi_dana
+            if (!empty($model->pemberi_dana) && empty($model->subjek)) {
+                $model->subjek = $model->pemberi_dana;
+            } elseif (!empty($model->subjek) && empty($model->pemberi_dana)) {
+                $model->pemberi_dana = $model->subjek;
+            }
+
+            // Sinkronisasi deskripsi & keterangan
+            if (!empty($model->keterangan) && empty($model->deskripsi)) {
+                $model->deskripsi = $model->keterangan;
+            } elseif (!empty($model->deskripsi) && empty($model->keterangan)) {
+                $model->keterangan = $model->deskripsi;
+            }
+
+            // Sinkronisasi kategori & kategori_id
+            if (!empty($model->kategori_id) && empty($model->kategori)) {
+                $kat = MasterKategoriTransaksi::find($model->kategori_id);
+                if ($kat) {
+                    $model->kategori = $kat->nama_kategori;
+                }
+            } elseif (!empty($model->kategori) && empty($model->kategori_id)) {
+                $kat = MasterKategoriTransaksi::where('nama_kategori', $model->kategori)->first();
+                if ($kat) {
+                    $model->kategori_id = $kat->id;
+                }
+            }
+
+            // Waktu presisi
+            if (!empty($model->tanggal_transaksi) && empty($model->waktu_presisi)) {
+                $model->waktu_presisi = $model->tanggal_transaksi instanceof Carbon 
+                    ? $model->tanggal_transaksi->format('H:i:s') 
+                    : date('H:i:s', strtotime($model->tanggal_transaksi));
+            }
+        });
+    }
+
     protected $casts = [
         'tanggal_transaksi' => 'datetime',
         'nominal' => 'decimal:2',
     ];
+
+    /**
+     * Relationship with master kategori transaksi
+     */
+    public function kategoriTransaksi()
+    {
+        return $this->belongsTo(MasterKategoriTransaksi::class, 'kategori_id');
+    }
 
     /**
      * Relationship with student user (if payment from student)

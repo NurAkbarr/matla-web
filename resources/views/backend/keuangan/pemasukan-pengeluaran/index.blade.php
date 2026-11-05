@@ -6,8 +6,8 @@
 <script>
 function kasPageData() {
     return {
-        jenisPilihan: 'masuk',
-        nominalInput: '',
+        jenisPilihan: '{{ old('jenis_transaksi', 'masuk') }}',
+        nominalInput: '{{ old('nominal', '') }}',
         masterKategoris: @json($masterKategoris),
         
         // Modal State
@@ -311,9 +311,14 @@ function kasPageData() {
                     </div>
                     <select name="kategori" required class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
                         <option value="">-- Pilih kategori transaksi --</option>
-                        <template x-for="item in filteredKategori" :key="item.id">
-                            <option :value="item.nama_kategori" x-text="item.nama_kategori + ' (' + item.tipe + ')'"></option>
-                        </template>
+                        @foreach($masterKategoris as $item)
+                            <option value="{{ $item->nama_kategori }}" 
+                                    x-show="jenisPilihan === '{{ $item->tipe }}' || '{{ $item->tipe }}' === 'umum'"
+                                    :disabled="!(jenisPilihan === '{{ $item->tipe }}' || '{{ $item->tipe }}' === 'umum')"
+                                    {{ old('kategori') === $item->nama_kategori ? 'selected' : '' }}>
+                                {{ $item->nama_kategori }} ({{ ucfirst($item->tipe) }})
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -629,9 +634,9 @@ function kasPageData() {
                             <label class="block text-xs font-semibold text-[var(--text-heading)] mb-1">Kategori *</label>
                             <select name="kategori" x-model="editForm.kategori" required class="w-full h-10 px-3 bg-[var(--bg-page)] border border-[var(--border)] rounded-[var(--radius-xs)] text-xs text-[var(--text-body)] focus:outline-none focus:border-[var(--primary-700)]">
                                 <option value="">-- Pilih kategori --</option>
-                                <template x-for="item in masterKategoris" :key="item.id">
-                                    <option :value="item.nama_kategori" x-text="item.nama_kategori + ' (' + item.tipe + ')'"></option>
-                                </template>
+                                @foreach($masterKategoris as $item)
+                                    <option value="{{ $item->nama_kategori }}">{{ $item->nama_kategori }} ({{ ucfirst($item->tipe) }})</option>
+                                @endforeach
                             </select>
                         </div>
                         <div>

@@ -7,6 +7,8 @@ use App\Models\MasterKategoriTransaksi;
 use App\Models\TransaksiKeuangan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PemasukanPengeluaranController extends Controller
@@ -81,6 +83,40 @@ class PemasukanPengeluaranController extends Controller
      */
     public function store(Request $request)
     {
+        // 1. Normalisasi nama field input form (alias support)
+        if (!$request->filled('jenis_transaksi') && $request->filled('jenis_arus_kas')) {
+            $request->merge(['jenis_transaksi' => strtolower($request->input('jenis_arus_kas'))]);
+        }
+        if (!$request->filled('subjek') && $request->filled('pemberi_dana')) {
+            $request->merge(['subjek' => $request->input('pemberi_dana')]);
+        }
+        if (!$request->filled('deskripsi') && $request->filled('keterangan')) {
+            $request->merge(['deskripsi' => $request->input('keterangan')]);
+        }
+        if (!$request->filled('tanggal') && $request->filled('tanggal_transaksi')) {
+            $val = $request->input('tanggal_transaksi');
+            $request->merge(['tanggal' => is_string($val) && strlen($val) > 10 ? substr($val, 0, 10) : $val]);
+        }
+        if (!$request->filled('jam') && $request->filled('waktu_presisi')) {
+            $request->merge(['jam' => $request->input('waktu_presisi')]);
+        }
+        if (!$request->filled('kategori') && $request->filled('kategori_id')) {
+            $kat = MasterKategoriTransaksi::find($request->input('kategori_id'));
+            if ($kat) {
+                $request->merge(['kategori' => $kat->nama_kategori]);
+            }
+        }
+
+        // Pembersihan format nominal jika mengandung "Rp", titik, atau spasi
+        if ($request->filled('nominal') && is_string($request->input('nominal'))) {
+            $cleanedNominal = str_replace(['Rp', 'rp', '.', ' '], '', $request->input('nominal'));
+            $cleanedNominal = str_replace(',', '.', $cleanedNominal);
+            if (is_numeric($cleanedNominal)) {
+                $request->merge(['nominal' => $cleanedNominal]);
+            }
+        }
+
+        // 2. Validasi Input Form
         $request->validate([
             'jenis_transaksi' => 'required|in:masuk,keluar',
             'kategori' => 'required|string|max:100',
@@ -94,61 +130,113 @@ class PemasukanPengeluaranController extends Controller
             'bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'jenis_transaksi.required' => 'Pilihan jenis arus kas (Uang Masuk / Keluar) wajib ditentukan.',
+            'jenis_transaksi.in' => 'Pilihan jenis arus kas harus berupa masuk atau keluar.',
             'kategori.required' => 'Kategori transaksi wajib dipilih.',
             'nominal.required' => 'Nominal transaksi wajib diisi.',
             'nominal.numeric' => 'Nominal harus berupa angka yang valid.',
             'nominal.min' => 'Nominal transaksi minimal Rp 1.',
             'tanggal.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal.date' => 'Format tanggal transaksi tidak valid.',
             'subjek.required' => 'Pihak terkait / sumber dana / vendor wajib diisi.',
             'metode_pembayaran.required' => 'Metode pembayaran wajib dipilih.',
             'bukti.max' => 'Ukuran file lampiran bukti maksimal 5MB.',
             'bukti.mimes' => 'Format file bukti harus berupa JPG, PNG, atau PDF.',
         ]);
 
-        // Konstruksi waktu presisi
-        $tanggal = $request->input('tanggal');
-        $jam = $request->input('jam');
-        if (empty($jam)) {
-            $jam = date('H:i:s');
-        } elseif (strlen($jam) === 5) {
-            $jam .= ':00';
+        try {
+            DB::beginTransaction();
+
+            // Konstruksi waktu presisi
+            $tanggal = $request->input('tanggal');
+            $jam = $request->input('jam');
+            if (empty($jam)) {
+                $jam = date('H:i:s');
+            } elseif (strlen($jam) === 5) {
+                $jam .= ':00';
+            }
+            $datetime = Carbon::parse("{$tanggal} {$jam}");
+
+            // Generate kode transaksi unik
+            $kode = TransaksiKeuangan::generateKode($request->input('jenis_transaksi'), $datetime);
+
+            // Upload file bukti (opsional)
+            $buktiPath = null;
+            if ($request->hasFile('bukti')) {
+                $file = $request->file('bukti');
+                $filename = 'bukti_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $buktiPath = $file->storeAs('bukti_transaksi', $filename, 'public');
+            }
+
+            $admin = auth()->user();
+
+            // Kategori ID jika ada
+            $kategoriId = $request->input('kategori_id');
+            if (!$kategoriId && $request->filled('kategori')) {
+                $kat = MasterKategoriTransaksi::where('nama_kategori', $request->input('kategori'))->first();
+                if ($kat) {
+                    $kategoriId = $kat->id;
+                }
+            }
+
+            $userId = $request->input('user_id', $admin ? $admin->id : null);
+
+            $transaksi = TransaksiKeuangan::create([
+                'kode_transaksi' => $kode,
+                'jenis_transaksi' => $request->input('jenis_transaksi'),
+                'jenis_arus_kas' => $request->input('jenis_transaksi'),
+                'kategori' => $request->input('kategori'),
+                'kategori_id' => $kategoriId,
+                'nominal' => (float) $request->input('nominal'),
+                'tanggal_transaksi' => $datetime,
+                'waktu_presisi' => $jam,
+                'metode_pembayaran' => $request->input('metode_pembayaran'),
+                'subjek' => trim($request->input('subjek')),
+                'pemberi_dana' => trim($request->input('subjek')),
+                'user_id' => $userId,
+                'admin_id' => $admin ? $admin->id : null,
+                'admin_nama' => $admin ? $admin->name : 'Admin Keuangan',
+                'deskripsi' => $request->input('deskripsi'),
+                'keterangan' => $request->input('deskripsi'),
+                'no_referensi' => $request->input('no_referensi'),
+                'bukti' => $buktiPath,
+                'status' => 'verified',
+            ]);
+
+            DB::commit();
+
+            $tipeLabel = $request->input('jenis_transaksi') === 'masuk' ? 'Uang Masuk' : 'Uang Keluar';
+            $nominalFormatted = number_format($request->input('nominal'), 0, ',', '.');
+            $msg = "Transaksi kas {$tipeLabel} [{$kode}] sebesar Rp {$nominalFormatted} berhasil disimpan ke database.";
+
+            session()->flash('success', $msg);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg,
+                    'data' => $transaksi,
+                    'redirect' => route('backend.keuangan.pemasukan-pengeluaran.index'),
+                ]);
+            }
+
+            return redirect()->route('backend.keuangan.pemasukan-pengeluaran.index')
+                ->with('success', $msg);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Gagal simpan transaksi kas: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan transaksi kas: ' . $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan transaksi kas ke database: ' . $e->getMessage());
         }
-        $datetime = Carbon::parse("{$tanggal} {$jam}");
-
-        // Generate kode transaksi unik
-        $kode = TransaksiKeuangan::generateKode($request->input('jenis_transaksi'), $datetime);
-
-        // Upload file bukti (opsional)
-        $buktiPath = null;
-        if ($request->hasFile('bukti')) {
-            $file = $request->file('bukti');
-            $filename = 'bukti_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $buktiPath = $file->storeAs('bukti_transaksi', $filename, 'public');
-        }
-
-        $admin = auth()->user();
-
-        TransaksiKeuangan::create([
-            'kode_transaksi' => $kode,
-            'jenis_transaksi' => $request->input('jenis_transaksi'),
-            'kategori' => $request->input('kategori'),
-            'nominal' => (float) $request->input('nominal'),
-            'tanggal_transaksi' => $datetime,
-            'metode_pembayaran' => $request->input('metode_pembayaran'),
-            'subjek' => trim($request->input('subjek')),
-            'admin_id' => $admin ? $admin->id : null,
-            'admin_nama' => $admin ? $admin->name : 'Admin Keuangan',
-            'deskripsi' => $request->input('deskripsi'),
-            'no_referensi' => $request->input('no_referensi'),
-            'bukti' => $buktiPath,
-            'status' => 'verified',
-        ]);
-
-        $tipeLabel = $request->input('jenis_transaksi') === 'masuk' ? 'Uang Masuk' : 'Uang Keluar';
-        $nominalFormatted = number_format($request->input('nominal'), 0, ',', '.');
-
-        return redirect()->route('backend.keuangan.pemasukan-pengeluaran.index')
-            ->with('success', "Transaksi kas {$tipeLabel} [{$kode}] sebesar Rp {$nominalFormatted} berhasil disimpan.");
     }
 
     /**
@@ -157,6 +245,37 @@ class PemasukanPengeluaranController extends Controller
     public function update(Request $request, $id)
     {
         $transaksi = TransaksiKeuangan::findOrFail($id);
+
+        if (!$request->filled('jenis_transaksi') && $request->filled('jenis_arus_kas')) {
+            $request->merge(['jenis_transaksi' => strtolower($request->input('jenis_arus_kas'))]);
+        }
+        if (!$request->filled('subjek') && $request->filled('pemberi_dana')) {
+            $request->merge(['subjek' => $request->input('pemberi_dana')]);
+        }
+        if (!$request->filled('deskripsi') && $request->filled('keterangan')) {
+            $request->merge(['deskripsi' => $request->input('keterangan')]);
+        }
+        if (!$request->filled('tanggal') && $request->filled('tanggal_transaksi')) {
+            $val = $request->input('tanggal_transaksi');
+            $request->merge(['tanggal' => is_string($val) && strlen($val) > 10 ? substr($val, 0, 10) : $val]);
+        }
+        if (!$request->filled('jam') && $request->filled('waktu_presisi')) {
+            $request->merge(['jam' => $request->input('waktu_presisi')]);
+        }
+        if (!$request->filled('kategori') && $request->filled('kategori_id')) {
+            $kat = MasterKategoriTransaksi::find($request->input('kategori_id'));
+            if ($kat) {
+                $request->merge(['kategori' => $kat->nama_kategori]);
+            }
+        }
+
+        if ($request->filled('nominal') && is_string($request->input('nominal'))) {
+            $cleanedNominal = str_replace(['Rp', 'rp', '.', ' '], '', $request->input('nominal'));
+            $cleanedNominal = str_replace(',', '.', $cleanedNominal);
+            if (is_numeric($cleanedNominal)) {
+                $request->merge(['nominal' => $cleanedNominal]);
+            }
+        }
 
         $request->validate([
             'jenis_transaksi' => 'required|in:masuk,keluar',
@@ -178,40 +297,86 @@ class PemasukanPengeluaranController extends Controller
             'bukti.max' => 'Ukuran file lampiran bukti maksimal 5MB.',
         ]);
 
-        $tanggal = $request->input('tanggal');
-        $jam = $request->input('jam');
-        if (empty($jam)) {
-            $jam = $transaksi->tanggal_transaksi ? $transaksi->tanggal_transaksi->format('H:i:s') : date('H:i:s');
-        } elseif (strlen($jam) === 5) {
-            $jam .= ':00';
-        }
-        $datetime = Carbon::parse("{$tanggal} {$jam}");
+        try {
+            DB::beginTransaction();
 
-        // Ganti file bukti jika ada upload baru
-        $buktiPath = $transaksi->bukti;
-        if ($request->hasFile('bukti')) {
-            if ($transaksi->bukti && Storage::disk('public')->exists($transaksi->bukti)) {
-                Storage::disk('public')->delete($transaksi->bukti);
+            $tanggal = $request->input('tanggal');
+            $jam = $request->input('jam');
+            if (empty($jam)) {
+                $jam = $transaksi->tanggal_transaksi ? $transaksi->tanggal_transaksi->format('H:i:s') : date('H:i:s');
+            } elseif (strlen($jam) === 5) {
+                $jam .= ':00';
             }
-            $file = $request->file('bukti');
-            $filename = 'bukti_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $buktiPath = $file->storeAs('bukti_transaksi', $filename, 'public');
+            $datetime = Carbon::parse("{$tanggal} {$jam}");
+
+            // Ganti file bukti jika ada upload baru
+            $buktiPath = $transaksi->bukti;
+            if ($request->hasFile('bukti')) {
+                if ($transaksi->bukti && Storage::disk('public')->exists($transaksi->bukti)) {
+                    Storage::disk('public')->delete($transaksi->bukti);
+                }
+                $file = $request->file('bukti');
+                $filename = 'bukti_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $buktiPath = $file->storeAs('bukti_transaksi', $filename, 'public');
+            }
+
+            $kategoriId = $request->input('kategori_id');
+            if (!$kategoriId && $request->filled('kategori')) {
+                $kat = MasterKategoriTransaksi::where('nama_kategori', $request->input('kategori'))->first();
+                if ($kat) {
+                    $kategoriId = $kat->id;
+                }
+            }
+
+            $transaksi->update([
+                'jenis_transaksi' => $request->input('jenis_transaksi'),
+                'jenis_arus_kas' => $request->input('jenis_transaksi'),
+                'kategori' => $request->input('kategori'),
+                'kategori_id' => $kategoriId ?: $transaksi->kategori_id,
+                'nominal' => (float) $request->input('nominal'),
+                'tanggal_transaksi' => $datetime,
+                'waktu_presisi' => $jam,
+                'metode_pembayaran' => $request->input('metode_pembayaran'),
+                'subjek' => trim($request->input('subjek')),
+                'pemberi_dana' => trim($request->input('subjek')),
+                'deskripsi' => $request->input('deskripsi'),
+                'keterangan' => $request->input('deskripsi'),
+                'no_referensi' => $request->input('no_referensi'),
+                'bukti' => $buktiPath,
+            ]);
+
+            DB::commit();
+
+            $msg = "Transaksi [{$transaksi->kode_transaksi}] berhasil diperbarui di database.";
+            session()->flash('success', $msg);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg,
+                    'data' => $transaksi,
+                    'redirect' => route('backend.keuangan.pemasukan-pengeluaran.index'),
+                ]);
+            }
+
+            return redirect()->route('backend.keuangan.pemasukan-pengeluaran.index')
+                ->with('success', $msg);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Gagal update transaksi kas: ' . $e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui transaksi kas: ' . $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui transaksi: ' . $e->getMessage());
         }
-
-        $transaksi->update([
-            'jenis_transaksi' => $request->input('jenis_transaksi'),
-            'kategori' => $request->input('kategori'),
-            'nominal' => (float) $request->input('nominal'),
-            'tanggal_transaksi' => $datetime,
-            'metode_pembayaran' => $request->input('metode_pembayaran'),
-            'subjek' => trim($request->input('subjek')),
-            'deskripsi' => $request->input('deskripsi'),
-            'no_referensi' => $request->input('no_referensi'),
-            'bukti' => $buktiPath,
-        ]);
-
-        return redirect()->route('backend.keuangan.pemasukan-pengeluaran.index')
-            ->with('success', "Transaksi [{$transaksi->kode_transaksi}] berhasil diperbarui.");
     }
 
     /**
@@ -243,8 +408,19 @@ class PemasukanPengeluaranController extends Controller
         $kode = $transaksi->kode_transaksi;
         $transaksi->delete();
 
+        $msg = "Transaksi [{$kode}] berhasil dihapus dari pencatatan kas.";
+        session()->flash('success', $msg);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'redirect' => route('backend.keuangan.pemasukan-pengeluaran.index'),
+            ]);
+        }
+
         return redirect()->route('backend.keuangan.pemasukan-pengeluaran.index')
-            ->with('success', "Transaksi [{$kode}] berhasil dihapus dari pencatatan kas.");
+            ->with('success', $msg);
     }
 
     /**
