@@ -12,6 +12,10 @@
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
             <span class="text-[10px] font-medium">Tugas</span>
         </a>
+        <a href="{{ route('backend.mahasiswa.pembayaran.index') }}" class="flex flex-col items-center p-2 {{ request()->routeIs('backend.mahasiswa.pembayaran.*') ? 'text-emerald-700' : 'text-slate-400 hover:text-emerald-700' }} transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-[10px] font-medium">Bayar</span>
+        </a>
         <button @click="mobileMenuOpen = true" class="flex flex-col items-center p-2 text-slate-400 hover:text-emerald-700 transition-colors">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             <span class="text-[10px] font-medium">Lainnya</span>
@@ -45,33 +49,50 @@
             <div class="grid grid-cols-4 gap-y-6 gap-x-2">
                 <!-- Biodata -->
                 <a href="{{ route('mahasiswa.profil') }}" class="flex flex-col items-center text-center group">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform group-hover:bg-emerald-600 group-hover:text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-600">Biodata</span>
+                    <span class="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-700">Biodata</span>
                 </a>
                 
                 <!-- KTM Digital -->
                 <a href="{{ route('mahasiswa.ktm') }}" class="flex flex-col items-center text-center group">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform group-hover:bg-emerald-600 group-hover:text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3z"></path></svg>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-600">KTM</span>
+                    <span class="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-700">KTM</span>
                 </a>
 
-                <!-- Placeholder for visual fullness -->
-                <a href="#" class="flex flex-col items-center text-center group">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform">
+                <!-- Pembayaran -->
+                <a href="{{ route('backend.mahasiswa.pembayaran.index') }}" class="flex flex-col items-center text-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform group-hover:bg-emerald-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-700">Pembayaran</span>
+                </a>
+
+                <!-- KHS -->
+                <a href="{{ route('mahasiswa.khs.index') }}" class="flex flex-col items-center text-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform group-hover:bg-emerald-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-700">KHS</span>
+                </a>
+
+                <!-- Presensi -->
+                <a href="{{ route('mahasiswa.elearning.index') }}" class="flex flex-col items-center text-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform group-hover:bg-emerald-600 group-hover:text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-600">Presensi</span>
+                    <span class="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-700">Presensi</span>
                 </a>
                 
+                <!-- Cuti -->
                 <a href="{{ route('backend.mahasiswa.cuti.index') }}" class="flex flex-col items-center text-center group">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 active:scale-95 transition-transform group-hover:bg-emerald-600 group-hover:text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-600">Cuti</span>
+                    <span class="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-700">Cuti</span>
                 </a>
             </div>
 

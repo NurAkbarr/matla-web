@@ -116,8 +116,8 @@
         <!-- Top Navbar -->
         <header class="h-[76px] bg-white border-b border-slate-100 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30">
             <div class="flex items-center gap-4">
-                <!-- Hamburger hidden on mobile since we use bottom nav -->
-                <button @click="sidebarOpen = true" class="hidden text-slate-500 hover:text-slate-700">
+                <!-- Hamburger for mobile -->
+                <button @click="sidebarOpen = true" class="lg:hidden p-1.5 -ml-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none" aria-label="Buka Menu">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
                 <h2 class="text-xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
@@ -292,7 +292,7 @@
                     <!-- Menu Akademik (Fitur Cepat) -->
                     <div class="xl:col-span-2 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200">
                         
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <!-- Biodata -->
                             <a href="{{ route('mahasiswa.profil') }}" class="flex flex-col items-center p-5 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group">
                                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
@@ -327,6 +327,13 @@
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 </div>
                                 <span class="font-bold text-[13px] text-slate-800 group-hover:text-emerald-700">Kartu Hasil Studi</span>
+                            </a>
+                            <!-- Pembayaran -->
+                            <a href="{{ route('backend.mahasiswa.pembayaran.index') }}" class="flex flex-col items-center p-5 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <span class="font-bold text-[13px] text-slate-800 group-hover:text-emerald-700">Pembayaran</span>
                             </a>
                         </div>
                     </div>
