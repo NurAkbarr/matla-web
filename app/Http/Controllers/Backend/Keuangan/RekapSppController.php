@@ -683,10 +683,7 @@ class RekapSppController extends Controller
         // Filter Program Studi
         $selectedProdi = $request->get('prodi');
         if (!empty($selectedProdi) && $selectedProdi !== 'semua') {
-            $query->where(function ($q) use ($selectedProdi) {
-                $q->where('education->program_studi', $selectedProdi)
-                  ->orWhere('prodi', $selectedProdi);
-            });
+            $query->where('education->program_studi', $selectedProdi);
         }
 
         // Filter Semester Mahasiswa (1-8)

@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
 <table>
     <thead>
         <tr>
@@ -19,19 +25,19 @@
             <th colspan="16"></th>
         </tr>
         <tr>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">NO</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">NIM</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000;">NAMA MAHASISWA & PRODI</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000;">NO</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000;">NIM</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000;">NAMA MAHASISWA & PRODI</th>
             @foreach($daftarBulan as $b)
-                <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">{{ strtoupper($b['nama']) }}</th>
+                <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000;">{{ strtoupper($b['nama']) }}</th>
             @endforeach
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">TARIF SPP (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">TGK</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">TAGIHAN (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">DIBAYAR (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">SISA (RP)</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">STATUS</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: left; border: 1px solid #000000;">KETERANGAN</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: right; border: 1px solid #000000;">TARIF SPP (RP)</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000;">TGK</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: right; border: 1px solid #000000;">TAGIHAN (RP)</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: right; border: 1px solid #000000;">DIBAYAR (RP)</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: right; border: 1px solid #000000;">SISA (RP)</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: center; border: 1px solid #000000;">STATUS</th>
+            <th style="background-color: #00703C; color: #FFFFFF; font-weight: bold; text-align: left; border: 1px solid #000000;">KETERANGAN</th>
         </tr>
     </thead>
     <tbody>
@@ -45,9 +51,9 @@
                 @foreach($item['matriks_bulan'] as $m)
                     <td style="text-align: center; border: 1px solid #000000; {{ $m['is_lunas'] ? 'background-color: #D1FAE5; color: #047857; font-weight: bold;' : (!empty($m['is_sebagian']) ? 'background-color: #FEF3C7; color: #B45309; font-weight: bold;' : 'color: #9CA3AF;') }}">
                         @if($m['is_lunas'])
-                            ✔ LUNAS
+                            LUNAS
                         @elseif(!empty($m['is_sebagian']))
-                            ◐ SEBAGIAN ({{ number_format($m['nominal_bayar'], 0, ',', '.') }})
+                            SEBAGIAN ({{ number_format($m['nominal_bayar'], 0, ',', '.') }})
                         @else
                             -
                         @endif
@@ -77,25 +83,27 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="9" style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
+            <th colspan="9" style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
                 TOTAL KESELURUHAN ({{ count($rekapItems) }} Mahasiswa):
             </th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">-</th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">
+            <th style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">-</th>
+            <th style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">
                 {{ $rekapItems ? array_sum(array_column($rekapItems, 'bulan_menunggak')) : 0 }}
             </th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
+            <th style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
                 {{ $rekapItems ? array_sum(array_column($rekapItems, 'tagihan')) : 0 }}
             </th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
+            <th style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
                 {{ $summary['total_terkumpul'] }}
             </th>
-            <th style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
+            <th style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: right; border: 1px solid #000000;">
                 {{ $summary['total_tunggakan'] }}
             </th>
-            <th colspan="2" style="background-color: #00FF00; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">
+            <th colspan="2" style="background-color: #E2E8F0; color: #000000; font-weight: bold; text-align: center; border: 1px solid #000000;">
                 {{ $summary['persentase_lunas'] }}% Terkumpul
             </th>
         </tr>
     </tfoot>
 </table>
+</body>
+</html>
