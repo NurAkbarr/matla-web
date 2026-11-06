@@ -14,6 +14,7 @@ class Pengumuman extends Model
 
     protected $fillable = [
         'judul',
+        'sender_name',
         'konten',
         'target_role',
         'custom_emails',

@@ -71,6 +71,42 @@
                 </p>
             </div>
 
+            {{-- Nama Pengirim Email (Sender Name) --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="sender_name" class="block text-xs font-bold text-[var(--text-heading)] uppercase tracking-wider mb-2">
+                        Nama Pengirim Email (Sender Name)
+                    </label>
+                    <input type="text" 
+                           id="sender_name" 
+                           name="sender_name" 
+                           x-model="senderName"
+                           value="{{ old('sender_name', 'MATLA University') }}"
+                           placeholder="Contoh: MATLA University (atau kosongkan untuk email saja)" 
+                           class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-transparent text-sm text-[var(--text-heading)] focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-medium">
+                    <p class="text-[11px] text-[var(--text-muted)] mt-1.5">
+                        Nama yang tertampil di kotak masuk email penerima (Default: <strong>MATLA University</strong>).
+                    </p>
+                </div>
+
+                <div class="flex flex-col justify-end">
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[var(--border)] text-xs text-[var(--text-muted)] flex items-center justify-between">
+                        <span>Pilihan Cepat:</span>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" @click="senderName = 'MATLA University'" class="px-2 py-1 rounded-md bg-white dark:bg-slate-700 text-[var(--text-heading)] font-semibold border border-[var(--border)] hover:bg-slate-100 transition-colors">
+                                MATLA University
+                            </button>
+                            <button type="button" @click="senderName = 'Akademik MATLA'" class="px-2 py-1 rounded-md bg-white dark:bg-slate-700 text-[var(--text-heading)] font-semibold border border-[var(--border)] hover:bg-slate-100 transition-colors">
+                                Akademik
+                            </button>
+                            <button type="button" @click="senderName = ''" class="px-2 py-1 rounded-md bg-white dark:bg-slate-700 text-slate-500 font-semibold border border-[var(--border)] hover:bg-slate-100 transition-colors" title="Kirim hanya dengan alamat email tanpa label nama">
+                                Hanya Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Target Penerima --}}
             <div>
                 <label class="block text-xs font-bold text-[var(--text-heading)] uppercase tracking-wider mb-2">
@@ -402,6 +438,7 @@
 function pengumumanForm() {
     return {
         judul: '{{ old('judul', '') }}',
+        senderName: '{{ old('sender_name', 'MATLA University') }}',
         konten: `{{ old('konten', '') }}`,
         targetRole: '{{ old('target_role', 'semua') }}',
         customEmails: `{{ old('custom_emails', '') }}`,

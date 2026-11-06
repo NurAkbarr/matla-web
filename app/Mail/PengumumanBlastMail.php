@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Pengumuman;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -32,7 +33,18 @@ class PengumumanBlastMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $fromEmail = config('mail.from.address', 'islamicacademymatla@gmail.com');
+        $senderName = trim((string) ($this->pengumuman->sender_name ?? 'MATLA University'));
+
+        // Jika dipilih hanya alamat email atau kosong
+        if ($senderName === '' || strtolower($senderName) === 'email_only') {
+            $fromAddress = new Address($fromEmail);
+        } else {
+            $fromAddress = new Address($fromEmail, $senderName);
+        }
+
         return new Envelope(
+            from: $fromAddress,
             subject: '[MATLA INFO] ' . $this->pengumuman->judul,
         );
     }

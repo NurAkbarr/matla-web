@@ -72,6 +72,7 @@ class PengumumanController extends Controller
     {
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
+            'sender_name' => 'nullable|string|max:100',
             'konten' => 'required|string',
             'target_role' => 'required|in:semua,mahasiswa,dosen,admin,custom_email',
             'custom_emails' => 'nullable|required_if:target_role,custom_email|string',
@@ -103,6 +104,7 @@ class PengumumanController extends Controller
 
         $pengumuman = Pengumuman::create([
             'judul' => $validated['judul'],
+            'sender_name' => $validated['sender_name'] ?? 'MATLA University',
             'konten' => $validated['konten'],
             'target_role' => $validated['target_role'],
             'custom_emails' => $validated['custom_emails'] ?? null,

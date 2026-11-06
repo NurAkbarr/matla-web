@@ -17,7 +17,7 @@
                 {{ $pengumuman->judul }}
             </h1>
             <p class="text-xs text-[var(--text-muted)] mt-1">
-                Dibuat oleh <strong class="text-[var(--text-heading)]">{{ $pengumuman->creator->name ?? 'Admin' }}</strong> pada {{ $pengumuman->created_at->format('d M Y, H:i') }} WIB
+                Dibuat oleh <strong class="text-[var(--text-heading)]">{{ $pengumuman->creator->name ?? 'Admin' }}</strong> &bull; Pengirim: <strong class="text-emerald-600 dark:text-emerald-400">{{ !empty($pengumuman->sender_name) && strtolower($pengumuman->sender_name) !== 'email_only' ? $pengumuman->sender_name : config('mail.from.address') }}</strong> &bull; {{ $pengumuman->created_at->format('d M Y, H:i') }} WIB
             </p>
         </div>
 
