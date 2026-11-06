@@ -1,6 +1,10 @@
 {
+  "public/assets/doodle-bg.svg": {
+    "file": "assets/doodle-bg-CjFpS-wH.svg",
+    "src": "public/assets/doodle-bg.svg"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-CDb-txpj.css",
+    "file": "assets/app-CtlLYBFi.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
