@@ -5,12 +5,7 @@
 @section('content')
 <div x-data="{ showModal: false }">
 <!-- Hero Section -->
-<section class="relative min-h-[600px] lg:min-h-screen flex items-center overflow-hidden">
-    <div class="absolute inset-0 z-0">
-        <img src="{{ asset('assets/mosque-pmb.png') }}" alt="PMB Background" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
-    </div>
-
+<section class="relative min-h-[600px] lg:min-h-screen flex items-center overflow-hidden bg-[#006837]" style="background-image: url('{{ asset('assets/doodle-bg.svg') }}'); background-repeat: repeat;">
     <div class="container mx-auto px-4 lg:px-12 relative z-10 py-20 lg:py-32">
         <div class="max-w-3xl">
             <!-- Badge -->
@@ -20,20 +15,20 @@
             </div>
 
             <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
-                Bekali Akhiratmu dengan <span class="text-emerald-400 underline decoration-emerald-400/30 underline-offset-8">Ilmu Syar'i</span>
+                Bekali Akhiratmu dengan <span class="text-emerald-300 underline decoration-emerald-300/40 underline-offset-8">Ilmu Syar'i</span>
             </h1>
-            <p class="text-2xl md:text-3xl font-bold text-orange-400 mb-6 leading-snug">
+            <p class="text-2xl md:text-3xl font-bold text-amber-400 mb-6 leading-snug">
                 Bekali Duniamu dengan Skill Industri
             </p>
             
-            <p class="text-lg md:text-xl text-gray-200 mb-10 leading-relaxed max-w-2xl">
+            <p class="text-lg md:text-xl text-emerald-50/90 mb-10 leading-relaxed max-w-2xl">
                 Bergabunglah bersama MATLA untuk mempelajari ilmu syar'i secara mendalam sekaligus membekali diri dengan keterampilan yang siap digunakan di dunia kerja.
             </p>
 
             <!-- Countdown Timer -->
             @if($settings['pmb_is_open'] == '1')
             <div class="mb-12" id="pmb-countdown-container" data-end-date="{{ date('Y-m-d H:i:s', strtotime($settings['pmb_end_date'])) }}">
-                <p class="text-emerald-400 font-bold mb-4 flex items-center">
+                <p class="text-emerald-300 font-bold mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -42,22 +37,22 @@
                 <div class="flex space-x-3 md:space-x-5">
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-days">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Hari</span>
+                        <span class="text-emerald-100/80 text-xs md:text-sm uppercase tracking-widest font-bold">Hari</span>
                     </div>
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-hours">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Jam</span>
+                        <span class="text-emerald-100/80 text-xs md:text-sm uppercase tracking-widest font-bold">Jam</span>
                     </div>
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-white mb-2" id="cd-minutes">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
+                        <span class="text-emerald-100/80 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
                     </div>
                 </div>
             </div>
             @else
             {{-- Coming Soon Countdown --}}
             <div class="mb-12" id="pmb-coming-soon-container" data-open-date="{{ date('Y-m-d H:i:s', strtotime($settings['pmb_start_date'] ?? '2026-06-01 00:00:00')) }}">
-                <p class="text-orange-400 font-bold mb-4 flex items-center text-sm uppercase tracking-widest">
+                <p class="text-amber-400 font-bold mb-4 flex items-center text-sm uppercase tracking-widest">
                     <svg class="w-5 h-5 mr-2 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 11-2 0v-.07A8.001 8.001 0 014.07 11H5a1 1 0 110 2h-.93A8.001 8.001 0 0111 19.93zm0-13.86V5a1 1 0 112 0v.07A8.001 8.001 0 0119.93 11H19a1 1 0 110-2h.93A8.001 8.001 0 0113 3.07zM12 8v4l2.5 2.5a1 1 0 01-1.414 1.414l-3-3A1 1 0 0110 12V8a1 1 0 012 0z"/>
                     </svg>
@@ -66,15 +61,15 @@
                 <div class="flex space-x-3 md:space-x-5">
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-days">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Hari</span>
+                        <span class="text-emerald-100/80 text-xs md:text-sm uppercase tracking-widest font-bold">Hari</span>
                     </div>
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-hours">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Jam</span>
+                        <span class="text-emerald-100/80 text-xs md:text-sm uppercase tracking-widest font-bold">Jam</span>
                     </div>
                     <div class="text-center">
                         <div class="w-16 h-16 md:w-20 md:h-20 bg-orange-500/20 backdrop-blur-md border border-orange-400/30 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-300 mb-2" id="cs-minutes">--</div>
-                        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
+                        <span class="text-emerald-100/80 text-xs md:text-sm uppercase tracking-widest font-bold">Menit</span>
                     </div>
                 </div>
             </div>
@@ -82,14 +77,14 @@
 
             <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 @if($settings['pmb_is_open'] == '1')
-                <button @click="showModal = true" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-lg shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2 mr-4 group">
+                <button @click="showModal = true" class="px-8 py-4 bg-[#fca900] hover:bg-[#e09600] text-[#14231B] rounded-xl font-bold text-lg shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center space-x-2 mr-4 group">
                     <span>Daftar Sekarang</span>
                     <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
                 </button>
                 @endif
-                <a href="{{ $settings['pmb_status_link'] }}" class="px-8 py-4 bg-white/10 hover:bg-white border border-white/20 hover:text-primary-dark text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 backdrop-blur-sm">
+                <a href="{{ $settings['pmb_status_link'] }}" class="px-8 py-4 bg-white/10 hover:bg-white border border-white/20 hover:text-[#006837] text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 backdrop-blur-sm">
                     <span>Cek Status</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -532,35 +527,35 @@
 </script>
 
 <!-- CTA Footer Section -->
-<section class="py-20 bg-primary-dark relative overflow-hidden">
+<section class="py-20 bg-[#006837] relative overflow-hidden" style="background-image: url('{{ asset('assets/doodle-bg.svg') }}'); background-repeat: repeat;">
     <!-- Decorative background circles -->
-    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-400/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-primary/20 rounded-full -translate-x-1/4 translate-y-1/4 blur-3xl"></div>
+    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-400/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-primary/20 rounded-full -translate-x-1/4 translate-y-1/4 blur-3xl pointer-events-none"></div>
 
     <div class="container mx-auto px-4 relative z-10 text-center text-white">
-        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl">
-             <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-16 h-16 bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl">
+             <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
         </div>
         
         <h2 class="text-3xl md:text-5xl font-extrabold mb-6">Siap Memulai Perjalanan Anda?</h2>
-        <p class="text-emerald-50/80 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
+        <p class="text-emerald-50/90 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
             Bergabunglah dengan ribuan mahasiswa Matla Islamic University dan mulailah perjalanan ilmu Anda sekarang juga.
         </p>
 
         @if($settings['pmb_is_open'] == '1')
-        <button @click="showModal = true" class="inline-block px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-500/20 transition-all transform hover:scale-105">
+        <button @click="showModal = true" class="inline-block px-10 py-4 bg-[#fca900] hover:bg-[#e09600] text-[#14231B] rounded-xl font-bold text-xl shadow-xl shadow-amber-500/20 transition-all transform hover:scale-105 cursor-pointer">
             Daftar Sekarang
         </button>
         @else
-        <div class="inline-block px-10 py-4 bg-red-500/20 text-red-200 border border-red-500/30 rounded-xl font-bold text-xl">
+        <div class="inline-block px-10 py-4 bg-red-500/20 text-red-100 border border-red-500/30 rounded-xl font-bold text-xl backdrop-blur-sm">
             Pendaftaran Saat Ini Ditutup
         </div>
         @endif
 
-        <p class="mt-8 text-emerald-100/60 font-medium">
-            Butuh bantuan? <a href="https://wa.me/6287784538820" target="_blank" class="text-emerald-400 hover:underline">Hubungi kami via WhatsApp</a>
+        <p class="mt-8 text-emerald-100/70 font-medium">
+            Butuh bantuan? <a href="https://wa.me/6287784538820" target="_blank" class="text-amber-300 hover:text-amber-200 hover:underline font-semibold transition-colors">Hubungi kami via WhatsApp</a>
         </p>
     </div>
 </section>
