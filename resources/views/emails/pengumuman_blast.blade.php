@@ -194,7 +194,7 @@
 
             <!-- Greeting -->
             <p class="salutation">
-                Yth. <strong>{{ $recipientName }}</strong>,
+                Yth. <strong>{{ $pengumuman->greeting_label }}</strong>,
             </p>
 
             <!-- Body Message -->
@@ -204,7 +204,7 @@
 
             <!-- Call to Action -->
             <div class="cta-container">
-                <a href="{{ url('/') }}" class="cta-btn" target="_blank">Kunjungi Portal MATLA &rarr;</a>
+                <a href="https://matla.id/" class="cta-btn" target="_blank">Kunjungi Portal MATLA &rarr;</a>
             </div>
         </div>
 
@@ -226,3 +226,4 @@
     </div>
 </body>
 </html>
+

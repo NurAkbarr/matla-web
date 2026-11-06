@@ -60,6 +60,20 @@ class Pengumuman extends Model
     }
 
     /**
+     * Greeting label in Indonesian based on target role.
+     */
+    public function getGreetingLabelAttribute(): string
+    {
+        return match ($this->target_role) {
+            'mahasiswa' => 'Mahasiswa',
+            'dosen' => 'Dosen',
+            'admin' => 'Admin & Staff',
+            'custom_email' => 'Penerima Email',
+            default => 'Civitas Akademika MATLA',
+        };
+    }
+
+    /**
      * Status label in Indonesian.
      */
     public function getStatusLabelAttribute(): string
@@ -156,3 +170,4 @@ class Pengumuman extends Model
         return $query->distinct('email')->count('email');
     }
 }
+

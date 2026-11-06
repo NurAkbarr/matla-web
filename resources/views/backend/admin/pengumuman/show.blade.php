@@ -195,7 +195,7 @@
                     </div>
 
                     <p class="text-sm text-slate-700">
-                        Yth. <strong>Civitas Akademika MATLA</strong>,
+                        Yth. <strong>{{ $pengumuman->greeting_label }}</strong>,
                     </p>
 
                     <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-white border border-slate-100 p-5 rounded-xl shadow-xs">
@@ -203,7 +203,7 @@
                     </div>
 
                     <div class="text-center pt-2">
-                        <a href="{{ url('/') }}" target="_blank" class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-700 to-green-700 hover:from-emerald-800 hover:to-green-800 text-white font-bold text-xs shadow-md transition-all">
+                        <a href="https://matla.id/" target="_blank" class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-700 to-green-700 hover:from-emerald-800 hover:to-green-800 text-white font-bold text-xs shadow-md transition-all">
                             Kunjungi Portal MATLA &rarr;
                         </a>
                     </div>
@@ -293,3 +293,4 @@
     </div>
 </div>
 @endsection
+

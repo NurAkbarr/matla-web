@@ -60,3 +60,4 @@ class PengumumanBlastMail extends Mailable
         return [];
     }
 }
+

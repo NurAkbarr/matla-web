@@ -137,3 +137,4 @@ class SendPengumumanBlastJob implements ShouldQueue
         ]);
     }
 }
+

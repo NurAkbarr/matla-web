@@ -281,7 +281,7 @@
                         </div>
 
                         <p class="text-sm text-slate-600">
-                            Yth. <strong>Civitas Akademika MATLA</strong>,
+                            Yth. <strong x-text="targetGreeting">Civitas Akademika MATLA</strong>,
                         </p>
 
                         <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-white border border-slate-100 p-4 rounded-xl min-h-[120px]"
@@ -289,9 +289,9 @@
                         </div>
 
                         <div class="text-center pt-2">
-                            <span class="inline-block px-5 py-2.5 rounded-lg bg-emerald-700 text-white font-bold text-xs shadow-md">
+                            <a href="https://matla.id/" target="_blank" class="inline-block px-5 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition-colors">
                                 Kunjungi Portal MATLA &rarr;
-                            </span>
+                            </a>
                         </div>
                     </div>
 
@@ -409,6 +409,16 @@ function pengumumanForm() {
         activeTab: 'editor',
         customEmailCount: 0,
 
+        get targetGreeting() {
+            switch(this.targetRole) {
+                case 'mahasiswa': return 'Mahasiswa';
+                case 'dosen': return 'Dosen';
+                case 'admin': return 'Admin & Staff';
+                case 'custom_email': return 'Penerima Email';
+                default: return 'Civitas Akademika MATLA';
+            }
+        },
+
         init() {
             this.updateCustomEmailCount();
         },
@@ -466,3 +476,4 @@ Bagian Akademik & Administrasi Kampus MATLA`;
 }
 </script>
 @endsection
+

@@ -57,3 +57,4 @@ class SendScheduledPengumumanCommand extends Command
         return Command::SUCCESS;
     }
 }
+
