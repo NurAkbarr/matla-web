@@ -402,13 +402,7 @@
 
 
 <!-- Tentang Section -->
-<section id="tentang-detail" class="relative min-h-[400px] lg:min-h-[600px] flex items-center overflow-hidden bg-white py-14 sm:py-20 lg:py-32">
-    <!-- Background Image (Mirrored/Consistent) -->
-    <div class="absolute inset-0 z-0 opacity-40">
-        <img src="{{ asset('assets/bg-web.png') }}" alt="MATLA Background" class="w-full h-full object-cover scale-x-[-1]">
-        <div class="absolute inset-0 bg-white/60"></div>
-    </div>
-
+<section id="tentang-detail" class="relative min-h-[400px] lg:min-h-[500px] flex items-center bg-white py-14 sm:py-20 lg:py-28 border-b border-gray-100">
     <div class="container mx-auto px-5 sm:px-6 lg:px-12 relative z-10">
         <div class="max-w-3xl">
             <h2 class="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-[#1F2937] leading-tight tracking-tight">
