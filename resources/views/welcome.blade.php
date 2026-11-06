@@ -89,130 +89,171 @@
         background: rgba(30, 112, 64, 0.1);
     }
 </style>
-<section id="beranda" class="relative min-h-[100dvh] lg:min-h-screen flex flex-col justify-start lg:justify-center overflow-hidden pb-20 sm:pb-24 lg:pb-0 pt-32 sm:pt-40 lg:pt-28">
-    <!-- Background Image -->
-    <div class="absolute inset-0 z-0">
-        <img src="{{ asset('assets/bg-web.png') }}" alt="MATLA Background" class="w-full h-full object-cover">
-        <!-- Subtle Gradient Overlay for readability -->
-        <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/60 lg:to-transparent"></div>
+<header id="beranda" class="matla-hero" style="background-image: url('{{ asset('assets/doodle-bg.svg') }}'); background-repeat: repeat;">
+    <div class="matla-hero-wrap">
+        <div>
+            <h1 class="hero-h1">Kuliah online sesuai Alquran dan As Sunnah. <em>Flexible. Terarah.</em></h1>
+            <p class="hero-lead">Pelajari Bahasa Arab dan Ilmu Agama Islam bersama pengajar kompeten — dari mana saja, kapan saja, tanpa batasan umur dengan kurikulum yang terstruktur dan terarah.</p>
+            <div class="hero-cta">
+                @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
+                <a class="btn y" href="{{ route('pmb') }}">Daftar Sekarang &rarr;</a>
+                @endif
+                <a class="btn o" href="#program-studi">Lihat Program</a>
+            </div>
+        </div>
+
+        <div class="matla-art" aria-hidden="true">
+            <svg viewBox="0 0 520 520" fill="none">
+                <g class="matla-ring">
+                    <circle cx="260" cy="260" r="246" stroke="#fff" stroke-opacity=".35" stroke-dasharray="3 9" stroke-linecap="round"/>
+                    <circle cx="260" cy="14" r="6" fill="#fca900"/>
+                    <circle cx="14" cy="260" r="4" fill="#fff" fill-opacity=".6"/>
+                    <circle cx="470" cy="400" r="4" fill="#fff" fill-opacity=".6"/>
+                </g>
+                <circle cx="260" cy="260" r="190" fill="#fff" fill-opacity=".07"/>
+                <!-- books -->
+                <rect x="62" y="372" width="120" height="22" rx="3" fill="#fca900"/>
+                <rect x="72" y="350" width="104" height="22" rx="3" fill="#fbf6ea"/>
+                <rect x="56" y="328" width="112" height="22" rx="3" fill="#004d29" stroke="#fff" stroke-opacity=".3"/>
+                <rect x="70" y="334" width="40" height="3" fill="#fca900"/>
+                <!-- laptop -->
+                <rect x="132" y="150" width="270" height="180" rx="12" fill="#1b2b22" stroke="#fff" stroke-width="3"/>
+                <rect x="146" y="164" width="242" height="152" rx="5" fill="#fbf6ea"/>
+                <!-- open mushaf -->
+                <path d="M267 186c-22-12-52-12-104-4v110c52-8 82-8 104 4z" fill="#fff" stroke="#006837" stroke-width="3"/>
+                <path d="M267 186c22-12 52-12 104-4v110c-52-8-82-8-104 4z" fill="#fff" stroke="#006837" stroke-width="3"/>
+                <g stroke="#006837" stroke-opacity=".55" stroke-width="3" stroke-linecap="round">
+                    <path d="M180 204h70M180 218h70M180 232h70M180 246h70M180 260h70M284 204h70M284 218h70M284 232h70M284 246h70M284 260h70"/>
+                </g>
+                <circle cx="267" cy="196" r="9" fill="#fca900"/>
+                <path d="M104 330h326l-22 22H126z" fill="#d6dbd8"/><path d="M126 352h282l-4 8H130z" fill="#a9b0ac"/>
+                <!-- pen -->
+                <g transform="translate(420 388) rotate(-35)">
+                    <rect width="84" height="10" rx="3" fill="#fca900"/>
+                    <path d="M84 0l14 5-14 5z" fill="#fbf6ea"/>
+                </g>
+                <!-- cup -->
+                <path d="M440 330h48v34a18 18 0 0 1-18 18h-12a18 18 0 0 1-18-18z" fill="#fbf6ea"/>
+                <path d="M488 340h8a8 8 0 0 1 0 18h-8" stroke="#fbf6ea" stroke-width="5"/>
+                <path d="M448 330h32v10h-32z" fill="#fca900"/>
+            </svg>
+            <div class="matla-fl matla-f1"><b>▶</b>Kelas Live</div>
+            <div class="matla-fl matla-f2"><b>ع</b>Bahasa Arab</div>
+            <div class="matla-fl matla-f3">
+                <b><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></b>Ilmu Syar'i
+            </div>
+        </div>
     </div>
 
-    <div class="container mx-auto px-5 sm:px-6 lg:px-12 relative z-10 flex flex-col flex-1">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 flex-1">
-            
-            <!-- Left Content (Headline, Subheadline, Buttons) -->
-            <div class="lg:col-span-7 xl:col-span-8 flex flex-col justify-center">
-                
-                <!-- Group 1: Title & Description -->
-                <div>
-                    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-5xl font-black text-[#1F2937] leading-[1.1] lg:leading-[1.15] tracking-tight mb-4 animate-fade-in-left" style="animation-delay: 100ms;">
-                        Kuliah online sesuai Alquran dan As Sunnah. 
-                        <span class="block text-emerald-600 mt-2">Flexible. Terarah</span>
-                    </h1>
+    <!-- Stats Bar -->
+    <div class="hero-stats">
+        <div><b>Full Online</b><span>Flexible</span></div>
+        <div><b>3 Program</b><span>Studi tersedia</span></div>
+        <div><b>Dosen</b><span>Berkompeten</span></div>
+        <div><b>2024</b><span>Matla berdiri</span></div>
+    </div>
 
-                    <p class="text-base sm:text-lg lg:text-lg font-medium text-gray-700 leading-relaxed mb-6 sm:mb-8 max-w-3xl animate-fade-in-left" style="animation-delay: 300ms;">
-                        Pelajari Bahasa Arab dan Ilmu Agama Islam bersama pengajar kompeten — dari mana saja, kapan saja, tanpa batasan umur dengan kurikulum yang terstruktur dan terarah.
-                    </p>
-                </div>
+    <!-- Quick Access Running Carousel -->
+    <div class="features-sec">
+        <div class="features-head">
+            <small>Quick Access</small>
+            <h2>Semua layanan kampus dalam satu tempat</h2>
+        </div>
+        <div class="f-slider" id="fSlider">
+            <div class="f-track" id="fTrack">
+                @php
+                    $getQuickIcon = function($label) {
+                        $lbl = strtolower($label ?? '');
+                        if (str_contains($lbl, 'instagram') || str_contains($lbl, 'ig')) {
+                            return '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>';
+                        }
+                        if (str_contains($lbl, 'bayar') || str_contains($lbl, 'rek') || str_contains($lbl, 'uang') || str_contains($lbl, 'spp') || str_contains($lbl, 'biaya') || str_contains($lbl, 'keuangan')) {
+                            return '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>';
+                        }
+                        if (str_contains($lbl, 'lms') || str_contains($lbl, 'tutor') || str_contains($lbl, 'login') || str_contains($lbl, 'siakad')) {
+                            return '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>';
+                        }
+                        if (str_contains($lbl, 'kaldik') || str_contains($lbl, 'jadwal') || str_contains($lbl, 'kalender') || str_contains($lbl, 'uts') || str_contains($lbl, 'uas')) {
+                            return '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+                        }
+                        if (str_contains($lbl, 'kurikulum') || str_contains($lbl, 'prodi') || str_contains($lbl, 'buku') || str_contains($lbl, 'akademik')) {
+                            return '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg>';
+                        }
+                        if (str_contains($lbl, 'tertib') || str_contains($lbl, 'aturan') || str_contains($lbl, 'panduan') || str_contains($lbl, 'faq') || str_contains($lbl, 'surat') || str_contains($lbl, 'pengajuan')) {
+                            return '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+                        }
+                        if (str_contains($lbl, 'wa') || str_contains($lbl, 'whatsapp') || str_contains($lbl, 'chat')) {
+                            return '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+                        }
+                        return '<svg viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>';
+                    };
 
-                <!-- Group 2: Buttons & Info -->
-                <div class="mt-auto pt-10 sm:pt-16">
-                    <div class="flex flex-row gap-3 mb-6 sm:mb-10 animate-fade-in-up" style="animation-delay: 500ms;">
-                    @if(\App\Models\Setting::get_value('pmb_is_open') == '1')
-                    <a href="{{ route('pmb') }}" class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 text-white rounded-xl text-sm sm:text-base font-bold shadow-lg shadow-emerald-600/30 group btn-daftar-sekarang btn-type1">
-                        <span>Daftar Sekarang</span>
-                        <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                        </svg>
-                    </a>
-                    @endif
-                    <a href="#tentang" class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 rounded-xl text-sm sm:text-base font-bold shadow-sm transition-all">
-                        Lihat Program
-                    </a>
-                </div>
+                    $displayItems = $currentQuickInfos ?? collect();
+                    // Fallback default hanya jika database kosong
+                    if ($displayItems->isEmpty()) {
+                        $displayItems = collect([
+                            (object)['label' => 'Kurikulum', 'link' => '#'],
+                            (object)['label' => 'Kaldik', 'link' => '#'],
+                            (object)['label' => 'Tata Tertib', 'link' => '#'],
+                            (object)['label' => 'Panduan LMS', 'link' => '#'],
+                            (object)['label' => 'Link Instagram', 'link' => 'https://instagram.com/matla.official'],
+                        ]);
+                    }
+                    // Untuk efek marquee mulus (seamless), pastikan set minimal 6 item per half
+                    if ($displayItems->count() < 6) {
+                        $multiplier = (int) ceil(6 / $displayItems->count());
+                        $repeated = collect();
+                        for ($i = 0; $i < $multiplier; $i++) {
+                            $repeated = $repeated->concat($displayItems);
+                        }
+                        $displayItems = $repeated;
+                    }
+                @endphp
 
-                <!-- Quick Information Ticker -->
-                @if($infoCount > 0)
-                <div class="relative w-full max-w-4xl mb-6 animate-fade-in-up" style="animation-delay: 600ms;">
-                    <div class="flex items-center space-x-3 mb-3 px-1">
-                        <div class="relative flex items-center justify-center">
-                            <div class="w-2 h-2 rounded-full bg-emerald-500 absolute animate-ping opacity-75"></div>
-                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 relative z-10"></div>
-                        </div>
-                        <span class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Quick Information</span>
-                        <div class="h-px flex-1 bg-gray-200/60 ml-2"></div>
+                {{-- Set Utama (hanya mengambil data dari Quick Info Admin) --}}
+                @foreach($displayItems as $item)
+                <a class="f-card" href="{{ $item->link ?? '#' }}" {{ (!empty($item->link) && !str_starts_with($item->link, '#')) ? 'target="_blank"' : '' }}>
+                    <div class="f-icon">
+                        {!! $getQuickIcon($item->label) !!}
                     </div>
-                    
-                    <div class="relative py-1 info-ticker-container">
-                        <!-- Left & Right Fading Edges for smoothness -->
-                        <div class="absolute top-0 left-0 w-8 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-                        <div class="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-                        
-                        <div id="quick-info-ticker" class="flex overflow-x-auto scrollbar-hide w-full cursor-grab active:cursor-grabbing">
-                            <div id="quick-info-track" class="flex w-max gap-3 pr-3">
-                                {{-- Loop 4x for infinite effect --}}
-                                @for ($i = 0; $i < 4; $i++)
-                                    @foreach($currentQuickInfos as $item)
-                                    <a href="{{ $item->link ?? '#' }}" target="_blank" class="flex items-center px-4 py-1.5 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100/80 rounded-full shadow-sm hover:-translate-y-0.5 transition-all w-max shrink-0 group">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider">{{ $item->label }}</span>
-                                        <svg class="w-3 h-3 ml-1.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                    </a>
-                                    @endforeach
-                                @endfor
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
+                    <span class="f-title">{{ $item->label }}</span>
+                    <span class="f-link">Buka &rarr;</span>
+                </a>
+                @endforeach
 
-                <!-- Social Proof Bar -->
-                <div class="hidden sm:grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pt-5 sm:pt-6 border-t border-gray-200/60 animate-fade-in-up" style="animation-delay: 800ms;">
-                    <div>
-                        <div class="font-black text-lg sm:text-xl lg:text-2xl text-emerald-600 mb-1">Full Online</div>
-                        <div class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase tracking-wider">Flexible</div>
+                {{-- Set Duplikat untuk seamless infinite loop slider --}}
+                @foreach($displayItems as $item)
+                <a class="f-card" href="{{ $item->link ?? '#' }}" {{ (!empty($item->link) && !str_starts_with($item->link, '#')) ? 'target="_blank"' : '' }} aria-hidden="true" tabindex="-1">
+                    <div class="f-icon">
+                        {!! $getQuickIcon($item->label) !!}
                     </div>
-                    <div>
-                        <div class="font-black text-lg sm:text-xl lg:text-2xl text-emerald-600 mb-1">3 Program</div>
-                        <div class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase tracking-wider">Studi Tersedia</div>
-                    </div>
-                    <div>
-                        <div class="font-black text-lg sm:text-xl lg:text-2xl text-emerald-600 mb-1">Dosen</div>
-                        <div class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase tracking-wider">Berkompeten</div>
-                    </div>
-                    <div>
-                        <div class="font-black text-lg sm:text-xl lg:text-2xl text-emerald-600 mb-1">2024</div>
-                        <div class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase tracking-wider">Matla Berdiri</div>
-                    </div>
-                    </div>
-                </div>
+                    <span class="f-title">{{ $item->label }}</span>
+                    <span class="f-link">Buka &rarr;</span>
+                </a>
+                @endforeach
             </div>
+        </div>
+    </div>
+</header>
 
-            <!-- Right Content (Card) -->
-            <div class="hidden xl:block lg:col-span-5 xl:col-span-4 self-center animate-fade-in-right" style="animation-delay: 400ms;">
-                <div class="bg-white/90 backdrop-blur-md p-6 lg:p-8 rounded-3xl shadow-[0_20px_50px_rgba(16,185,129,0.1)] border border-white relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] transition-shadow duration-300">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-100/50 rounded-full blur-3xl -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
-                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl -ml-12 -mb-12 transition-transform group-hover:scale-110"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="flex items-center space-x-3 mb-5">
-                            <h3 class="text-base font-black text-gray-900 uppercase tracking-widest leading-tight">Mengapa Matla Berdiri?</h3>
-                        </div>
-                        
-                        <div class="space-y-3 text-[13px] font-medium text-gray-600 leading-relaxed">
-                            <p>
-                                "Saya percaya pendidikan adalah segalanya. Allah ciptakan setiap manusia dengan bakatnya — tugas kita mengarahkannya agar bermanfaat dan tidak bertentangan dengan agama.
-                            </p>
-                            <p>
-                                Bayangkan seorang pengusaha yang membuka lapangan kerja. Berapa banyak keluarga yang ia hidupi. Berapa banyak pahala yang ia kumpulkan hanya dari satu usaha yang ia tekuni dengan niat karena Allah.
-                            </p>
-                            <p class="font-bold text-gray-800 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100/50 italic">
-                                "Dari situlah Matla berdiri — untuk mewujudkan generasi yang ilmunya bermanfaat, dunia dan akhirat."
-                            </p>
-                        </div>
-                    </div>
+<!-- Tentang Kami / Mengapa Matla Berdiri -->
+<section class="matla-why-section" id="tentang">
+    <div class="why">
+        <div>
+            <span class="k">Tentang kami</span>
+            <h2>Mengapa Matla berdiri?</h2>
+            <p class="s">Sebuah niat sederhana yang kami tulis sejak awal, dan masih kami pegang sampai sekarang.</p>
+        </div>
+        <div class="lap">
+            <div class="screen">
+                <div class="top">
+                    <i></i><i></i><i></i>
+                    <span>mengapa-matla-berdiri.txt</span>
+                    <button id="skip" type="button">lewati ⏭</button>
                 </div>
+                <div class="code" id="code" aria-live="off"></div>
             </div>
-
+            <div class="base"></div>
         </div>
     </div>
 </section>
@@ -361,7 +402,7 @@
 
 
 <!-- Tentang Section -->
-<section id="tentang" class="relative min-h-[400px] lg:min-h-[600px] flex items-center overflow-hidden bg-white py-14 sm:py-20 lg:py-32">
+<section id="tentang-detail" class="relative min-h-[400px] lg:min-h-[600px] flex items-center overflow-hidden bg-white py-14 sm:py-20 lg:py-32">
     <!-- Background Image (Mirrored/Consistent) -->
     <div class="absolute inset-0 z-0 opacity-40">
         <img src="{{ asset('assets/bg-web.png') }}" alt="MATLA Background" class="w-full h-full object-cover scale-x-[-1]">
