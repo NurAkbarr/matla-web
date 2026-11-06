@@ -4,176 +4,83 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="relative min-h-[400px] flex items-center overflow-hidden">
-    <div class="absolute inset-0 z-0">
-        <img src="{{ asset('assets/mosque-pmb.png') }}" alt="Contact Background" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-primary-dark/85 backdrop-blur-[2px]"></div>
-    </div>
+<section class="relative min-h-[380px] lg:min-h-[420px] flex items-center overflow-hidden bg-[#006837]" style="background-image: url('{{ asset('assets/doodle-bg.svg') }}'); background-repeat: repeat;">
+    <div class="container mx-auto px-4 lg:px-12 relative z-10 text-center text-white py-16 lg:py-24">
+        <!-- Badge -->
+        <div class="inline-flex items-center space-x-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full mb-6">
+            <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+            <span class="text-white text-xs md:text-sm font-semibold tracking-wide">Layanan Informasi Kampus</span>
+        </div>
 
-    <div class="container mx-auto px-4 lg:px-12 relative z-10 text-center text-white">
-        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Hubungi Kami</h1>
-        <p class="text-lg md:text-xl text-emerald-50/80 max-w-3xl mx-auto leading-relaxed">
-            Punya pertanyaan atau butuh informasi lebih lanjut? Jangan ragu untuk menghubungi kami melalui formulir di bawah atau kontak langsung.
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight font-display">Hubungi Kami</h1>
+        <p class="text-base md:text-xl text-emerald-50/90 max-w-2xl mx-auto leading-relaxed">
+            Punya pertanyaan atau butuh informasi lebih lanjut? Silakan hubungi kami langsung melalui saluran komunikasi resmi MATLA di bawah ini.
         </p>
     </div>
 </section>
 
 <!-- Contact Info Cards -->
-<section class="py-16 bg-white -mt-10 lg:-mt-20 relative z-20">
+<section class="py-16 md:py-24 bg-white -mt-10 lg:-mt-16 relative z-20">
     <div class="container mx-auto px-4 lg:px-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
             <!-- Email Card -->
-            <div class="bg-white p-8 rounded-3xl shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:border-primary transition-all">
-                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors text-primary group-hover:text-white">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-gray-100/80 border border-gray-100 flex flex-col items-center text-center group hover:border-[#006837] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#006837] group-hover:text-white transition-all text-[#006837] shadow-sm">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Email</h3>
-                <a href="mailto:matlaislamicuniversity@gmail.com" class="text-primary hover:underline font-medium">matlaislamicuniversity@gmail.com</a>
+                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Email Resmi</h3>
+                <p class="text-gray-900 font-bold text-base md:text-lg mb-6 break-all">matlaislamicuniversity@gmail.com</p>
+                <a href="mailto:matlaislamicuniversity@gmail.com" class="mt-auto inline-flex items-center space-x-2 px-5 py-2.5 bg-emerald-50 hover:bg-[#006837] text-[#006837] hover:text-white rounded-xl text-sm font-bold transition-all group-hover:bg-[#006837] group-hover:text-white">
+                    <span>Kirim Email</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
             </div>
 
-            <!-- Telepon Card -->
-            <div class="bg-white p-8 rounded-3xl shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:border-primary transition-all">
-                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors text-primary group-hover:text-white">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                    </svg>
+            <!-- WhatsApp Card (Center Highlight) -->
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-gray-100/80 border-2 border-emerald-500/30 flex flex-col items-center text-center group hover:border-[#006837] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative">
+                <div class="absolute -top-3.5 px-3 py-1 bg-amber-400 text-stone-900 font-extrabold text-[11px] rounded-full uppercase tracking-wider shadow-sm">
+                    Respon Cepat
                 </div>
-                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Telepon</h3>
-                <a href="tel:+6287784538820" class="text-gray-700 font-medium hover:text-primary transition-colors">+62 877-8453-8820</a>
-            </div>
-
-            <!-- WhatsApp Card -->
-            <div class="bg-white p-8 rounded-3xl shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:border-primary transition-all">
-                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors text-primary group-hover:text-white">
+                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#006837] group-hover:text-white transition-all text-[#006837] shadow-sm">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">WhatsApp</h3>
-                <a href="https://wa.me/6287784538820" target="_blank" class="text-gray-700 font-medium hover:text-primary transition-colors">+62 877-8453-8820</a>
+                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">WhatsApp Admin</h3>
+                <p class="text-gray-900 font-bold text-base md:text-lg mb-6">+62 877-8453-8820</p>
+                <a href="https://wa.me/6287784538820" target="_blank" class="mt-auto inline-flex items-center space-x-2 px-6 py-2.5 bg-[#006837] hover:bg-[#004d29] text-white rounded-xl text-sm font-bold shadow-md shadow-emerald-700/20 transition-all">
+                    <span>Chat WhatsApp</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
+            </div>
+
+            <!-- Telepon Card -->
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-gray-100/80 border border-gray-100 flex flex-col items-center text-center group hover:border-[#006837] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#006837] group-hover:text-white transition-all text-[#006837] shadow-sm">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">Telepon Langsung</h3>
+                <p class="text-gray-900 font-bold text-base md:text-lg mb-6">+62 877-8453-8820</p>
+                <a href="tel:+6287784538820" class="mt-auto inline-flex items-center space-x-2 px-5 py-2.5 bg-emerald-50 hover:bg-[#006837] text-[#006837] hover:text-white rounded-xl text-sm font-bold transition-all group-hover:bg-[#006837] group-hover:text-white">
+                    <span>Hubungi Telepon</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
             </div>
         </div>
-    </div>
-</section>
 
-<!-- Form & Sidebar Section -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4 lg:px-12">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <!-- Left Column: Form -->
-            <div class="lg:col-span-2">
-                <div class="mb-10">
-                    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Kirim Pesan</h2>
-                    <p class="text-gray-500">Isi formulir di bawah ini dan kami akan segera merespon pesan Anda.</p>
-                </div>
-
-                @if(session('success'))
-                <div class="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start space-x-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <div>
-                        <h4 class="text-emerald-800 font-bold mb-1">Berhasil!</h4>
-                        <p class="text-sm text-emerald-700/80">{{ session('success') }}</p>
-                    </div>
-                </div>
-                @endif
-
-                <form action="{{ route('kontak.store') }}" method="POST" class="space-y-6">
-                    @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-sm font-bold text-gray-700 flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                Nama Lengkap
-                            </label>
-                            <input type="text" name="name" required placeholder="Masukkan nama Anda" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700" value="{{ old('name') }}">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-sm font-bold text-gray-700 flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"></path>
-                                </svg>
-                                Email
-                            </label>
-                            <input type="email" name="email" required placeholder="Masukkan email Anda" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700" value="{{ old('email') }}">
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                            </svg>
-                            Subjek
-                        </label>
-                        <input type="text" name="subject" required placeholder="Tentang apa pesan Anda?" class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700" value="{{ old('subject') }}">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                            </svg>
-                            Pesan
-                        </label>
-                        <textarea name="message" rows="5" required placeholder="Tulis pesan Anda di sini..." class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all text-gray-700 resize-none">{{ old('message') }}</textarea>
-                    </div>
-
-                    <button type="submit" class="w-full md:w-auto px-10 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold flex items-center justify-center space-x-3 shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-[1.02]">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                        </svg>
-                        <span>Kirim Pesan</span>
-                    </button>
-                </form>
+        <!-- Reassuring Info Banner -->
+        <div class="max-w-3xl mx-auto mt-16 p-6 rounded-2xl bg-[#F4F8F6] border border-[#E3EBE7] text-center">
+            <div class="flex items-center justify-center space-x-2 text-primary font-bold mb-1">
+                <svg class="w-5 h-5 text-[#006837]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Pelayanan Kuliah Full Online</span>
             </div>
-
-            <!-- Right Column: Info -->
-            <div class="space-y-8">
-                <!-- Map Placeholder -->
-                <div class="bg-emerald-50 aspect-video rounded-3xl flex flex-col items-center justify-center text-primary group cursor-pointer border border-emerald-100 hover:bg-emerald-100/50 transition-all">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border border-emerald-100 mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-bold text-lg">Peta Lokasi Kampus</h4>
-                    <span class="text-sm text-emerald-600/70">Tangerang, Banten</span>
-                </div>
-
-                <!-- Jam Operasional -->
-                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                    <div class="flex items-center space-x-3 mb-8">
-                        <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h4 class="font-bold text-gray-900">Jam Operasional</h4>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-500 font-medium">Senin - Jumat</span>
-                            <span class="text-gray-900 font-bold">08.00 - 16.00 WIB</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-500 font-medium">Sabtu</span>
-                            <span class="text-gray-900 font-bold">09.00 - 12.00 WIB</span>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-gray-500 font-medium">Minggu & Hari Libur</span>
-                            <span class="text-red-500 font-bold">Tutup</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <p class="text-sm text-gray-600 leading-relaxed">
+                Seluruh administrasi dan perkuliahan Matla Islamic University diselenggarakan secara fleksibel dan daring. Tim kami siap membantu seluruh kebutuhan informasi calon mahasiswa dan civitas akademika melalui saluran kontak di atas.
+            </p>
         </div>
     </div>
 </section>
