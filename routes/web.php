@@ -523,6 +523,13 @@ Route::prefix('backend')->name('backend.')->middleware('auth')->group(function (
             'names' => 'admin.announcements',
         ]);
 
+        // Email Pengumuman (Blast & Scheduled)
+        Route::get('/admin/pengumuman/estimate-recipients', [\App\Http\Controllers\Backend\Admin\PengumumanController::class, 'estimateRecipients'])->name('admin.pengumuman.estimate-recipients');
+        Route::post('/admin/pengumuman/{pengumuman}/send-now', [\App\Http\Controllers\Backend\Admin\PengumumanController::class, 'sendNow'])->name('admin.pengumuman.send-now');
+        Route::resource('/admin/pengumuman', \App\Http\Controllers\Backend\Admin\PengumumanController::class, [
+            'names' => 'admin.pengumuman',
+        ])->except(['edit', 'update']);
+
         // PMB Registration Management
         Route::get('/admin/pmb/registrations', [\App\Http\Controllers\Backend\AdminPmbController::class, 'index'])->name('admin.pmb.registrations.index');
         Route::get('/admin/pmb/registrations/export/excel', [\App\Http\Controllers\Backend\AdminPmbController::class, 'exportExcel'])->name('admin.pmb.registrations.export.excel');
