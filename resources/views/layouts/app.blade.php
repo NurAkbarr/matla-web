@@ -14,7 +14,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
 
         <!-- Alpine.js -->
 
@@ -24,13 +24,30 @@
     </head>
     <body class="bg-white font-sans text-text-dark" x-data="{ mobileMenuOpen: false }">
         <!-- Navigation Bar -->
-        <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100 font-sans">
+        <nav 
+            x-data="{ 
+                scrolled: false, 
+                mobileNavOpen: false,
+                isHome: {{ request()->is('/') ? 'true' : 'false' }},
+                get isGreen() { 
+                    return this.isHome && !this.scrolled && !this.mobileNavOpen; 
+                }
+            }" 
+            x-init="if (isHome) { scrolled = window.pageYOffset > 50; }"
+            @scroll.window="if (isHome) { scrolled = window.pageYOffset > 50; }"
+            @resize.window="if (window.innerWidth >= 1024) mobileNavOpen = false"
+            :class="isGreen 
+                ? 'bg-[#006837] text-white border-b border-white/10 shadow-none' 
+                : 'bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 text-gray-800'"
+            class="sticky top-0 z-50 font-sans transition-all duration-300">
             <div class="container mx-auto px-4 lg:px-12 py-3 lg:py-4">
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
-                    <a href="{{ url('/') }}" class="flex items-center space-x-2">
-                        <img src="{{ asset('assets/logo.png') }}" alt="MATLA Logo" class="h-8 lg:h-10 w-auto">
-                        <span class="text-lg lg:text-xl font-bold font-sans text-primary-dark tracking-wide">MATLA</span>
+                    <a href="{{ url('/') }}" class="flex items-center space-x-2.5">
+                        <div class="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shadow-sm">
+                            <img src="{{ asset('assets/logo.png') }}" alt="MATLA Logo" class="h-7 w-auto object-contain">
+                        </div>
+                        <span :class="isGreen ? 'text-white' : 'text-primary-dark'" class="text-lg lg:text-xl font-extrabold font-sans tracking-wide transition-colors">MATLA</span>
                     </a>
 
                     <!-- Desktop Navigation Items -->
@@ -39,13 +56,13 @@
                     @endphp
                     @if(!$isMahasiswa)
                     <div class="hidden lg:flex items-center space-x-8">
-                        <a href="{{ url('/') }}#beranda" class="font-semibold text-gray-600 hover:text-primary transition-colors">Beranda</a>
-                        <a href="{{ url('/') }}#tentang" class="font-semibold text-gray-600 hover:text-primary transition-colors">Tentang</a>
-                        <a href="{{ url('/') }}#keunggulan" class="font-semibold text-gray-600 hover:text-primary transition-colors">Keunggulan</a>
+                        <a href="{{ url('/') }}#beranda" :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="font-semibold transition-colors">Beranda</a>
+                        <a href="{{ url('/') }}#tentang" :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="font-semibold transition-colors">Tentang</a>
+                        <a href="{{ url('/') }}#keunggulan" :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="font-semibold transition-colors">Keunggulan</a>
                         
                         <!-- Dropdown Menu -->
                         <div class="relative group">
-                            <button class="flex items-center space-x-1 font-semibold text-gray-600 hover:text-primary transition-colors outline-none pb-1">
+                            <button :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="flex items-center space-x-1 font-semibold transition-colors outline-none pb-1">
                                 <span>Informasi</span>
                                 <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -65,7 +82,7 @@
 
                         <!-- Layanan Dropdown -->
                         <div class="relative group">
-                            <button class="flex items-center space-x-1 font-semibold text-gray-600 hover:text-primary transition-colors outline-none pb-1">
+                            <button :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="flex items-center space-x-1 font-semibold transition-colors outline-none pb-1">
                                 <span>Layanan</span>
                                 <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -85,8 +102,8 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('pmb') }}" class="font-semibold text-gray-600 hover:text-primary transition-colors">PMB</a>
-                        <a href="{{ route('kontak') }}" class="font-semibold text-gray-600 hover:text-primary transition-colors">Kontak</a>
+                        <a href="{{ route('pmb') }}" :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="font-semibold transition-colors">PMB</a>
+                        <a href="{{ route('kontak') }}" :class="isGreen ? 'text-white/90 hover:text-amber-400' : 'text-gray-600 hover:text-primary'" class="font-semibold transition-colors">Kontak</a>
                     </div>
                     @endif
 
@@ -164,7 +181,11 @@
                                 @endif
                             </div>
                         @else
-                            <a href="{{ route('login') }}" class="hidden sm:inline-block px-6 lg:px-8 py-2 lg:py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition-all">
+                            <a href="{{ route('login') }}" 
+                               :class="isGreen 
+                                   ? 'bg-[#fca900] text-[#004d29] hover:bg-amber-400 hover:shadow-lg' 
+                                   : 'bg-primary hover:bg-primary-dark text-white'" 
+                               class="hidden sm:inline-block px-6 lg:px-8 py-2 lg:py-2.5 rounded-lg font-bold transition-all shadow-sm">
                                 Login
                             </a>
                         @endauth
@@ -172,10 +193,14 @@
                         
                         <!-- Mobile Hamburger -->
                         @if(!$isMahasiswa)
-                            <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                            <button id="mobile-menu-button" 
+                                    @click="mobileNavOpen = !mobileNavOpen"
+                                    :class="isGreen ? 'text-white hover:bg-white/10' : 'text-gray-600 hover:bg-gray-100'" 
+                                    class="lg:hidden p-2 rounded-md transition-colors"
+                                    aria-label="Toggle Navigation">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path id="hamburger-icon" class="block" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                                    <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    <path id="hamburger-icon" :class="mobileNavOpen ? 'hidden' : 'block'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                    <path id="close-icon" :class="mobileNavOpen ? 'block' : 'hidden'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
                         @endif
@@ -183,53 +208,62 @@
                 </div>
 
                 <!-- Mobile Navigation Menu -->
-                <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-4 space-y-2 border-t border-gray-100 pt-4 max-h-[80vh] overflow-y-auto">
+                <div id="mobile-menu" 
+                     x-show="mobileNavOpen"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="lg:hidden mt-4 pb-4 space-y-2 border-t border-gray-100 pt-4 max-h-[80vh] overflow-y-auto"
+                     style="display: none;">
                     @if(request()->routeIs('backend.mahasiswa.*') || request()->is('mahasiswa/*'))
                         <form action="{{ route('logout') }}" method="POST" class="px-4 py-2">
                             @csrf
                             <button type="submit" class="w-full text-left text-red-600 font-bold">Keluar</button>
                         </form>
                     @else
-                        <a href="{{ url('/') }}#beranda" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Beranda</a>
-                        <a href="{{ url('/') }}#tentang" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Tentang</a>
-                        <a href="{{ url('/') }}#keunggulan" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Keunggulan</a>
+                        <a href="{{ url('/') }}#beranda" @click="mobileNavOpen = false" class="mobile-nav-link block px-4 py-2 text-gray-700 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Beranda</a>
+                        <a href="{{ url('/') }}#tentang" @click="mobileNavOpen = false" class="mobile-nav-link block px-4 py-2 text-gray-700 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Tentang</a>
+                        <a href="{{ url('/') }}#keunggulan" @click="mobileNavOpen = false" class="mobile-nav-link block px-4 py-2 text-gray-700 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Keunggulan</a>
                     @endif
                     
                     <!-- Mobile Informas Dropdown -->
                     <div class="px-4 py-1">
-                        <button id="mobile-informasi-btn" class="flex items-center justify-between w-full py-2 text-gray-600 font-medium hover:text-primary transition-all">
+                        <button id="mobile-informasi-btn" class="flex items-center justify-between w-full py-2 text-gray-700 font-medium hover:text-primary transition-all">
                             <span>Informasi</span>
                             <svg id="mobile-informasi-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
                         <div id="mobile-informasi-menu" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-100 pl-4">
-                            <a href="{{ route('informasi.prodi') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Program Studi</a>
-                            <a href="{{ route('informasi.karya-mahasiswa') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Karya Mahasiswa</a>
-                            <a href="{{ route('informasi.karya-dosen') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Karya Dosen</a>
-                            <a href="{{ route('informasi.staf-pengajar') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Staf Pengajar</a>
-                            <a href="{{ route('informasi.galeri') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Galeri</a>
+                            <a href="{{ route('informasi.prodi') }}" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Program Studi</a>
+                            <a href="{{ route('informasi.karya-mahasiswa') }}" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Karya Mahasiswa</a>
+                            <a href="{{ route('informasi.karya-dosen') }}" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Karya Dosen</a>
+                            <a href="{{ route('informasi.staf-pengajar') }}" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Staf Pengajar</a>
+                            <a href="{{ route('informasi.galeri') }}" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Galeri</a>
                             {{-- <a href="{{ route('informasi.struktur-organisasi') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Struktur Organisasi</a> --}}
                         </div>
                     </div>
 
-                    <a href="{{ route('pmb') }}" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">PMB</a>
+                    <a href="{{ route('pmb') }}" @click="mobileNavOpen = false" class="mobile-nav-link block px-4 py-2 text-gray-700 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">PMB</a>
 
                     <!-- Mobile Layanan Dropdown -->
                     <div class="px-4 py-1">
-                        <button id="mobile-layanan-btn" class="flex items-center justify-between w-full py-2 text-gray-600 font-medium hover:text-primary transition-all">
+                        <button id="mobile-layanan-btn" class="flex items-center justify-between w-full py-2 text-gray-700 font-medium hover:text-primary transition-all">
                             <span>Layanan</span>
                             <svg id="mobile-layanan-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
                         <div id="mobile-layanan-menu" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-100 pl-4">
-                            <a href="{{ route('informasi.leaderboard') }}" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Duta Kampus</a>
-                            <a href="https://bendahara.matla.id/login-form" target="_blank" class="block py-2 text-sm font-medium text-gray-500 hover:text-primary">Kuitansi Matla</a>
+                            <a href="{{ route('informasi.leaderboard') }}" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Duta Kampus</a>
+                            <a href="https://bendahara.matla.id/login-form" target="_blank" @click="mobileNavOpen = false" class="block py-2 text-sm font-medium text-gray-600 hover:text-primary">Kuitansi Matla</a>
                         </div>
                     </div>
 
-                    <a href="{{ route('kontak') }}" class="mobile-nav-link block px-4 py-2 text-gray-600 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Kontak</a>
+                    <a href="{{ route('kontak') }}" @click="mobileNavOpen = false" class="mobile-nav-link block px-4 py-2 text-gray-700 font-medium rounded-md hover:bg-gray-50 hover:text-primary transition-all">Kontak</a>
                     <div class="px-4 pt-2">
                         @auth
                             @php
@@ -410,18 +444,6 @@
 
         <!-- Scripts -->
         <script>
-            const btn = document.getElementById('mobile-menu-button');
-            const menu = document.getElementById('mobile-menu');
-            const hamburgerIcon = document.getElementById('hamburger-icon');
-            const closeIcon = document.getElementById('close-icon');
-            const mobileLinks = document.querySelectorAll('.mobile-nav-link');
-
-            btn.addEventListener('click', () => {
-                menu.classList.toggle('hidden');
-                hamburgerIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
-            });
-
             // Mobile Informasi Dropdown Toggle
             const mobileInformasiBtn = document.getElementById('mobile-informasi-btn');
             const mobileInformasiMenu = document.getElementById('mobile-informasi-menu');
@@ -447,20 +469,6 @@
                     mobileLayananIcon.classList.toggle('rotate-180');
                 });
             }
-
-            // Close menu when a link is clicked
-            mobileLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    menu.classList.add('hidden');
-                    hamburgerIcon.classList.remove('hidden');
-                    closeIcon.classList.add('hidden');
-                    if (mobileInformasiMenu) {
-                        mobileInformasiMenu.classList.add('hidden');
-                        mobileInformasiIcon.classList.remove('rotate-180');
-                    }
-                });
-            });
-
         </script>
         @stack('scripts')
         
