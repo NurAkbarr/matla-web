@@ -27,15 +27,15 @@
                 &larr; Kembali
             </a>
 
-            @if(in_array($pengumuman->status, ['draft', 'scheduled', 'failed']))
-            <form action="{{ route('backend.admin.pengumuman.send-now', $pengumuman) }}" method="POST" class="inline" onsubmit="return confirm('Kirim email pengumuman ini sekarang juga ke seluruh penerima?')">
+            @if(in_array($pengumuman->status, ['draft', 'scheduled', 'failed', 'sending']))
+            <form action="{{ route('backend.admin.pengumuman.send-now', $pengumuman) }}" method="POST" class="inline" onsubmit="return confirm('Proses pengiriman email pengumuman ini sekarang juga ke seluruh target?')">
                 @csrf
                 <button type="submit" 
                         class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-700 hover:to-green-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                     </svg>
-                    <span>Kirim Sekarang</span>
+                    <span>{{ $pengumuman->status === 'sending' ? 'Proses Antrean Sekarang' : 'Kirim Sekarang' }}</span>
                 </button>
             </form>
             @endif
@@ -94,6 +94,8 @@
                     Selesai: {{ $pengumuman->sent_at->format('d M Y, H:i') }} WIB
                 @elseif($pengumuman->scheduled_at)
                     Jadwal: {{ $pengumuman->scheduled_at->format('d M Y, H:i') }} WIB
+                @elseif($pengumuman->status === 'sending')
+                    <span class="text-blue-500 font-semibold animate-pulse">Sedang diproses dalam antrean...</span>
                 @else
                     Belum diproses
                 @endif
@@ -292,5 +294,14 @@
         </div>
     </div>
 </div>
+
+@if($pengumuman->status === 'sending')
+<script>
+    // Auto refresh halaman setiap 4 detik selama status sedang mengirim
+    setTimeout(function() {
+        window.location.reload();
+    }, 4000);
+</script>
+@endif
 @endsection
 

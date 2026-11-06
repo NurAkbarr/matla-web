@@ -113,10 +113,23 @@ class PengumumanController extends Controller
         ]);
 
         if ($actionType === 'kirim_sekarang') {
+            // Jika jumlah penerima wajar (<= 25 email), proses langsung secara instan
+            // agar pengguna tidak perlu menjalankan worker manual di terminal.
+            if ($totalRecipients <= 25) {
+                SendPengumumanBlastJob::dispatchSync($pengumuman->id);
+                $pengumuman->refresh();
+                return redirect()
+                    ->route('backend.admin.pengumuman.show', $pengumuman)
+                    ->with('success', "Pengumuman berhasil dibuat dan langsung terkirim ke {$pengumuman->total_berhasil} penerima!");
+            }
+
+            // Jika jumlah penerima banyak (> 25), masukkan ke antrean queue & picu background worker
             SendPengumumanBlastJob::dispatch($pengumuman->id);
+            self::triggerQueueWorker();
+
             return redirect()
                 ->route('backend.admin.pengumuman.show', $pengumuman)
-                ->with('success', "Pengumuman berhasil dibuat! Antrean pengiriman email langsung dijalankan untuk {$totalRecipients} penerima.");
+                ->with('success', "Pengumuman berhasil dibuat! Antrean pengiriman email ({$totalRecipients} penerima) sedang diproses di sistem.");
         }
 
         if ($actionType === 'jadwalkan') {
@@ -140,23 +153,40 @@ class PengumumanController extends Controller
     }
 
     /**
-     * Trigger immediate sending for draft/scheduled/failed announcement.
+     * Trigger immediate sending for draft/scheduled/failed/sending announcement.
      */
     public function sendNow(Pengumuman $pengumuman)
     {
-        if ($pengumuman->status === 'sending') {
-            return back()->with('error', 'Pengumuman saat ini sedang dalam proses pengiriman email.');
-        }
+        $recipients = $pengumuman->resolveRecipients();
+        $totalRecipients = count($recipients);
 
-        $totalRecipients = $pengumuman->resolveRecipients();
         $pengumuman->update([
             'status' => 'sending',
-            'total_penerima' => count($totalRecipients),
+            'total_penerima' => $totalRecipients,
         ]);
 
-        SendPengumumanBlastJob::dispatch($pengumuman->id);
+        if ($totalRecipients <= 25) {
+            SendPengumumanBlastJob::dispatchSync($pengumuman->id);
+            $pengumuman->refresh();
+            return back()->with('success', "Pengiriman email berhasil diproses langsung ke {$pengumuman->total_berhasil} penerima.");
+        }
 
-        return back()->with('success', 'Perintah pengiriman email berhasil dikirim ke antrean server.');
+        SendPengumumanBlastJob::dispatch($pengumuman->id);
+        self::triggerQueueWorker();
+
+        return back()->with('success', "Perintah pengiriman email ({$totalRecipients} penerima) berhasil diproses ke antrean server.");
+    }
+
+    /**
+     * Trigger background queue worker asynchronously.
+     */
+    protected static function triggerQueueWorker(): void
+    {
+        if (function_exists('exec')) {
+            $base = base_path();
+            $php = PHP_BINARY ?: 'php';
+            @exec("cd {$base} && {$php} artisan queue:work --stop-when-empty > /dev/null 2>&1 &");
+        }
     }
 
     /**
