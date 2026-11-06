@@ -152,16 +152,12 @@
 </div>
 
 <!-- Alur Pendaftaran Section -->
-<section class="py-24 bg-white relative overflow-hidden" id="alur-pendaftaran"
+<section class="py-20 bg-white relative overflow-hidden" id="alur-pendaftaran"
     x-data="{
         activeStep: 1,
-        hoveredStep: null,
-        trackTop: 48,
+        trackTop: 24,
         trackTotalHeight: 0,
         progressHeight: 0,
-        get effectiveActive() {
-            return this.hoveredStep ?? this.activeStep;
-        },
         init() {
             this.$nextTick(() => {
                 this.updateDimensions();
@@ -194,7 +190,7 @@
         updateProgress() {
             this.$nextTick(() => {
                 const firstNode = document.getElementById('alur-node-1');
-                const activeNode = document.getElementById('alur-node-' + this.effectiveActive);
+                const activeNode = document.getElementById('alur-node-' + this.activeStep);
                 if (firstNode && activeNode) {
                     const firstRect = firstNode.getBoundingClientRect();
                     const activeRect = activeNode.getBoundingClientRect();
@@ -205,39 +201,34 @@
         },
         handleScroll() {
             const steps = [1, 2, 3, 4, 5];
-            const triggerY = window.innerHeight * 0.50;
-            let current = 1;
+            const triggerY = window.innerHeight * 0.45;
+            let closestStep = 1;
+            let minDistance = Infinity;
             
             for (const s of steps) {
                 const el = document.getElementById('alur-step-' + s);
                 if (el) {
                     const rect = el.getBoundingClientRect();
                     const mid = rect.top + rect.height / 2;
-                    if (mid <= triggerY + 60) {
-                        current = s;
+                    const dist = Math.abs(mid - triggerY);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestStep = s;
                     }
                 }
             }
-            if (this.activeStep !== current) {
-                this.activeStep = current;
+            if (this.activeStep !== closestStep) {
+                this.activeStep = closestStep;
                 this.updateProgress();
             }
-        },
-        setHover(s) {
-            this.hoveredStep = s;
-            this.updateProgress();
-        },
-        clearHover() {
-            this.hoveredStep = null;
-            this.updateProgress();
         }
     }">
     <div class="container mx-auto px-4 lg:px-12">
-        <div class="text-center max-w-2xl mx-auto mb-16 md:mb-20">
+        <div class="text-center max-w-2xl mx-auto mb-12 md:mb-16">
             <div class="inline-flex items-center space-x-2 px-3 py-1 bg-amber-50 border border-amber-200/60 rounded-full text-amber-800 text-xs font-bold uppercase tracking-widest mb-3">
                 <span>Panduan Calon Mahasiswa</span>
             </div>
-            <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 font-display">Alur Pendaftaran</h2>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-3 font-display">Alur Pendaftaran</h2>
             <p class="text-base md:text-lg text-gray-600 leading-relaxed">Proses pendaftaran mudah, cepat, dan bisa dilakukan dari mana saja.</p>
         </div>
 
@@ -270,20 +261,20 @@
             [
                 'number' => 5,
                 'title' => 'Bergabung Grup Kelas 🎉',
-                'desc' => 'Setelah pembayaran terverifikasi, Anda resmi terdaftar! Silakan bergabung ke grup komunikasi kelas sesuai dengan program studi (Prodi) yang Anda pilih.',
+                'desc' => 'Setelah pembayaran terverifikasi, Anda resmi terdaftar! Silakan bergabung ke grup komunikasi kelas sesuai program studi yang dipilih.',
                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>'
             ],
         ];
         @endphp
 
-        <!-- Timeline Container -->
-        <div class="relative max-w-4xl mx-auto py-4" id="alur-timeline-container">
+        <!-- Timeline Container (Compact) -->
+        <div class="relative max-w-3xl mx-auto py-2" id="alur-timeline-container">
             <!-- Background Spine Track (Gray) -->
-            <div class="absolute left-[28px] md:left-1/2 -translate-x-1/2 w-1.5 bg-gray-200 rounded-full z-0 pointer-events-none transition-all duration-300"
-                 :style="'top: ' + trackTop + 'px; height: ' + (trackTotalHeight ? trackTotalHeight + 'px' : 'calc(100% - 96px)') + ';'"></div>
+            <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-1 md:w-1.5 bg-gray-200 rounded-full z-0 pointer-events-none transition-all duration-300"
+                 :style="'top: ' + trackTop + 'px; height: ' + (trackTotalHeight ? trackTotalHeight + 'px' : 'calc(100% - 48px)') + ';'"></div>
 
             <!-- Active Progress Spine Fill (Amber / Gold) -->
-            <div class="absolute left-[28px] md:left-1/2 -translate-x-1/2 w-1.5 bg-[#fca900] rounded-full z-0 pointer-events-none transition-all duration-500 ease-out shadow-sm shadow-amber-500/30"
+            <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-1 md:w-1.5 bg-[#fca900] rounded-full z-0 pointer-events-none transition-all duration-400 ease-out shadow-sm shadow-amber-500/30"
                  :style="'top: ' + trackTop + 'px; height: ' + progressHeight + 'px;'"></div>
 
             <!-- Steps -->
@@ -292,89 +283,86 @@
                 $isOdd = ($step['number'] % 2 !== 0);
             @endphp
             <div id="alur-step-{{ $step['number'] }}" 
-                 @mouseenter="setHover({{ $step['number'] }})" 
-                 @mouseleave="clearHover()"
-                 @click="activeStep = {{ $step['number'] }}; updateProgress(); $el.scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                 class="relative flex flex-col md:flex-row items-center justify-between py-6 md:py-8 cursor-pointer group">
+                 class="relative flex flex-col md:flex-row items-center justify-between py-2 md:py-2.5">
                 
                 <!-- Left Column (Odd: Content Card | Even: Spacer on desktop) -->
                 @if($isOdd)
-                <div class="w-full md:w-[calc(50%-48px)] pl-16 md:pl-0 md:text-right">
-                    <div class="p-6 md:p-7 rounded-2xl md:rounded-3xl transition-all duration-300"
-                         :class="effectiveActive === {{ $step['number'] }} 
-                             ? 'bg-[#FFF8E6] border-2 border-[#FCA900]/50 shadow-lg shadow-amber-500/10 scale-[1.02]' 
-                             : 'bg-transparent border-2 border-transparent hover:bg-gray-50/70 hover:border-gray-100'">
-                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 transition-colors"
-                              :class="effectiveActive === {{ $step['number'] }} ? 'bg-[#fca900] text-[#14231B]' : 'bg-gray-100 text-gray-500'">
+                <div class="w-full md:w-[calc(50%-32px)] pl-14 md:pl-0 md:text-right">
+                    <div class="p-3.5 md:py-3.5 md:px-5 rounded-2xl md:rounded-3xl transition-all duration-300"
+                         :class="activeStep === {{ $step['number'] }} 
+                             ? 'bg-[#FFF8E6] border-2 border-[#FCA900]/50 shadow-md shadow-amber-500/10 scale-[1.01]' 
+                             : 'bg-transparent border-2 border-transparent'">
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1 transition-colors"
+                              :class="activeStep === {{ $step['number'] }} ? 'bg-[#fca900] text-[#14231B]' : 'bg-gray-100 text-gray-500'">
                             Langkah 0{{ $step['number'] }}
                         </span>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-2 font-display transition-colors"
-                            :class="effectiveActive === {{ $step['number'] }} ? 'text-amber-950' : 'text-gray-900'">
+                        <h3 class="text-base md:text-lg font-extrabold text-gray-900 mb-1 font-display transition-colors"
+                            :class="activeStep === {{ $step['number'] }} ? 'text-amber-950' : 'text-gray-900'">
                             {{ $step['title'] }}
                         </h3>
-                        <p class="text-sm md:text-base leading-relaxed transition-colors"
-                           :class="effectiveActive === {{ $step['number'] }} ? 'text-gray-700 font-medium' : 'text-gray-500'">
+                        <p class="text-xs md:text-sm leading-relaxed transition-colors"
+                           :class="activeStep === {{ $step['number'] }} ? 'text-gray-700 font-medium' : 'text-gray-500'">
                             {{ $step['desc'] }}
                         </p>
                     </div>
                 </div>
                 @else
-                <div class="hidden md:block md:w-[calc(50%-48px)]"></div>
+                <div class="hidden md:block md:w-[calc(50%-32px)]"></div>
                 @endif
 
                 <!-- Center Node (Circle with Icon / Number) -->
                 <div id="alur-node-{{ $step['number'] }}"
-                     class="absolute left-1 md:left-1/2 md:-translate-x-1/2 top-6 md:top-1/2 md:-translate-y-1/2 z-10 transition-transform duration-300">
-                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 font-bold"
-                         :class="effectiveActive === {{ $step['number'] }} 
-                             ? 'bg-[#fca900] text-[#14231B] ring-8 md:ring-[12px] ring-amber-100/90 scale-110 shadow-xl shadow-amber-500/30' 
-                             : (effectiveActive > {{ $step['number'] }} 
-                                 ? 'bg-[#fca900] text-[#14231B] shadow-md shadow-amber-500/20' 
-                                 : 'bg-white border-2 border-gray-300 text-gray-400 shadow-sm group-hover:border-amber-300 group-hover:text-amber-500')">
-                        <div x-show="effectiveActive >= {{ $step['number'] }}" class="flex items-center justify-center">
-                            <svg class="w-5 h-5 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     class="absolute left-1 md:left-1/2 md:-translate-x-1/2 top-3 md:top-1/2 md:-translate-y-1/2 z-10 transition-transform duration-300 pointer-events-none">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 font-bold"
+                         :class="activeStep === {{ $step['number'] }} 
+                             ? 'bg-[#fca900] text-[#14231B] ring-6 md:ring-8 ring-amber-100/90 scale-110 shadow-lg shadow-amber-500/30' 
+                             : (activeStep > {{ $step['number'] }} 
+                                 ? 'bg-[#fca900] text-[#14231B] shadow-sm shadow-amber-500/20' 
+                                 : 'bg-white border-2 border-gray-300 text-gray-400 shadow-sm')">
+                        <div x-show="activeStep >= {{ $step['number'] }}" class="flex items-center justify-center">
+                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {!! $step['icon'] !!}
                             </svg>
                         </div>
-                        <div x-show="effectiveActive < {{ $step['number'] }}" class="flex items-center justify-center">
-                            <span class="text-base md:text-lg font-bold">{{ $step['number'] }}</span>
+                        <div x-show="activeStep < {{ $step['number'] }}" class="flex items-center justify-center">
+                            <span class="text-xs md:text-sm font-bold">{{ $step['number'] }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Column (Even: Content Card | Odd: Spacer on desktop) -->
                 @if(!$isOdd)
-                <div class="w-full md:w-[calc(50%-48px)] pl-16 md:pl-0 md:text-left">
-                    <div class="p-6 md:p-7 rounded-2xl md:rounded-3xl transition-all duration-300"
-                         :class="effectiveActive === {{ $step['number'] }} 
-                             ? 'bg-[#FFF8E6] border-2 border-[#FCA900]/50 shadow-lg shadow-amber-500/10 scale-[1.02]' 
-                             : 'bg-transparent border-2 border-transparent hover:bg-gray-50/70 hover:border-gray-100'">
-                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 transition-colors"
-                              :class="effectiveActive === {{ $step['number'] }} ? 'bg-[#fca900] text-[#14231B]' : 'bg-gray-100 text-gray-500'">
+                <div class="w-full md:w-[calc(50%-32px)] pl-14 md:pl-0 md:text-left">
+                    <div class="p-3.5 md:py-3.5 md:px-5 rounded-2xl md:rounded-3xl transition-all duration-300"
+                         :class="activeStep === {{ $step['number'] }} 
+                             ? 'bg-[#FFF8E6] border-2 border-[#FCA900]/50 shadow-md shadow-amber-500/10 scale-[1.01]' 
+                             : 'bg-transparent border-2 border-transparent'">
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1 transition-colors"
+                              :class="activeStep === {{ $step['number'] }} ? 'bg-[#fca900] text-[#14231B]' : 'bg-gray-100 text-gray-500'">
                             Langkah 0{{ $step['number'] }}
                         </span>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-2 font-display transition-colors"
-                            :class="effectiveActive === {{ $step['number'] }} ? 'text-amber-950' : 'text-gray-900'">
+                        <h3 class="text-base md:text-lg font-extrabold text-gray-900 mb-1 font-display transition-colors"
+                            :class="activeStep === {{ $step['number'] }} ? 'text-amber-950' : 'text-gray-900'">
                             {{ $step['title'] }}
                         </h3>
-                        <p class="text-sm md:text-base leading-relaxed transition-colors"
-                           :class="effectiveActive === {{ $step['number'] }} ? 'text-gray-700 font-medium' : 'text-gray-500'">
+                        <p class="text-xs md:text-sm leading-relaxed transition-colors"
+                           :class="activeStep === {{ $step['number'] }} ? 'text-gray-700 font-medium' : 'text-gray-500'">
                             {{ $step['desc'] }}
                         </p>
                     </div>
                 </div>
                 @else
-                <div class="hidden md:block md:w-[calc(50%-48px)]"></div>
+                <div class="hidden md:block md:w-[calc(50%-32px)]"></div>
                 @endif
 
             </div>
             @endforeach
         </div>
 
-        <!-- Optional Call to action button under timeline -->
-        <div class="text-center mt-12 md:mt-16">
+        <!-- Call to action button under timeline -->
+        <div class="text-center mt-10 md:mt-14">
             @if($settings['pmb_is_open'] == '1')
-            <button @click="showModal = true" class="inline-flex items-center space-x-3 px-8 py-4 bg-[#fca900] hover:bg-[#e09600] text-[#14231B] font-extrabold rounded-xl shadow-lg shadow-amber-500/20 hover:scale-105 transition-all cursor-pointer">
+            <button @click="showModal = true" class="inline-flex items-center space-x-3 px-8 py-3.5 bg-[#fca900] hover:bg-[#e09600] text-[#14231B] font-extrabold rounded-xl shadow-lg shadow-amber-500/20 hover:scale-105 transition-all cursor-pointer">
                 <span>Daftar Sekarang Melalui Alur di Atas</span>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
